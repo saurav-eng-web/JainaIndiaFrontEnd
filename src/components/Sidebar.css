@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css?family=Titillium+Web:300');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
+.mainMenu {
+  background: #212121;
+  border-right: 1px solid #e5e5e5;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  left: 0;
+  width: 60px;
+  overflow: hidden;
+  transition: width 0.05s linear;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.mainMenu:hover {
+  width: 250px;
+  overflow: visible;
+}
+
+.mainMenu ul {
+  margin: 7px 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainMenu li {
+  width: 250px;
+}
+
+.mainMenu li a {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  color: #999;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.1s linear;
+}
+
+.mainMenu li:hover a {
+  color: #fff;
+  background-color: #000;
+}
+
+.mainMenu i {
+  font-size: 1.5em;
+  margin-right: 10px;
+}
+
+.logoImg {
+  height: 60px;
+  width: 190px;
+  border-radius: 5px;
+}
+
+.navText {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mainMenu:hover .navText {
+  opacity: 1;
+}
+
+.logout li div {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: #999;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.1s linear;
+  }

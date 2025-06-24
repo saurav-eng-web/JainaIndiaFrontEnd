@@ -1,22 +1,33 @@
-.login-container {
+/* .login-container {
     display: flex;
     height: 100vh;
     font-family: 'Arial', sans-serif;
-  }
+  } */
   
+
+  .login-container {
+    height: 100vh;
+    width: 100%;
+    background-image: url('/crmLogo.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    padding: 20px;
+  }
   .login-left {
     flex: 1;
-    /* background: linear-gradient(to bottom left, #d4145a, #fbb03b); */
-    background: linear-gradient(to bottom right, white, #d1e7ff, #64748b);
+    background: linear-gradient(to bottom left, #d4145a, #fbb03b);
+   
     display: flex;
     align-items: center;
     justify-content: center;
   }
   
-  /* .login-left img {
-    width: 80%;
-    max-width: 400px;
-  } */
+
 
   .login-left img {
     width: 100%;
@@ -32,11 +43,21 @@
     align-items: center;
   }
   
-  .login-box {
+  /* .login-box {
     background: #fff;
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 350px;
+    text-align: center;
+  } */
+
+  .login-box {
+    background: rgba(255, 255, 255, 0.95); /* semi-transparent */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     width: 100%;
     max-width: 350px;
     text-align: center;
@@ -48,7 +69,7 @@
     background-color: #ddd;
     border-radius: 50%;
     margin: 0 auto 15px;
-    background-image: url('/avatar.png');
+    background-image: url('/jainalogologin.jpg');
     background-size: cover;
     background-position: center;
   }
@@ -80,7 +101,7 @@
     border-bottom: 2px solid #ccc;
     background-color: transparent;
     font-size: 16px;
-    color: #333; /* Add this line to set text color */
+    color: #333; 
   }
   .forgot-password {
     text-align: right;
@@ -96,7 +117,7 @@
   .login-button {
     width: 100%;
     padding: 12px;
-    /* background: linear-gradient(to right, #d4145a, #fbb03b); */
+    
     background: linear-gradient(to bottom right, white, #d1e7ff, #64748b);
     border: none;
     color: white;

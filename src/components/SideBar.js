@@ -34,7 +34,7 @@ export default function SideBar() {
           </Link>
         </li>
         <li>
-          <Link href="/stepper">
+          <Link href="/call">
             <i className="fa fa-globe fa-2x"></i>
             <span className="navText">Call Registration</span>
           </Link>

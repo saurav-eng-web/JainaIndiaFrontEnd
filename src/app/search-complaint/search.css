@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css?family=Titillium+Web:300');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background: #d1e7ff;
+}
+
+.container {
+  max-width: 1350px;
+  margin: 70px 0 0 40px;
+  padding: 40px;
+  /* background: linear-gradient(to bottom right, white, #d1e7ff, #64748b); */
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.container h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: #565252;
+  text-align: left;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-start;
+}
+
+.search-input {
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 2px solid #2979ff;
+  border-radius: 8px;
+  width: 300px;
+  background-color: white;
+}
+
+.search-btn {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  background-color: #2979ff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-btn:hover {
+  background-color: #1565c0;
+}
+
+.content {
+  margin-left: 60px;
+  width: 100%;
+  transition: margin-left 0.3s ease;
+}
+
+.mainMenu:hover ~ .content {
+  margin-left: 250px;
+}
+
+/* Table Styles */
+.result-table {
+  margin-top: 30px;
+  overflow-x: auto;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.result-table table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  min-width: 1000px;
+}
+
+.result-table thead {
+  background: linear-gradient(to right, #2979ff, #1565c0);
+}
+
+.result-table th {
+  color: white;
+  font-weight: 600;
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.result-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+  color: #333;
+  background-color: #f9f9f9;
+  vertical-align: middle;
+}
+
+.result-table tr:hover td {
+  background-color: #e3f2fd;
+}
+
+.result-table tbody tr:nth-child(even) td {
+  background-color: #f1faff;
+}
+
+.result-table input[type='checkbox'] {
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.action-btn {
+  background-color: #2979ff;
+  color: white;
+  padding: 8px 14px;
+  font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.action-btn:hover {
+  background-color: #1565c0;
+}

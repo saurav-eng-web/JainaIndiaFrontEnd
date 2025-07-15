@@ -1,0 +1,192 @@
+
+/* Layout wrapper for sidebar + content */
+.mainLayout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Adjusts main content next to sidebar */
+.container {
+  flex: 1;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  overflow-x: auto;
+  
+}
+
+/* Table styling */
+.complaint-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.complaint-table th,
+.complaint-table td {
+  padding: 12px;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
+}
+
+.complaint-table th {
+  background-color: lightblue;
+}
+
+/* Status badges */
+.badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge.open {
+  background-color: #d0f0d0;
+  color: #2e7d32;
+}
+
+.badge.closed {
+  background-color: #eee;
+  color: #666;
+}
+
+.badge.pending {
+  background-color: #ffe0b2;
+  color: #ef6c00;
+}
+
+.badge.critical {
+  background-color: #ffcdd2;
+  color: #c62828;
+}
+
+/* Tab bar */
+.tab-bar {
+  
+  display: flex;
+  gap: 20px;
+  border-bottom: 2px solid #ddd;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  background: lightblue;
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+  font-weight: bold;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  font-size: 15px;
+  padding: 10px 16px;
+  cursor: pointer;
+  color: #555;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.tab-button:hover {
+  color: #ffff;
+}
+
+.tab-button.active {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background-color: #007bff;
+  bottom: -8px;
+  left: 0;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Tab content */
+.tab-content h3 {
+  margin-bottom: 12px;
+  color: #333;
+  font-size: 18px;
+}
+
+/* Horizontal layout for tab detail rows */
+.row-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  font-size: 15px;
+  color: #444;
+}
+
+.row-content div {
+  min-width: 200px;
+  white-space: nowrap;
+}
+/* Wraps the entire page layout */
+.page-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Content area beside sidebar */
+.content-area {
+  margin-left: 60px;
+  padding: 50px;
+  flex: 1;
+  transition: margin-left 0.3s ease;
+  font-family: Arial, sans-serif;
+  background-color: #f5f7fa; /* 💡 Soft light gray-blue */
+  min-height: 100vh;
+}
+
+/* Sidebar expands to 250px on hover */
+.mainMenu:hover ~ .content-area {
+  margin-left: 250px;
+}
+
+
+.page-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #003366;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.loading {
+  font-size: 16px;
+  color: #777;
+  padding: 10px;
+}
+
+.empty {
+  font-size: 16px;
+  color: #a00;
+  font-weight: bold;
+}
+
+.tab-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+  transition: all 0.3s ease-in-out;
+}
+
+.tab-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+

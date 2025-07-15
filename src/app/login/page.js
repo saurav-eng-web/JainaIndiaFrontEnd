@@ -150,7 +150,7 @@ export default function LoginPage() {
           roleName: data.roleName,
         }));
 
-        router.push('/dashboard');
+        router.push('/test');
       } else {
         alert(data.message || 'Login failed. Please try again.');
       }

@@ -8,18 +8,19 @@ body {
 }
 
 .container {
-  max-width: 1350px;
-  margin: 70px 0 0 40px;
+  max-width: 1300px;
+  margin: 100px 0 0 40px;
   padding: 40px;
   /* background: linear-gradient(to bottom right, white, #d1e7ff, #64748b); */
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background: #dee2e6;
 }
 
 .container h2 {
   font-size: 28px;
   margin-bottom: 30px;
-  color: #565252;
+  color: #333;
   text-align: left;
 }
 

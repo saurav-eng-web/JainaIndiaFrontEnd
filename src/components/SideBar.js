@@ -16,7 +16,7 @@ export default function SideBar() {
   return (
     <nav className="mainMenu">
       <ul>
-        <li className="logo">
+        {/* <li className="logo">
           <Link href="#">
             <Image
               src="/jainalogologin.jpg"
@@ -26,9 +26,22 @@ export default function SideBar() {
               className="logoImg"
             />
           </Link>
-        </li>
+        </li> */}
+        <li className="logo">
+  <Link href="#">
+    <div className="logoContainer">
+      <Image
+        src="/jainalogologin.jpg"
+        alt="Dashboard Logo"
+        width={190}
+        height={60}
+        className="logoImg"
+      />
+    </div>
+  </Link>
+</li>
         <li>
-          <Link href="#">
+          <Link href="/test">
             <i className="fa fa-home fa-2x"></i>
             <span className="navText">Dashboard</span>
           </Link>
@@ -40,9 +53,9 @@ export default function SideBar() {
           </Link>
         </li>
         <li>
-          <Link href="#">
+          <Link href="/warrantyregisteration">
             <i className="fa fa-comments fa-2x"></i>
-            <span className="navText">Group Hub Forums</span>
+            <span className="navText">Warranty Registration</span>
           </Link>
         </li>
         <li>

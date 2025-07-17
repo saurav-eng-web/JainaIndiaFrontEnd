@@ -6,10 +6,12 @@ import '../../components/Sidebar.css';
 import './technical.css';
 import SideBar from '@/components/SideBar';
 import axios from 'axios';
+import { useRouter } from 'next/navigation'; 
 
 export default function ComplaintTable() {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
@@ -71,7 +73,12 @@ export default function ComplaintTable() {
                   complaints.map((item, idx) => (
                     <tr key={idx}>
                       <td>
-                        <button className="update-btn">Update</button>
+                      <button
+  className="update-btn"
+  onClick={() => router.push(`/assign-to-asc/${item.callNumber}`)}
+>
+  Update
+</button>
                       </td>
                       <td>{item.callNumber}</td>
                       <td>{`${item.title || ''} ${item.firstName} ${item.lastName}`}</td>

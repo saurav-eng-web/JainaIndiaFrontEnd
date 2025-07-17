@@ -48,20 +48,20 @@ export default function SideBar() {
         </li>
         <li>
           <Link href="/call">
-            <i className="fa fa-globe fa-2x"></i>
+            <i className="fa fa-phone fa-2x"></i>
             <span className="navText">Call Registration</span>
           </Link>
         </li>
         <li>
           <Link href="/warrantyregisteration">
-            <i className="fa fa-comments fa-2x"></i>
+            <i className="fa fa-certificate fa-2x"></i>
             <span className="navText">Warranty Registration</span>
           </Link>
         </li>
         <li>
-          <Link href="#">
-            <i className="fa fa-camera-retro fa-2x"></i>
-            <span className="navText">Survey Photos</span>
+          <Link href="/technicalApproval">
+            <i className="fa fa-wrench fa-2x"></i>
+            <span className="navText">Technical Approval</span>
           </Link>
         </li>
         <li>

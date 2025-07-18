@@ -4,13 +4,19 @@
 
 import './search.css';
 import SideBar from '@/components/SideBar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 export default function SearchComplaintPage() {
   const router = useRouter();
 
+useEffect (() => {
+    const userData = localStorage.getItem('userData');
+    if (!userData) {
+      router.replace('/');
+    }
+  }, [router]);
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searchAttempted, setSearchAttempted] = useState(false);

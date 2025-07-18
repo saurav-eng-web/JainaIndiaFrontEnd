@@ -1,5 +1,3 @@
-
-
 // 'use client';
 
 // import { useState } from 'react';
@@ -111,8 +109,35 @@
 //     }
 //   };
 
+//   const validateStep1 = () => {
+//     if (!firstName || !lastName || !phone || !address || !pincode || !selectedLocality || !cityName) {
+//       alert('❌ Please fill all required personal fields.');
+//       return false;
+//     }
+//     const isValidPhone = /^[0-9]{10}$/.test(phone);
+//     if (!isValidPhone) {
+//       alert('❌ Enter a valid 10-digit phone number.');
+//       return false;
+//     }
+//     return true;
+//   };
+
+//   const validateStep2 = () => {
+//     if (!dop || !retailer) {
+//       alert('❌ Please fill Date of Purchase and Retailer fields.');
+//       return false;
+//     }
+//     if (serialData === 'manual' && (!manualBrand || !manualProduct || !manualModel)) {
+//       alert('❌ Please select brand, product, and model.');
+//       return false;
+//     }
+//     return true;
+//   };
+
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
+//     if (!validateStep2()) return;
+
 //     const selectedCityObj = localities.find((l) => l.locality_Name === selectedLocality);
 //     const finalSerial = serialData?.itemSerialNo1 || serialNo;
 
@@ -149,17 +174,15 @@
 //       landMark: landmark,
 //       warranty: '1 Year'
 //     };
-//     console.log("🚀 Final Payload:", payload);
 
 //     try {
 //       const res = await axios.post('https://ncapi.jainaindia.com/api/WarrantyRegistration', payload);
 //       setShowSuccessPopup(true);
-
+//       setStep(1);
 //       setSerialNo('');
 //       setSerialData(null);
 //       setSerialError('');
 //       setAlreadyRegistered(false);
-
 //       setFirstName('');
 //       setLastName('');
 //       setPhone('');
@@ -170,11 +193,9 @@
 //       setLocalities([]);
 //       setSelectedLocality('');
 //       setPincodeError('');
-
 //       setDop('');
 //       setRetailer('');
 //       setInvoice(null);
-//       setStep(1);
 //     } catch (err) {
 //       console.error('❌ Save failed', err);
 //       alert('❌ Failed to register warranty');
@@ -221,20 +242,7 @@
 //                 <div><label className="required">Locality</label><select value={selectedLocality} onChange={(e) => setSelectedLocality(e.target.value)}><option value="">----Select----</option>{localities.map((loc, i) => (<option key={i} value={loc.locality_Name}>{loc.locality_Name}</option>))}</select></div>
 //               </div>
 //               <div className="form-actions">
-//                 {/* <button type="button" className="btn-next" onClick={() => setStep(2)} disabled={!serialNo}>Next</button> */}
-//                 <button
-//   type="button"
-//   className="btn-next"
-//   onClick={() => {
-//     if (!firstName || !lastName || !phone || !address || !pincode || !selectedLocality || !cityName) {
-//       alert('❌ Please fill all required fields before proceeding.');
-//       return;
-//     }
-//     setStep(2);
-//   }}
-// >
-//   Next
-// </button>
+//                 <button type="button" className="btn-next" onClick={() => validateStep1() && setStep(2)}>Next</button>
 //               </div>
 //             </form>
 //           )}
@@ -279,6 +287,8 @@
 //     </div>
 //   );
 // }
+
+
 
 'use client';
 
@@ -415,14 +425,13 @@ export default function WarrantyForm() {
     }
     return true;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep2()) return;
-
+  
     const selectedCityObj = localities.find((l) => l.locality_Name === selectedLocality);
     const finalSerial = serialData?.itemSerialNo1 || serialNo;
-
+  
     try {
       const regCheck = await axios.get(`https://ncapi.jainaindia.com/api/WarrantyRegistration/by-serial/${finalSerial}`);
       if (regCheck.data && regCheck.data.serialNumber) {
@@ -430,35 +439,45 @@ export default function WarrantyForm() {
         return;
       }
     } catch {}
-
-    const payload = {
-      customerName: firstName,
-      lastName,
-      phoneNumber: phone,
-      address,
-      pincode,
-      city: cityName,
-      cityID: selectedCityObj?.locality_City || null,
-      locality: selectedLocality,
-      localityID: selectedCityObj?.locality_Id || null,
-      serialNumber: finalSerial,
-      product: serialData?.product || manualProduct,
-      productID: serialData?.productID || null,
-      model: serialData?.model || manualModel,
-      modelID: serialData?.modelID || null,
-      tdate: new Date().toISOString(),
-      enterBy: 'AdminUser',
-      dop,
-      purchaseFromRetailer: retailer,
-      invoice: invoice ? invoice.name : '',
-      brandID: serialData?.brandID || null,
-      brand: serialData?.brand || manualBrand,
-      landMark: landmark,
-      warranty: '1 Year'
-    };
-
+  
+    const formData = new FormData();
+  
+    formData.append('customerName', firstName);
+    formData.append('lastName', lastName);
+    formData.append('phoneNumber', phone);
+    formData.append('address', address);
+    formData.append('pincode', pincode);
+    formData.append('city', cityName);
+    formData.append('cityID', selectedCityObj?.locality_City || '');
+    formData.append('locality', selectedLocality);
+    formData.append('localityID', selectedCityObj?.locality_Id || '');
+    formData.append('serialNumber', finalSerial);
+    formData.append('product', serialData?.product || manualProduct);
+    formData.append('productID', serialData?.productID || '');
+    formData.append('model', serialData?.model || manualModel);
+    formData.append('modelID', serialData?.modelID || '');
+    formData.append('tdate', new Date().toISOString());
+    formData.append('enterBy', 'AdminUser');
+    formData.append('dop', dop);
+    formData.append('purchaseFromRetailer', retailer);
+    formData.append('invoice', invoice ? invoice.name : '');
+    formData.append('invoiceFile', invoice); // Upload actual file
+    formData.append('brandID', serialData?.brandID || '');
+    formData.append('brand', serialData?.brand || manualBrand);
+    formData.append('landMark', landmark);
+    formData.append('warranty', '1 Year');
+  
     try {
-      const res = await axios.post('https://ncapi.jainaindia.com/api/WarrantyRegistration', payload);
+      const res = await axios.post(
+        'https://ncapi.jainaindia.com/api/WarrantyRegistration',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+  
       setShowSuccessPopup(true);
       setStep(1);
       setSerialNo('');
@@ -483,8 +502,7 @@ export default function WarrantyForm() {
       alert('❌ Failed to register warranty');
     }
   };
-
-  return (
+    return (
     <div className="warranty-layout">
       <SideBar />
       <div className="warranty-content">

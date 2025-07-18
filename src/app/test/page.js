@@ -16,7 +16,7 @@ export default function Test() {
       <div className="container">
         <h2>Welcome to Complaint Portal</h2>
         <div className="button-group">
-          <button className="action-button" onClick={() => router.push('stepper')}>
+          <button className="action-button" onClick={() => router.push('call')}>
             ➕ New Registration
           </button>
           <button className="action-button" onClick={() => router.push('/search-complaint')}>

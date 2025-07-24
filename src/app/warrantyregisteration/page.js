@@ -356,7 +356,7 @@ export default function WarrantyForm() {
       const regCheck = await axios.get(`https://ncapi.jainaindia.com/api/WarrantyRegistration/by-serial/${serialNo}`);
       if (regCheck.data && regCheck.data.serialNumber) {
         setAlreadyRegistered(true);
-        setSerialError('❌ This serial number is already registered.');
+        setSerialError('⚠︎This serial number is already registered.');
         setSerialNo('');
         setSerialData(null);
         return;

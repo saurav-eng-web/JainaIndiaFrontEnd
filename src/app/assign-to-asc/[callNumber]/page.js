@@ -1,4 +1,5 @@
 
+
 // 'use client';
 
 // import { useEffect, useState } from 'react';
@@ -6,11 +7,17 @@
 // import axios from 'axios';
 // import SideBar from '@/components/SideBar';
 // import './AssignToAscForm.css';
+// import Swal from 'sweetalert2';
+// import { useRouter } from 'next/navigation';
 
 // export default function AssignToAscForm() {
-//   const { callNumber } = useParams(); 
+//   const { callNumber } = useParams();
 //   const [complaint, setComplaint] = useState(null);
 //   const [loading, setLoading] = useState(true);
+
+//   const [remarks, setRemarks] = useState('');
+//   const [selectedOption, setSelectedOption] = useState('');
+//   const router= useRouter();
 
 //   useEffect(() => {
 //     const fetchComplaint = async () => {
@@ -26,6 +33,42 @@
 
 //     if (callNumber) fetchComplaint();
 //   }, [callNumber]);
+
+//   const handleAssignToASC = async () => {
+//     if (!complaint?.callNumber || !remarks) {
+//       Swal.fire('Error', 'Call Number and Remarks are required', 'error');
+//       return;
+//     }
+  
+//     const payload = {
+//       callNumber: complaint.callNumber,
+//       enteredBy: 'AdminUser',
+//       enteredByID: 101,
+//       remarks,
+//       ASC_Code: complaint.asC_CODE || 'ASC-001', 
+//     };
+
+//     try {
+//       const response = await axios.post('https://ncapi.jainaindia.com/api/CallRegister/update-to-allot', payload, {
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//       });
+  
+//       await Swal.fire({
+//         icon: 'success',
+//         title: 'Success',
+//         text: 'Assigned to ASC successfully!',
+//         confirmButtonText: 'OK'
+//       });
+  
+//       router.push('/technicalApproval');
+  
+//     } catch (error) {
+//       console.error('Failed to assign:', error);
+//       Swal.fire('Error', 'Failed to assign to ASC', 'error');
+//     }
+//   };
 
 //   if (loading) return <p>Loading...</p>;
 //   if (!complaint) return <p>No complaint found.</p>;
@@ -67,12 +110,18 @@
 
 //           <div className="remarks">
 //             <p className="remarks-label">Remarks</p>
-//             <textarea placeholder="Enter your remarks here..." rows={4} className="remarks-textarea" />
+//             <textarea
+//               placeholder="Enter your remarks here..."
+//               rows={4}
+//               className="remarks-textarea"
+//               value={remarks}
+//               onChange={(e) => setRemarks(e.target.value)}
+//             />
 //           </div>
 
 //           <div className="dropdown">
 //             <label className="dropdown-label">Select Option (In case of job close)</label>
-//             <select className="dropdown-select">
+//             <select className="dropdown-select" value={selectedOption} onChange={(e) => setSelectedOption(e.target.value)}>
 //               <option>----Select----</option>
 //               <option>Job Closed - Completed</option>
 //               <option>Job Closed - Cancelled</option>
@@ -82,7 +131,9 @@
 
 //           <div className="button-row">
 //             <button className="btn btn-secondary">Close</button>
-//             <button className="btn btn-primary">Assign to ASC</button>
+//             <button className="btn btn-primary" onClick={handleAssignToASC}>
+//               Assign to ASC
+//             </button>
 //           </div>
 //         </div>
 //       </div>
@@ -90,24 +141,40 @@
 //   );
 // }
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import SideBar from '@/components/SideBar';
 import './AssignToAscForm.css';
 import Swal from 'sweetalert2';
-import { useRouter } from 'next/navigation';
 
 export default function AssignToAscForm() {
   const { callNumber } = useParams();
+  const router = useRouter();
+
   const [complaint, setComplaint] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [remarks, setRemarks] = useState('');
   const [selectedOption, setSelectedOption] = useState('');
-  const router= useRouter();
+
+  // 🚨 NSP-only access check
+  useEffect(() => {
+    const userData = localStorage.getItem('userData');
+    if (!userData) {
+      router.replace('/');
+      return;
+    }
+
+    const user = JSON.parse(userData);
+    const role = user.roleName?.toLowerCase();
+
+    if (role !== 'nsp') {
+      router.replace('/');
+    }
+  }, [router]);
 
   useEffect(() => {
     const fetchComplaint = async () => {
@@ -129,31 +196,30 @@ export default function AssignToAscForm() {
       Swal.fire('Error', 'Call Number and Remarks are required', 'error');
       return;
     }
-  
+
     const payload = {
       callNumber: complaint.callNumber,
       enteredBy: 'AdminUser',
       enteredByID: 101,
       remarks,
-      ASC_Code: complaint.asC_CODE || 'ASC-001', 
+      ASC_Code: complaint.asC_CODE || 'ASC-001',
     };
 
     try {
-      const response = await axios.post('https://ncapi.jainaindia.com/api/CallRegister/update-to-allot', payload, {
+      await axios.post('https://ncapi.jainaindia.com/api/CallRegister/update-to-allot', payload, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-  
+
       await Swal.fire({
         icon: 'success',
         title: 'Success',
         text: 'Assigned to ASC successfully!',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'OK',
       });
-  
+
       router.push('/technicalApproval');
-  
     } catch (error) {
       console.error('Failed to assign:', error);
       Swal.fire('Error', 'Failed to assign to ASC', 'error');
@@ -211,7 +277,11 @@ export default function AssignToAscForm() {
 
           <div className="dropdown">
             <label className="dropdown-label">Select Option (In case of job close)</label>
-            <select className="dropdown-select" value={selectedOption} onChange={(e) => setSelectedOption(e.target.value)}>
+            <select
+              className="dropdown-select"
+              value={selectedOption}
+              onChange={(e) => setSelectedOption(e.target.value)}
+            >
               <option>----Select----</option>
               <option>Job Closed - Completed</option>
               <option>Job Closed - Cancelled</option>

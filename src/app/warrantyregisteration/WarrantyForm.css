@@ -1,17 +1,20 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f8f9fc;
+  background-color: #f3f4f6;
   margin: 0;
   padding: 0;
 }
 
 .header {
-  background-color: #d2dbe4;
-  color: rgb(15, 15, 15);
-  text-align: center;
-  padding: 20px;
-  font-size: 24px;
-  font-weight: bold;
+  text-align: left;
+    padding-left: 10px;
+    margin-bottom: 30px;
+    font-weight: 700;
+    color: #714b67;
+    border: 2px solid #714b67;
+    font-size: larger;
+    padding: 5px;
+    border-radius: 5px;
 }
 
 .container {
@@ -69,7 +72,7 @@ body {
 }
 
 .step.active::before {
-  background-color: #0066cc;
+  background-color: #714b67;
 }
 
 .step.completed::before {
@@ -79,7 +82,7 @@ body {
 
 .step.active,
 .step.completed {
-  color: #003366;
+  color: #714b67;
 }
 
 .step-title {
@@ -131,7 +134,7 @@ input[type="file"] {
 
 button {
   padding: 10px 20px;
-  background-color: #0066cc;
+  background-color: #714b67;
   color: white;
   border: none;
   border-radius: 5px;
@@ -140,7 +143,7 @@ button {
 }
 
 button:hover {
-  background-color: #004c99;
+  background-color: #714b67;
 }
 
 .form-actions {
@@ -150,7 +153,7 @@ button:hover {
 }
 
 .btn-next {
-  background-color: #0066cc;
+  background-color: #714b67;
 }
 
 .btn-prev {

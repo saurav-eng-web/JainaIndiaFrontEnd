@@ -7,8 +7,10 @@ import './technical.css';
 import SideBar from '@/components/SideBar';
 import axios from 'axios';
 import { useRouter } from 'next/navigation'; 
+import { useTheme } from '@/theme/ThemeContext';
 
 export default function ComplaintTable() {
+  const { colors } = useTheme(); 
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -45,9 +47,9 @@ export default function ComplaintTable() {
       <SideBar />
       <div className="content-container">
         <div className="table-container">
-          <h2 style={{ marginBottom: '20px', color: '#333' }}>
+          <div className='h2'>
             Complaint Dashboard
-          </h2>
+          </div>
 
           {loading ? (
             <p>Loading complaints...</p>
@@ -75,7 +77,7 @@ export default function ComplaintTable() {
                       <td>
                       <button
   className="update-btn"
-  onClick={() => router.push(`/assign-to-asc/${item.callNumber}`)}
+  onClick={() => router.push(`/assign-to-asc/${item.callNumber}`)}style={{backgroundColor:colors.primary}}
 >
   Update
 </button>

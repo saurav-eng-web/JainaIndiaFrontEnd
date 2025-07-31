@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import SideBar from '@/components/SideBar';
 import axios from 'axios';
+import { useTheme } from '@/theme/ThemeContext';
 
 export default function ComplaintTable() {
   const [complaints, setComplaints] = useState([]);
@@ -12,6 +13,7 @@ export default function ComplaintTable() {
   const searchParams = useSearchParams();
   const status = searchParams.get('status') || 'Not found'; // default fallback
   const router = useRouter();
+  const { colors } = useTheme(); 
 
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
@@ -46,7 +48,7 @@ export default function ComplaintTable() {
       <SideBar />
       <div className="w-full p-8 ml-[60px] transition-all ease-in-out">
         <div className="bg-white shadow-md rounded-lg p-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+          <h2 className="font-semibold  mb-6" style={{color:colors.primary,fontSize:18,border: `2px solid ${colors.primary}`,padding:8}}>
             Complaints - {status}
           </h2>
 
@@ -81,7 +83,7 @@ export default function ComplaintTable() {
                             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                             onClick={() =>
                               router.push(`/assign-to-asc/${item.callNumber}`)
-                            }
+                            }style={{background:colors.primary}}
                           >
                             Update
                           </button>

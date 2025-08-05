@@ -170,14 +170,15 @@ body {
     margin-left: 250px;
   }
   .page-header {
-    background: #d2dbe4; /* Blue gradient */
-    padding: 10px;
-    border-radius: 8px;
-    /* margin-bottom: 20px; */
-    color: rgb(9, 9, 9);
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    font-family: sans-serif;
+     /* Blue gradient */
+     text-align: left;
+     padding-left: 10px;
+     margin-bottom: 30px;
+     font-weight: 700;
+     color: #714b67;
+     border: 2px solid #714b67;
+     font-size: larger;
+     padding: 5px;  
   }
   
   .page-header h1 {

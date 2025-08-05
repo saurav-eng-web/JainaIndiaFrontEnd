@@ -150,8 +150,10 @@ import axios from 'axios';
 import SideBar from '@/components/SideBar';
 import './AssignToAscForm.css';
 import Swal from 'sweetalert2';
+import { useTheme } from '@/theme/ThemeContext';
 
 export default function AssignToAscForm() {
+  const { colors } = useTheme(); 
   const { callNumber } = useParams();
   const router = useRouter();
 
@@ -233,10 +235,11 @@ export default function AssignToAscForm() {
     <div className="asc-wrapper">
       <SideBar />
       <div className="asc-content">
+        
+        <div className="form-container">
         <div className="page-header">
           <h1>Technical Approval</h1>
         </div>
-        <div className="form-container">
           <div className="info-grid">
             <div>
               <p className="label">Unique Key</p>
@@ -291,7 +294,7 @@ export default function AssignToAscForm() {
 
           <div className="button-row">
             <button className="btn btn-secondary">Close</button>
-            <button className="btn btn-primary" onClick={handleAssignToASC}>
+            <button className="btn btn-primary" onClick={handleAssignToASC} style={{background:colors.primary}}>
               Assign to ASC
             </button>
           </div>

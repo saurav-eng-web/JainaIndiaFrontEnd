@@ -7,10 +7,16 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ userName, uPassword }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('https://ncapi.jainaindia.com/api/users/login', {
-        userName: userName.trim(),
-        uPassword: uPassword.trim(),
-      });
+      const response = await axios.post(
+        'https://ncapi.jainaindia.com/api/users/login',
+        {
+          userName: userName.trim(),
+          uPassword: uPassword.trim(),
+        },
+        {
+          withCredentials: true, // This is critical for session/cookie auth
+        }
+      );
 
       const data = response.data;
 

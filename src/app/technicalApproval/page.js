@@ -28,7 +28,10 @@ export default function ComplaintTable() {
     const fetchComplaints = async () => {
       try {
         const response = await axios.get(
-          'https://ncapi.jainaindia.com/api/CallRegister/status/Techical Approval'
+          'https://ncapi.jainaindia.com/api/CallRegister/status/Techical Approval',
+          {
+            withCredentials: true, // ✅ send session cookie
+          }
         );
         setComplaints(response.data || []);
       } catch (error) {

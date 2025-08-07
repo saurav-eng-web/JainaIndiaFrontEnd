@@ -8,6 +8,7 @@ import SideBar from '@/components/SideBar';
 import axios from 'axios';
 import { useRouter } from 'next/navigation'; 
 import { useTheme } from '@/theme/ThemeContext';
+import axiosInstance from '@/api/axiosInstance';
 
 export default function ComplaintTable() {
   const { colors } = useTheme(); 
@@ -27,11 +28,8 @@ export default function ComplaintTable() {
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
-        const response = await axios.get(
-          'https://ncapi.jainaindia.com/api/CallRegister/status/Techical Approval',
-          {
-            withCredentials: true, // ✅ send session cookie
-          }
+        const response = await axiosInstance.get(
+          'CallRegister/status/Techical Approval' // ✅ already has baseURL
         );
         setComplaints(response.data || []);
       } catch (error) {
@@ -61,7 +59,7 @@ export default function ComplaintTable() {
               <thead>
                 <tr>
                   <th>Update</th>
-                  <th>Complaint No.</th>
+                  <th>Complaint No.</th> 
                   <th>Customer Name</th>
                   <th>Product</th>
                   <th>Call Type</th>

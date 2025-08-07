@@ -1,149 +1,5 @@
 
 
-// 'use client';
-
-// import { useEffect, useState } from 'react';
-// import { useParams } from 'next/navigation';
-// import SideBar from '@/components/SideBar';
-// import axios from 'axios';
-// import './history.css';
-
-// const tabs = ['General Logs', 'Error Logs', 'User Activity', 'System Changes','Test'];
-
-// const StatusBadge = ({ status }) => (
-//   <span className={`badge ${status?.toLowerCase()}`}>{status}</span>
-// );
-
-// export default function HistoryPage() {
-//   const { ticketNo } = useParams();
-//   const [activeTab, setActiveTab] = useState('General Logs');
-//   const [logData, setLogData] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     if (ticketNo) {
-//       axios
-//         .get(`https://ncapi.jainaindia.com/api/ComplaintHistory/history-by-ticket/${ticketNo}`)
-//         .then((res) => {
-//           const data = Array.isArray(res.data) ? res.data : [res.data];
-//           setLogData(data);
-//         })
-//         .catch((err) => {
-//           console.error('Failed to fetch history:', err);
-//         })
-//         .finally(() => setLoading(false));
-//     }
-//   }, [ticketNo]);
-
-//   const firstEntry = logData[0] || {};
-
-//   return (
-//     <div className="page-wrapper">
-//       <SideBar />
-//       <div className="content-area">
-//         <h2>Complaint History</h2>
-
-//         {loading ? (
-//           <p>Loading...</p>
-//         ) : logData.length === 0 ? (
-//           <p>No data found.</p>
-//         ) : (
-//           <>
-//             <table className="complaint-table">
-//               <thead>
-//                 <tr>
-//                   <th>Complaint No</th>
-//                   <th>Remarks</th>
-//                   <th>Status</th>
-//                   <th>Entered Date</th>
-//                   <th>Entered By</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {logData.map((row, index) => (
-//                   <tr key={index}>
-//                     <td>{row.ticketNo}</td>
-//                     <td>{row.remarks || '-'}</td>
-//                     <td><StatusBadge status={row.complaintStatus} /></td>
-//                     <td>{row.tdate ? new Date(row.tdate).toLocaleString() : '-'}</td>
-//                     <td>{row.enteredBy}</td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-
-//             <div className="tab-bar">
-//               {tabs.map((tab) => (
-//                 <button
-//                   key={tab}
-//                   className={`tab-button ${tab === activeTab ? 'active' : ''}`}
-//                   onClick={() => setActiveTab(tab)}
-//                 >
-//                   {tab}
-//                 </button>
-//               ))}
-//             </div>
-
-//             <div className="tab-content">
-//               {activeTab === 'General Logs' && (
-//                 <div>
-//                   <h3>Complaint Details</h3>
-//                   <div className="row-content">
-//                     <div><strong>Complain ID:</strong> {firstEntry.ticketNo}</div>
-//                     <div><strong>Status:</strong> {firstEntry.complaintStatus}</div>
-//                     <div><strong>Remarks:</strong> {firstEntry.remarks || 'N/A'}</div>
-//                   </div>
-//                 </div>
-//               )}
-
-
-//               {activeTab === 'Error Logs' && (
-//                 <div>
-//                   <h3>Product Details</h3>
-//                   <div className="row-content">
-//                     <div><strong>Issue:</strong> Backup failed (example)</div>
-//                     <div><strong>Action:</strong> Manual intervention</div>
-//                   </div>
-//                 </div>
-//               )}
-
-// {activeTab === 'TEST' && (
-//                 <div>
-//                   <h3>Test Details</h3>
-//                   <div className="row-content">
-//                     <div><strong>Issue:</strong> Backup failed (example)</div>
-//                     <div><strong>Action:</strong> Manual intervention</div>
-//                   </div>
-//                 </div>
-//               )}
-
-//               {activeTab === 'User Activity' && (
-//                 <div>
-//                   <h3>Customer Info</h3>
-//                   <div className="row-content">
-//                     <div><strong>Entered By:</strong> {firstEntry.enteredBy}</div>
-//                     <div><strong>User ID:</strong> {firstEntry.enteredByID || '-'}</div>
-//                   </div>
-//                 </div>
-//               )}
-
-//               {activeTab === 'System Changes' && (
-//                 <div>
-//                   <h3>Change Log</h3>
-//                   <div className="row-content">
-//                     <div><strong>Date:</strong> {firstEntry.tdate ? new Date(firstEntry.tdate).toLocaleString() : '-'}</div>
-//                     <div><strong>Sub Status:</strong> {firstEntry.complaintSubStatus || '-'}</div>
-//                   </div>
-//                 </div>
-//               )}
-//             </div>
-//           </>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -151,14 +7,14 @@ import { useParams } from 'next/navigation';
 import SideBar from '@/components/SideBar';
 import axios from 'axios';
 import './history.css';
-
+import axiosInstance from '@/api/axiosInstance';
 const tabs = ['Job Details', 'Customer Detail','Product Details', 'Complaint Detail','Pending Level History', 'Document Uploaded', 'Job Done', 'Part Consumption'];
 
 const StatusBadge = ({ status }) => (
   <span className={`badge ${status?.toLowerCase()}`}>{status}</span>
 );
 
-export default function HistoryPage() {
+export default function HistoryPage() { 
   const { ticketNo } = useParams();
   const [activeTab, setActiveTab] = useState('General Logs');
   const [logData, setLogData] = useState([]);
@@ -166,8 +22,8 @@ export default function HistoryPage() {
 
   useEffect(() => {
     if (ticketNo) {
-      axios
-        .get(`https://ncapi.jainaindia.com/api/ComplaintHistory/history-by-ticket/${ticketNo}`)
+      axiosInstance
+      .get(`ComplaintHistory/history-by-ticket/${ticketNo}`)
         .then((res) => {
           const data = Array.isArray(res.data) ? res.data : [res.data];
           setLogData(data);
@@ -191,7 +47,7 @@ export default function HistoryPage() {
           <div className="loading">Loading history...</div>
         ) : logData.length === 0 ? (
           <p className="empty">No data found.</p>
-        ) : (
+        ) : ( 
           <>
             <table className="complaint-table">
               <thead>

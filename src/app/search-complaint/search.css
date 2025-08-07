@@ -4,23 +4,33 @@
 body {
   margin: 0;
   font-family: 'Arial', sans-serif;
-  background: #d1e7ff;
+  
 }
 
 .container {
   max-width: 1300px;
-  margin: 100px 0 0 40px;
+  margin: 40px 0 0 40px;
   padding: 40px;
   /* background: linear-gradient(to bottom right, white, #d1e7ff, #64748b); */
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); */
   background: #dee2e6;
+}
+.h2{
+  text-align: left;
+  padding-left: 10px;
+  margin-bottom: 30px; 
+  font-weight: 700;
+  color: #714b67;
+  border: 2px solid #714b67;
+  font-size: larger;
+  padding: 5px;
+  border-radius: 5px;
 }
 
 .container h2 {
-  font-size: 28px;
   margin-bottom: 30px;
-  color: #333;
+  color: #714b67;
   text-align: left;
 }
 
@@ -34,7 +44,7 @@ body {
 .search-input {
   padding: 12px 16px;
   font-size: 16px;
-  border: 2px solid #2979ff;
+  border: 2px solid #714b67;
   border-radius: 8px;
   width: 300px;
   background-color: white;
@@ -45,15 +55,15 @@ body {
   font-size: 16px;
   font-weight: bold;
   border: none;
-  border-radius: 8px;
-  background-color: #2979ff;
+  border-radius: 8px; 
+  background-color: #714b67;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .search-btn:hover {
-  background-color: #1565c0;
+  background-color: #714b67;
 }
 
 .content {
@@ -72,7 +82,7 @@ body {
   overflow-x: auto;
   border-radius: 12px;
   background: #ffffff;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); */
 }
 
 .result-table table {
@@ -85,7 +95,7 @@ body {
 }
 
 .result-table thead {
-  background: linear-gradient(to right, #2979ff, #1565c0);
+  background: linear-gradient(to right, #714b67, #714b67);
 }
 
 .result-table th {
@@ -120,7 +130,7 @@ body {
 }
 
 .action-btn {
-  background-color: #2979ff;
+  background-color: #714b67;
   color: white;
   padding: 8px 14px;
   font-size: 13px;
@@ -131,5 +141,5 @@ body {
 }
 
 .action-btn:hover {
-  background-color: #1565c0;
+  background-color: #714b67;
 }

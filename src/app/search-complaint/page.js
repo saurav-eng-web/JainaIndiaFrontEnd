@@ -7,6 +7,7 @@ import SideBar from '@/components/SideBar';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import axiosInstance from '@/api/axiosInstance';
 
 export default function SearchComplaintPage() {
   const router = useRouter();
@@ -25,40 +26,67 @@ useEffect (() => {
     router.push(`/history/${ticketNo}`);
   };
 
+  // const handleSearch = async () => {
+  //   const q = query.trim();
+  //   setSearchAttempted(true);
+
+  //   if (!q) {
+  //     alert('Please enter a complaint number, mobile number, or serial number');
+  //     return;
+  //   }
+
+  //   let paramType = '';
+  //   if (/^CALL-/.test(q)) paramType = 'callNumber';
+  //   else if (/^[0-9]{10}$/.test(q)) paramType = 'phone';
+  //   else paramType = 'serialNo';
+
+  //   try {
+  //     const response = await axiosInstance.get(`CallSearch/search`, {
+  //       params: { [paramType]: q },
+  //     });
+
+  //     setSearchResults(Array.isArray(response.data) ? response.data : [response.data]);
+  //   } catch (error) {
+  //     console.error('Search error:', error);
+  //     setSearchResults([]);
+  //   }
+
+  //   setQuery('');
+  // };
   const handleSearch = async () => {
     const q = query.trim();
     setSearchAttempted(true);
-
+  
     if (!q) {
       alert('Please enter a complaint number, mobile number, or serial number');
       return;
     }
-
+  
     let paramType = '';
     if (/^CALL-/.test(q)) paramType = 'callNumber';
     else if (/^[0-9]{10}$/.test(q)) paramType = 'phone';
     else paramType = 'serialNo';
-
+  
     try {
-      const response = await axios.get(`https://ncapi.jainaindia.com/api/CallSearch/search`, {
+      const response = await axiosInstance.get('CallSearch/search', {
         params: { [paramType]: q },
       });
-
+  
       setSearchResults(Array.isArray(response.data) ? response.data : [response.data]);
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
     }
-
+  
     setQuery('');
   };
-
+  
   return (
     <div style={{ display: 'flex' }}>
       <SideBar />
       <div className="content">
         <div className="container">
-          <h2>Search Complaint</h2>
+          <h2 className='h2'>Search Complaint</h2>
 
           <div className="search-box">
             <input

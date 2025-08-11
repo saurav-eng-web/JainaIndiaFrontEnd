@@ -1,9 +1,205 @@
 
+// 'use client';
+
+// import { useState, useEffect } from 'react';
+// import { useRouter } from 'next/navigation';
+// import './stepper.css';
+
+// import SideBar from '@/components/SideBar';
+// import CustomerDetailsStep from '@/components/CallRegisterSteps/CustomerDetailsStep';
+// import AddressDetailsStep from '@/components/CallRegisterSteps/AddressDetailsStep';
+// import ProductDetailsStep from '@/components/CallRegisterSteps/ProductDetailsStep';
+// import ServiceDetailsStep from '@/components/CallRegisterSteps/ServiceDetailsStep';
+
+// const steps = ['Customer Details', 'Address Details', 'Product Details', 'Service Details'];
+
+// export default function CallRegister() {
+//   const router = useRouter();
+//   const [currentStep, setCurrentStep] = useState(0);
+//   const [callNumber, setCallNumber] = useState('');
+//   const [loading, setLoading] = useState(false);
+
+//   const [formData, setFormData] = useState({
+//     callBy: '',
+//     title: '',
+//     firstName: '',
+//     lastName: '',
+//     phone: '',
+//     altPhone: '',
+//     customerAddress: '',
+//     landmark: '',
+//     pincode: '',
+//     state: '',
+//     city: '',
+//     locality: '',
+//     serialNo: '',
+//     productCategory: '',
+//     brand: '',
+//     pop: '',
+//     product: '',
+//     model: '',
+//     warranty: '',
+//     callType: '',
+//     faultVoc: '',
+//     availableTime: ''
+//   });
+
+//   // ✅ AUTH CHECK
+//   useEffect(() => {
+//     const userData = localStorage.getItem('userData');
+//     if (!userData) {
+//       router.replace('/');
+//       return;
+//     }
+
+//     const user = JSON.parse(userData);
+//     const role = user.roleName?.toLowerCase();
+
+//     if (role !== 'nsp') {
+//       router.replace('/');
+//     }
+//   }, [router]);
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setFormData(prev => ({ ...prev, [name]: value }));
+//   };
+
+//   const requiredFieldsByStep = [
+//     ['callBy', 'title', 'firstName', 'lastName', 'phone', 'altPhone'],
+//     ['customerAddress', 'pincode'],
+//     ['productCategory', 'brand'],
+//     ['callType', 'faultVoc', 'availableTime']
+//   ];
+
+//   const fieldLabels = {
+//     callBy: 'Call By', title: 'Title', firstName: 'First Name', lastName: 'Last Name',
+//     phone: 'Phone', altPhone: 'Alternate Phone', customerAddress: 'Customer Address',
+//     pincode: 'Pincode', productCategory: 'Product Category', brand: 'Brand',
+//     callType: 'Call Type', faultVoc: 'Fault Description', availableTime: 'Available Time'
+//   };
+
+//   const validateStep = () => {
+//     const fields = requiredFieldsByStep[currentStep] || [];
+//     for (let f of fields) {
+//       if (!formData[f]?.trim()) {
+//         alert(`Please fill the required field: ${fieldLabels[f]}`);
+//         return false;
+//       }
+//     }
+//     return true;
+//   };
+
+//   const nextStep = () => {
+//     if (currentStep < steps.length - 1 && validateStep())
+//       setCurrentStep(s => s + 1);
+//   };
+//   const prevStep = () => setCurrentStep(s => Math.max(s - 1, 0));
+
+//   const submitCall = async () => {
+//     setLoading(true);
+//     try {
+//       const payload = {
+//         ...formData,
+//         pop: formData.pop ? new Date(formData.pop).toISOString() : null
+//       };
+
+//       const res = await fetch('https://ncapi.jainaindia.com/api/CallRegister', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
+
+//       if (!res.ok) throw new Error(await res.text());
+//       const data = await res.json();
+//       setCallNumber(data.callNumber || data.CallNumber || '');
+//       setCurrentStep(0);
+//     } catch (err) {
+//       console.error(err);
+//       alert('Error creating call: ' + err.message);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     if (!validateStep()) return;
+//     if (currentStep === steps.length - 1) {
+//       submitCall();
+//     } else {
+//       nextStep();
+//     }
+//   };
+
+//   const renderStep = () => {
+//     switch (currentStep) {
+//       case 0: return <CustomerDetailsStep formData={formData} handleChange={handleChange} setFormData={setFormData} />;
+//       case 1: return <AddressDetailsStep formData={formData} handleChange={handleChange} setFormData={setFormData} />;
+//       case 2: return <ProductDetailsStep formData={formData} handleChange={handleChange} setFormData={setFormData} />;
+//       case 3: return <ServiceDetailsStep formData={formData} handleChange={handleChange} />;
+//       default: return null;
+//     }
+//   };
+
+//   return (
+//     <>
+//       <SideBar />
+//       <div className="main-content">
+//         <div className="registration-container">
+//           <h2>Call Registration</h2>
+
+//           {callNumber ? (
+//             <div className="success-message">
+//               <h3>Service Request No Created Successfully!</h3>
+//               <p>Your Service Request No Number is: <strong>{callNumber}</strong></p>
+//               <button onClick={() => { setCallNumber(''); setFormData({}); }}>
+//                 Register Another
+//               </button>
+//             </div>
+//           ) : (
+//             <>
+//               <div className="stepper">
+//                 {steps.map((label, idx) => (
+//                   <div className="step" key={idx}>
+//                     <div className={`circle ${idx <= currentStep ? 'active' : ''}`}>
+//                       {idx < currentStep ? '✔' : idx + 1}
+//                     </div>
+//                     <div className="label">{label}</div>
+//                     {idx < steps.length - 1 && <div className="line"></div>}
+//                   </div>
+//                 ))}
+//               </div>
+
+//               <form onSubmit={handleSubmit} className="registration-form">
+//                 {renderStep()}
+
+//                 <div className="button-wrapper">
+//                   {currentStep > 0 && (
+//                     <button type="button" onClick={prevStep} disabled={loading}>
+//                       ← Back
+//                     </button>
+//                   )}
+//                   <button type="submit" disabled={loading}>
+//                     {currentStep < steps.length - 1 ? 'Next →' : loading ? 'Submitting…' : 'Submit ✔'}
+//                   </button>
+//                 </div>
+//               </form>
+//             </>
+//           )}
+//         </div>
+//       </div>
+//     </>
+//   );
+// }
+
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import './stepper.css';
+import axiosInstance from '@/api/axiosInstance';
 
 import SideBar from '@/components/SideBar';
 import CustomerDetailsStep from '@/components/CallRegisterSteps/CustomerDetailsStep';
@@ -104,19 +300,13 @@ export default function CallRegister() {
         pop: formData.pop ? new Date(formData.pop).toISOString() : null
       };
 
-      const res = await fetch('https://ncapi.jainaindia.com/api/CallRegister', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const { data } = await axiosInstance.post('/CallRegister', payload);
 
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
       setCallNumber(data.callNumber || data.CallNumber || '');
       setCurrentStep(0);
     } catch (err) {
       console.error(err);
-      alert('Error creating call: ' + err.message);
+      alert('Error creating call: ' + (err.response?.data || err.message));
     } finally {
       setLoading(false);
     }
@@ -192,3 +382,4 @@ export default function CallRegister() {
     </>
   );
 }
+

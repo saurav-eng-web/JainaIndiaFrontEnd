@@ -158,7 +158,7 @@ export default function LoginPage() {
     if (user) {
       const role = user.roleName?.toLowerCase();
       if (role === 'nsp') {
-        router.push('/testadmin');
+        router.push('/test');
       } else if (role === 'manager') {
         router.push('/manager/home');
       } else if (role === 'technician') {

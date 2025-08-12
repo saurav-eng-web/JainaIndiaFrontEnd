@@ -349,17 +349,17 @@ export default function CallRegister() {
             </div>
           ) : (
             <>
-              <div className="stepper">
-                {steps.map((label, idx) => (
-                  <div className="step" key={idx}>
-                    <div className={`circle ${idx <= currentStep ? 'active' : ''}`}>
-                      {idx < currentStep ? '✔' : idx + 1}
-                    </div>
-                    <div className="label">{label}</div>
-                    {idx < steps.length - 1 && <div className="line"></div>}
-                  </div>
-                ))}
-              </div>
+        <div className="stepper">
+  {steps.map((label, idx) => (
+    <div className="step" key={idx}>
+      <div className={`circle ${idx <= currentStep ? 'active' : ''}`}>
+        {idx <= currentStep ? '✔' : ''}
+      </div>
+      <div className="label">{label}</div>
+      {idx < steps.length - 1 && <div className="line"></div>}
+    </div>
+  ))}
+</div>
 
               <form onSubmit={handleSubmit} className="registration-form">
                 {renderStep()}

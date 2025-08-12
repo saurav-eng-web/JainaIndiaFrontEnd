@@ -1,9 +1,4 @@
-/* .login-container {
-    display: flex;
-    height: 100vh;
-    font-family: 'Arial', sans-serif;
-  } */
-  
+/* 
 
   .login-container {
     height: 100vh;
@@ -43,18 +38,9 @@
     align-items: center;
   }
   
-  /* .login-box {
-    background: #fff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    width: 100%;
-    max-width: 350px;
-    text-align: center;
-  } */
 
   .login-box {
-    background: rgba(255, 255, 255, 0.95); /* semi-transparent */
+    background: rgba(255, 255, 255, 0.95); 
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
@@ -136,5 +122,143 @@
     font-size: 12px;
     margin-bottom: 10px;
     color: gray;
+  }
+   */
+
+
+   .login-wrapper {
+    display: flex;
+    height: 100vh;
+    font-family: sans-serif;
+  }
+  
+  /* Left Section */
+  .login-left {
+    flex: 1;
+    background: url('/crmLogo.png')  center center/cover; /* path to your image */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem;
+    position: relative;
+  }
+
+ 
+  .login-left .brand,
+  .login-left h1,
+  .login-left p {
+    position: relative; /* Keep text above overlay */
+  }
+  
+  .login-left .brand {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+  }
+  
+  .login-left h1 { 
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .login-left p {
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+  
+  /* Right Section */
+  .login-right {
+    flex: 1;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .login-form-container {
+    max-width: 350px;
+    width: 100%;
+  }
+  
+  .login-form-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .login-form-container p {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+  }
+  
+  label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    display: block;
+  }
+  
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 0.7rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+  }
+  
+  .form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .sign-in-btn {
+    width: 100%;
+    background: #714b67;
+    color: white;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .divider {
+    text-align: center;
+    margin: 1.5rem 0;
+    font-size: 0.85rem;
+    color: #777;
+  }
+  
+  .divider span {
+    background: white;
+    padding: 0 10px;
+  }
+  
+  .social-login {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .google-btn, .apple-btn {
+    flex: 1;
+    padding: 0.7rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+  }
+  
+  .signup-text {
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  
+  .error {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
   }
   

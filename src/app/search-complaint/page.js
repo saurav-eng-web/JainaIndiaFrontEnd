@@ -25,37 +25,8 @@ useEffect (() => {
   const handleViewHistory = (ticketNo) => {
     router.push(`/history/${ticketNo}`);
   };
-
-  // const handleSearch = async () => {
-  //   const q = query.trim();
-  //   setSearchAttempted(true);
-
-  //   if (!q) {
-  //     alert('Please enter a complaint number, mobile number, or serial number');
-  //     return;
-  //   }
-
-  //   let paramType = '';
-  //   if (/^CALL-/.test(q)) paramType = 'callNumber';
-  //   else if (/^[0-9]{10}$/.test(q)) paramType = 'phone';
-  //   else paramType = 'serialNo';
-
-  //   try {
-  //     const response = await axiosInstance.get(`CallSearch/search`, {
-  //       params: { [paramType]: q },
-  //     });
-
-  //     setSearchResults(Array.isArray(response.data) ? response.data : [response.data]);
-  //   } catch (error) {
-  //     console.error('Search error:', error);
-  //     setSearchResults([]);
-  //   }
-
-  //   setQuery('');
-  // };
   const handleSearch = async () => {
     const q = query.trim();
-    setSearchAttempted(true);
   
     if (!q) {
       alert('Please enter a complaint number, mobile number, or serial number');
@@ -72,14 +43,18 @@ useEffect (() => {
         params: { [paramType]: q },
       });
   
-      setSearchResults(Array.isArray(response.data) ? response.data : [response.data]);
+      const results = Array.isArray(response.data) ? response.data : [response.data];
+      setSearchResults(results);
+      setSearchAttempted(true); // ✅ Only set after getting results
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
+      setSearchAttempted(true); // ✅ Also set here for errors
     }
   
     setQuery('');
   };
+  
   
   return (
     <div style={{ display: 'flex' }}>
@@ -89,18 +64,22 @@ useEffect (() => {
           <h2 className='h2'>Search Complaint</h2>
 
           <div className="search-box">
-            <input
-              type="text"
-              placeholder="Complaint No / Mobile No / Serial No"
-              className="search-input"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <button className="search-btn" onClick={handleSearch}>
-              🔍 Search
-            </button>
-          </div>
-
+  <input
+    type="text"
+    placeholder="Complaint No / Mobile No / Serial No"
+    className="search-input"
+    value={query}
+    onChange={(e) => setQuery(e.target.value)}
+  />
+  <div className="search-buttons">
+    <button className="search-btn" onClick={handleSearch}>
+      Search
+    </button>
+    <button className="search-btn" onClick={() => router.push('/new-registration')}>
+      New Registration
+    </button>
+  </div>
+</div>
           {searchResults.length > 0 && (
             <div className="result-table">
               <table>
@@ -109,7 +88,7 @@ useEffect (() => {
                     <th>History</th>
                     <th>Name</th>
                     <th>Mobile No.</th>
-                    <th>Service Center</th>
+                    {/* <th>Service Center</th> */}
                     <th>Product</th>
                     <th>Model</th>
                     <th>Complaint No.</th>
@@ -127,12 +106,12 @@ useEffect (() => {
                           className="action-btn"
                           onClick={() => handleViewHistory(result.callNumber)}
                         >
-                          🕘 History
+                          History
                         </button>
                       </td>
                       <td>{`${result.title} ${result.firstName} ${result.lastName}`}</td>
                       <td>{result.phone}</td>
-                      <td>{result.serviceCenter || '—'}</td>
+                      {/* <td>{result.serviceCenter || '—'}</td> */}
                       <td>{result.productCategory}</td>
                       <td>{result.model}</td>
                       <td>{result.callNumber}</td>

@@ -34,19 +34,32 @@ body {
   text-align: left;
 }
 
-.search-box {
+/* .search-box {
   display: flex;
   gap: 10px;
   margin-top: 20px;
   justify-content: flex-start;
+} */
+
+.search-box {
+  display: flex;
+  flex-direction: column; /* Stack input and buttons vertically */
+  align-items: flex-start; /* Align to left */
+  gap: 10px;
+  margin-top: 20px;
+}
+.search-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .search-input {
   padding: 12px 16px;
   font-size: 16px;
-  border: 2px solid #714b67;
-  border-radius: 8px;
-  width: 300px;
+  border: 1px solid #714b67;
+  border-radius: 5px;
+  width: 350px;
   background-color: white;
 }
 

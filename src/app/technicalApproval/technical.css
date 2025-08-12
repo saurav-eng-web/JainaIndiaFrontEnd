@@ -57,7 +57,7 @@ body {
   background-color: #714b67;
   color: #fff;
   font-weight: 600;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.5px;
 }
 

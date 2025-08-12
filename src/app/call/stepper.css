@@ -242,11 +242,11 @@
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s;
+    /* transition: background 0.3s; */
   }
   
   button:hover {
-    background: #0056b3;
+    background: #9b7f94;
   }
   
   .stepper {

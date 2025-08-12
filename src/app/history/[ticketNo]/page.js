@@ -16,7 +16,7 @@ const StatusBadge = ({ status }) => (
 
 export default function HistoryPage() { 
   const { ticketNo } = useParams();
-  const [activeTab, setActiveTab] = useState('General Logs');
+  const [activeTab, setActiveTab] = useState('Job Details');
   const [logData, setLogData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -119,7 +119,7 @@ export default function HistoryPage() {
 
 {activeTab === 'Product Details' && (
   <div className="tab-section">
-    <h3>⚠️ Product Details</h3>
+   <h3>📦 Product Details</h3>
     <div className="row-content">
       <div><strong>Model:</strong>  {firstEntry.model || '-'}</div>
       <div><strong>Product Category:</strong> {firstEntry.category || '-'}</div>

@@ -57,36 +57,10 @@ export default function SideBar() {
             <span className="navText">Technical Approval</span>
           </Link>
         </li>
-        <li>
-          <Link href="#">
-            <i className="fa fa-film fa-2x"></i>
-            <span className="navText">Surveying Tutorials</span>
-          </Link>
-        </li>
-        <li>
-          <Link href="#">
-            <i className="fa fa-book fa-2x"></i>
-            <span className="navText">Surveying Jobs</span>
-          </Link>
-        </li>
-        <li>
-          <Link href="#">
-            <i className="fa fa-cogs fa-2x"></i>
-            <span className="navText">Tools & Resources</span>
-          </Link>
-        </li>
-        <li>
-          <Link href="#">
-            <i className="fa fa-map-marker fa-2x"></i>
-            <span className="navText">Member Map</span>
-          </Link>
-        </li>
-        <li>
-          <Link href="#">
-            <i className="fa fa-info fa-2x"></i>
-            <span className="navText">Documentation</span>
-          </Link>
-        </li>
+       
+     
+    
+     
       </ul>
 
       <ul className="logout">

@@ -4,11 +4,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import SideBar from '@/components/SideBar';
-import { useTheme } from '@/theme/ThemeContext'; // 👈 import your theme
+import { useTheme } from '@/theme/ThemeContext'; //  import your theme
 
 export default function Test() {
   const router = useRouter();
-  const { colors } = useTheme(); // 👈 access theme colors
+  const { colors } = useTheme(); //  access theme colors
 
   useEffect(() => {
     const userData = localStorage.getItem('userData');
@@ -27,23 +27,35 @@ export default function Test() {
             background: `linear-gradient(to bottom right, ${colors.primary}, ${colors.secondary}, ${colors.accent})`,
           }}
         >
-          <h2 className="text-[28px] mb-[30px]" style={{ color: colors.primary }}>
-            Welcome to Jaina CRM
-          </h2>
+         <h2
+  style={{
+    textAlign: 'left',
+    paddingLeft: '10px',
+    marginBottom: '30px',
+    fontWeight: 700,
+    color: '#714b67',
+    border: '2px solid #714b67',
+    fontSize: 'larger',
+    padding: '5px',
+    borderRadius: '5px'
+  }}
+>
+  Welcome to Jaina CRM
+</h2>
           <div className="flex flex-col items-center gap-[20px]">
             <button
               className="w-[400px] py-[16px] px-[24px] text-[18px] font-bold rounded-[8px] transition-colors"
               style={{ backgroundColor: colors.primary, color: colors.warning }}
               onClick={() => router.push('call')}
             >
-              ➕ New Registration
+               New Registration
             </button>
             <button
               className="w-[400px] py-[16px] px-[24px] text-[18px] font-bold rounded-[8px] transition-colors"
               style={{ backgroundColor: colors.primary, color: colors.warning }}
               onClick={() => router.push('/search-complaint')}
             >
-              🔍 Search Complaint
+               Search Complaint
             </button>
           </div>
         </div>

@@ -132,7 +132,7 @@ export default function ServiceDetailsStep({ formData, handleChange }) {
             value={formData.serviceDate || ''}
             onChange={(e) => {
               handleChange(e);
-              setSelectedDate(e.target.value); // update selected date to filter time slots
+              setSelectedDate(e.target.value); 
             }}
           />
         </div>

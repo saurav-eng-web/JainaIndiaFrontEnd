@@ -98,69 +98,89 @@ export default function ServiceDetailsStep({ formData, handleChange }) {
       <h3>Service Details</h3>
       <div className="form-grid">
         {/* Call Type */}
-        <div className="form-group">
+                <div className="form-group">
           <label htmlFor="callType">Call Type</label>
-          <select id="callType" name="callType" onChange={handleChange} value={formData.callType}>
+          <select
+            id="callType"
+            name="callType"
+            onChange={handleChange}
+            value={formData.callType}
+          >
             <option value="">Select Call Type</option>
-            <option value="Demo/Installation">Demo/Installation</option>
             <option value="Service">Service</option>
-            <option value="PMS Dry/Wet">PMS Dry/Wet</option>
+            <option value="Demo">Demo</option>
+            <option value="Installation">Installation</option>
+            <option value="Stock">Stock</option>
+            <option value="Repair">Repair</option>
+            <option value="PMS Dry">PMS Dry</option>
+            <option value="PMS Wet">PMS Wet</option>
+            <option value="Case Closed over the Call">Case Closed over the Call</option>
           </select>
         </div>
 
-        {/* Fault VOC */}
-        <div className="form-group">
-          <label htmlFor="faultVoc">Fault/VOC</label>
-          <textarea
-            id="faultVoc"
-            name="faultVoc"
-            rows="4"
-            onChange={handleChange}
-            value={formData.faultVoc}
-          />
-        </div>
+       
 
         {/* Service Date */}
         <div className="form-group">
-          <label htmlFor="serviceDate">Service Date</label>
-          <input
-            type="date"
-            id="serviceDate"
-            name="serviceDate"
-            min={formatDate(today)}
-            max={formatDate(maxDate)}
-            value={formData.serviceDate || ''}
-            onChange={(e) => {
-              handleChange(e);
-              setSelectedDate(e.target.value); 
-            }}
-          />
-        </div>
+  <label htmlFor="serviceDateTime">Customer Available Date & Time</label>
+  <div style={{ display: "flex", gap: "8px" }}>
+    {/* Date Picker */}
+    <input
+      type="date"
+      id="serviceDate"
+      name="serviceDate"
+      min={formatDate(today)}
+      max={formatDate(maxDate)}
+      value={formData.serviceDate || ''}
+      onChange={(e) => {
+        handleChange(e);
+        setSelectedDate(e.target.value);
+      }}
+      style={{ flex: 1 }}
+    />
 
-        {/* Customer Available Time - Dropdown */}
-        <div className="form-group">
-          <label htmlFor="availableTime">Customer Available Time</label>
-          <select
-            id="availableTime"
-            name="availableTime"
-            onChange={handleChange}
-            value={formData.availableTime}
-            disabled={!selectedDate} // disable until date is chosen
-          >
-            <option value="">Select Time Slot</option>
-            {timeSlots.length > 0 ? (
-              timeSlots.map((slot, index) => (
-                <option key={index} value={slot.label}>
-                  {slot.label}
-                </option>
-              ))
-            ) : (
-              <option value="" disabled>
-                No slots available
-              </option>
-            )}
-          </select>
-        </div>
+    {/* Time Slots */}
+    <select
+      id="availableTime"
+      name="availableTime"
+      onChange={handleChange}
+      value={formData.availableTime}
+      disabled={!selectedDate}
+      style={{ flex: 1 }}
+    >
+      <option value="">Select Time</option>
+      {timeSlots.length > 0 ? (
+        timeSlots.map((slot, index) => (
+          <option key={index} value={slot.label}>
+            {slot.label}
+          </option>
+        ))
+      ) : (
+        <option value="" disabled>
+          No slots available
+        </option>
+      )}
+    </select>
+  </div>
+</div>
+         {/* Fault VOC */}
+         <div className="form-group">
+  <label htmlFor="faultVoc">Fault/VOC</label>
+  <select
+    id="faultVoc"
+    name="faultVoc"
+    onChange={handleChange}
+    value={formData.faultVoc}
+  >
+    <option value="">Select</option>
+    <option value="No Power">No Power</option>
+    <option value="Water Leakage">Water Leakage</option>
+    <option value="Noise Issue">Noise Issue</option>
+    <option value="Not Cooling">Not Cooling</option>
+    <option value="Display Error">Display Error</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
       </div>
     </>
   );

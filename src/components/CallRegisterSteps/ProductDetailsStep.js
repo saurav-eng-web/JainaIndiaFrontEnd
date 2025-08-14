@@ -309,26 +309,38 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
 
   const fields = [
     { id: 'serialNo', type: 'text' },
-    { id: 'productCategory', type: 'select', disabled: isSerialValid },
     { id: 'brand', type: 'select', disabled: isSerialValid },
-    { id: 'model', type: 'select', disabled: isSerialValid },
     { id: 'product', type: 'select', disabled: isSerialValid },
-    { id: 'pop', type: 'date' }, // kept pop for backend but will show DOP
-    { id: 'warranty', type: 'text', disabled: true },
+    { id: 'productCategory', type: 'select', disabled: isSerialValid },
+    { id: 'model', type: 'select', disabled: isSerialValid },
+    { id: 'modelDescription', type: 'text', disabled: isSerialValid },
+    { id: 'pop', type: 'date' },
+    {
+      id: 'warranty',
+      type: 'select',
+      disabled: false,
+      options: [
+        'In Warranty',
+        'Out Warranty',
+        'Special Warranty',
+        'Under Warranty Void',
+        'Extended Warranty',
+        'Repair Warranty'
+      ]
+    },
   ];
-
   return (
     <>
       <h3>Product Details</h3>
       <div className="form-grid">
-        {fields.map(({ id, type = 'text', disabled }) => {
+        {fields.map(({ id, type = 'text', disabled, options }) => {
           const label =
             id === 'pop'
               ? 'DOP'
               : id
                   .replace(/([A-Z])/g, ' $1')
                   .replace(/^./, (str) => str.toUpperCase());
-
+  
           return (
             <div className="form-group" key={id}>
               <label htmlFor={id}>{label}</label>
@@ -341,11 +353,17 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
                   value={formData[id] || ''}
                 >
                   <option value="">Select {label}</option>
-                  {getFieldOptions(id).map((opt) => (
-                    <option key={opt.id} value={opt.label}>
-                      {opt.label}
-                    </option>
-                  ))}
+                  {options
+                    ? options.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))
+                    : getFieldOptions(id).map((opt) => (
+                        <option key={opt.id} value={opt.label}>
+                          {opt.label}
+                        </option>
+                      ))}
                 </select>
               ) : (
                 <input
@@ -361,6 +379,7 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
                       : undefined
                   }
                   value={formData[id] || ''}
+                  max={type === 'date' ? new Date().toISOString().split('T')[0] : undefined}
                 />
               )}
             </div>
@@ -370,4 +389,5 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
       </div>
     </>
   );
+  
 }

@@ -22,8 +22,8 @@ useEffect (() => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchAttempted, setSearchAttempted] = useState(false);
 
-  const handleViewHistory = (ticketNo) => {
-    router.push(`/history/${ticketNo}`);
+  const handleViewHistory = (tickeT_NO) => {
+    router.push(`/history/${tickeT_NO}`);
   };
   const handleSearch = async () => {
     const q = query.trim();
@@ -34,10 +34,13 @@ useEffect (() => {
     }
   
     let paramType = '';
-    if (/^CALL-/.test(q)) paramType = 'callNumber';
-    else if (/^[0-9]{10}$/.test(q)) paramType = 'phone';
-    else paramType = 'serialNo';
-  
+    if (/^[0-9]{10}$/.test(q)) {
+      paramType = 'phone';
+    } else if (/^[A-Za-z0-9-]+$/.test(q)) {
+      paramType = 'callNumber'; // ✅ treat everything else as ticket number
+    } else {
+      paramType = 'serialNo'; // fallback
+    }
     try {
       const response = await axiosInstance.get('CallSearch/search', {
         params: { [paramType]: q },
@@ -104,21 +107,21 @@ useEffect (() => {
                       <td>
                         <button
                           className="action-btn"
-                          onClick={() => handleViewHistory(result.callNumber)}
+                          onClick={() => handleViewHistory(result.tickeT_NO)}
                         >
                           History
                         </button>
                       </td>
-                      <td>{`${result.title} ${result.firstName} ${result.lastName}`}</td>
-                      <td>{result.phone}</td>
+                      <td>{`${result.salutation} ${result.firstname} ${result.lastname}`}</td>
+                      <td>{result.mobile}</td>
                       {/* <td>{result.serviceCenter || '—'}</td> */}
-                      <td>{result.productCategory}</td>
-                      <td>{result.model}</td>
-                      <td>{result.callNumber}</td>
-                      <td>{result.serialNo}</td>
-                      <td>{result.callType}</td>
-                      <td>{result.complaint_SubStatus || '-'}</td>
-                      <td>{new Date(result.pop).toLocaleDateString()}</td>
+                      <td>{result.category || '-'}</td>
+                      <td>{result.model || '-'}</td>
+                      <td>{result.tickeT_NO || '-'}</td>
+                      <td>{result.seriaL_NO || '-'}</td>
+                      <td>{result.calL_TYPE || '-'}</td>
+                      <td>{result.complainT_SUBSTATUS || '-'}</td>
+                      <td>{new Date(result.pop).toLocaleDateString() || '-'}</td>
                     </tr>
                   ))}
                 </tbody>

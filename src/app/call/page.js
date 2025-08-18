@@ -211,6 +211,7 @@ const steps = ['Customer Details', 'Address Details', 'Product Details', 'Servic
 
 export default function CallRegister() {
   const router = useRouter();
+  const [errors, setErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(0);
   const [callNumber, setCallNumber] = useState('');
   const [loading, setLoading] = useState(false);
@@ -251,7 +252,7 @@ export default function CallRegister() {
     const user = JSON.parse(userData);
     const role = user.roleName?.toLowerCase();
 
-    if (role !== 'nsp') {
+    if (role !== 'cc') {
       router.replace('/');
     }
   }, [router]);
@@ -264,26 +265,29 @@ export default function CallRegister() {
   const requiredFieldsByStep = [
     ['callBy', 'title', 'firstName', 'lastName', 'phone', 'altPhone'],
     ['customerAddress', 'pincode'],
-    ['productCategory', 'brand'],
+    ['serialNo', 'productCategory', 'brand','pop'],
     ['callType', 'faultVoc', 'availableTime']
-  ];
+  ]; 
 
   const fieldLabels = {
     callBy: 'Call By', title: 'Title', firstName: 'First Name', lastName: 'Last Name',
     phone: 'Phone', altPhone: 'Alternate Phone', customerAddress: 'Customer Address',
     pincode: 'Pincode', productCategory: 'Product Category', brand: 'Brand',
-    callType: 'Call Type', faultVoc: 'Fault Description', availableTime: 'Available Time'
+    callType: 'Call Type', faultVoc: 'Fault Description', availableTime: 'Available Time',serialNo:'serial No',pop:'DOP'
   };
 
   const validateStep = () => {
     const fields = requiredFieldsByStep[currentStep] || [];
-    for (let f of fields) {
+    const newErrors = {};
+  
+    fields.forEach(f => {
       if (!formData[f]?.trim()) {
-        alert(`Please fill the required field: ${fieldLabels[f]}`);
-        return false;
+        newErrors[f] = `Please fill the required field: ${fieldLabels[f]}`;
       }
-    }
-    return true;
+    });
+  
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const nextStep = () => {
@@ -324,13 +328,46 @@ export default function CallRegister() {
 
   const renderStep = () => {
     switch (currentStep) {
-      case 0: return <CustomerDetailsStep formData={formData} handleChange={handleChange} setFormData={setFormData} />;
-      case 1: return <AddressDetailsStep formData={formData} handleChange={handleChange} setFormData={setFormData} />;
-      case 2: return <ProductDetailsStep formData={formData} handleChange={handleChange} setFormData={setFormData} />;
-      case 3: return <ServiceDetailsStep formData={formData} handleChange={handleChange} />;
-      default: return null;
+      case 0:
+        return (
+          <CustomerDetailsStep
+            formData={formData}
+            handleChange={handleChange}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        );
+      case 1:
+        return (
+          <AddressDetailsStep
+            formData={formData}
+            handleChange={handleChange}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        );
+      case 2:
+        return (
+          <ProductDetailsStep
+            formData={formData}
+            handleChange={handleChange}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        );
+      case 3:
+        return (
+          <ServiceDetailsStep
+            formData={formData}
+            handleChange={handleChange}
+            errors={errors}
+          />
+        );
+      default:
+        return null;
     }
   };
+  
 
   return (
     <>
@@ -381,5 +418,5 @@ export default function CallRegister() {
       </div>
     </>
   );
-}
+} 
 

@@ -1792,6 +1792,7 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
         productID: selectedProduct ? selectedProduct.productID : '',
         model: matched.model || '',
         modelID: selectedModel ? selectedModel.modelID : '',
+        modelDescription: selectedModel ? selectedModel.description : '',
         warranty: selectedWarranty ? selectedWarranty.warranty_Desc : '',
         warranty_ID: selectedWarranty ? selectedWarranty.warranty_ID : '',
       }));
@@ -1920,6 +1921,7 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
                         ...prev,
                         model: e.target.value,
                         modelID: selected ? selected.modelID : '',
+                        modelDescription: selected ? selected.description : '',
                       }));
                     } else if (id === 'warranty') {
                       const selected = warranties.find((w) => w.warranty_Desc === e.target.value);

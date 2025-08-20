@@ -1165,6 +1165,280 @@
 
 
 
+// 'use client';
+
+// import { useEffect, useState } from 'react';
+// import axiosInstance from '@/api/axiosInstance';
+
+// export default function ProductDetailsStep({ formData, handleChange, setFormData, errors = {} }) {
+//   const [isSerialValid, setIsSerialValid] = useState(false);
+//   const [brands, setBrands] = useState([]);
+//   const [products, setProducts] = useState([]);
+//   const [models, setModels] = useState([]);
+//   const [productCategories, setProductCategories] = useState([]);
+//   const [warranties, setWarranties] = useState([]);
+//   const [popup, setPopup] = useState({ visible: false, message: '', type: '' });
+
+//   // ✅ Fetch initial data
+//   useEffect(() => {
+//     axiosInstance.get('BrandMaster')
+//       .then((res) => setBrands(res.data))
+//       .catch((err) => console.error('Brand fetch error', err));
+
+//     axiosInstance.get('productmaster/GetAll')
+//       .then((res) => {
+//         setProducts(res.data);
+//         const categories = [...new Set(res.data.map((p) => p.prd_Category))];
+//         setProductCategories(categories.map((cat) => ({
+//           id: cat + '-' + Math.random(),
+//           label: cat,
+//         })));
+//       })
+//       .catch((err) => console.error('Product fetch error', err));
+
+//     axiosInstance.get('model')
+//       .then((res) => setModels(res.data))
+//       .catch((err) => console.error('Model fetch error', err));
+
+//     axiosInstance.get('warrantymaster')
+//       .then((res) => setWarranties(res.data))
+//       .catch((err) => console.error('Warranty fetch error', err));
+//   }, []);
+
+//   const showPopup = (message, type) => {
+//     setPopup({ visible: true, message, type });
+//   };
+
+//   // ✅ Check serial number
+//   const checkSerialNumber = async (serial) => {
+//     try {
+//       if (!serial) return;
+
+//       const res = await axiosInstance.get(`SerialNoMaster/by-serial/${serial}`);
+//       const matched = res.data; // object from API
+
+//       // Ensure dropdowns contain matched values
+//       if (matched.brand && !brands.find((b) => b.brand_Name === matched.brand)) {
+//         setBrands((prev) => [...prev, { brand_ID: Date.now(), brand_Name: matched.brand }]);
+//       }
+//       if (matched.product && !products.find((p) => p.product === matched.product)) {
+//         setProducts((prev) => [...prev, { productID: Date.now(), product: matched.product }]);
+//       }
+//       if (matched.model && !models.find((m) => m.modelNo === matched.model)) {
+//         setModels((prev) => [...prev, { modelID: Date.now(), modelNo: matched.model }]);
+//       }
+//       if (matched.productCategory && !productCategories.find((p) => p.label === matched.productCategory)) {
+//         setProductCategories((prev) => [
+//           ...prev,
+//           { id: matched.productCategory + '-' + Date.now(), label: matched.productCategory },
+//         ]);
+//       }
+
+//       // Map warranty if purchstatus exists
+//       let selectedWarranty = warranties.find((w) => w.warranty_Desc === matched.purchstatus);
+
+//       // ✅ Save productID and modelID as well
+//       const selectedProduct = products.find((p) => p.product === matched.product);
+//       const selectedModel = models.find((m) => m.modelNo === matched.model);
+
+//       setFormData((prev) => ({
+//         ...prev,
+//         serialNo: serial,
+//         brand: matched.brand || '',
+//         product: matched.product || '',
+//         productID: selectedProduct ? selectedProduct.productID : '',
+//         model: matched.model || '',
+//         modelID: selectedModel ? selectedModel.modelID : '',
+//         productCategory: matched.productCategory || '',
+//         warranty: selectedWarranty ? selectedWarranty.warranty_Desc : '',
+//         warranty_ID: selectedWarranty ? selectedWarranty.warranty_ID : '',
+//       }));
+
+//       setIsSerialValid(true);
+//       showPopup('✅ Serial number is valid', 'success');
+//     } catch (err) {
+//       if (err.response?.status === 404) {
+//         // Serial number not found
+//         setFormData((prev) => ({
+//           ...prev,
+//           serialNo: serial,
+//           brand: '',
+//           model: '',
+//           modelID: '',
+//           product: '',
+//           productID: '',
+//           productCategory: '',
+//           warranty: '',
+//           warranty_ID: '',
+//         }));
+//         setIsSerialValid(false);
+//         showPopup('❌ Invalid serial number', 'error');
+//       } else {
+//         console.error('Error validating serial number:', err);
+//         showPopup('⚠️ API error while checking serial number', 'error');
+//       }
+//     }
+//   };
+
+//   // ✅ Dropdown options
+//   const getFieldOptions = (id) => {
+//     if (id === 'brand')
+//       return brands.map((b) => ({ id: b.brand_ID, label: b.brand_Name }));
+//     if (id === 'product')
+//       return products.map((p) => ({ id: p.productID, label: p.product }));
+//     if (id === 'model')
+//       return models.map((m) => ({ id: m.modelID, label: m.modelNo }));
+//     if (id === 'productCategory') return productCategories;
+//     if (id === 'warranty')
+//       return warranties.map((w) => ({ id: w.warranty_ID, label: w.warranty_Desc }));
+//     return [];
+//   };
+
+//   // ✅ Field definitions
+//   const fields = [
+//     { id: 'serialNo', type: 'text' },
+//     { id: 'brand', type: 'select', disabled: isSerialValid },
+//     { id: 'productCategory', type: 'select', disabled: isSerialValid },
+//     { id: 'product', type: 'select', disabled: isSerialValid },
+//     { id: 'model', type: 'select', disabled: isSerialValid },
+//     { id: 'modelDescription', type: 'text', disabled: isSerialValid },
+//     { id: 'pop', type: 'date' },
+//     { id: 'warranty', type: 'select', disabled: false },
+//   ];
+
+//   return (
+//     <>
+//       <h3>Product Details</h3>
+//       <div className="form-grid">
+//         {fields.map(({ id, type = 'text', disabled }) => {
+//           const label =
+//             id === 'pop'
+//               ? 'DOP'
+//               : id.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+
+//           return (
+//             <div className="form-group" key={id}>
+//               <label htmlFor={id}>{label}</label>
+
+//               {type === 'select' ? (
+//                 <select
+//                   id={id}
+//                   name={id}
+//                   disabled={disabled}
+//                   onChange={(e) => {
+//                     if (id === 'warranty') {
+//                       const selected = warranties.find((w) => w.warranty_Desc === e.target.value);
+//                       setFormData((prev) => ({
+//                         ...prev,
+//                         warranty: e.target.value,
+//                         warranty_ID: selected ? selected.warranty_ID : '',
+//                       }));
+//                     } else if (id === 'product') {
+//                       const selected = products.find((p) => p.product === e.target.value);
+//                       setFormData((prev) => ({
+//                         ...prev,
+//                         product: e.target.value,
+//                         productID: selected ? selected.productID : '',
+//                       }));
+//                     } else if (id === 'model') {
+//                       const selected = models.find((m) => m.modelNo === e.target.value);
+//                       setFormData((prev) => ({
+//                         ...prev,
+//                         model: e.target.value,
+//                         modelID: selected ? selected.modelID : '',
+//                       }));
+//                     } else {
+//                       handleChange(e);
+//                     }
+//                   }}
+//                   value={formData[id] || ''}
+//                 >
+//                   <option value="">Select {label}</option>
+//                   {getFieldOptions(id).map((opt) => (
+//                     <option key={opt.id} value={opt.label}>
+//                       {opt.label}
+//                     </option>
+//                   ))}
+//                 </select>
+//               ) : (
+//                 <input
+//                   id={id}
+//                   name={id}
+//                   type={type}
+//                   disabled={disabled}
+//                   placeholder={label}
+//                   onChange={handleChange}
+//                   onBlur={
+//                     id === 'serialNo'
+//                       ? (e) => checkSerialNumber(e.target.value)
+//                       : undefined
+//                   }
+//                   value={formData[id] || ''}
+//                   max={type === 'date' ? new Date().toISOString().split('T')[0] : undefined}
+//                 />
+//               )}
+
+//               {/* Field-level validation error */}
+//               {errors[id] && (
+//                 <div style={{ color: 'red', fontSize: '0.85rem', marginTop: '4px' }}>
+//                   {errors[id]}
+//                 </div>
+//               )}
+//             </div>
+//           );
+//         })}
+//       </div>
+
+//       {/* ✅ Popup */}
+//       {popup.visible && (
+//         <div className="popup-overlay">
+//           <div className={`popup-box ${popup.type}`}>
+//             <p>{popup.message}</p>
+//             <button onClick={() => setPopup({ ...popup, visible: false })}>OK</button>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* ✅ Styles */}
+//       <style jsx>{`
+//         .popup-overlay {
+//           position: fixed;
+//           top: 0; left: 0;
+//           width: 100%; height: 100%;
+//           background: rgba(0,0,0,0.4);
+//           display: flex; justify-content: center; align-items: center;
+//           z-index: 9999;
+//         }
+//         .popup-box {
+//           background: #fff;
+//           padding: 80px 100px;
+//           border-radius: 8px;
+//           min-width: 250px;
+//           text-align: center;
+//           box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+//         }
+//         .popup-box.success {
+//           border: 2px solid green;
+//         }
+//         .popup-box.error {
+//           border: 2px solid red;
+//         }
+//         .popup-box button {
+//           margin-top: 10px;
+//           padding: 6px 12px;
+//           background: #714b67;
+//           color: white;
+//           border: none;
+//           border-radius: 4px;
+//           cursor: pointer;
+//         }
+//       `}</style>
+//     </>
+//   );
+// }
+
+
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -1175,7 +1449,6 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
   const [brands, setBrands] = useState([]);
   const [products, setProducts] = useState([]);
   const [models, setModels] = useState([]);
-  const [productCategories, setProductCategories] = useState([]);
   const [warranties, setWarranties] = useState([]);
   const [popup, setPopup] = useState({ visible: false, message: '', type: '' });
 
@@ -1186,14 +1459,7 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
       .catch((err) => console.error('Brand fetch error', err));
 
     axiosInstance.get('productmaster/GetAll')
-      .then((res) => {
-        setProducts(res.data);
-        const categories = [...new Set(res.data.map((p) => p.prd_Category))];
-        setProductCategories(categories.map((cat) => ({
-          id: cat + '-' + Math.random(),
-          label: cat,
-        })));
-      })
+      .then((res) => setProducts(res.data))
       .catch((err) => console.error('Product fetch error', err));
 
     axiosInstance.get('model')
@@ -1209,15 +1475,13 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
     setPopup({ visible: true, message, type });
   };
 
-  // ✅ Check serial number
+  // ✅ Serial number validation (unchanged)
   const checkSerialNumber = async (serial) => {
     try {
       if (!serial) return;
-
       const res = await axiosInstance.get(`SerialNoMaster/by-serial/${serial}`);
-      const matched = res.data; // object from API
+      const matched = res.data;
 
-      // Ensure dropdowns contain matched values
       if (matched.brand && !brands.find((b) => b.brand_Name === matched.brand)) {
         setBrands((prev) => [...prev, { brand_ID: Date.now(), brand_Name: matched.brand }]);
       }
@@ -1227,17 +1491,8 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
       if (matched.model && !models.find((m) => m.modelNo === matched.model)) {
         setModels((prev) => [...prev, { modelID: Date.now(), modelNo: matched.model }]);
       }
-      if (matched.productCategory && !productCategories.find((p) => p.label === matched.productCategory)) {
-        setProductCategories((prev) => [
-          ...prev,
-          { id: matched.productCategory + '-' + Date.now(), label: matched.productCategory },
-        ]);
-      }
 
-      // Map warranty if purchstatus exists
       let selectedWarranty = warranties.find((w) => w.warranty_Desc === matched.purchstatus);
-
-      // ✅ Save productID and modelID as well
       const selectedProduct = products.find((p) => p.product === matched.product);
       const selectedModel = models.find((m) => m.modelNo === matched.model);
 
@@ -1245,11 +1500,11 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
         ...prev,
         serialNo: serial,
         brand: matched.brand || '',
+        productCategory: matched.productCategory || '',
         product: matched.product || '',
         productID: selectedProduct ? selectedProduct.productID : '',
         model: matched.model || '',
         modelID: selectedModel ? selectedModel.modelID : '',
-        productCategory: matched.productCategory || '',
         warranty: selectedWarranty ? selectedWarranty.warranty_Desc : '',
         warranty_ID: selectedWarranty ? selectedWarranty.warranty_ID : '',
       }));
@@ -1258,7 +1513,6 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
       showPopup('✅ Serial number is valid', 'success');
     } catch (err) {
       if (err.response?.status === 404) {
-        // Serial number not found
         setFormData((prev) => ({
           ...prev,
           serialNo: serial,
@@ -1280,17 +1534,31 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
     }
   };
 
-  // ✅ Dropdown options
+  // ✅ Filtered dropdown options
   const getFieldOptions = (id) => {
-    if (id === 'brand')
+    if (id === 'brand') {
       return brands.map((b) => ({ id: b.brand_ID, label: b.brand_Name }));
-    if (id === 'product')
-      return products.map((p) => ({ id: p.productID, label: p.product }));
-    if (id === 'model')
+    }
+    if (id === 'productCategory') {
+      const filtered = products.filter((p) => p.brandId === formData.brandId);
+      const uniqueCats = [...new Set(filtered.map((p) => p.prd_Category))];
+      return uniqueCats.map((cat, idx) => ({ id: `cat-${idx}`, label: cat }));
+    }
+    if (id === 'product') {
+      return products
+        .filter(
+          (p) =>
+            p.brandId === formData.brandId &&
+            p.prd_Category === formData.productCategory
+        )
+        .map((p) => ({ id: p.productID, label: p.product }));
+    }
+    if (id === 'model') {
       return models.map((m) => ({ id: m.modelID, label: m.modelNo }));
-    if (id === 'productCategory') return productCategories;
-    if (id === 'warranty')
+    }
+    if (id === 'warranty') {
       return warranties.map((w) => ({ id: w.warranty_ID, label: w.warranty_Desc }));
+    }
     return [];
   };
 
@@ -1326,12 +1594,20 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
                   name={id}
                   disabled={disabled}
                   onChange={(e) => {
-                    if (id === 'warranty') {
-                      const selected = warranties.find((w) => w.warranty_Desc === e.target.value);
+                    if (id === 'brand') {
+                      const selected = brands.find((b) => b.brand_Name === e.target.value);
                       setFormData((prev) => ({
                         ...prev,
-                        warranty: e.target.value,
-                        warranty_ID: selected ? selected.warranty_ID : '',
+                        brand: e.target.value,
+                        brandId: selected ? selected.brand_ID : '',
+                        productCategory: '',
+                        product: '',
+                      }));
+                    } else if (id === 'productCategory') {
+                      setFormData((prev) => ({
+                        ...prev,
+                        productCategory: e.target.value,
+                        product: '',
                       }));
                     } else if (id === 'product') {
                       const selected = products.find((p) => p.product === e.target.value);
@@ -1346,6 +1622,13 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
                         ...prev,
                         model: e.target.value,
                         modelID: selected ? selected.modelID : '',
+                      }));
+                    } else if (id === 'warranty') {
+                      const selected = warranties.find((w) => w.warranty_Desc === e.target.value);
+                      setFormData((prev) => ({
+                        ...prev,
+                        warranty: e.target.value,
+                        warranty_ID: selected ? selected.warranty_ID : '',
                       }));
                     } else {
                       handleChange(e);
@@ -1378,7 +1661,6 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
                 />
               )}
 
-              {/* Field-level validation error */}
               {errors[id] && (
                 <div style={{ color: 'red', fontSize: '0.85rem', marginTop: '4px' }}>
                   {errors[id]}
@@ -1417,12 +1699,8 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
           text-align: center;
           box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .popup-box.success {
-          border: 2px solid green;
-        }
-        .popup-box.error {
-          border: 2px solid red;
-        }
+        .popup-box.success { border: 2px solid green; }
+        .popup-box.error { border: 2px solid red; }
         .popup-box button {
           margin-top: 10px;
           padding: 6px 12px;

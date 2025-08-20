@@ -794,15 +794,17 @@ export default function CallRegister() {
       <div className="main-content">
         <div className="registration-container">
           <h2>Call Registration</h2>
-
+ 
           {callNumber ? (
-            <div className="success-message">
-              <h3>Service Request No Created Successfully!</h3>
-              <p>Your Service Request No Number is: <strong>{callNumber}</strong></p>
-              <button onClick={() => { setCallNumber(''); setFormData({}); }}>
-                Register Another
-              </button>
-            </div>
+          <div className="success-message">
+          <h3 style={{ marginBottom: "30px" }}>Service Request No Created Successfully!</h3>
+          <p style={{ marginBottom: "25px" }}>
+            Your Service Request No Number is: <strong>{callNumber}</strong>
+          </p>
+          <button onClick={() => { setCallNumber(''); setFormData({}); }}>
+            Register Another
+          </button>
+        </div>
           ) : (
             <>
               <div className="stepper">

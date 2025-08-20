@@ -414,7 +414,7 @@ export default function CallRegister() {
 
       EnteredBy: "Admin User",
       EnteredByID: 101,
-      IPAddress: userIP || 123
+      IPAddress: "192.168.1.100"
     };
 
     console.log("Payload being sent:", payload);

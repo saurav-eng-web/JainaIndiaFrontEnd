@@ -46,6 +46,12 @@ export default function SideBar() {
           </Link>
         </li>
         <li>
+          <Link href="/search-complaint">
+            <i className="fa fa-search fa-2x"></i>
+            <span className="navText">Call Search</span>
+          </Link>
+        </li>
+        <li>
           <Link href="/warrantyregisteration">
             <i className="fa fa-certificate fa-2x"></i>
             <span className="navText">Warranty Registration</span>

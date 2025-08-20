@@ -217,7 +217,7 @@ export default function CallRegister() {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    callBy: '',
+    callBy: '', 
     title: '',
     firstName: '',
     lastName: '',
@@ -229,16 +229,21 @@ export default function CallRegister() {
     state: '',
     city: '',
     locality: '',
+    localityId: '',
+    modelID: '',
+    cityId: '',
     serialNo: '',
     productCategory: '',
     brand: '',
     pop: '',
     product: '',
+    productID: '',
     model: '',
     warranty: '',
     callType: '',
     faultVoc: '',
-    availableTime: ''
+    availableTime: '',
+    userIP:''
   });
 
   // ✅ AUTH CHECK
@@ -296,25 +301,140 @@ export default function CallRegister() {
   };
   const prevStep = () => setCurrentStep(s => Math.max(s - 1, 0));
 
+  // const submitCall = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const payload = {
+  //       SALUTATION: formData.title || "",
+  //       FIRSTNAME: formData.firstName || "",
+  //       LASTNAME: formData.lastName || "",
+  
+  //       HMPH: formData.phone || "",        // home phone
+  //       WKPH: formData.altPhone || "",     // work phone
+  //       stdcode: formData.stdCode || "",
+  
+  //       pincode: formData.pincode || "",
+  //       MOBILE: formData.phone || "",
+  //       ADDRESS1: formData.customerAddress || "",
+  //       ADDRESS2: formData.address2 || "",
+  //       City_ID: formData.cityId || 0,
+  //       Locality_ID: formData.localityId || 0,
+  //       landmark: formData.landmark || "",
+  
+  //       Call_Category: formData.callType || "Service",
+  //       Call_TypeID: formData.callTypeId || 4,
+  //       CallBy_ID: formData.callById || 1,
+  //       WarrantyID: formData.warrantyId || 3,
+  //       CALL_TYPE: formData.callType || "Service",
+  //       CALL_BY: formData.callBy || "Customer",
+  //       Dealer: formData.dealer || "",
+  //       WARRANTY: formData.warranty || "",
+        
+  //       PRODUCT: formData.product || "",
+  //       Product_ID: formData.productID || 0,
+  //       Model_ID: formData.modelID || 0,
+  //       PURCHASE_DATE: formData.pop || "",   // purchase date
+  //       SERIAL_NO: formData.serialNo || "",
+  
+  //       PROMISE_DATE: formData.serviceDate || "",
+  //       PROMISE_TIME: formData.availableTime || "",
+  //       Category: formData.productCategory || "",
+  //       EnterBy: "Admin", 
+  
+  //       COMPLAINT_STATUS: "OK",
+  //       Remarks: formData.faultVoc || "",
+  //       Email: formData.email || "",
+  //       Complaint_SubStatus: "Pending",
+  //       Excalated: 0,
+  //       Legal: 0,
+  
+  //       EnteredBy: "Admin User",
+  //       EnteredByID: 101,
+  //       IPAddress: "192.168.1.100"
+  //     };
+  //     console.log("Payload being sent:", payload);
+  //     await axiosInstance.post("/callregister/create-complaint", payload);
+  
+  //     // backend sends returnNo (not callNumber)
+  //     setCallNumber(data.returnNo || "");
+  //     setCurrentStep(0);
+  //   } catch (err) {
+  //     console.error("Call Register Error:", err);
+  //     alert("Error creating call: " + (err.response?.data?.message || err.message));
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const submitCall = async () => {
-    setLoading(true);
-    try {
-      const payload = {
-        ...formData,
-        pop: formData.pop ? new Date(formData.pop).toISOString() : null
-      };
+  setLoading(true);
+  try {
+    const payload = {
+      SALUTATION: formData.title || "",
+      FIRSTNAME: formData.firstName || "",
+      LASTNAME: formData.lastName || "",
 
-      const { data } = await axiosInstance.post('/CallRegister', payload);
+      HMPH: formData.phone || "",
+      WKPH: formData.altPhone || "",
+      stdcode: formData.stdCode || "",
 
-      setCallNumber(data.callNumber || data.CallNumber || '');
-      setCurrentStep(0);
-    } catch (err) {
-      console.error(err);
-      alert('Error creating call: ' + (err.response?.data || err.message));
-    } finally {
-      setLoading(false);
-    }
-  };
+      pincode: formData.pincode || "",
+      MOBILE: formData.phone || "",
+      ADDRESS1: formData.customerAddress || "",
+      ADDRESS2: formData.address2 || "",
+      City_ID: formData.cityId || 0,
+      Locality_ID: formData.localityId || 0,
+      landmark: formData.landmark || "",
+
+      Call_Category: formData.callType || "NA",
+      Call_TypeID: formData.callTypeId || 4,
+      CallBy_ID: formData.callById || 1,
+      WarrantyID: formData.warrantyId || 3,
+      CALL_TYPE: formData.callType || "NA",
+      CALL_BY: formData.callBy || "Customer",
+      Dealer: formData.dealer || "",
+      WARRANTY: formData.warranty || "",
+
+      PRODUCT: formData.product || "",
+      Product_ID: formData.productID || 0,
+      Model_ID: formData.modelID || 0,
+      PURCHASE_DATE: formData.pop || "",
+      SERIAL_NO: formData.serialNo || "",
+
+      PROMISE_DATE: formData.serviceDate || "",
+      PROMISE_TIME: formData.availableTime || "",
+      Category: formData.productCategory || "",
+      EnterBy: "Admin", 
+
+      COMPLAINT_STATUS: "OK",
+      Remarks: formData.faultVoc || "",
+      Email: formData.email || "",
+      Complaint_SubStatus: "Pending",
+      Excalated: 0,
+      Legal: 0,
+
+      EnteredBy: "Admin User",
+      EnteredByID: 101,
+      IPAddress: userIP || 123
+    };
+
+    console.log("Payload being sent:", payload);
+
+    // ✅ Capture axios response
+    const response = await axiosInstance.post("/callregister/create-complaint", payload);
+
+    // backend usually returns data inside response.data
+    setCallNumber(response.data?.returnNo || "");
+
+    // reset to step 0
+    setCurrentStep(0);
+
+  } catch (err) {
+    console.error("Call Register Error:", err);
+    alert("Error creating call: " + (err.response?.data?.message || err.message));
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -360,6 +480,7 @@ export default function CallRegister() {
           <ServiceDetailsStep
             formData={formData}
             handleChange={handleChange}
+            setFormData={setFormData} 
             errors={errors}
           />
         );

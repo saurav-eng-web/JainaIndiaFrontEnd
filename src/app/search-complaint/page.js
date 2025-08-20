@@ -78,9 +78,9 @@ useEffect (() => {
     <button className="search-btn" onClick={handleSearch}>
       Search
     </button>
-    <button className="search-btn" onClick={() => router.push('/call')}>
+    {/* <button className="search-btn" onClick={() => router.push('/call')}>
       New Registration
-    </button>
+    </button> */}
   </div>
 </div>
           {searchResults.length > 0 && (

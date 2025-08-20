@@ -1858,7 +1858,11 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
     { id: 'productCategory', type: 'select', disabled: isSerialValid },
     { id: 'product', type: 'select', disabled: isSerialValid },
     { id: 'model', type: 'select', disabled: isSerialValid },
-    { id: 'modelDescription', type: 'text', disabled: isSerialValid },
+    { 
+      id: 'modelDescription', 
+      type: 'text', 
+      disabled: isSerialValid || !!formData.modelID  // disable if serial valid OR model selected
+    },
     { id: 'pop', type: 'date' },
     { id: 'warranty', type: 'select', disabled: false },
   ];

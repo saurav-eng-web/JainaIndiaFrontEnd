@@ -369,6 +369,8 @@ export default function HistoryPage() {
                     <div><strong>City:</strong> {detail.city || '-'}</div>
                     <div><strong>Pincode:</strong> {detail.pincode || '-'}</div>
                     <div><strong>State:</strong> {detail.state || '-'}</div>
+
+                    
                   </div>
                 </div>
               )}
@@ -397,9 +399,91 @@ export default function HistoryPage() {
                     <div><strong>Complaint Status:</strong> {detail.complainT_STATUS || '-'}</div>
                     <div><strong>Remarks:</strong> {detail.remarks || '-'}</div>
                     <div><strong>Entered By:</strong> {detail.enterby || '-'}</div>
+                          <div><strong>Escalated to HO:</strong> {firstEntry.escalated === 1 ? 'Yes' : 'No'}</div>
+                          <div><strong>NSP:</strong> {detail.asC_NAME || '-'}</div>
+                    <div><strong>SF Name:</strong> {detail.asC_NAME || '-'}</div>
+                    <div><strong>SF Code:</strong> {detail.eng_ID || '-'}</div>
+                    <div><strong>SF Mobile No.:</strong> {detail.mobile || '-'}</div>
+                    <div><strong>Appointment Date:</strong> {detail.apptDate ? new Date(detail.apptDate).toLocaleDateString() : '-'}</div>
+                    <div><strong>Appointment Time:</strong> {detail.apptTime || '-'}</div>
+                    <div><strong>Promise Date:</strong> {detail.promisE_DATE ? new Date(detail.promisE_DATE).toLocaleDateString() : '-'}</div>
+                    <div><strong>Promise Time:</strong> {detail.promisE_TIME || '-'}</div>
+                    <div><strong>Legal Case:</strong> {detail.legal === 1 ? 'Yes' : 'No'}</div>
+                    <div><strong>Special Instructions:</strong> {detail.splInt || '-'}</div>
+
                   </div>
                 </div>
               )}
+                
+                {activeTab === 'Pending Level History' && (
+                <div className="tab-section">
+                  <h3>🛠️ Pending Level History</h3>
+                  <div className="row-content">
+                    <div><strong>Sr. No:</strong> {detail.seriaL_NO || '-'}</div>
+                    <div><strong>Job Desc</strong> {detail.seriaL_NO || '-'}</div>
+                    <div><strong>Symptom:</strong> {detail.seriaL_NO || '-'}</div>
+                    <div><strong>Cause:</strong> {detail.seriaL_NO|| '-'}</div>
+                    <div><strong>Analysis:</strong> {detail.seriaL_NO || '-'}</div>
+                    
+                  </div>
+                </div>
+              )}
+
+
+{activeTab === 'Document Uploaded' && (
+                <div className="tab-section">
+                  <h3>🧪 Document Uploaded</h3>
+                  <div className="row-content">
+                    <div><strong>Sr. No.:</strong> {detail.seriaL_NO}</div>
+                    <div><strong>Document Type.:</strong> Test content (example)</div>
+                    <div><strong>Entered Date:</strong> Test content (example)</div>
+                    <div><strong>Action.:</strong> Test content (example)</div>
+
+                  </div>
+                </div>
+              )}
+                 {activeTab === 'Document Uploaded from Android Application' && (
+                <div className="tab-section">
+                  <h3>🧪 Test Info</h3>
+                  <div className="row-content">
+                    <div><strong>Info:</strong> Test content (example)</div>
+                  </div>
+                </div>
+              )}
+                 {activeTab === 'Job Done' && (
+                <div className="tab-section">
+                  <h3>🧪 Job Done</h3>
+                  <div className="row-content">
+                    <div><strong>Sr. No.:</strong> {detail.seriaL_NO || '-'}</div>
+                    
+                    <div><strong>Level.:</strong> Test content (example)</div>
+                    
+                    <div><strong>Entered Date.:</strong> Test content (example)</div>
+                    
+                    <div><strong>Entered Time.:</strong> Test content (example)</div>
+                    
+                    <div><strong>Entered By.:</strong> Test content (example)</div>
+
+                  </div>
+                </div>
+              )}
+               {activeTab === 'Part Consumption' && (
+                <div className="tab-section">
+                  <h3>🧪 Test Info</h3>
+                  <div className="row-content">
+                    <div><strong>Info:</strong> Test content (example)</div>
+                  </div>
+                </div>
+              )}
+               {activeTab === 'Visit Detail' && (
+                <div className="tab-section">
+                  <h3>🧪 Test Info</h3>
+                  <div className="row-content">
+                    <div><strong>Info:</strong> Test content (example)</div>
+                  </div>
+                </div>
+              )}
+
             </div>
           </>
         )}

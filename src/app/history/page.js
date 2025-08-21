@@ -325,8 +325,9 @@ export default function HistoryPage() {
               <thead>
                 <tr>
                   <th>Complaint No</th>
-                  <th>Remarks</th>
+                
                   <th>Status</th>
+                  <th>Remarks</th>
                   <th>Entered Date</th>
                   <th>Entered By</th>
                 </tr>
@@ -335,8 +336,9 @@ export default function HistoryPage() {
                 {logData.map((row, index) => (
                   <tr key={index}>
                     <td>{row.ticketNo}</td>
-                    <td>{row.remarks || '-'}</td>
+                   
                     <td><StatusBadge status={row.complaintStatus} /></td>
+                    <td>{row.complaintSubStatus || '-'}</td>
                     <td>{row.tdate ? new Date(row.tdate).toLocaleString() : '-'}</td>
                     <td>{row.enteredBy}</td>
                   </tr>

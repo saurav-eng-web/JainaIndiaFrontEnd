@@ -22,8 +22,9 @@ useEffect (() => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchAttempted, setSearchAttempted] = useState(false);
 
-  const handleViewHistory = (tickeT_NO) => {
-    router.push(`/history/${tickeT_NO}`);
+  const handleViewHistory = (ticketNo) => {
+    sessionStorage.setItem('currentTicket', ticketNo);
+    router.push('/history'); // ✅ No ticket number in URL
   };
   const handleSearch = async () => {
     const q = query.trim();

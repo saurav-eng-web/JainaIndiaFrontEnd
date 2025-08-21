@@ -265,6 +265,22 @@ export default function HistoryPage() {
   const [custDetail, setCustDetail] = useState(null); // ✅ new
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const storedTicket = sessionStorage.getItem('currentTicket');
+    if (storedTicket) {
+      // fetch data with storedTicket
+      axiosInstance
+        .get(`ComplaintHistory/history-by-ticket/${storedTicket}`)
+        .then(res => setLogData(Array.isArray(res.data) ? res.data : [res.data]))
+        .catch(err => console.error(err))
+        .finally(() => setLoading(false));
+  
+      axiosInstance
+        .get(`ComplaintCustDetail/${storedTicket}`)
+        .then(res => setCustDetail(res.data))
+        .catch(err => console.error(err));
+    }
+  }, []);
   // Fetch history logs
   useEffect(() => {
     if (ticketNo) {

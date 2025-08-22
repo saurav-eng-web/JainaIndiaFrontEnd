@@ -201,6 +201,40 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
+
+
+    .view-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      background-color: #714b67; /* blue */
+      color: #fff;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 14px;
+      transition: background-color 0.2s ease; 
+    }
     
+    .view-btn:hover {
+      background-color: #714b67; /* darker blue on hover */
+    }
     
+    .row-content2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* responsive columns */
+      gap: 50px;
+      font-size: 15px;
+      color: #444;
+    }
     
+    .tab-section2 {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      transition: all 0.3s ease-in-out;
+      
+    }
+    .row-content2 div {
+      margin-bottom: 20px; /* adds gap between each line */
+    }

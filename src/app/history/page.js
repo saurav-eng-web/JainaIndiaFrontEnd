@@ -259,11 +259,14 @@ const StatusBadge = ({ status }) => (
 );
 
 export default function HistoryPage() {
+    const [pendingHistory, setPendingHistory] = useState([]);
   const { ticketNo } = useParams();
   const [activeTab, setActiveTab] = useState('Job Details');
   const [logData, setLogData] = useState([]);
   const [custDetail, setCustDetail] = useState(null); // ✅ new
   const [loading, setLoading] = useState(true);
+  const [partConsumption, setPartConsumption] = useState([]);
+  const [documents, setDocuments] = useState([]);
 
   useEffect(() => {
     const storedTicket = sessionStorage.getItem('currentTicket');
@@ -295,13 +298,51 @@ export default function HistoryPage() {
     }
   }, [ticketNo]);
 
-  // Fetch customer + complaint detail
   useEffect(() => {
     if (ticketNo) {
       axiosInstance
-        .get(`ComplaintCustDetail/${ticketNo}`)
-        .then((res) => setCustDetail(res.data))
-        .catch((err) => console.error('Failed to fetch cust detail:', err));
+        .get(`PartConsumption/ByTicket/${ticketNo}`)
+        .then(res => setPartConsumption(Array.isArray(res.data) ? res.data : []))
+        .catch(err => console.error('Failed to fetch part consumption:', err));
+    }
+  }, [ticketNo]);
+
+  // Fetch customer + complaint detail
+  useEffect(() => {
+    const storedTicket = sessionStorage.getItem('currentTicket');
+    const fetchTicket = ticketNo || storedTicket; // fallback
+    if (fetchTicket) {
+      console.log("Fetching PartConsumption for ticket:", fetchTicket);
+      axiosInstance
+        .get(`PartConsumption/ByTicket/${fetchTicket}`)
+        .then(res => setPartConsumption(Array.isArray(res.data) ? res.data : [res.data]))
+        .catch(err => console.error('Failed to fetch part consumption:', err));
+    }
+  }, [ticketNo]);
+
+
+  
+useEffect(() => {
+    const storedTicket = sessionStorage.getItem('currentTicket');
+    const fetchTicket = ticketNo || storedTicket; // fallback
+    if (fetchTicket) {
+      axiosInstance
+        .get(`DocumentUpload/ticket/${fetchTicket}`)
+        .then(res => setDocuments(Array.isArray(res.data) ? res.data : []))
+        .catch(err => console.error('Failed to fetch documents:', err));
+    }
+  }, [ticketNo]);
+
+
+  useEffect(() => {
+    const storedTicket = sessionStorage.getItem('currentTicket');
+    const fetchTicket = ticketNo || storedTicket;
+  
+    if (fetchTicket) {
+      axiosInstance
+        .get(`LevelPendingHistory/ticket/${fetchTicket}`)
+        .then(res => setPendingHistory(Array.isArray(res.data) ? res.data : []))
+        .catch(err => console.error("Failed to fetch Pending Level History:", err));
     }
   }, [ticketNo]);
 
@@ -434,32 +475,58 @@ export default function HistoryPage() {
               )}
                 
                 {activeTab === 'Pending Level History' && (
-                <div className="tab-section">
-                  <h3>🛠️ Pending Level History</h3>
-                  <div className="row-content">
-                    <div><strong>Sr. No:</strong> {detail.seriaL_NO || '-'}</div>
-                    <div><strong>Job Desc</strong> {detail.seriaL_NO || '-'}</div>
-                    <div><strong>Symptom:</strong> {detail.seriaL_NO || '-'}</div>
-                    <div><strong>Cause:</strong> {detail.seriaL_NO|| '-'}</div>
-                    <div><strong>Analysis:</strong> {detail.seriaL_NO || '-'}</div>
-                    
-                  </div>
-                </div>
-              )}
+  <div className="tab-section">
+    <h3>🛠️ Pending Level History</h3>
+
+    {pendingHistory.length === 0 ? (
+      <p>No pending history found.</p>
+    ) : (
+      pendingHistory.map((item, index) => (
+        <div className="row-content" key={item.id}>
+          <div><strong>Sr. No:</strong> {index + 1}</div>
+          <div><strong>Ticket No:</strong> {item.ticket_No || '-'}</div>
+          <div><strong>Ticket Key:</strong> {item.ticket_Key || '-'}</div>
+          <div><strong>Pending At:</strong> {item.pendingAt || '-'}</div>
+          
+        </div>
+      ))
+    )}
+  </div>
+)}
 
 
 {activeTab === 'Document Uploaded' && (
-                <div className="tab-section">
-                  <h3>🧪 Document Uploaded</h3>
-                  <div className="row-content">
-                    <div><strong>Sr. No.:</strong> {detail.seriaL_NO}</div>
-                    <div><strong>Document Type.:</strong> Test content (example)</div>
-                    <div><strong>Entered Date:</strong> Test content (example)</div>
-                    <div><strong>Action.:</strong> Test content (example)</div>
+  <div className="tab-section2">
+    <h3>📂 Document Uploaded</h3>
 
-                  </div>
-                </div>
-              )}
+    {documents.length === 0 ? (
+      <p>No documents found.</p>
+    ) : (
+      documents.map((doc, index) => (
+        <div className="row-content2" key={index}>
+          <div><strong>Sr. No.:</strong> {index + 1}</div>
+          <div><strong>Document Type:</strong> {doc.documentType || '-'}</div>
+          <div><strong>Entered Date:</strong> {doc.enteredDate || '-'}</div>
+          <div>
+  <strong>Action:</strong>{' '}
+  {doc.documentURL1 ? (
+    <a
+      href={doc.documentURL1.replace("..\\", "/")}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="view-btn"
+    >
+      View
+    </a>
+  ) : (
+    '-'
+  )}
+</div>
+        </div>
+      ))
+    )}
+  </div>
+)}
                  {activeTab === 'Document Uploaded from Android Application' && (
                 <div className="tab-section">
                   <h3>🧪 Test Info</h3>
@@ -486,13 +553,26 @@ export default function HistoryPage() {
                 </div>
               )}
                {activeTab === 'Part Consumption' && (
-                <div className="tab-section">
-                  <h3>🧪 Test Info</h3>
-                  <div className="row-content">
-                    <div><strong>Info:</strong> Test content (example)</div>
-                  </div>
-                </div>
-              )}
+  <div className="tab-section">
+    <h3>📦 Part Consumption</h3>
+    {partConsumption.length === 0 ? (
+      <p>No part consumption found.</p>
+    ) : (
+      partConsumption.map((item, index) => (
+        <div className="row-content" key={item.pC_ID || index}>
+          <div><strong>Sr. No:</strong> {item.pC_Srno || '-'}</div>
+          <div><strong>Part Code:</strong> {item.pC_PartCode || '-'}</div>
+          <div><strong>Description:</strong> {item.pC_PartDesc || '-'}</div>
+          <div><strong>Date:</strong> {item.pC_Date ? new Date(item.pC_Date).toLocaleDateString() : '-'}</div>
+          <div><strong>Rate:</strong> {item.pC_Rate ?? '-'}</div>
+          <div><strong>Quantity:</strong> {item.pC_Quantity ?? '-'}</div>
+          <div><strong>Amount:</strong> {item.pC_Amount ?? '-'}</div>
+          <div><strong>Fresh Faulty:</strong> {item.isFreshFaulty ? 'Yes' : 'No'}</div>
+        </div>
+      ))
+    )}
+  </div>
+)}
                {activeTab === 'Visit Detail' && (
                 <div className="tab-section">
                   <h3>🧪 Test Info</h3>

@@ -1,134 +1,134 @@
-'use client';
-import { useState } from 'react';
-import { useTheme } from '@/theme/ThemeContext';
-import {
-  MdTv,
-  MdAcUnit,
-  MdKitchen,
-  MdLocalLaundryService,
-  MdSpeaker,
-  MdOutlineAcUnit,
-} from 'react-icons/md';
+// 'use client';
+// import { useState } from 'react';
+// import { useTheme } from '@/theme/ThemeContext';
+// import {
+//   MdTv,
+//   MdAcUnit,
+//   MdKitchen,
+//   MdLocalLaundryService,
+//   MdSpeaker,
+//   MdOutlineAcUnit,
+// } from 'react-icons/md';
  
-export default function AscCreationForm() {
-    const { colors } = useTheme(); 
-  const [categories, setCategories] = useState({
-    led: false,
-    ac: false,
-    fridge: false,
-    wm: false,
-    speaker: false,
-    cooler: false,
-  });
+// export default function AscCreationForm() {
+//     const { colors } = useTheme(); 
+//   const [categories, setCategories] = useState({
+//     led: false,
+//     ac: false,
+//     fridge: false,
+//     wm: false,
+//     speaker: false,
+//     cooler: false,
+//   });
 
-  const [isChecked, setIsChecked] = useState(false);
+//   const [isChecked, setIsChecked] = useState(false);
 
-  const toggleCategory = (key) => {
-    setCategories((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+//   const toggleCategory = (key) => {
+//     setCategories((prev) => ({ ...prev, [key]: !prev[key] }));
+//   };
 
-  const categoryItems = [
-    { key: 'led', label: 'LED', Icon: MdTv },
-    { key: 'ac', label: 'Air Conditioner', Icon: MdAcUnit },
-    { key: 'fridge', label: 'Refrigerator', Icon: MdKitchen },
-    { key: 'wm', label: 'Washing Machine', Icon: MdLocalLaundryService },
-    { key: 'speaker', label: 'Speaker', Icon: MdSpeaker },
-    { key: 'cooler', label: 'Cooler', Icon: MdOutlineAcUnit },
-  ];
+//   const categoryItems = [
+//     { key: 'led', label: 'LED', Icon: MdTv },
+//     { key: 'ac', label: 'Air Conditioner', Icon: MdAcUnit },
+//     { key: 'fridge', label: 'Refrigerator', Icon: MdKitchen },
+//     { key: 'wm', label: 'Washing Machine', Icon: MdLocalLaundryService },
+//     { key: 'speaker', label: 'Speaker', Icon: MdSpeaker },
+//     { key: 'cooler', label: 'Cooler', Icon: MdOutlineAcUnit },
+//   ];
 
-  return (
-    <div className="max-w-6xl mx-auto p-8 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-8 text-left"style={{color:colors.primary,padding:5,fontWeight:700,fontSize:18,  border: `2px solid ${colors.primary}`,borderRadius:5}}>ASC Creation Request</h2>
+//   return (
+//     <div className="max-w-6xl mx-auto p-8 bg-white rounded-lg shadow">
+//       <h2 className="text-2xl font-bold mb-8 text-left"style={{color:colors.primary,padding:5,fontWeight:700,fontSize:18,  border: `2px solid ${colors.primary}`,borderRadius:5}}>ASC Creation Request</h2>
 
-      {/* Form Fields */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <label className="block text-sm font-medium mb-1">ASC Name</label>
-          <input type="text" placeholder="Enter ASC name" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Owner Name</label>
-          <input type="text" placeholder="Enter owner name" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Contact Number</label>
-          <input type="text" placeholder="Enter contact number" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none" />
-        </div>
+//       {/* Form Fields */}
+//       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+//         <div>
+//           <label className="block text-sm font-medium mb-1">ASC Name</label>
+//           <input type="text" placeholder="Enter ASC name" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none" />
+//         </div>
+//         <div>
+//           <label className="block text-sm font-medium mb-1">Owner Name</label>
+//           <input type="text" placeholder="Enter owner name" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none" />
+//         </div>
+//         <div>
+//           <label className="block text-sm font-medium mb-1">Contact Number</label>
+//           <input type="text" placeholder="Enter contact number" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none" />
+//         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">State</label>
-          <select className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none">
-            <option>Select state</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">City</label>
-          <select className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none">
-            <option>Select city</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">GST Number</label>
-          <input type="text" placeholder="Enter GST number" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none" />
-        </div>
+//         <div>
+//           <label className="block text-sm font-medium mb-1">State</label>
+//           <select className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none">
+//             <option>Select state</option>
+//           </select>
+//         </div>
+//         <div>
+//           <label className="block text-sm font-medium mb-1">City</label>
+//           <select className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none">
+//             <option>Select city</option>
+//           </select>
+//         </div>
+//         <div>
+//           <label className="block text-sm font-medium mb-1">GST Number</label>
+//           <input type="text" placeholder="Enter GST number" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none" />
+//         </div>
 
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium mb-1">Complete Address</label>
-          <textarea placeholder="Enter complete address" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none min-h-[100px]" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">PAN Number</label>
-          <input type="text" placeholder="Enter PAN number" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none" />
-        </div>
-      </div>
+//         <div className="md:col-span-2">
+//           <label className="block text-sm font-medium mb-1">Complete Address</label>
+//           <textarea placeholder="Enter complete address" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none min-h-[100px]" />
+//         </div>
+//         <div>
+//           <label className="block text-sm font-medium mb-1">PAN Number</label>
+//           <input type="text" placeholder="Enter PAN number" className="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 outline-none" />
+//         </div>
+//       </div>
 
-      {/* Category Selection */}
-      <h3 className="text-lg font-semibold mt-10 mb-4">Select Category</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-      {categoryItems.map(({ key, label, Icon }) => (
-  <div
-    key={key}
-    onClick={() => toggleCategory(key)}
-    className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center justify-center gap-2 transition ${
-      categories[key] ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-100'
-    }`}
-  >
-    {/* Dynamic color based on selection */}
-    <Icon size={32} style={{ color: categories[key] ? colors.primary : '#4B5563' }} />
-    <div className="font-medium">{label}</div>
-    <input
-      type="checkbox"
-      checked={categories[key]}
-      readOnly
-      className="form-checkbox h-5 w-5 text-blue-600"
-    />
-  </div>
-))}
-      </div>
+//       {/* Category Selection */}
+//       <h3 className="text-lg font-semibold mt-10 mb-4">Select Category</h3>
+//       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+//       {categoryItems.map(({ key, label, Icon }) => (
+//   <div
+//     key={key}
+//     onClick={() => toggleCategory(key)}
+//     className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center justify-center gap-2 transition ${
+//       categories[key] ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-100'
+//     }`}
+//   >
+//     {/* Dynamic color based on selection */}
+//     <Icon size={32} style={{ color: categories[key] ? colors.primary : '#4B5563' }} />
+//     <div className="font-medium">{label}</div>
+//     <input
+//       type="checkbox"
+//       checked={categories[key]}
+//       readOnly
+//       className="form-checkbox h-5 w-5 text-blue-600"
+//     />
+//   </div>
+// ))}
+//       </div>
 
-      {/* Confirmation */}
-      <div className="flex items-start gap-2 mb-6">
-        <input
-          type="checkbox"
-          id="confirm"
-          checked={isChecked}
-          onChange={(e) => setIsChecked(e.target.checked)}
-          className="mt-1"
-        />
-        <label htmlFor="confirm" className="text-sm text-gray-700">
-          I hereby confirm that the above details for new ASC creation request are correct and aligned with the John's agreement.
-        </label>
-      </div>
+//       {/* Confirmation */}
+//       <div className="flex items-start gap-2 mb-6">
+//         <input
+//           type="checkbox"
+//           id="confirm"
+//           checked={isChecked}
+//           onChange={(e) => setIsChecked(e.target.checked)}
+//           className="mt-1"
+//         />
+//         <label htmlFor="confirm" className="text-sm text-gray-700">
+//           I hereby confirm that the above details for new ASC creation request are correct and aligned with the John's agreement.
+//         </label>
+//       </div>
 
-      {/* Submit Button */}
-      <div className="flex justify-end">
-        <button
-          className="text-white px-6 py-2 rounded"
-          disabled={!isChecked}style={{background:colors.primary}}
-        >
-          Create Ticket No.
-        </button>
-      </div>
-    </div>
-  );
-}
+//       {/* Submit Button */}
+//       <div className="flex justify-end">
+//         <button
+//           className="text-white px-6 py-2 rounded"
+//           disabled={!isChecked}style={{background:colors.primary}}
+//         >
+//           Create Ticket No.
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }

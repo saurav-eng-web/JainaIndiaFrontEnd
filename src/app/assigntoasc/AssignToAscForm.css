@@ -76,11 +76,11 @@ body {
     transition: border 0.2s, box-shadow 0.2s;
   }
   
-  .remarks-textarea:focus {
+  /* .remarks-textarea:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
   }
-  
+   */
   .dropdown {
     margin-top: 24px;
   }

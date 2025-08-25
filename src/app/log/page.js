@@ -273,18 +273,19 @@ export default function LoginPage() {
           box-sizing: border-box;
         }
 
-        body, html {
-          min-height: 100vh;
-          font-family: "Raleway", sans-serif;
-          margin: 0;
-          overflow: hidden;
-        }
+        // body, html {
+        //   min-height: 100vh;
+        //   font-family: "Raleway", sans-serif;
+        //   margin: 0;
+        //   overflow: hidden;
+        // }
 
         .container {
-          position: absolute;
+          // position: relative;
           width: 100%;
           height: 100%;
           overflow: hidden;
+          scroll:block
         }
 
         .container:hover .top:before,

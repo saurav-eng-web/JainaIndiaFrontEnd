@@ -124,7 +124,29 @@
     color: gray;
   }
    */
+        
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 
 
    .login-wrapper {
     display: flex;
@@ -132,10 +154,9 @@
     font-family: sans-serif;
   }
   
-  /* Left Section */
   .login-left {
     flex: 1;
-    background: url('/crmLogo.png')  center center/cover; /* path to your image */
+    background: url('/crmLogo.png')  center center/cover; 
     color: white;
     display: flex;
     flex-direction: column;
@@ -148,7 +169,7 @@
   .login-left .brand,
   .login-left h1,
   .login-left p {
-    position: relative; /* Keep text above overlay */
+    position: relative; 
   }
   
   .login-left .brand {
@@ -167,7 +188,6 @@
     opacity: 0.9;
   }
   
-  /* Right Section */
   .login-right {
     flex: 1;
     background: white;
@@ -200,7 +220,7 @@
   }
   
   input[type="text"], input[type="password"] {
-    width: 100%;
+    
     padding: 0.7rem;
     margin-bottom: 1rem;
     border: 1px solid #ddd;
@@ -261,4 +281,4 @@
     font-size: 0.85rem;
     margin-top: 0.5rem;
   }
-  
+   */

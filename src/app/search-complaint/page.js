@@ -254,7 +254,7 @@ export default function SearchComplaintPage() {
       </td>
 
       {/* New Registration button column (only if OK/Cancel) */}
-      <td>
+      {/* <td>
         {(result.complainT_SUBSTATUS?.toLowerCase() === 'ok' ||
           result.complainT_SUBSTATUS?.toLowerCase() === 'cancel') && (
           <button
@@ -268,7 +268,7 @@ export default function SearchComplaintPage() {
             Registration
           </button>
         )}
-      </td>
+      </td> */}
 
       {/* Other details */}
       <td>{`${result.salutation} ${result.firstname} ${result.lastname}`}</td>

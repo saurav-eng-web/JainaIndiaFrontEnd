@@ -1024,7 +1024,7 @@ export default function CallRegister() {
         COMPLAINT_STATUS: "OK",
         Remarks: formData.faultVoc || "",
         Email: formData.email || "",
-        Complaint_SubStatus: "Pending",
+        Complaint_SubStatus: "",
         Excalated: 0,
         Legal: 0,
 

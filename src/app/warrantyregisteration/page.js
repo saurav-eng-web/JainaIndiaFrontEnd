@@ -39,6 +39,7 @@ export default function WarrantyForm() {
   const [manualBrand, setManualBrand] = useState('');
   const [manualProduct, setManualProduct] = useState('');
   const [manualModel, setManualModel] = useState('');
+  const [uploadedInvoiceName, setUploadedInvoiceName] = useState('');
 
   const fetchFallbackProductData = async () => {
     try {
@@ -63,6 +64,34 @@ export default function WarrantyForm() {
       setModelList([]);
     }
   };
+
+  const handleInvoiceUpload = async (file) => {
+    if (!file) return null;
+  
+    const formData = new FormData();
+    formData.append("file", file); // ✅ must match backend param name
+  
+    try {
+      const res = await axiosInstance.post(
+        "WarrantyRegistration/upload-invoice",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Accept: "application/json",
+          },
+        }
+      );
+  
+      console.log("✅ Invoice uploaded:", res.data);
+      return res.data.fileName; // server returns { fileName: "xyz.png" }
+    } catch (err) {
+      console.error("❌ Invoice upload failed", err);
+      alert("❌ Failed to upload invoice");
+      return null;
+    }
+  };
+  
 
   const handleSerialCheck = async () => {
     if (!serialNo.trim()) {
@@ -141,7 +170,6 @@ export default function WarrantyForm() {
     }
     return true;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep2()) return;
@@ -152,10 +180,20 @@ export default function WarrantyForm() {
     try {
       const regCheck = await axiosInstance.get(`WarrantyRegistration/by-serial/${finalSerial}`);
       if (regCheck.data && regCheck.data.serialNumber) {
-        alert('❌ This serial number is already registered.');
+        alert("❌ This serial number is already registered.");
         return;
       }
     } catch {}
+  
+    // 🔹 Upload invoice first
+    let uploadedFileName = null;
+    if (invoice) {
+      uploadedFileName = await handleInvoiceUpload(invoice);
+      if (!uploadedFileName) {
+        alert("❌ Invoice upload failed, please try again.");
+        return;
+      }
+    }
   
     // Construct JSON payload
     const payload = {
@@ -174,50 +212,50 @@ export default function WarrantyForm() {
       Model: serialData?.model || manualModel,
       ModelID: serialData?.modelID || manualModel,
       Tdate: new Date().toISOString(),
-      EnterBy: 'admin',
+      EnterBy: "admin",
       DOP: dop,
       PurchaseFromRetailer: retailer,
-      InvoiceFile: "test", // Save file path instead of file
+      Invoice: uploadedFileName  || "", // ✅ Save uploaded fileName here
       BrandID: serialData?.brandID || manualBrand,
       Brand: serialData?.brand || manualBrand,
       LandMark: landmark,
-      // Warranty: '2 Years',
     };
   
     try {
-      await axiosInstance.post('WarrantyRegistration/create', payload, {
-        headers: { 'Content-Type': 'application/json' },
+      await axiosInstance.post("WarrantyRegistration/create", payload, {
+        headers: { "Content-Type": "application/json" },
       });
   
       setShowSuccessPopup(true);
       setStep(1);
+  
       // Reset all fields
-      setSerialNo('');
+      setSerialNo("");
       setSerialData(null);
-      setSerialError('');
+      setSerialError("");
       setAlreadyRegistered(false);
-      setFirstName('');
-      setLastName('');
-      setPhone('');
-      setAddress('');
-      setLandmark('');
-      setPincode('');
-      setCityName('');
+      setFirstName("");
+      setLastName("");
+      setPhone("");
+      setAddress("");
+      setLandmark("");
+      setPincode("");
+      setCityName("");
       setLocalities([]);
-      setSelectedLocality('');
-      setPincodeError('');
-      setDop('');
-      setRetailer('');
+      setSelectedLocality("");
+      setPincodeError("");
+      setDop("");
+      setRetailer("");
       setInvoice(null);
-      setManualBrand('');
-      setManualProduct('');
-      setManualModel('');
+      setManualBrand("");
+      setManualProduct("");
+      setManualModel("");
     } catch (err) {
-      console.error('❌ Save failed', err);
-      alert('❌ Failed to register warranty');
+      console.error("❌ Save failed", err);
+      alert("❌ Failed to register warranty");
     }
   };
-  return (
+    return (
     <div className="flex min-h-screen">
       <SideBar />
       <div className="flex-1 ml-[60px] transition-all">
@@ -367,7 +405,36 @@ export default function WarrantyForm() {
                 </div>
                 <div>
                   <label className="block font-medium mb-1">Upload Invoice <span className="text-red-500">*</span></label>
-                  <input type="file" onChange={(e) => setInvoice(e.target.files[0])} className="w-full"/>
+                  <input
+  type="file"
+  onChange={async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setInvoice(file); // optional, keep original file
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await axiosInstance.post(
+          "WarrantyRegistration/upload-invoice",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Accept: "application/json",
+            },
+          }
+        );
+        setUploadedInvoiceName(res.data.fileName); // ✅ save filename for payload
+        console.log("✅ Invoice uploaded:", res.data.fileName);
+      } catch (err) {
+        console.error("❌ Upload failed", err);
+        alert("❌ Invoice upload failed");
+      }
+    }
+  }}
+  className="w-full"
+/>
                 </div>
               </div>
   

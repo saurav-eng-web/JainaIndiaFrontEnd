@@ -19,7 +19,7 @@ export default function WarrantyForm() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState(''); 
+  const [address, setAddress] = useState('');
   const [landmark, setLandmark] = useState('');
   const [pincode, setPincode] = useState('');
   const [cityName, setCityName] = useState('');
@@ -45,13 +45,22 @@ export default function WarrantyForm() {
       const [brandRes, productRes, modelRes] = await Promise.all([
         axiosInstance.get('BrandMaster'),
         axiosInstance.get('productmaster/GetAll'),
-        axiosInstance.get('Model')
+        // axiosInstance.get('Model')
       ]);
       setBrandList(brandRes.data || []);
       setProductList(productRes.data || []);
       setModelList(modelRes.data || []);
     } catch (err) { 
       console.error('❌ Failed to load fallback brand/product/model', err);
+    }
+  };
+  const fetchModelsByProduct = async (productId) => {
+    try {
+      const res = await axiosInstance.get(`Model/productid/${productId}`);
+      setModelList(res.data || []);
+    } catch (err) {
+      console.error("❌ Failed to fetch models by product", err);
+      setModelList([]);
     }
   };
 
@@ -133,15 +142,13 @@ export default function WarrantyForm() {
     return true;
   };
 
-  
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep2()) return;
-
+  
     const selectedCityObj = localities.find((l) => l.locality_Name === selectedLocality);
     const finalSerial = serialData?.itemSerialNo1 || serialNo;
-
+  
     try {
       const regCheck = await axiosInstance.get(`WarrantyRegistration/by-serial/${finalSerial}`);
       if (regCheck.data && regCheck.data.serialNumber) {
@@ -149,40 +156,42 @@ export default function WarrantyForm() {
         return;
       }
     } catch {}
-
-    const formData = new FormData();
-    formData.append('customerName', firstName);
-    formData.append('lastName', lastName);
-    formData.append('phoneNumber', phone);
-    formData.append('address', address);
-    formData.append('pincode', pincode);
-    formData.append('city', cityName);
-    formData.append('cityID', selectedCityObj?.locality_City || '');
-    formData.append('locality', selectedLocality);
-    formData.append('localityID', selectedCityObj?.locality_Id || '');
-    formData.append('serialNumber', finalSerial);
-    formData.append('product', serialData?.product || manualProduct);
-    formData.append('productID', serialData?.productID || '');
-    formData.append('model', serialData?.model || manualModel);
-    formData.append('modelID', serialData?.modelID || '');
-    formData.append('tdate', new Date().toISOString());
-    formData.append('enterBy', 'AdminUser');
-    formData.append('dop', dop);
-    formData.append('purchaseFromRetailer', retailer);
-    formData.append('invoice', invoice ? invoice.name : '');
-    formData.append('invoiceFile', invoice);
-    formData.append('brandID', serialData?.brandID || '');
-    formData.append('brand', serialData?.brand || manualBrand);
-    formData.append('landMark', landmark);
-    formData.append('warranty', '1 Year');
-
+  
+    // Construct JSON payload
+    const payload = {
+      CustomerName: firstName,
+      LastName: lastName,
+      PhoneNumber: phone,
+      Address: address,
+      Pincode: pincode,
+      City: cityName,
+      CityID: selectedCityObj?.locality_City || 0,
+      Locality: selectedLocality,
+      LocalityID: selectedCityObj?.locality_Id || 0,
+      SerialNumber: finalSerial,
+      Product: serialData?.product || manualProduct,
+      ProductID: serialData?.productID || manualProduct,
+      Model: serialData?.model || manualModel,
+      ModelID: serialData?.modelID || manualModel,
+      Tdate: new Date().toISOString(),
+      EnterBy: 'admin',
+      DOP: dop,
+      PurchaseFromRetailer: retailer,
+      InvoiceFile: "test", // Save file path instead of file
+      BrandID: serialData?.brandID || manualBrand,
+      Brand: serialData?.brand || manualBrand,
+      LandMark: landmark,
+      // Warranty: '2 Years',
+    };
+  
     try {
-      await axiosInstance.post('WarrantyRegistration', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      await axiosInstance.post('WarrantyRegistration/create', payload, {
+        headers: { 'Content-Type': 'application/json' },
       });
-
+  
       setShowSuccessPopup(true);
       setStep(1);
+      // Reset all fields
       setSerialNo('');
       setSerialData(null);
       setSerialError('');
@@ -208,7 +217,6 @@ export default function WarrantyForm() {
       alert('❌ Failed to register warranty');
     }
   };
-
   return (
     <div className="flex min-h-screen">
       <SideBar />
@@ -219,26 +227,29 @@ export default function WarrantyForm() {
           </div>
   
           {/* Step Tracker */}
-          <div className="flex justify-between mb-8 relative">
-            {/* Step 1 → Product Details */}
-            <div className={`flex flex-col items-center z-10 ${step === 1 ? 'text-[#714b67]' : step > 1 ? 'text-[#714b67]' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 flex items-center justify-center rounded-full ${step === 1 ? 'bg-[#714b67] text-white' : step > 1 ? 'bg-[#714b67] text-white' : 'bg-gray-400 text-white'}`}>
-                {step > 1 ? '✓' : 1}
-              </div>
-              <span className="mt-1 text-sm">Product Details</span>
-            </div>
-  
-            {/* Step 2 → Personal Information */}
-            <div className={`flex flex-col items-center z-10 ${step === 2 ? 'text-[#714b67]' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 flex items-center justify-center rounded-full ${step === 2 ? 'bg-[#714b67] text-white' : 'bg-gray-400 text-white'}`}>
-                2
-              </div>
-              <span className="mt-1 text-sm">Personal Information</span>
-            </div>
-  
-            {/* Step line */}
-            <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-300 z-0"></div>
-          </div>
+          <div className="flex justify-between mb-8 relative w-full">
+
+{/* Step 1 → Product Details */}
+<div className={`flex flex-col items-center z-10 ${step >= 1 ? 'text-[#714b67]' : 'text-gray-400'}`}>
+  <div className={`w-8 h-8 flex items-center justify-center rounded-full ${step >= 1 ? 'bg-[#714b67] text-white' : 'bg-gray-400 text-white'}`}>
+    ✓
+  </div>
+  <span className="mt-1 text-sm">Product Details</span>
+</div>
+
+{/* Step line (between steps) */}
+<div className="absolute top-4 left-[5%] right-[7%] h-0.5 bg-gray-300 z-0"></div>
+
+{/* Step 2 → Personal Information */}
+<div className={`flex flex-col items-center z-10 ${step >= 2 ? 'text-[#714b67]' : 'text-gray-400'}`}>
+  <div className={`w-8 h-8 flex items-center justify-center rounded-full ${step >= 2 ? 'bg-[#714b67] text-white' : 'bg-gray-400 text-white'}`}>
+  </div>
+  <span className="mt-1 text-sm">Personal Information</span>
+</div>
+
+</div>
+
+
   
           {/* Step 1 → Product Details */}
           {step === 1 && (
@@ -277,33 +288,48 @@ export default function WarrantyForm() {
       </select>
     </div>
     <div>
-      <label className="block font-medium mb-1">Product <span className="text-red-500">*</span></label>
-      <select
-        value={manualProduct}
-        onChange={(e) => setManualProduct(e.target.value)}
-        className="w-full border border-gray-300 rounded px-2 py-1"
-      >
-        <option value="">-- Select Product --</option>
-        {productList
-          .filter((p) => p.brandId === Number(manualBrand))   // 🔥 filter products by brandId
-          .map((p) => (
-            <option key={p.productID} value={p.product}>{p.product}</option>
-          ))}
-      </select>
-    </div>
-    <div>
-      <label className="block font-medium mb-1">Model <span className="text-red-500">*</span></label>
-      <select
-        value={manualModel}
-        onChange={(e) => setManualModel(e.target.value)}
-        className="w-full border border-gray-300 rounded px-2 py-1"
-      >
-        <option value="">-- Select Model --</option>
-        {modelList.map((m, i) => (
-          <option key={i} value={m.modelNo}>{m.modelNo}</option>
-        ))}
-      </select>
-    </div>
+  <label className="block font-medium mb-1">
+    Product <span className="text-red-500">*</span>
+  </label>
+  <select
+    value={manualProduct}
+    onChange={(e) => {
+      const selectedProductId = e.target.value;
+      setManualProduct(selectedProductId);   // now manualProduct = productID
+      if (selectedProductId) {
+        fetchModelsByProduct(selectedProductId); // fetch models correctly
+      } else {
+        setModelList([]);
+      }
+    }}
+    className="w-full border border-gray-300 rounded px-2 py-1"
+  >
+    <option value="">-- Select Product --</option>
+    {productList
+      .filter((p) => p.brandId === Number(manualBrand)) // still filter by brand
+      .map((p) => (
+        <option key={p.productID} value={p.productID}>
+          {p.product}
+        </option>
+      ))}
+  </select>
+</div>
+
+<div>
+  <label className="block font-medium mb-1">Model <span className="text-red-500">*</span></label>
+  <select
+    value={manualModel}
+    onChange={(e) => setManualModel(e.target.value)}
+    className="w-full border border-gray-300 rounded px-2 py-1"
+  >
+    <option value="">-- Select Model --</option>
+    {modelList.map((m) => (
+      <option key={m.modelID} value={m.modelID}>
+        {m.modelNo}
+      </option>
+    ))}
+  </select>
+</div>
                   </>
                 ) : (
                   <>
@@ -323,10 +349,18 @@ export default function WarrantyForm() {
                 )}
   
                 {/* Rest Fields */}
-                <div>
-                  <label className="block font-medium mb-1">Date of Purchase (D.O.P) <span className="text-red-500">*</span></label>
-                  <input type="date" value={dop} onChange={(e) => setDop(e.target.value)} className="w-full border border-gray-300 rounded px-2 py-1"/>
-                </div>
+               <div>
+  <label className="block font-medium mb-1">
+    Date of Purchase (D.O.P) <span className="text-red-500">*</span>
+  </label>
+  <input
+    type="date"
+    value={dop}
+    onChange={(e) => setDop(e.target.value)}
+    max={new Date().toISOString().split("T")[0]}   // 🔹 Prevents future dates
+    className="w-full border border-gray-300 rounded px-2 py-1"
+  />
+</div>
                 <div>
                   <label className="block font-medium mb-1">Purchased From (Retailer) <span className="text-red-500">*</span></label>
                   <input type="text" value={retailer} onChange={(e) => setRetailer(e.target.value)} className="w-full border border-gray-300 rounded px-2 py-1"/>
@@ -357,7 +391,20 @@ export default function WarrantyForm() {
                 </div>
                 <div>
                   <label className="block font-medium mb-1">Phone Number <span className="text-red-500">*</span></label>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Enter phone number" className="w-full border border-gray-300 rounded px-2 py-1"/>
+                  {/* <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Enter phone number" className="w-full border border-gray-300 rounded px-2 py-1"/> */}
+                  <input
+  type="tel"
+  value={phone}
+  onChange={(e) => {
+    const val = e.target.value.replace(/\D/g, ""); // allow only digits
+    if (val.length <= 10) {
+      setPhone(val);
+    }
+  }}
+  placeholder="Enter phone number"
+  maxLength={10} // 🔹 ensures max 10 chars
+  className="w-full border border-gray-300 rounded px-2 py-1"
+/>
                 </div>
                 <div className="col-span-2">
                   <label className="block font-medium mb-1">Address <span className="text-red-500">*</span></label>

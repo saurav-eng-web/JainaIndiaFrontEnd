@@ -846,6 +846,7 @@ import { useRouter } from 'next/navigation';
 import './stepper.css';
 import axios from 'axios'; // for IP fetch
 import axiosInstance from '@/api/axiosInstance';
+import { useSearchParams } from 'next/navigation';
 
 import SideBar from '@/components/SideBar';
 import CustomerDetailsStep from '@/components/CallRegisterSteps/CustomerDetailsStep';
@@ -856,6 +857,7 @@ import ServiceDetailsStep from '@/components/CallRegisterSteps/ServiceDetailsSte
 const steps = ['Customer Details', 'Address Details', 'Product Details', 'Service Details'];
 
 export default function CallRegister() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [errors, setErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(0);
@@ -869,9 +871,9 @@ export default function CallRegister() {
   const [formData, setFormData] = useState({
     callBy: '',
     title: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
+    firstName: searchParams.get('firstName') || '',
+    lastName: searchParams.get('lastName') || '',
+    phone: searchParams.get('phone') || '',
     altPhone: '',
     customerAddress: '',
     landmark: '',

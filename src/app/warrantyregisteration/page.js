@@ -265,26 +265,24 @@ export default function WarrantyForm() {
           </div>
   
           {/* Step Tracker */}
-          <div className="flex justify-between mb-8 relative w-full">
-
-{/* Step 1 → Product Details */}
-<div className={`flex flex-col items-center z-10 ${step >= 1 ? 'text-[#714b67]' : 'text-gray-400'}`}>
-  <div className={`w-8 h-8 flex items-center justify-center rounded-full ${step >= 1 ? 'bg-[#714b67] text-white' : 'bg-gray-400 text-white'}`}>
-    ✓
+          <div className="flex items-center justify-center mb-8 relative w-full space-x-16">
+  {/* Step 1 */}
+  <div className={`flex flex-col items-center z-10 ${step >= 1 ? 'text-[#714b67]' : 'text-gray-400'}`}>
+    <div className={`w-8 h-8 flex items-center justify-center rounded-full ${step >= 1 ? 'bg-[#714b67] text-white' : 'bg-gray-400 text-white'}`}>
+      ✓
+    </div>
+    <span className="mt-1 text-sm">Product Details</span>
   </div>
-  <span className="mt-1 text-sm">Product Details</span>
-</div>
 
-{/* Step line (between steps) */}
-<div className="absolute top-4 left-[5%] right-[7%] h-0.5 bg-gray-300 z-0"></div>
+  {/* Step line */}
+  <div className="absolute top-4 w-[23%] mx-auto h-0.5 bg-gray-300 z-0"></div>
 
-{/* Step 2 → Personal Information */}
-<div className={`flex flex-col items-center z-10 ${step >= 2 ? 'text-[#714b67]' : 'text-gray-400'}`}>
-  <div className={`w-8 h-8 flex items-center justify-center rounded-full ${step >= 2 ? 'bg-[#714b67] text-white' : 'bg-gray-400 text-white'}`}>
+  {/* Step 2 */}
+  <div className={`flex flex-col items-center z-10 ${step >= 2 ? 'text-[#714b67]' : 'text-gray-400'}`}>
+    <div className={`w-8 h-8 flex items-center justify-center rounded-full ${step >= 2 ? 'bg-[#714b67] text-white' : 'bg-gray-400 text-white'}`}>
+    </div>
+    <span className="mt-1 text-sm">Personal Information</span>
   </div>
-  <span className="mt-1 text-sm">Personal Information</span>
-</div>
-
 </div>
 
 
@@ -294,8 +292,8 @@ export default function WarrantyForm() {
             <form>
               <div className="grid grid-cols-2 gap-5">
                 {/* Serial Number */}
-                <div className="flex items-end gap-3 col-span-2">
-                  <div className="flex-1">
+                <div className="flex items-end gap-3 col-span-1">
+                <div className="w-72">
                     <label className="block font-medium mb-1">Serial Number <span className="text-red-500">*</span></label>
                     <input type="text" value={serialNo} onChange={(e) => setSerialNo(e.target.value)} placeholder="Enter serial number" className="w-full border border-gray-300 rounded px-2 py-1"/>
                   </div>
@@ -405,7 +403,7 @@ export default function WarrantyForm() {
                 </div>
                 <div>
                   <label className="block font-medium mb-1">Upload Invoice <span className="text-red-500">*</span></label>
-                  <input
+                  {/* <input
   type="file"
   onChange={async (e) => {
     const file = e.target.files[0];
@@ -434,7 +432,59 @@ export default function WarrantyForm() {
     }
   }}
   className="w-full"
-/>
+/> */}
+
+
+<input
+  type="file"
+  accept=".jpg,.jpeg,.png,.pdf"
+  onChange={async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 🔹 File type check
+    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("❌ Only JPG, PNG, and PDF files are allowed.");
+      e.target.value = "";
+      return;
+    }
+
+    // 🔹 File size check (1 MB = 1024 * 1024 bytes)
+    if (file.size < 1024 * 1024) {
+      alert("❌ File size must be less than 1 MB.");
+      e.target.value = "";
+      return;
+    }
+
+    setInvoice(file);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await axiosInstance.post(
+        "WarrantyRegistration/upload-invoice",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Accept: "application/json",
+          },
+        }
+      );
+      setUploadedInvoiceName(res.data.fileName);
+      console.log("✅ Invoice uploaded:", res.data.fileName);
+    } catch (err) {
+      console.error("❌ Upload failed", err);
+      alert("❌ Invoice upload failed");
+    }
+  }}
+  className="w-full"
+/>  
+<small className="text-gray-500">
+    Allowed formats: JPG, PNG, PDF | Max size: 1 MB
+  </small>
                 </div>
               </div>
   

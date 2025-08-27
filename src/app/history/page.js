@@ -403,7 +403,7 @@ useEffect(() => {
             <div className="tab-content">
               {activeTab === 'Job Details' && (
                 <div className="tab-section">
-                  <h3>📌 Job Details</h3>
+                  <h3 style={{ fontWeight: "bold" }}>📌 Job Details</h3>
                   <div className="row-content">
                     <div><strong>Ticket No:</strong> {detail.tickeT_NO || '-'}</div>
                     <div><strong>Status:</strong> {detail.complainT_STATUS || '-'}</div>
@@ -415,7 +415,7 @@ useEffect(() => {
 
               {activeTab === 'Customer Detail' && (
                 <div className="tab-section">
-                  <h3>👤 Customer Detail</h3>
+                  <h3 style={{ fontWeight: "bold" }}>👤 Customer Detail</h3>
                   <div className="row-content">
                     <div><strong>Salutation:</strong> {detail.salutation || '-'}</div>
                     <div><strong>Name:</strong> {`${detail.firstname || ''} ${detail.middlename || ''} ${detail.lastname || ''}`}</div>
@@ -436,7 +436,7 @@ useEffect(() => {
 
               {activeTab === 'Product Details' && (
                 <div className="tab-section">
-                  <h3>📦 Product Details</h3>
+                  <h3 style={{ fontWeight: "bold"}}>📦 Product Details</h3>
                   <div className="row-content">
                     <div><strong>Model:</strong> {detail.model || '-'}</div>
                     <div><strong>Product Category:</strong> {detail.category || '-'}</div>
@@ -444,13 +444,14 @@ useEffect(() => {
                     <div><strong>Purchase Date:</strong> {detail.purchasE_DATE ? new Date(detail.purchasE_DATE).toLocaleDateString() : '-'}</div>
                     <div><strong>Warranty:</strong> {detail.warranty || '-'}</div>
                     <div><strong>BOM Type:</strong> {detail.bomType || '-'}</div>
+                    <div><strong>Model Description:</strong> {detail.bomType || '-'}</div>
                   </div>
                 </div>
               )}
 
               {activeTab === 'Complaint Detail' && (
                 <div className="tab-section">
-                  <h3>🧪 Complaint Detail</h3>
+                  <h3 style={{ fontWeight: "bold" }}>🧪 Complaint Detail</h3>
                   <div className="row-content">
                     <div><strong>Complaint No:</strong> {detail.tickeT_NO || '-'}</div>
                     <div><strong>Complaint Date:</strong> {detail.tdate ? new Date(detail.tdate).toLocaleString() : '-'}</div>
@@ -463,8 +464,8 @@ useEffect(() => {
                     <div><strong>SF Name:</strong> {detail.asC_NAME || '-'}</div>
                     <div><strong>SF Code:</strong> {detail.eng_ID || '-'}</div>
                     <div><strong>SF Mobile No.:</strong> {detail.mobile || '-'}</div>
-                    <div><strong>Appointment Date:</strong> {detail.apptDate ? new Date(detail.apptDate).toLocaleDateString() : '-'}</div>
-                    <div><strong>Appointment Time:</strong> {detail.apptTime || '-'}</div>
+                    <div><strong>Appointment Date:</strong> {'-'}</div>
+                    <div><strong>Appointment Time:</strong> {'-'}</div>
                     <div><strong>Promise Date:</strong> {detail.promisE_DATE ? new Date(detail.promisE_DATE).toLocaleDateString() : '-'}</div>
                     <div><strong>Promise Time:</strong> {detail.promisE_TIME || '-'}</div>
                     <div><strong>Legal Case:</strong> {detail.legal === 1 ? 'Yes' : 'No'}</div>
@@ -476,7 +477,7 @@ useEffect(() => {
                 
                 {activeTab === 'Pending Level History' && (
   <div className="tab-section">
-    <h3>🛠️ Pending Level History</h3>
+    <h3 style={{ fontWeight: "bold" }}>🛠️ Pending Level History</h3>
 
     {pendingHistory.length === 0 ? (
       <p>No pending history found.</p>
@@ -497,7 +498,7 @@ useEffect(() => {
 
 {activeTab === 'Document Uploaded' && (
   <div className="tab-section2">
-    <h3>📂 Document Uploaded</h3>
+    <h3 style={{ fontWeight: "bold" }}>📂 Document Uploaded</h3>
 
     {documents.length === 0 ? (
       <p>No documents found.</p>
@@ -529,7 +530,7 @@ useEffect(() => {
 )}
                  {activeTab === 'Document Uploaded from Android Application' && (
                 <div className="tab-section">
-                  <h3>🧪 Test Info</h3>
+                  <h3 style={{ fontWeight: "bold" }}>🧪 Test Info</h3>
                   <div className="row-content">
                     <div><strong>Info:</strong> Test content (example)</div>
                   </div>
@@ -537,7 +538,7 @@ useEffect(() => {
               )}
                  {activeTab === 'Job Done' && (
                 <div className="tab-section">
-                  <h3>🧪 Job Done</h3>
+                  <h3 style={{ fontWeight: "bold" }}>🧪 Job Done</h3>
                   <div className="row-content">
                     <div><strong>Sr. No.:</strong> {detail.seriaL_NO || '-'}</div>
                     
@@ -554,7 +555,7 @@ useEffect(() => {
               )}
                {activeTab === 'Part Consumption' && (
   <div className="tab-section">
-    <h3>📦 Part Consumption</h3>
+    <h3 style={{ fontWeight: "bold" }}>📦 Part Consumption</h3>
     {partConsumption.length === 0 ? (
       <p>No part consumption found.</p>
     ) : (
@@ -575,7 +576,7 @@ useEffect(() => {
 )}
                {activeTab === 'Visit Detail' && (
                 <div className="tab-section">
-                  <h3>🧪 Test Info</h3>
+                  <h3 style={{ fontWeight: "bold" }}>🧪 Test Info</h3>
                   <div className="row-content">
                     <div><strong>Info:</strong> Test content (example)</div>
                   </div>

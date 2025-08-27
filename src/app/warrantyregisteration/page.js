@@ -439,7 +439,29 @@ export default function WarrantyForm() {
               </div>
   
               <div className="flex justify-between mt-8">
-                <button type="button" onClick={() => validateStep1() && setStep(2)} style={{ backgroundColor: colors.primary }} className="px-4 py-2 text-white rounded">Next</button>
+                {/* <button type="button" onClick={() => validateStep1() && setStep(2)} style={{ backgroundColor: colors.primary }} className="px-4 py-2 text-white rounded">Next</button> */}
+                <button
+  type="button"
+  onClick={() => {
+    if (!dop || !retailer) {
+      alert("❌ Please fill Date of Purchase and Retailer fields.");
+      return;
+    }
+    if (serialData === "manual" && (!manualBrand || !manualProduct || !manualModel)) {
+      alert("❌ Please select brand, product, and model.");
+      return;
+    }
+    if (!invoice && !uploadedInvoiceName) {
+      alert("❌ Please upload the invoice.");
+      return;
+    }
+    setStep(2);
+  }}
+  style={{ backgroundColor: colors.primary }}
+  className="px-4 py-2 text-white rounded"
+>
+  Next
+</button>
               </div>
             </form>
           )}

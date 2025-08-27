@@ -276,15 +276,33 @@ export default function SearchComplaintPage() {
                   style={{ backgroundColor: '#714b67', color: '#fff' }}
                   onClick={() => {
                     const params = new URLSearchParams({
+                      title: result.salutation || "",
                       firstName: result.firstname || "",
                       lastName: result.lastname || "",
-                      phone: result.mobile || "",
+                      phone: result.hmph || result.mobile || "",
+                      altPhone: result.wkph || "",
+                      customerAddress: result.addresS1 || "",
+                      landmark: result.landmark || "",
+                      pincode: result.pincode || "",
+                      state: result.state || "",
+                      city: result.city || "",
+                      locality: result.locality || "",
+                      localityId: result.localitY_ID?.toString() || "",
+                      modelID: result.modeL_ID?.toString() || "",
+                      cityId: result.citY_ID?.toString() || "",
                       serialNo: result.seriaL_NO || "",
-                      product: result.category || "",
+                      productCategory: result.category || "",
+                      brand: result.brand || "",
+                      pop: result.purchasE_DATE || "",
+                      product: result.product || "",
+                      productID: result.producT_ID?.toString() || "",
                       model: result.model || "",
-                      pop: result.pop || ""
+                      warranty: result.warranty || "",
+                      callType: result.calL_TYPE || "",
+                      faultVoc: result.remarks || "",
+                      availableTime: result.promisE_TIME || ""
                     });
-                
+              
                     router.push(`/call?${params.toString()}`);
                   }}
                 >

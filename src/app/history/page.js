@@ -12,7 +12,6 @@ const tabs = [
   'Job Details',
   'Customer Detail',
   'Product Details',
-  'Complaint Detail',
   'Pending Level History',
   'Document Uploaded',
   'Job Done',
@@ -34,6 +33,13 @@ export default function HistoryPage() {
   const [partConsumption, setPartConsumption] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [visitDetails, setVisitDetails] = useState([]);
+  const [reminderReason, setReminderReason] = useState('');
+const [reminderText, setReminderText] = useState('');
+const [reminders, setReminders] = useState([]);
+  const [loadingReminders, setLoadingReminders] = useState(true);
+
+
+
   useEffect(() => {
     const storedTicket = sessionStorage.getItem('currentTicket');
     if (storedTicket) {
@@ -124,6 +130,23 @@ useEffect(() => {
     }
   }, [ticketNo]);
 
+  useEffect(() => {
+    const storedTicket = sessionStorage.getItem('currentTicket');
+    const fetchTicket = ticketNo || storedTicket;
+
+    if (fetchTicket) {
+      axiosInstance
+        .get(`reminder/Ticket/${fetchTicket}`)
+        .then(res => {
+          // ✅ Handle single object OR array
+          const data = Array.isArray(res.data) ? res.data : [res.data];
+          setReminders(data);
+        })
+        .catch(err => console.error("Failed to fetch reminders:", err))
+        .finally(() => setLoadingReminders(false));
+    }
+  }, [ticketNo]);
+
 
   const firstEntry = logData[0] || {};
   const detail = custDetail || {}; // ✅ for tabs
@@ -188,6 +211,23 @@ useEffect(() => {
                     <div><strong>Status:</strong> {detail.complainT_STATUS || '-'}</div>
                     <div><strong>Remarks:</strong> {detail.remarks || '-'}</div>
                     <div><strong>Call By:</strong> {detail.calL_BY || '-'}</div>
+                    <div><strong>Complaint No:</strong> {detail.tickeT_NO || '-'}</div>
+                    <div><strong>Complaint Date:</strong> {detail.tdate ? new Date(detail.tdate).toLocaleString() : '-'}</div>
+                    <div><strong>Call Type:</strong> {detail.calL_TYPE || '-'}</div>
+                    <div><strong>Complaint Status:</strong> {detail.complainT_STATUS || '-'}</div>
+                    <div><strong>Remarks:</strong> {detail.remarks || '-'}</div>
+                    <div><strong>Entered By:</strong> {detail.enterby || '-'}</div>
+                          <div><strong>Escalated to HO:</strong> {firstEntry.escalated === 1 ? 'Yes' : 'No'}</div>
+                          <div><strong>NSP:</strong> {detail.asC_NAME || '-'}</div>
+                    <div><strong>SF Name:</strong> {detail.asC_NAME || '-'}</div>
+                    <div><strong>SF Code:</strong> {detail.asC_CODE || '-'}</div>
+                    <div><strong>SF Mobile No.:</strong> {detail.mobile || '-'}</div>
+                    <div><strong>Appointment Date:</strong> {'-'}</div>
+                    <div><strong>Appointment Time:</strong> {'-'}</div>
+                    <div><strong>Promise Date:</strong> {detail.promisE_DATE ? new Date(detail.promisE_DATE).toLocaleDateString() : '-'}</div>
+                    <div><strong>Promise Time:</strong> {detail.promisE_TIME || '-'}</div>
+                    <div><strong>Legal Case:</strong> {detail.legal === 1 ? 'Yes' : 'No'}</div>
+                    <div><strong>Special Instructions:</strong> {detail.splInt || '-'}</div>
                   </div>
                 </div>
               )}
@@ -223,12 +263,12 @@ useEffect(() => {
                     <div><strong>Purchase Date:</strong> {detail.purchasE_DATE ? new Date(detail.purchasE_DATE).toLocaleDateString() : '-'}</div>
                     <div><strong>Warranty:</strong> {detail.warranty || '-'}</div>
                     <div><strong>BOM Type:</strong> {detail.bomType || '-'}</div>
-                    <div><strong>Model Description:</strong> {detail.bomType || '-'}</div>
+                    <div><strong>Model Description:</strong> {detail.modelDesc || '-'}</div>
                   </div>
                 </div>
               )}
 
-              {activeTab === 'Complaint Detail' && (
+              {/* {activeTab === 'Complaint Detail' && (
                 <div className="tab-section">
                   <h3 style={{ fontWeight: "bold" }}>🧪 Complaint Detail</h3>
                   <div className="row-content">
@@ -253,7 +293,7 @@ useEffect(() => {
                   </div>
                 </div>
               )}
-                
+                 */}
                 {activeTab === 'Pending Level History' && (
   <div className="tab-section">
     <h3 style={{ fontWeight: "bold" }}>🛠️ Pending Level History</h3>
@@ -375,6 +415,63 @@ useEffect(() => {
 )}
 
             </div>
+
+
+
+
+
+            <div className="reminder-section">
+  <h3 className="page-title">⏰ Add Reminder</h3>
+  <form className="reminder-form">
+    <label>
+      <span>Reminder Reason</span>
+      <select style={{width:500}}>
+        <option value="">Select Type</option>
+        <option value="call">📞 Call</option>
+        <option value="email">📧 Email</option>
+        <option value="meeting">📅 Meeting</option>
+      </select>
+    </label>
+
+    <label style={{width:500}}>
+      <textarea placeholder="Enter reminder notes..." />
+    </label>
+
+    <button type="submit">Add Reminder</button>
+  </form>
+
+  {/* 🔹 Reminder History */}
+  {reminders.length === 0 ? (
+    <p>No reminders found.</p>
+  ) : (
+    <table className="complaint-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Remark</th>
+          <th>Status</th>
+          <th>Entered By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {reminders.map((rem, index) => (
+          <tr key={index}>
+            <td>
+              {rem.remind_date
+                ? new Date(rem.remind_date).toLocaleDateString()
+                : "-"}
+            </td>
+            <td>{rem.remind_Remark || "-"}</td>
+            <td>{rem.remind_Trap || "-"}</td>
+            <td>{rem.remind_Enterby || "-"}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
+
+
           </>
         )}
       </div>

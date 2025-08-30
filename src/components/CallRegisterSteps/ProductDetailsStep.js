@@ -78,7 +78,7 @@ export default function ProductDetailsStep({ formData, handleChange, setFormData
         productID: matched.productID || '',
         model: matched.model || '',
         modelID: matched.modelID || '',
-        modelDescription: matched.modelDescription || '', 
+        modelDescription: matched.modeldes || '',
         warranty: selectedWarranty ? selectedWarranty.warranty_Desc : '',
         warranty_ID: selectedWarranty ? selectedWarranty.warranty_ID : '',
       }));

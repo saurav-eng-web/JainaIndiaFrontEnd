@@ -308,15 +308,15 @@ export default function LoginPage() {
       {/* Left Section */}
       <div
         className="flex-1 bg-cover bg-center text-white flex flex-col justify-center p-16 relative"
-        style={{ backgroundImage: "url('/crmLogo.png')" }}
+        style={{ backgroundImage: "url('/Banner.png')" }}
       >
-        <div className="relative">
+        {/* <div className="relative">
           <div className="text-lg font-bold mb-8">CRM Portal</div>
           <h1 className="text-3xl font-semibold mb-4">Welcome Back</h1>
           <p className="text-base opacity-90">
             Manage your complaints, jobs, and more efficiently.
           </p>
-        </div>
+        </div> */}
       </div>
 
       {/* Right Section */}
@@ -324,17 +324,17 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           <h2 className="text-2xl font-semibold mb-2">Sign in to your account</h2>
           <p className="text-sm text-gray-600 mb-6">
-            Enter your credentials to access your account
+            
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium mb-1">Email address</label>
+              <label className="block text-sm font-medium mb-1">Username</label>
               <input
                 type="text"
                 name="username"
-                placeholder="name@company.com"
+                placeholder="Enter your Username"
                 required
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
               />

@@ -63,13 +63,7 @@ export default function SideBar() {
             <span className="navText">Technical Approval</span>
           </Link>
         </li>
-       
-     
-    
-     
-      </ul>
-
-      <ul className="logout">
+        <ul className="logout">
         <li onClick={handleLogout} style={{ cursor: 'pointer' }}>
           <div>
             <i className="fa fa-power-off fa-2x"></i>
@@ -77,6 +71,19 @@ export default function SideBar() {
           </div>
         </li>
       </ul>
+     
+    
+     
+      </ul>
+
+      {/* <ul className="logout">
+        <li onClick={handleLogout} style={{ cursor: 'pointer' }}>
+          <div>
+            <i className="fa fa-power-off fa-2x"></i>
+            <span className="navText">Logout</span>
+          </div>
+        </li>
+      </ul> */}
     </nav>
   );
 }

@@ -7,6 +7,9 @@ import { useParams } from 'next/navigation';
 import SideBar from '@/components/SideBar';
 import './history.css';
 import axiosInstance from '@/api/axiosInstance';
+import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const tabs = [
   'Job Details',
@@ -37,8 +40,11 @@ export default function HistoryPage() {
 const [reminderText, setReminderText] = useState('');
 const [reminders, setReminders] = useState([]);
   const [loadingReminders, setLoadingReminders] = useState(true);
+  
 
+  const { user } = useSelector((state) => state.auth); // ✅ logged-in user from Redux
 
+  const loggedInUser = user?.userName || 'Unknown';
 
   useEffect(() => {
     const storedTicket = sessionStorage.getItem('currentTicket');
@@ -419,7 +425,7 @@ useEffect(() => {
 
 
 
-
+{/* 
             <div className="reminder-section">
   <h3 className="page-title">⏰ Add Reminder</h3>
   <form className="reminder-form">
@@ -440,7 +446,7 @@ useEffect(() => {
     <button type="submit">Add Reminder</button>
   </form>
 
-  {/* 🔹 Reminder History */}
+  
   {reminders.length === 0 ? (
     <p>No reminders found.</p>
   ) : (
@@ -469,7 +475,139 @@ useEffect(() => {
       </tbody>
     </table>
   )}
+</div> */}
+<div className="reminder-section">
+<ToastContainer
+  position="top-center"   // top-center or bottom-center
+  autoClose={3000}
+  hideProgressBar={false}
+  newestOnTop={false}
+  closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+  style={{ top: '50%', transform: 'translateY(-50%)' }} // vertically center
+/>
+  <h3 className="page-title">⏰ Add Reminder</h3>
+  <form
+    className="reminder-form"
+    onSubmit={async (e) => {
+      e.preventDefault();
+      const storedTicket = sessionStorage.getItem('currentTicket');
+      const ticket = ticketNo || storedTicket;
+      if (!ticket) return alert("Ticket not found");
+
+      // try {
+      //   const payload = {
+      //     // Remind_Bid: 12,           // Replace with dynamic if needed
+      //     // Remind_Sfid: 1298,        // Replace with dynamic if needed
+      //     Remind_Remark: reminderText,
+      //     // Remind_Status: "1",
+      //     Remind_Enterby: loggedInUser,  // Replace with current user if needed
+      //     Ticket_No: ticket,
+      //   };
+
+      //   // 1️⃣ Send POST request to create reminder
+      //   await axiosInstance.post('/reminder/create', payload);
+
+      //   // 2️⃣ Re-fetch reminders from backend
+      //   const res = await axiosInstance.get(`/reminder/Ticket/${ticket}`);
+      //   const data = Array.isArray(res.data) ? res.data : [res.data];
+      //   setReminders(data);
+
+      //   // 3️⃣ Reset form fields
+      //   setReminderReason('');
+      //   setReminderText('');
+      // } catch (err) {
+      //   console.error("Failed to add reminder:", err);
+      //   alert("Failed to add reminder");
+      // }
+
+      try {
+        const payload = {
+          Remind_Remark: reminderText,
+          Remind_Enterby: loggedInUser,
+          Ticket_No: ticket || "-",
+           Remind_Sfid: detail.asC_CODE || "",
+            Remind_Bid: detail.bid || "",
+           Remind_Status: "1",
+        };
+
+        await axiosInstance.post('/reminder/create', payload);
+
+        const res = await axiosInstance.get(`/reminder/Ticket/${ticket}`);
+        const data = Array.isArray(res.data) ? res.data : [res.data];
+        setReminders(data);
+
+        setReminderReason('');
+        setReminderText('');
+
+        toast.success("✅ Reminder added successfully!"); // popup
+      } catch (err) {
+        console.error("Failed to add reminder:", err);
+        toast.error("❌ Failed to add reminder");
+      }
+    }}
+  >
+    <label>
+      <span>Reminder Reason</span>
+      <select
+        style={{ width: 500 }}
+        value={reminderReason}
+        onChange={(e) => setReminderReason(e.target.value)}
+      >
+        <option value="">Select Type</option>
+        <option value="call">📞 Not Attended</option>
+        <option value="email">⏳ Part Pending</option>
+        <option value="meeting">🤷 Other</option>
+      </select>
+    </label>
+
+    <label style={{ width: 500 }}>
+      <textarea
+        placeholder="Enter reminder notes..."
+        value={reminderText}
+        onChange={(e) => setReminderText(e.target.value)}
+      />
+    </label>
+
+    <button type="submit">Add Reminder</button>
+  </form>
+
+  {/* 🔹 Reminder History */}
+  {loadingReminders ? (
+    <p>Loading reminders...</p>
+  ) : reminders.length === 0 ? (
+    <p>No reminders found.</p>
+  ) : (
+    <table className="complaint-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Remark</th>
+          {/* <th>Status</th> */}
+          <th>Entered By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {reminders.map((rem, index) => (
+          <tr key={index}>
+            <td>
+              {rem.remind_date
+                ? new Date(rem.remind_date).toLocaleDateString()
+                : "-"}
+            </td>
+            <td>{rem.remind_Remark || "-"}</td>
+            {/* <td>{rem.remind_Trap || "-"}</td> */}
+            <td>{rem.remind_Enterby || "-"}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
 </div>
+ 
 
 
           </>

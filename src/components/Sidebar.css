@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Titillium+Web:300');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
 
-.mainMenu {
+/* .mainMenu {
   background: #212121;
   border-right: 1px solid #e5e5e5;
   position: absolute;
@@ -16,6 +16,21 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+} */
+.mainMenu {
+  background: #212121;
+  border-right: 1px solid #e5e5e5;
+  position: fixed;   /* instead of absolute */
+  top: 0;
+  left: 0;
+  width: 60px;
+  min-height: 100vh; /* always at least viewport height */
+  overflow-x: hidden;
+  transition: width 0.05s linear;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* so logout stays bottom */
 }
 
 .mainMenu:hover {

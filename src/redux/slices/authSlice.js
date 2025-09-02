@@ -35,6 +35,8 @@ import axios from 'axios';
 //   }
 // );
 
+
+
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ userName, uPassword }, { rejectWithValue }) => {
@@ -68,12 +70,51 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+const getUserFromLocalStorage = () => {
+  if (typeof window !== 'undefined') {
+    const userData = localStorage.getItem('userData');
+    return userData ? JSON.parse(userData) : null;
+  }
+  return null;
+};
 
+// const authSlice = createSlice({
+//   name: 'auth',
+//   initialState: {
+//     user: null,
+//     loading: false,
+//     error: null,
+//   },
+//   reducers: {
+//     logout: (state) => {
+//       localStorage.removeItem('userData');
+//       state.user = null;
+//     },
+//   },
+//   extraReducers: (builder) => {
+//     builder
+//       .addCase(loginUser.pending, (state) => {
+//         state.loading = true;
+//         state.error = null;
+//       })
+//       .addCase(loginUser.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.user = action.payload;
+//       })
+//       .addCase(loginUser.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.payload;
+//       });
+//   },
+// });
 
+// export const { logout } = authSlice.actions;
+
+// export default authSlice.reducer;
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    user: null,
+    user: getUserFromLocalStorage(), // ✅ hydrate from localStorage
     loading: false,
     error: null,
   },

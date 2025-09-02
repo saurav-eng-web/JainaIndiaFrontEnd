@@ -37,6 +37,39 @@ import axios from 'axios';
 
 
 
+// export const loginUser = createAsyncThunk(
+//   'auth/loginUser',
+//   async ({ userName, uPassword }, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.post(
+//         'https://ncapi.jainaindia.com/api/users/login',
+//         {
+//           userName: userName.trim(),
+//           uPassword: uPassword.trim(),
+//         }
+//       );
+
+//       const data = response.data;
+
+//       if (data.returnCode === 1 && data.token) {
+//         const user = {
+//           userID: data.userID,
+//           roleID: data.roleID,
+//           userName: data.userName,
+//           roleName: data.roleName,
+//           token: data.token, // Store token
+//         };
+
+//         localStorage.setItem('userData', JSON.stringify(user));
+//         return user;
+//       } else {
+//         return rejectWithValue(data.message || 'Login failed');
+//       }
+//     } catch (error) {
+//       return rejectWithValue('Network Error');
+//     }
+//   }
+// );
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ userName, uPassword }, { rejectWithValue }) => {
@@ -55,9 +88,13 @@ export const loginUser = createAsyncThunk(
         const user = {
           userID: data.userID,
           roleID: data.roleID,
-          userName: data.userName,
           roleName: data.roleName,
-          token: data.token, // Store token
+          userName: data.userName,
+          sF_ID: data.sF_ID,
+          cat_MapID: data.cat_MapID,
+          asmid: data.asmid,
+          branch_ID: data.branch_ID,
+          token: data.token,
         };
 
         localStorage.setItem('userData', JSON.stringify(user));
@@ -70,6 +107,7 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+
 const getUserFromLocalStorage = () => {
   if (typeof window !== 'undefined') {
     const userData = localStorage.getItem('userData');

@@ -26,8 +26,7 @@ export default function CallRegister() {
 
   const [loggedInUser, setLoggedInUser] = useState(null);
 
-  // NEW: pincode validation status lifted here
-  // '', 'checking', 'valid', 'invalid'
+  
   const [pincodeStatus, setPincodeStatus] = useState('');
 
   const [formData, setFormData] = useState({
@@ -57,7 +56,7 @@ export default function CallRegister() {
   callType: searchParams.get('callType') || '',
   faultVoc: searchParams.get('faultVoc') || '',
   availableTime: searchParams.get('availableTime') || '',
-    userIP: '' // <-- will be filled once
+    userIP: '' 
   });
 
   // AUTH CHECK
@@ -72,11 +71,11 @@ export default function CallRegister() {
     if (role !== 'cc') {
       router.replace('/');
     } else {
-      setLoggedInUser(user); // ✅ keep user info available
+      setLoggedInUser(user); 
     }
   }, [router]);
 
-  // Fetch public IP once (cached in localStorage)
+  
   useEffect(() => {
     const existing = localStorage.getItem('clientIP');
     if (existing) {
@@ -309,7 +308,7 @@ export default function CallRegister() {
                   )}
                   <button
                     type="submit"
-                    disabled={loading /* optional: strictly UI-disable during checking */}
+                    disabled={loading}
                   >
                     {currentStep < steps.length - 1 ? 'Next →' : loading ? 'Submitting…' : 'Submit ✔'}
                   </button>

@@ -5,7 +5,8 @@
 import { useState } from 'react';
 import SideBar from '@/components/SideBar';
 import { useTheme } from '@/theme/ThemeContext';
-import axiosInstance from '@/api/axiosInstance';
+import axiosInstance from '@/api/axiosInstance'; 
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function WarrantyForm() {
   const { colors } = useTheme(); 
@@ -256,6 +257,7 @@ export default function WarrantyForm() {
     }
   };
     return (
+      <ProtectedRoute allowedRoles={['cc']}>
     <div className="flex min-h-screen">
       <SideBar />
       <div className="flex-1 ml-[60px] transition-all">
@@ -593,5 +595,6 @@ export default function WarrantyForm() {
         </div>
       )}
     </div>
+    </ProtectedRoute>
   );
 }

@@ -7,6 +7,7 @@ import SideBar from '@/components/SideBar';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axiosInstance from '@/api/axiosInstance';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function SearchComplaintPage() {
   const router = useRouter();
@@ -67,6 +68,7 @@ export default function SearchComplaintPage() {
   };
 
   return (
+    <ProtectedRoute allowedRoles={['cc']}>
     <div style={{ display: 'flex' }}>
       <SideBar />
       <div className="content">
@@ -201,5 +203,6 @@ export default function SearchComplaintPage() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

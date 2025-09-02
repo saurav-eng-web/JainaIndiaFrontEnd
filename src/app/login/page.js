@@ -22,8 +22,8 @@ export default function LoginPage() {
   useEffect(() => {
     if (user) {
       const role = user.roleName?.toLowerCase();
-      if (role === 'nsp') {
-        router.push('/test');
+      if (role === 'br') {
+        router.push('/nsp/dashboard');
       } else if (role === 'manager') {
         router.push('/manager/home');
       } else if (role === 'technician') {

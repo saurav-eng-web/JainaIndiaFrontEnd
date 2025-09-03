@@ -1,4 +1,82 @@
 
+// // 'use client';
+
+// // export default function CustomerDetailsStep({ formData, handleChange, setFormData, errors }) {
+// //   const handleNumberChange = (e) => {
+// //     const { name, value } = e.target;
+// //     const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+// //     setFormData(prev => ({ ...prev, [name]: digitsOnly }));
+// //   };
+
+// //   // ✅ Custom label mapping
+// //   const fieldLabels = {
+// //     title: 'Title',
+// //     firstName: 'First Name',
+// //     lastName: 'Last Name',
+// //     phone: 'Phone',
+// //     altPhone: 'Alternate Number'
+// //   };
+  
+
+// //   return (
+// //     <>
+// //     <h3>Customer Details</h3>
+// //     <div className="form-grid">
+// //       <div className="form-group">
+// //         <label htmlFor="callBy">Select</label>
+// //         <select
+// //           id="callBy"
+// //           name="callBy"
+// //           onChange={handleChange}
+// //           value={formData.callBy || ''}
+// //         >
+// //           <option value="">Select</option>
+// //           <option value="Customer">Customer</option>
+// //           <option value="Dealer">Dealer</option>
+// //         </select>
+// //         {errors.callBy && <p className="error-text">{errors.callBy}</p>}
+// //       </div>
+
+// //       {['title', 'firstName', 'lastName', 'phone', 'altPhone'].map(field => (
+// //         <div className="form-group" key={field}>
+// //           <label htmlFor={field}>{fieldLabels[field] || field}</label>
+// //           {field === 'title' ? (
+// //             <select
+// //               id={field}
+// //               name={field}
+// //               onChange={handleChange}
+// //               value={formData[field] || ''}
+// //             >
+// //               <option value="">Select Title</option>
+// //               <option value="Mr">Mr</option>
+// //               <option value="Mrs">Mrs</option>
+// //               <option value="Ms">Ms</option>
+// //               <option value="Dr">Dr</option>
+// //             </select>
+// //           ) : (
+// //             <input
+// //             id={field}
+// //             name={field}
+// //             placeholder={fieldLabels[field] || field}
+// //             type={field === 'phone' || field === 'altPhone' ? 'tel' : 'text'}
+// //             value={formData[field] || ''}
+// //             maxLength={field === 'phone' || field === 'altPhone' ? 10 : 50} // ✅ fixed
+// //             onChange={
+// //               field === 'phone' || field === 'altPhone'
+// //                 ? handleNumberChange
+// //                 : handleChange
+// //             }
+// //           />
+          
+// //           )}
+// //           {errors[field] && <p className="error-text">{errors[field]}</p>}
+// //         </div>
+// //       ))}
+// //     </div>
+// //   </>
+// //   );
+// // }
+
 // 'use client';
 
 // export default function CustomerDetailsStep({ formData, handleChange, setFormData, errors }) {
@@ -16,68 +94,71 @@
 //     phone: 'Phone',
 //     altPhone: 'Alternate Number'
 //   };
-  
 
 //   return (
 //     <>
-//     <h3>Customer Details</h3>
-//     <div className="form-grid">
-//       <div className="form-group">
-//         <label htmlFor="callBy">Select</label>
-//         <select
-//           id="callBy"
-//           name="callBy"
-//           onChange={handleChange}
-//           value={formData.callBy || ''}
-//         >
-//           <option value="">Select</option>
-//           <option value="Customer">Customer</option>
-//           <option value="Dealer">Dealer</option>
-//         </select>
-//         {errors.callBy && <p className="error-text">{errors.callBy}</p>}
-//       </div>
-
-//       {['title', 'firstName', 'lastName', 'phone', 'altPhone'].map(field => (
-//         <div className="form-group" key={field}>
-//           <label htmlFor={field}>{fieldLabels[field] || field}</label>
-//           {field === 'title' ? (
-//             <select
-//               id={field}
-//               name={field}
-//               onChange={handleChange}
-//               value={formData[field] || ''}
-//             >
-//               <option value="">Select Title</option>
-//               <option value="Mr">Mr</option>
-//               <option value="Mrs">Mrs</option>
-//               <option value="Ms">Ms</option>
-//               <option value="Dr">Dr</option>
-//             </select>
-//           ) : (
-//             <input
-//             id={field}
-//             name={field}
-//             placeholder={fieldLabels[field] || field}
-//             type={field === 'phone' || field === 'altPhone' ? 'tel' : 'text'}
-//             value={formData[field] || ''}
-//             maxLength={field === 'phone' || field === 'altPhone' ? 10 : 50} // ✅ fixed
-//             onChange={
-//               field === 'phone' || field === 'altPhone'
-//                 ? handleNumberChange
-//                 : handleChange
-//             }
-//           />
-          
-//           )}
-//           {errors[field] && <p className="error-text">{errors[field]}</p>}
+//       <h3>Customer Details</h3>
+//       <div className="form-grid">
+//         <div className="form-group">
+//           <label htmlFor="callBy">Select</label>
+//           <select
+//             id="callBy"
+//             name="callBy"
+//             onChange={handleChange}
+//             value={formData.callBy || ''}
+//           >
+//             <option value="">Select</option>
+//             <option value="Customer">Customer</option>
+//             <option value="Dealer">Dealer</option>
+//           </select>
+//           {errors.callBy && <p className="error-text">{errors.callBy}</p>}
 //         </div>
-//       ))}
-//     </div>
-//   </>
+
+//         {['title', 'firstName', 'lastName', 'phone', 'altPhone'].map(field => (
+//           <div className="form-group" key={field}>
+//             <label htmlFor={field}>{fieldLabels[field] || field}</label>
+//             {field === 'title' ? (
+//               <select
+//                 id={field}
+//                 name={field}
+//                 onChange={handleChange}
+//                 value={formData[field] || ''}
+//               >
+//                 <option value="">Select Title</option>
+//                 <option value="Mr">Mr</option>
+//                 <option value="Mrs">Mrs</option>
+//                 <option value="Ms">Ms</option>
+//                 <option value="Dr">Dr</option>
+//               </select>
+//             ) : (
+//               <input
+//                 id={field}
+//                 name={field}
+//                 placeholder={fieldLabels[field] || field}
+//                 type={field === 'phone' || field === 'altPhone' ? 'tel' : 'text'}
+//                 value={formData[field] || ''}
+//                 maxLength={field === 'phone' || field === 'altPhone' ? 10 : 50}
+//                 pattern={field === 'phone' || field === 'altPhone' ? "\\d{10}" : undefined} // ✅ only phone/altPhone
+//                 title={field === 'phone' || field === 'altPhone' ? "Must be exactly 10 digits" : undefined}
+//                 onChange={
+//                   field === 'phone' || field === 'altPhone'
+//                     ? handleNumberChange
+//                     : handleChange
+//                 }
+//               />
+//             )}
+//             {errors[field] && <p className="error-text">{errors[field]}</p>}
+//           </div>
+//         ))}
+//       </div>
+//     </>
 //   );
 // }
 
+
 'use client';
+import { useState } from 'react';
+import CustomDropdown from '../common/Dropdown';
 
 export default function CustomerDetailsStep({ formData, handleChange, setFormData, errors }) {
   const handleNumberChange = (e) => {
@@ -86,7 +167,6 @@ export default function CustomerDetailsStep({ formData, handleChange, setFormDat
     setFormData(prev => ({ ...prev, [name]: digitsOnly }));
   };
 
-  // ✅ Custom label mapping
   const fieldLabels = {
     title: 'Title',
     firstName: 'First Name',
@@ -95,22 +175,30 @@ export default function CustomerDetailsStep({ formData, handleChange, setFormDat
     altPhone: 'Alternate Number'
   };
 
+  // Options for title dropdown
+  const titleOptions = [
+    { label: 'Mr', value: 'Mr' },
+    { label: 'Mrs', value: 'Mrs' },
+    { label: 'Ms', value: 'Ms' },
+    { label: 'Dr', value: 'Dr' }
+  ];
+
   return (
     <>
       <h3>Customer Details</h3>
       <div className="form-grid">
         <div className="form-group">
           <label htmlFor="callBy">Select</label>
-          <select
-            id="callBy"
-            name="callBy"
-            onChange={handleChange}
+          <CustomDropdown
+            // label="Select"
+            options={[
+              { label: 'Customer', value: 'Customer' },
+              { label: 'Dealer', value: 'Dealer' }
+            ]}
             value={formData.callBy || ''}
-          >
-            <option value="">Select</option>
-            <option value="Customer">Customer</option>
-            <option value="Dealer">Dealer</option>
-          </select>
+            onChange={(val) => setFormData(prev => ({ ...prev, callBy: val }))}
+            placeholder="Select"
+          />
           {errors.callBy && <p className="error-text">{errors.callBy}</p>}
         </div>
 
@@ -118,18 +206,13 @@ export default function CustomerDetailsStep({ formData, handleChange, setFormDat
           <div className="form-group" key={field}>
             <label htmlFor={field}>{fieldLabels[field] || field}</label>
             {field === 'title' ? (
-              <select
-                id={field}
-                name={field}
-                onChange={handleChange}
-                value={formData[field] || ''}
-              >
-                <option value="">Select Title</option>
-                <option value="Mr">Mr</option>
-                <option value="Mrs">Mrs</option>
-                <option value="Ms">Ms</option>
-                <option value="Dr">Dr</option>
-              </select>
+              <CustomDropdown
+                // label="Title"
+                options={titleOptions}
+                value={formData.title || ''}
+                onChange={(val) => setFormData(prev => ({ ...prev, title: val }))}
+                placeholder="Select Title"
+              />
             ) : (
               <input
                 id={field}
@@ -138,13 +221,9 @@ export default function CustomerDetailsStep({ formData, handleChange, setFormDat
                 type={field === 'phone' || field === 'altPhone' ? 'tel' : 'text'}
                 value={formData[field] || ''}
                 maxLength={field === 'phone' || field === 'altPhone' ? 10 : 50}
-                pattern={field === 'phone' || field === 'altPhone' ? "\\d{10}" : undefined} // ✅ only phone/altPhone
+                pattern={field === 'phone' || field === 'altPhone' ? "\\d{10}" : undefined}
                 title={field === 'phone' || field === 'altPhone' ? "Must be exactly 10 digits" : undefined}
-                onChange={
-                  field === 'phone' || field === 'altPhone'
-                    ? handleNumberChange
-                    : handleChange
-                }
+                onChange={field === 'phone' || field === 'altPhone' ? handleNumberChange : handleChange}
               />
             )}
             {errors[field] && <p className="error-text">{errors[field]}</p>}

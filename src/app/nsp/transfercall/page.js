@@ -83,6 +83,8 @@ import { useState } from 'react';
 import { useTheme } from '@/theme/ThemeContext';
 import SideBar from '@/components/SideBar';
 import axiosInstance from '@/api/axiosInstance';
+import CustomDropdown from '@/components/common/Dropdown';
+
 
 export default function TransferCallForm() {
   const { colors } = useTheme();
@@ -185,7 +187,7 @@ export default function TransferCallForm() {
               </div>
 
               {/* Asc Name */}
-              <div className="flex flex-col">
+              {/* <div className="flex flex-col">
                 <label className="mb-2 text-sm font-medium text-gray-700">Asc Name</label>
                 <select
                   className="border rounded-lg px-3 py-2 focus:outline-none"
@@ -199,7 +201,16 @@ export default function TransferCallForm() {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
+                             
+               <CustomDropdown
+                  label="Asc Name"
+                  placeholder="Select ASC"
+                  value={transferTo}
+                  onChange={setTransferTo}
+                  options={ascList.map((asc) => ({ label: asc.name, value: asc.name }))}
+                />
+
 
               {/* Buttons */}
               <div className="col-span-2 flex gap-4 mt-6">

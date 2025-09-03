@@ -24,8 +24,8 @@ export default function LoginPage() {
       const role = user.roleName?.toLowerCase();
       if (role === 'br') {
         router.push('/nsp/dashboard');
-      } else if (role === 'manager') {
-        router.push('/manager/home');
+      } else if (role === 'cc') {
+        router.push('/test');
       } else if (role === 'technician') {
         router.push('/technician/jobs');
       } else {

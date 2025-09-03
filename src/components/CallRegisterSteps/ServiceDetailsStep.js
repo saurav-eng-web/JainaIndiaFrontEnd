@@ -196,20 +196,43 @@ export default function ServiceDetailsStep({ formData, handleChange, errors, set
   const [faults, setFaults] = useState([]);
 
   // ✅ Fetch Call Types from API
+  // useEffect(() => {
+  //   const fetchCallTypes = async () => {
+  //     try {
+  //       const res = await axiosInstance.get('calltypemaster');
+  //       if (Array.isArray(res.data)) {
+  //         setCallTypes(res.data);
+  //       }
+  //     } catch (err) {
+  //       console.error('Error fetching call types:', err);
+  //     }
+  //   };
+
+  //   fetchCallTypes();
+  // }, []);
+
+
   useEffect(() => {
     const fetchCallTypes = async () => {
       try {
-        const res = await axiosInstance.get('calltypemaster');
+        if (!formData.product) {
+          setCallTypes([]);
+          return;
+        }
+        const res = await axiosInstance.get(
+          `CallType/subcategory/${formData.product}`
+        );
         if (Array.isArray(res.data)) {
           setCallTypes(res.data);
         }
       } catch (err) {
         console.error('Error fetching call types:', err);
+        setCallTypes([]);
       }
     };
-
+  
     fetchCallTypes();
-  }, []);
+  }, [formData.product]);
 
   // ✅ Fetch Faults (Symptoms) based on productID
   useEffect(() => {

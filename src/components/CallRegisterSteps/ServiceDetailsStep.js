@@ -188,6 +188,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/api/axiosInstance';
+import CustomDropdown from '../common/Dropdown';
 
 export default function ServiceDetailsStep({ formData, handleChange, errors, setFormData }) {
   const [timeSlots, setTimeSlots] = useState([]);
@@ -309,8 +310,8 @@ export default function ServiceDetailsStep({ formData, handleChange, errors, set
       <h3>Service Details</h3>
       <div className="form-grid">
 
-        {/* ✅ Call Type from API */}
-        <div className="form-group">
+        {/* ✅ Call Type from API */} 
+        {/* <div className="form-group">
           <label htmlFor="callType">Call Type</label>
           <select
             id="callType"
@@ -326,7 +327,32 @@ export default function ServiceDetailsStep({ formData, handleChange, errors, set
             ))}
           </select>
           {errors.callType && <span className="error-text">{errors.callType}</span>}
-        </div>
+        </div> */}
+
+<div className="form-group">
+  <CustomDropdown
+    label="Call Type"
+    options={callTypes.map((type) => ({
+      value: type.callType_ID,
+      label: type.callType_Name,
+    }))}
+    value={formData.callTypeId || ""}
+    onChange={(val) => {
+      const selected = callTypes.find((t) => t.callType_ID === val);
+      setFormData((prev) => ({
+        ...prev,
+        callTypeId: val,                   // numeric ID
+        callType: selected?.callType_Name || "", // text for validation + payload
+      }));
+    }}
+    placeholder="Select Call Type"
+  />
+
+  {errors.callType && (
+    <span className="error-text">{errors.callType}</span>
+  )}
+</div>
+
 
         {/* ✅ Service Date & Time */}
         <div className="form-group">
@@ -371,7 +397,11 @@ export default function ServiceDetailsStep({ formData, handleChange, errors, set
           {errors.availableTime && <span className="error-text">{errors.availableTime}</span>}
         </div>
 
+
+
+
         {/* ✅ Fault VOC from API (filtered by productID) */}
+{/* 
         <div className="form-group">
           <label htmlFor="faultVoc">Fault/VOC</label>
           <select
@@ -388,7 +418,34 @@ export default function ServiceDetailsStep({ formData, handleChange, errors, set
             ))}
           </select>
           {errors.faultVoc && <span className="error-text">{errors.faultVoc}</span>}
-        </div>
+        </div> */}
+
+
+
+
+        <div className="form-group">
+  <CustomDropdown
+    label="Fault/VOC"
+    options={faults.map((f) => ({
+      value: f.syid,
+      label: f.symptom,
+    }))}
+    value={formData.faultVocId || ""}
+    onChange={(val) => {
+      const selected = faults.find((f) => f.syid === val);
+      setFormData((prev) => ({
+        ...prev,
+        faultVocId: val, // 👈 ID for backend
+        faultVoc: selected?.symptom || "", // 👈 text for validation + remarks
+      }));
+    }}
+    placeholder="Select Fault"
+  />
+
+  {errors.faultVoc && (
+    <span className="error-text">{errors.faultVoc}</span>
+  )}
+</div>
       </div>
     </>
   );

@@ -107,3 +107,58 @@
   .mainMenu:hover .logoContainer {
     opacity: 1;
   }
+
+
+
+
+
+  .userInfo {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-top: 1px solid #444;
+    color: #fff;
+    gap: 10px;
+    background: #2a2a2a;
+  }
+  
+  .userAvatar {
+    border-radius: 50%;
+  }
+  
+  .userDetails {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .userName {
+    font-weight: bold;
+    font-size: 14px;
+    margin: 0;
+    color: #fff;
+  }
+  
+  .userRole {
+    font-size: 14px;
+    color: #aaa;
+    margin: 0;
+    font-weight: 600;
+  } 
+  
+  .signOutBtn {
+    margin-top: 5px;
+    background: transparent;
+    border: none; 
+    color: #714b67;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    text-align: left;
+    font-weight: 600;
+  }
+  .signOutBtn:hover {
+    color: #fff;
+    background: #9b7f94;
+    border-radius: 20px;
+    padding: 5;
+  }

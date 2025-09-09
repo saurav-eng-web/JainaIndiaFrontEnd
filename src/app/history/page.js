@@ -10,6 +10,7 @@ import axiosInstance from '@/api/axiosInstance';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CustomDropdown from '@/components/common/Dropdown';
 
 const tabs = [
   'Job Details',
@@ -21,6 +22,7 @@ const tabs = [
   'Part Consumption',
   'Visit Detail'
 ];
+
 
 const StatusBadge = ({ status }) => (
   <span className={`badge ${status?.toLowerCase()}`}>{status}</span>
@@ -41,6 +43,12 @@ const [reminderText, setReminderText] = useState('');
 const [reminders, setReminders] = useState([]);
   const [loadingReminders, setLoadingReminders] = useState(true);
   
+
+  const reminderOptions = [
+    { value: "call", label: "📞 Not Attended" },
+    { value: "email", label: "⏳ Part Pending" },
+    { value: "meeting", label: "🤷 Other" },
+  ];
 
   const { user } = useSelector((state) => state.auth); // ✅ logged-in user from Redux
 
@@ -214,14 +222,12 @@ useEffect(() => {
                   <h3 style={{ fontWeight: "bold" }}>📌 Job Details</h3>
                   <div className="row-content">
                     <div><strong>Ticket No:</strong> {detail.tickeT_NO || '-'}</div>
-                    <div><strong>Status:</strong> {detail.complainT_STATUS || '-'}</div>
-                    <div><strong>Remarks:</strong> {detail.remarks || '-'}</div>
-                    <div><strong>Call By:</strong> {detail.calL_BY || '-'}</div>
-                    <div><strong>Complaint No:</strong> {detail.tickeT_NO || '-'}</div>
-                    <div><strong>Complaint Date:</strong> {detail.tdate ? new Date(detail.tdate).toLocaleString() : '-'}</div>
-                    <div><strong>Call Type:</strong> {detail.calL_TYPE || '-'}</div>
+                    <div><strong>Complaint SubStatus:</strong> {detail.complaint_SubStatus || '-'}</div>
                     <div><strong>Complaint Status:</strong> {detail.complainT_STATUS || '-'}</div>
                     <div><strong>Remarks:</strong> {detail.remarks || '-'}</div>
+                    <div><strong>Call By:</strong> {detail.calL_BY || '-'}</div>
+                    <div><strong>Complaint Date:</strong> {detail.tdate ? new Date(detail.tdate).toLocaleString() : '-'}</div>
+                    <div><strong>Call Type:</strong> {detail.calL_TYPE || '-'}</div>
                     <div><strong>Entered By:</strong> {detail.enterby || '-'}</div>
                           <div><strong>Escalated to HO:</strong> {firstEntry.escalated === 1 ? 'Yes' : 'No'}</div>
                           <div><strong>NSP:</strong> {detail.asC_NAME || '-'}</div>
@@ -274,32 +280,7 @@ useEffect(() => {
                 </div>
               )}
 
-              {/* {activeTab === 'Complaint Detail' && (
-                <div className="tab-section">
-                  <h3 style={{ fontWeight: "bold" }}>🧪 Complaint Detail</h3>
-                  <div className="row-content">
-                    <div><strong>Complaint No:</strong> {detail.tickeT_NO || '-'}</div>
-                    <div><strong>Complaint Date:</strong> {detail.tdate ? new Date(detail.tdate).toLocaleString() : '-'}</div>
-                    <div><strong>Call Type:</strong> {detail.calL_TYPE || '-'}</div>
-                    <div><strong>Complaint Status:</strong> {detail.complainT_STATUS || '-'}</div>
-                    <div><strong>Remarks:</strong> {detail.remarks || '-'}</div>
-                    <div><strong>Entered By:</strong> {detail.enterby || '-'}</div>
-                          <div><strong>Escalated to HO:</strong> {firstEntry.escalated === 1 ? 'Yes' : 'No'}</div>
-                          <div><strong>NSP:</strong> {detail.asC_NAME || '-'}</div>
-                    <div><strong>SF Name:</strong> {detail.asC_NAME || '-'}</div>
-                    <div><strong>SF Code:</strong> {detail.asC_NAME || '-'}</div>
-                    <div><strong>SF Mobile No.:</strong> {detail.mobile || '-'}</div>
-                    <div><strong>Appointment Date:</strong> {'-'}</div>
-                    <div><strong>Appointment Time:</strong> {'-'}</div>
-                    <div><strong>Promise Date:</strong> {detail.promisE_DATE ? new Date(detail.promisE_DATE).toLocaleDateString() : '-'}</div>
-                    <div><strong>Promise Time:</strong> {detail.promisE_TIME || '-'}</div>
-                    <div><strong>Legal Case:</strong> {detail.legal === 1 ? 'Yes' : 'No'}</div>
-                    <div><strong>Special Instructions:</strong> {detail.splInt || '-'}</div>
-
-                  </div>
-                </div>
-              )}
-                 */}
+              
                 {activeTab === 'Pending Level History' && (
   <div className="tab-section">
     <h3 style={{ fontWeight: "bold" }}>🛠️ Pending Level History</h3>
@@ -424,58 +405,6 @@ useEffect(() => {
 
 
 
-
-{/* 
-            <div className="reminder-section">
-  <h3 className="page-title">⏰ Add Reminder</h3>
-  <form className="reminder-form">
-    <label>
-      <span>Reminder Reason</span>
-      <select style={{width:500}}>
-        <option value="">Select Type</option>
-        <option value="call">📞 Call</option>
-        <option value="email">📧 Email</option>
-        <option value="meeting">📅 Meeting</option>
-      </select>
-    </label>
-
-    <label style={{width:500}}>
-      <textarea placeholder="Enter reminder notes..." />
-    </label>
-
-    <button type="submit">Add Reminder</button>
-  </form>
-
-  
-  {reminders.length === 0 ? (
-    <p>No reminders found.</p>
-  ) : (
-    <table className="complaint-table">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Remark</th>
-          <th>Status</th>
-          <th>Entered By</th>
-        </tr>
-      </thead>
-      <tbody>
-        {reminders.map((rem, index) => (
-          <tr key={index}>
-            <td>
-              {rem.remind_date
-                ? new Date(rem.remind_date).toLocaleDateString()
-                : "-"}
-            </td>
-            <td>{rem.remind_Remark || "-"}</td>
-            <td>{rem.remind_Trap || "-"}</td>
-            <td>{rem.remind_Enterby || "-"}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )}
-</div> */}
 <div className="reminder-section">
 <ToastContainer
   position="top-center"   // top-center or bottom-center
@@ -498,42 +427,17 @@ useEffect(() => {
       const ticket = ticketNo || storedTicket;
       if (!ticket) return alert("Ticket not found");
 
-      // try {
-      //   const payload = {
-      //     // Remind_Bid: 12,           // Replace with dynamic if needed
-      //     // Remind_Sfid: 1298,        // Replace with dynamic if needed
-      //     Remind_Remark: reminderText,
-      //     // Remind_Status: "1",
-      //     Remind_Enterby: loggedInUser,  // Replace with current user if needed
-      //     Ticket_No: ticket,
-      //   };
-
-      //   // 1️⃣ Send POST request to create reminder
-      //   await axiosInstance.post('/reminder/create', payload);
-
-      //   // 2️⃣ Re-fetch reminders from backend
-      //   const res = await axiosInstance.get(`/reminder/Ticket/${ticket}`);
-      //   const data = Array.isArray(res.data) ? res.data : [res.data];
-      //   setReminders(data);
-
-      //   // 3️⃣ Reset form fields
-      //   setReminderReason('');
-      //   setReminderText('');
-      // } catch (err) {
-      //   console.error("Failed to add reminder:", err);
-      //   alert("Failed to add reminder");
-      // }
 
       try {
         const payload = {
           Remind_Remark: reminderText,
           Remind_Enterby: loggedInUser,
           Ticket_No: ticket || "-",
-           Remind_Sfid: detail.asC_CODE || "",
-            Remind_Bid: detail.bid || "",
+           Remind_Sfid: detail.sf_ID || 0,
+            Remind_Bid: detail.bid || 0,
            Remind_Status: "1",
         };
-
+        console.log("📦 Sending Reminder Payload:", payload);
         await axiosInstance.post('/reminder/create', payload);
 
         const res = await axiosInstance.get(`/reminder/Ticket/${ticket}`);
@@ -546,22 +450,21 @@ useEffect(() => {
         toast.success("✅ Reminder added successfully!"); // popup
       } catch (err) {
         console.error("Failed to add reminder:", err);
+        console.log("🚨 Payload that failed:", payload);
         toast.error("❌ Failed to add reminder");
       }
     }}
   >
     <label>
       <span>Reminder Reason</span>
-      <select
-        style={{ width: 500 }}
-        value={reminderReason}
-        onChange={(e) => setReminderReason(e.target.value)}
-      >
-        <option value="">Select Type</option>
-        <option value="call">📞 Not Attended</option>
-        <option value="email">⏳ Part Pending</option>
-        <option value="meeting">🤷 Other</option>
-      </select>
+      <div style={{ width: 500 }}>
+  <CustomDropdown
+    options={reminderOptions}
+    value={reminderReason}
+    onChange={(val) => setReminderReason(val)}
+    placeholder="Select Type"
+  />
+</div>
     </label>
 
     <label style={{ width: 500 }}>

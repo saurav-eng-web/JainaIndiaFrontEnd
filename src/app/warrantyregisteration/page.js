@@ -405,36 +405,7 @@ export default function WarrantyForm() {
                 </div>
                 <div>
                   <label className="block font-medium mb-1">Upload Invoice <span className="text-red-500">*</span></label>
-                  {/* <input
-  type="file"
-  onChange={async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setInvoice(file); // optional, keep original file
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const res = await axiosInstance.post(
-          "WarrantyRegistration/upload-invoice",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Accept: "application/json",
-            },
-          }
-        );
-        setUploadedInvoiceName(res.data.fileName); // ✅ save filename for payload
-        console.log("✅ Invoice uploaded:", res.data.fileName);
-      } catch (err) {
-        console.error("❌ Upload failed", err);
-        alert("❌ Invoice upload failed");
-      }
-    }
-  }}
-  className="w-full"
-/> */}
+                 
 
 
 <input
@@ -537,13 +508,13 @@ export default function WarrantyForm() {
   type="tel"
   value={phone}
   onChange={(e) => {
-    const val = e.target.value.replace(/\D/g, ""); // allow only digits
+    const val = e.target.value.replace(/\D/g, ""); 
     if (val.length <= 10) {
       setPhone(val);
     }
   }}
   placeholder="Enter phone number"
-  maxLength={10} // 🔹 ensures max 10 chars
+  maxLength={10} 
   className="w-full border border-gray-300 rounded px-2 py-1"
 />
                 </div>

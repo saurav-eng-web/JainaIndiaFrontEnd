@@ -23,7 +23,7 @@ export default function LoginPage() {
     if (user) {
       const role = user.roleName?.toLowerCase();
       if (role === 'br') {
-        router.push('/nsp/dashboard');
+        router.push('/search-complaint');
       } else if (role === 'cc') {
         router.push('/test');
       } else if (role === 'technician') {

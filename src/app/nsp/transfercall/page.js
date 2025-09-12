@@ -247,6 +247,7 @@ import { useTheme } from '@/theme/ThemeContext';
 import SideBar from '@/components/SideBar';
 import axiosInstance from '@/api/axiosInstance';
 import CustomDropdown from '@/components/common/Dropdown';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function TransferCallForm() {
   const { colors } = useTheme();
@@ -327,6 +328,8 @@ export default function TransferCallForm() {
   };
 
   return (
+
+     <ProtectedRoute allowedRoles={['br']}>  
     <div className="flex min-h-screen bg-gray-100">
       <SideBar />
 
@@ -403,5 +406,6 @@ export default function TransferCallForm() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

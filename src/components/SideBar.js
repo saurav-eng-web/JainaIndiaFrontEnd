@@ -250,7 +250,13 @@ export default function SideBar() {
       href: '/test',
       icon: 'fa fa-home fa-2x',
       text: 'Dashboard',
-      roles: ['CC', 'BR', 'Manager'],
+      roles: ['CC'],
+    },
+    {
+      href: '/nsp/dashboard',
+      icon: 'fa fa-home fa-2x',
+      text: 'Dashboard',
+      roles: ['BR',],
     },
     {
       href: '/call',
@@ -275,6 +281,25 @@ export default function SideBar() {
       icon: 'fa fa-wrench fa-2x',
       text: 'Technical Approval',
       roles: ['CC'],
+    },
+
+    {
+      href: '/nsp/asc-creation',
+      icon: 'fa fa-plus fa-2x',
+      text: 'Asc Creation',
+      roles: ['BR'],
+    },
+    {
+      href: '/nsp/reports',
+      icon: 'fa fa-wrench fa-2x',
+      text: 'Reports',
+      roles: ['BR'],
+    },
+    {
+      href: '/nsp/transfercall',
+      icon: 'fa fa-phone fa-2x',
+      text: 'Call Transfer',
+      roles: ['BR'],
     },
   ];
 

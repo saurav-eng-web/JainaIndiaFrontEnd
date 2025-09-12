@@ -417,6 +417,7 @@ import {
 } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import SideBar from '@/components/SideBar';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function AscCreationForm() {
   const { colors } = useTheme(); 
@@ -589,6 +590,7 @@ export default function AscCreationForm() {
   ];
 
   return (
+    <ProtectedRoute allowedRoles={['br']}>  
     <div className="max-w-6xl mx-auto p-8 bg-white rounded-lg shadow">
       <div className="w-64 bg-white shadow-lg">
         <SideBar />
@@ -719,5 +721,6 @@ export default function AscCreationForm() {
         </button>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

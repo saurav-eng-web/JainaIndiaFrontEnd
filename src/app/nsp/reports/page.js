@@ -314,6 +314,8 @@ export default function DashboardPage() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [reportType, setReportType] = useState('');
+  const { user } = useSelector((state) => state.auth);
+const loggedInUserId = user?.userID || "";
 
   const handleDownload = async () => {
     if (!fromDate || !toDate || !reportType) {
@@ -321,10 +323,12 @@ export default function DashboardPage() {
       return;
     }
 
+    
+
     try {
       const body = {
         Type: reportType,
-        UserId: "49857", // you can also take this dynamically if needed
+        UserId: loggedInUserId, 
         FromDate: fromDate,
         ToDate: toDate,
       };

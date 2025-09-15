@@ -166,8 +166,11 @@ useEffect(() => {
   const detail = custDetail || {}; // ✅ for tabs
 
   return (
+    
     <div className="page-wrapper">
-      <SideBar />
+
+<SideBar />
+     
       <div className="content-area">
         <h2 className="page-title">📋 Complaint History</h2>
 

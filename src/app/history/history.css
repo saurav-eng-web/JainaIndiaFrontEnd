@@ -145,7 +145,7 @@
     .page-wrapper {
       display: flex;
       min-height: 100vh;
-    }
+    } 
     
     /* Content area beside sidebar */
     .content-area {
@@ -159,10 +159,14 @@
     }
     
     /* Sidebar expands to 250px on hover */
-    .mainMenu:hover ~ .content-area {
+    /* .mainMenu:hover ~ .content-area {
       margin-left: 250px;
     }
-    
+     */
+
+     /* .mainMenu:hover {
+      width: 250px;
+    } */
     
     .page-title {
       text-align: left;

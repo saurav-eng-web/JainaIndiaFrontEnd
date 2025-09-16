@@ -42,6 +42,9 @@ export default function HistoryPage() {
 const [reminderText, setReminderText] = useState('');
 const [reminders, setReminders] = useState([]);
   const [loadingReminders, setLoadingReminders] = useState(true);
+
+
+  
   
 
   const reminderOptions = [
@@ -192,7 +195,7 @@ useEffect(() => {
                   <th>Entered By</th>
                 </tr>
               </thead>
-              <tbody>
+              {/* <tbody>
                 {logData.map((row, index) => (
                   <tr key={index}>
                     <td>{row.ticketNo}</td>
@@ -203,7 +206,20 @@ useEffect(() => {
                     <td>{row.enteredBy}</td>
                   </tr>
                 ))}
-              </tbody>
+              </tbody> */}
+
+
+<tbody>
+  {[...logData].reverse().map((row, index) => (
+    <tr key={index}>
+      <td>{row.ticketNo}</td>
+      <td> {row.complaintStatus}</td>
+      <td>{row.complaintSubStatus || '-'}</td>
+      <td>{row.tdate ? new Date(row.tdate).toLocaleString() : '-'}</td>
+      <td>{row.enteredBy}</td>
+    </tr>
+  ))}
+</tbody>
             </table>
 
             {/* Tabs */}
@@ -303,7 +319,7 @@ useEffect(() => {
     )}
   </div>
 )}
-
+{/* 
 
 {activeTab === 'Document Uploaded' && (
   <div className="tab-section2">
@@ -336,7 +352,53 @@ useEffect(() => {
       ))
     )}
   </div>
+)} */}
+
+
+{activeTab === 'Document Uploaded' && (
+  <div className="tab-section2">
+    <h3 style={{ fontWeight: "bold" }}>📂 Document Uploaded</h3>
+
+    {documents.length === 0 ? (
+      <p>No documents found.</p>
+    ) : (
+      <table className="complaint-table">
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th>Document Type</th>
+            <th>Entered Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {documents.map((doc, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>{doc.documentType || '-'}</td>
+              <td>{doc.enteredDate || '-'}</td>
+              <td>
+                {doc.documentURL1 ? (
+                  <a
+                    href={doc.documentURL1.replace("..\\", "/")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="view-btn"
+                  >
+                    View
+                  </a>
+                ) : (
+                  '-'
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
 )}
+
                  {activeTab === 'Document Uploaded from Android Application' && (
                 <div className="tab-section">
                   <h3 style={{ fontWeight: "bold" }}>🧪 Test Info</h3>
@@ -408,111 +470,110 @@ useEffect(() => {
 
 
 
-<div className="reminder-section">
-<ToastContainer
-  position="top-center"   // top-center or bottom-center
-  autoClose={3000}
-  hideProgressBar={false}
-  newestOnTop={false}
-  closeOnClick
-  rtl={false}
-  pauseOnFocusLoss
-  draggable
-  pauseOnHover
-  style={{ top: '50%', transform: 'translateY(-50%)' }} // vertically center
-/>
-  <h3 className="page-title">⏰ Add Reminder</h3>
-  <form
-    className="reminder-form"
-    onSubmit={async (e) => {
-      e.preventDefault();
-      const storedTicket = sessionStorage.getItem('currentTicket');
-      const ticket = ticketNo || storedTicket;
-      if (!ticket) return alert("Ticket not found");
+            {user?.roleName === "CC" && (
+  <div className="reminder-section">
+    <ToastContainer
+      position="top-center"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      style={{ top: '50%', transform: 'translateY(-50%)' }}
+    />
+    <h3 className="page-title">⏰ Add Reminder</h3>
+    <form
+      className="reminder-form"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const storedTicket = sessionStorage.getItem('currentTicket');
+        const ticket = ticketNo || storedTicket;
+        if (!ticket) return alert("Ticket not found");
 
-
-      try {
-        const payload = {
-          Remind_Remark: reminderText,
-          Remind_Enterby: loggedInUser,
-          Ticket_No: ticket || "-",
-           Remind_Sfid: detail.sf_ID || 0,
+        try {
+          const payload = {
+            Remind_Remark: reminderText,
+            Remind_Enterby: loggedInUser,
+            Ticket_No: ticket || "-",
+            Remind_Sfid: detail.sf_ID || 0,
             Remind_Bid: detail.bid || 0,
-           Remind_Status: "1",
-        };
-        console.log("📦 Sending Reminder Payload:", payload);
-        await axiosInstance.post('/reminder/create', payload);
+            Remind_Status: "1",
+          };
+          console.log("📦 Sending Reminder Payload:", payload);
+          await axiosInstance.post('/reminder/create', payload);
 
-        const res = await axiosInstance.get(`/reminder/Ticket/${ticket}`);
-        const data = Array.isArray(res.data) ? res.data : [res.data];
-        setReminders(data);
+          const res = await axiosInstance.get(`/reminder/Ticket/${ticket}`);
+          const data = Array.isArray(res.data) ? res.data : [res.data];
+          setReminders(data);
 
-        setReminderReason('');
-        setReminderText('');
+          setReminderReason('');
+          setReminderText('');
 
-        toast.success("✅ Reminder added successfully!"); // popup
-      } catch (err) {
-        console.error("Failed to add reminder:", err);
-        console.log("🚨 Payload that failed:", payload);
-        toast.error("❌ Failed to add reminder");
-      }
-    }}
-  >
-    <label>
-      <span>Reminder Reason</span>
-      <div style={{ width: 500 }}>
-  <CustomDropdown
-    options={reminderOptions}
-    value={reminderReason}
-    onChange={(val) => setReminderReason(val)}
-    placeholder="Select Type"
-  />
-</div>
-    </label>
+          toast.success("✅ Reminder added successfully!");
+        } catch (err) {
+          console.error("Failed to add reminder:", err);
+          toast.error("❌ Failed to add reminder");
+        }
+      }}
+    >
+      <label>
+        <span>Reminder Reason</span>
+        <div style={{ width: 500 }}>
+          <CustomDropdown
+            options={reminderOptions}
+            value={reminderReason}
+            onChange={(val) => setReminderReason(val)}
+            placeholder="Select Type"
+          />
+        </div>
+      </label>
 
-    <label style={{ width: 500 }}>
-      <textarea
-        placeholder="Enter reminder notes..."
-        value={reminderText}
-        onChange={(e) => setReminderText(e.target.value)}
-      />
-    </label>
+      <label style={{ width: 500 }}>
+        <textarea
+          placeholder="Enter reminder notes..."
+          value={reminderText}
+          onChange={(e) => setReminderText(e.target.value)}
+        />
+      </label>
 
-    <button type="submit">Add Reminder</button>
-  </form>
+      <button type="submit">Add Reminder</button>
+    </form>
 
-  {/* 🔹 Reminder History */}
-  {loadingReminders ? (
-    <p>Loading reminders...</p>
-  ) : reminders.length === 0 ? (
-    <p>No reminders found.</p>
-  ) : (
-    <table className="complaint-table">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Remark</th>
-          {/* <th>Status</th> */}
-          <th>Entered By</th>
-        </tr>
-      </thead>
-      <tbody>
-        {reminders.map((rem, index) => (
-          <tr key={index}>
-            <td>
-              {rem.remind_date
-                ? new Date(rem.remind_date).toLocaleDateString()
-                : "-"}
-            </td>
-            <td>{rem.remind_Remark || "-"}</td>
-            {/* <td>{rem.remind_Trap || "-"}</td> */}
-            <td>{rem.remind_Enterby || "-"}</td>
+    {/* 🔹 Reminder History */}
+    {loadingReminders ? (
+      <p>Loading reminders...</p>
+    ) : reminders.length === 0 ? (
+      <p>No reminders found.</p>
+    ) : (
+      <table className="complaint-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Remark</th>
+            <th>Entered By</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  )}
-</div>
+        </thead>
+        <tbody>
+          {reminders.map((rem, index) => (
+            <tr key={index}>
+              <td>
+                {rem.remind_date
+                  ? new Date(rem.remind_date).toLocaleDateString()
+                  : "-"}
+              </td>
+              <td>{rem.remind_Remark || "-"}</td>
+              <td>{rem.remind_Enterby || "-"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+)}
+
  
 
 

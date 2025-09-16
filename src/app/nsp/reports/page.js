@@ -315,7 +315,7 @@ export default function DashboardPage() {
   const [toDate, setToDate] = useState('');
   const [reportType, setReportType] = useState('');
   const { user } = useSelector((state) => state.auth);
-const loggedInUserId = user?.userID || "";
+  const loggedInUserId = user?.userID ? String(user.userID) : "";
 
   const handleDownload = async () => {
     if (!fromDate || !toDate || !reportType) {
@@ -333,7 +333,7 @@ const loggedInUserId = user?.userID || "";
         ToDate: toDate,
       };
 
-      // ✅ API call with blob response
+      
       const response = await axiosInstance.post(
         "/reports/downloadreports",
         body,

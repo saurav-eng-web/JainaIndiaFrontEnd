@@ -339,21 +339,25 @@ export default function DashboardPage() {
         body,
         { responseType: "blob" }
       );
-
-      // ✅ Create Blob download
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const a = document.createElement("a");
       a.href = url;
-
-      // Extract filename if present
+      
+      // ✅ Extract filename from backend
       const contentDisposition = response.headers["content-disposition"];
-      const fileNameMatch = contentDisposition?.match(/filename="?([^"]+)"?/);
-      const fileName = fileNameMatch ? fileNameMatch[1] : "report.csv";
-
+      let fileName = "report.csv"; // fallback
+      
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (match?.[1]) {
+          fileName = match[1];
+        }
+      }
+      
       a.download = fileName;
       document.body.appendChild(a);
       a.click();
-
+      
       // Cleanup
       a.remove();
       window.URL.revokeObjectURL(url);

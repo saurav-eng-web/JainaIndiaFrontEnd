@@ -200,11 +200,15 @@ export default function ComplaintTable() {
     }
   };
 
+  // const handleViewHistory = (ticketNo) => {
+  //   sessionStorage.setItem("currentTicket", ticketNo);
+  //   router.push("/history");
+  // };
+
   const handleViewHistory = (ticketNo) => {
     sessionStorage.setItem("currentTicket", ticketNo);
-    router.push("/history");
+    router.push(`/history?fromPage=dashboardcall&ticketNo=${ticketNo}`);
   };
-
   return (
     <div className="flex">
       <SideBar />

@@ -3,7 +3,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import SideBar from '@/components/SideBar';
 import './history.css';
 import axiosInstance from '@/api/axiosInstance';
@@ -43,6 +43,9 @@ export default function HistoryPage() {
 const [reminderText, setReminderText] = useState('');
 const [reminders, setReminders] = useState([]);
   const [loadingReminders, setLoadingReminders] = useState(true);
+
+  const searchParams = useSearchParams();
+const fromPage = searchParams.get("fromPage");
 
 
   
@@ -182,7 +185,7 @@ useEffect(() => {
         <h2 className="page-title">📋 Complaint History</h2>
 
 
-        {user?.roleName === "ASM" && (
+        {/* {user?.roleName === "ASM" && (
   <RemarkSection
     onSubmit={(remark) => {
       console.log("Submitted remark:", remark);
@@ -190,10 +193,19 @@ useEffect(() => {
     }}
     onCancel={() => console.log("Remark canceled")}
   />
+)} */}
+
+
+{fromPage === "dashboardcall" && user?.roleName === "ASM" && detail.complainT_STATUS === "Part Pending" && detail.complaint_SubStatus === "Part InTransit" && (
+  <RemarkSection
+    onSubmit={(remark) => {
+      console.log("Submitted remark:", remark);
+      // 👉 Example: call API with remark + ticketNo
+      // axiosInstance.post('/api/remark', { remark, ticketNo })
+    }}
+    onCancel={() => console.log("Remark canceled")}
+  />
 )}
-
-
-
 
 
         {loading ? (

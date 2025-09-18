@@ -11,11 +11,12 @@ import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CustomDropdown from '@/components/common/Dropdown';
+import RemarkSection from '@/components/history/RemarkSection';
 
 const tabs = [
   'Job Details',
   'Customer Detail',
-  'Product Details',
+  'Product Details', 
   'Pending Level History',
   'Document Uploaded',
   'Job Done',
@@ -175,7 +176,25 @@ useEffect(() => {
 <SideBar />
      
       <div className="content-area">
+
+
+        
         <h2 className="page-title">📋 Complaint History</h2>
+
+
+        {user?.roleName === "ASM" && (
+  <RemarkSection
+    onSubmit={(remark) => {
+      console.log("Submitted remark:", remark);
+      // 👉 here you can call axiosInstance.post('/api/remark', { remark, ticketNo }) if needed
+    }}
+    onCancel={() => console.log("Remark canceled")}
+  />
+)}
+
+
+
+
 
         {loading ? (
           <div className="loading">Loading history...</div>
@@ -502,7 +521,7 @@ useEffect(() => {
             Remind_Bid: detail.bid || 0,
             Remind_Status: "1",
           };
-          console.log("📦 Sending Reminder Payload:", payload);
+          // console.log("📦 Sending Reminder Payload:", payload);
           await axiosInstance.post('/reminder/create', payload);
 
           const res = await axiosInstance.get(`/reminder/Ticket/${ticket}`);

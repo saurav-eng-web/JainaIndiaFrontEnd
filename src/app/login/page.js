@@ -29,7 +29,7 @@ export default function LoginPage() {
       } else if (role === 'technician') {
         router.push('/technician/jobs');
       } else {
-        router.push('/test');
+        router.push('/testadmin');
       }
     }
   }, [user]);

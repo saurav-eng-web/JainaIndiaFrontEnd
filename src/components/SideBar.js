@@ -256,7 +256,7 @@ export default function SideBar() {
       href: '/nsp/dashboard',
       icon: 'fa fa-home fa-2x',
       text: 'Dashboard',
-      roles: ['BR',],
+      roles: ['BR','ASM'],
     },
     {
       href: '/call',

@@ -5,24 +5,24 @@ import { useRouter } from 'next/navigation';
 import SideBar from '@/components/SideBar';
 
 export default function Test() {
-  const router = useRouter();
+  // const router = useRouter();
 
-  useEffect(() => {
-    const userData = localStorage.getItem('userData');
-    if (!userData) {
-      router.replace('/');
-      return;
-    }
+  // useEffect(() => {
+  //   const userData = localStorage.getItem('userData');
+  //   if (!userData) {
+  //     router.replace('/');
+  //     return;
+  //   }
 
-    const user = JSON.parse(userData);
-    const role = user.roleName?.toLowerCase();
+  //   const user = JSON.parse(userData);
+  //   const role = user.roleName?.toLowerCase();
 
-    // 🚫 Redirect if role is not 'nsp'
-    if (role !== 'nsp') {
-      // alert('Unauthorized: NSP access only');
-      router.replace('/');
-    }
-  }, [router]);
+  //   // 🚫 Redirect if role is not 'nsp'
+  //   if (role !== 'nsp') {
+  //     // alert('Unauthorized: NSP access only');
+  //     router.replace('/');
+  //   }
+  // }, [router]);
 
 
   return (

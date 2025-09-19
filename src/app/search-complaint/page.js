@@ -68,7 +68,7 @@ export default function SearchComplaintPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['cc','br']}>
+    <ProtectedRoute allowedRoles={['cc','br','asm']}>
     <div style={{ display: 'flex' }}>
       <SideBar />
       <div className="content">

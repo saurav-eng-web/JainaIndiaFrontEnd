@@ -205,10 +205,16 @@ export default function ComplaintTable() {
   //   router.push("/history");
   // };
 
+  // const handleViewHistory = (ticketNo) => {
+  //   sessionStorage.setItem("currentTicket", ticketNo);
+  //   router.push(`/history?fromPage=dashboardcall&ticketNo=${ticketNo}`);
+  // };
+
+
   const handleViewHistory = (ticketNo) => {
-    sessionStorage.setItem("currentTicket", ticketNo);
-    router.push(`/history?fromPage=dashboardcall&ticketNo=${ticketNo}`);
-  };
+  sessionStorage.setItem("currentTicket", ticketNo);
+  router.push("/history?fromPage=dashboardcall"); // ✅ no ticketNo in URL
+};
   return (
     <div className="flex">
       <SideBar />

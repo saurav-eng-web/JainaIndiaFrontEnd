@@ -12,6 +12,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CustomDropdown from '@/components/common/Dropdown';
 import RemarkSection from '@/components/history/RemarkSection';
+import AllotmentDetails from '@/components/history/AllotmentDetails';
 
 const tabs = [
   'Job Details',
@@ -60,6 +61,34 @@ const fromPage = searchParams.get("fromPage");
   const { user } = useSelector((state) => state.auth); // ✅ logged-in user from Redux
 
   const loggedInUser = user?.userName || 'Unknown';
+
+
+
+
+
+  const [formData, setFormData] = useState({
+    ascName: "Mithila Enterprises",
+    engineer: "MHS3ASC-170_Eng",
+    reAllot: false,
+    appointmentDate: "",
+    appointmentHour: "",
+    appointmentMinute: "",
+    promiseDate: "2025-09-18",
+    asmRemark: "",
+    customerRemark: "",
+  });
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleApprove = () => {
+    console.log("Approved with:", formData);
+  };
+
+  const handleReject = () => {
+    console.log("Rejected");
+  };
 
   useEffect(() => {
     const storedTicket = sessionStorage.getItem('currentTicket');
@@ -180,7 +209,12 @@ useEffect(() => {
      
       <div className="content-area">
 
-
+      <AllotmentDetails
+        {...formData}
+        onChange={handleChange}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
         
         <h2 className="page-title">📋 Complaint History</h2>
 

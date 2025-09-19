@@ -299,7 +299,7 @@ export default function SideBar() {
       href: '/nsp/transfercall',
       icon: 'fa fa-phone fa-2x',
       text: 'Call Transfer',
-      roles: ['BR'],
+      roles: ['BR','ASM'],
     },
   ];
 

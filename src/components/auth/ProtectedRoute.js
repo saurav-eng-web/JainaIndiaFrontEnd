@@ -27,13 +27,13 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
       if (allowedRoles.length === 0 || allowedRoles.includes(role)) {
         setAuthorized(true);
       } else {
-        router.replace('/unauthorized'); // Blocked
+        router.replace('/login'); 
       }
     } catch {
       router.replace('/');
     }
   }, [router, allowedRoles]);
 
-  if (!authorized) return null; // Prevent flicker while checking
+  if (!authorized) return null;
   return children;
 }

@@ -243,13 +243,14 @@ useEffect(() => {
 <SideBar />
      
       <div className="content-area">
-
+      {fromPage === "dashboardcall" && user?.roleName === "ASM" && detail.complainT_STATUS === "Open" && detail.complaint_SubStatus === "Request for re-allot" && (
       <AllotmentDetails
   formData={formData}
   onChange={handleChange}
   onApprove={handleApprove}
   onReject={handleReject}
 />
+      )}
         
         <h2 className="page-title">📋 Complaint History</h2>
 
@@ -265,7 +266,7 @@ useEffect(() => {
 )} */}
 
 
-{fromPage === "dashboardcall" && user?.roleName === "ASM" && detail.complainT_STATUS === "Part Pending" && detail.complaint_SubStatus === "Part InTransit" && (
+{fromPage === "dashboardcall" && user?.roleName === "ASM" && detail.complainT_STATUS === "Open" && detail.complaint_SubStatus === "Cancellation Request to ASM" && (
   <RemarkSection
     onSubmit={(remark) => {
       console.log("Submitted remark:", remark);

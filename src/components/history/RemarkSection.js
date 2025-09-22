@@ -8,7 +8,7 @@ export default function RemarkSection({ onSubmit, onCancel }) {
   const [remark, setRemark] = useState("");
   const { colors } = useTheme();
 
-  return (
+  return ( 
     <div className="remark-section border rounded-lg p-4 mb-10 shadow-md bg-white max-w-full">
       <h3 className="text-lg font-semibold mb-3">📝 Add Remark</h3>
 

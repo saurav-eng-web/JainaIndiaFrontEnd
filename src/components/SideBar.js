@@ -268,7 +268,7 @@ export default function SideBar() {
       href: '/search-complaint',
       icon: 'fa fa-search fa-2x',
       text: 'Call Search',
-      roles: ['CC', 'BR'],
+      roles: ['CC', 'BR','ASM'],
     },
     {
       href: '/warrantyregisteration',

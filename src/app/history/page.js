@@ -66,17 +66,48 @@ const fromPage = searchParams.get("fromPage");
 
 
 
+// this is for re-allott 
+
+
+  useEffect(() => {
+    if (custDetail) {
+      setFormData({
+        ascName: custDetail.asC_NAME || "",
+        engineer: custDetail.engineeR_NAME || "",
+        reAllot: custDetail.reAllot || false,
+        appointmentDate: custDetail.appointmentDate
+          ? custDetail.appointmentDate.split("T")[0]
+          : "",
+        appointmentHour: custDetail.appointmentTime
+          ? new Date(custDetail.appointmentTime).getHours().toString()
+          : "",
+        appointmentMinute: custDetail.appointmentTime
+          ? new Date(custDetail.appointmentTime).getMinutes().toString()
+          : "",
+        promiseDate: custDetail.promisE_DATE
+          ? new Date(custDetail.promisE_DATE).toISOString().split("T")[0]
+          : "",
+        asmRemark: custDetail.asmRemark || "",
+        customerRemark: custDetail.customerRemark || "",
+      });
+    }
+  }, [custDetail]);
+
+
+  
   const [formData, setFormData] = useState({
-    ascName: "Mithila Enterprises",
-    engineer: "MHS3ASC-170_Eng",
+    ascName: "",
+    engineer: "",
     reAllot: false,
     appointmentDate: "",
     appointmentHour: "",
     appointmentMinute: "",
-    promiseDate: "2025-09-18",
+    promiseDate: "",
     asmRemark: "",
     customerRemark: "",
   });
+  
+  
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -89,6 +120,10 @@ const fromPage = searchParams.get("fromPage");
   const handleReject = () => {
     console.log("Rejected");
   };
+
+// end for realott
+
+
 
   useEffect(() => {
     const storedTicket = sessionStorage.getItem('currentTicket');
@@ -210,11 +245,11 @@ useEffect(() => {
       <div className="content-area">
 
       <AllotmentDetails
-        {...formData}
-        onChange={handleChange}
-        onApprove={handleApprove}
-        onReject={handleReject}
-      />
+  formData={formData}
+  onChange={handleChange}
+  onApprove={handleApprove}
+  onReject={handleReject}
+/>
         
         <h2 className="page-title">📋 Complaint History</h2>
 

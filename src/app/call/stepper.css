@@ -188,6 +188,7 @@
     border: 2px solid #714b67;
     font-size: larger;
     padding: 5px;
+    border-radius: 7px;
 }
   
   .registration-form h3 {

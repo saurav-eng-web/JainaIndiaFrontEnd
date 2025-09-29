@@ -337,7 +337,7 @@ export default function AllotmentDetails({
             </thead>
             <tbody>
               <tr>
-                <td className="border px-4 py-2">{formData.ticketNo || 'Not Available'}</td>
+                <td className="border px-4 py-2">{formData.tickeT_NO || 'Not Available'}</td>
                 <td className="border px-4 py-2">{formData.prevAppointment || 'Not Available'}</td>
                 <td className="border px-4 py-2">{formData.reallotDate || 'Not Available'}</td>
                 <td className="border px-4 py-2">{formData.ascReason || 'Not Available'}</td>
@@ -407,7 +407,7 @@ export default function AllotmentDetails({
           </label>
 
           {/* Appointment Time */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 h-10 mt-6">
             <select
               className="border p-2 rounded"
               value={formData.appointmentHour}

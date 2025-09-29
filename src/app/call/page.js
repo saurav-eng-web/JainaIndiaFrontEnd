@@ -267,7 +267,7 @@ export default function CallRegister() {
     }
   };
 
-  return (
+  return ( 
     <>
       <SideBar />
       <div className="main-content">

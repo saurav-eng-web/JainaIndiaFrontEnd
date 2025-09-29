@@ -67,17 +67,31 @@
 //   );
 // }
 
-
 'use client';
 
 import SideBar from '@/components/SideBar';
 import { useTheme } from '@/theme/ThemeContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+function Loader() {
+  return (
+    <div className="flex items-center justify-center">
+      <div className="w-8 h-8 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
+    </div>
+  );
+}
 
 export default function Test() {
   const { colors } = useTheme();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleNavigate = (path) => {
+    setLoading(true);
+    router.push(path);
+  };
 
   return (
     <ProtectedRoute allowedRoles={['cc']}>
@@ -107,18 +121,20 @@ export default function Test() {
             </h2>
             <div className="flex flex-col items-center gap-[20px]">
               <button
-                className="w-[400px] py-[16px] px-[24px] text-[18px] font-bold rounded-[8px] transition-colors"
+                className="w-[400px] py-[16px] px-[24px] text-[18px] font-bold rounded-[8px] transition-colors flex items-center justify-center"
                 style={{ backgroundColor: colors.primary, color: colors.warning }}
-                onClick={() => router.push('call')}
+                onClick={() => handleNavigate('call')}
+                disabled={loading}
               >
-                New Registration
+                {loading ? <Loader /> : 'New Registration'}
               </button>
               <button
-                className="w-[400px] py-[16px] px-[24px] text-[18px] font-bold rounded-[8px] transition-colors"
+                className="w-[400px] py-[16px] px-[24px] text-[18px] font-bold rounded-[8px] transition-colors flex items-center justify-center"
                 style={{ backgroundColor: colors.primary, color: colors.warning }}
-                onClick={() => router.push('/search-complaint')}
+                onClick={() => handleNavigate('/search-complaint')}
+                disabled={loading}
               >
-                Search Complaint
+                {loading ? <Loader /> : 'Search Complaint'}
               </button>
             </div>
           </div>

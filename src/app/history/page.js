@@ -13,6 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import CustomDropdown from '@/components/common/Dropdown';
 import RemarkSection from '@/components/history/RemarkSection';
 import AllotmentDetails from '@/components/history/AllotmentDetails';
+import Popup from '@/components/common/Popup';
 
 const tabs = [
   'Job Details',
@@ -49,8 +50,8 @@ const [reminders, setReminders] = useState([]);
 const fromPage = searchParams.get("fromPage");
 
 
-  
-  
+const [popupOpen, setPopupOpen] = useState(false);
+const [popupMessage, setPopupMessage] = useState("");
 
   const reminderOptions = [
     { value: "call", label: "📞 Not Attended" },
@@ -62,18 +63,14 @@ const fromPage = searchParams.get("fromPage");
 
   const loggedInUser = user?.userName || 'Unknown';
 
-
-
-
-
-// this is for re-allott 
-
-
   useEffect(() => {
     if (custDetail) {
       setFormData({
         ascName: custDetail.asC_NAME || "",
-        engineer: custDetail.engineeR_NAME || "",
+        tickeT_NO: custDetail.tickeT_NO || "",
+        DOP:detail.purchasE_DATE || '-',
+        eng_ID:detail.eng_ID || '-',
+        engineer: custDetail.engineeR_NAME || "-",
         reAllot: custDetail.reAllot || false,
         appointmentDate: custDetail.appointmentDate
           ? custDetail.appointmentDate.split("T")[0]
@@ -105,6 +102,9 @@ const fromPage = searchParams.get("fromPage");
     promiseDate: "",
     asmRemark: "",
     customerRemark: "",
+    tickeT_NO:"",
+    DOP:"",
+    eng_ID:""
   });
   
   
@@ -112,13 +112,49 @@ const fromPage = searchParams.get("fromPage");
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
-
-  const handleApprove = () => {
-    console.log("Approved with:", formData);
+  const buildPayload = (action) => ({
+    TICKET_NO: formData.tickeT_NO,
+    Apptdate: formData.appointmentDate,
+    Appttime: "12:55",
+    DOP: formData.DOP,
+    Reallot:"1",
+    Type: "Re-Allot",
+    Type1: "ASM",
+    ContactPersion: engineer,
+    CustomerRemark:customerRemark,
+    UsrId: user?.userID || 0, 
+    eng_ID: eng_ID,
+    CallTypeID: "4",
+    CallType: "Service",
+    Action: "Reject" // "Approve" | "Reject"
+  });
+  console.log("payload",buildPayload)
+  const handleApprove = async () => {
+    try {
+      const res = await axiosInstance.post(
+        "/JobSheet/process",
+        buildPayload("Approve")
+      );
+      alert("Approved successfully!");
+      console.log("Approve Response:", res.data);
+    } catch (err) {
+      console.error("Approve Error:", err);
+      toast.error("Failed to approve");
+    }
   };
 
-  const handleReject = () => {
-    console.log("Rejected");
+  const handleReject = async () => {
+    try {
+      const res = await axiosInstance.post(
+        "/JobSheet/process",
+        buildPayload("Reject")
+      );
+      alert("Rejected successfully!");
+      console.log("Reject Response:", res.data);
+    } catch (err) {
+      console.error("Reject Error:", err);
+      toast.error("Failed to reject");
+    }
   };
 
 // end for realott
@@ -175,7 +211,7 @@ const fromPage = searchParams.get("fromPage");
         .then(res => setPartConsumption(Array.isArray(res.data) ? res.data : [res.data]))
         .catch(err => console.error('Failed to fetch part consumption:', err));
     }
-  }, [ticketNo]);
+  }, [ticketNo]); 
 
 
   
@@ -244,39 +280,86 @@ useEffect(() => {
      
       <div className="content-area">
       {fromPage === "dashboardcall" && user?.roleName === "ASM" && detail.complainT_STATUS === "Open" && detail.complaint_SubStatus === "Request for re-allot" && (
-      <AllotmentDetails
-  formData={formData}
-  onChange={handleChange}
-  onApprove={handleApprove}
-  onReject={handleReject}
-/>
+       <AllotmentDetails
+       formData={formData}
+       onChange={handleChange}
+       onApprove={handleApprove}
+       onReject={handleReject}
+     />
       )}
         
         <h2 className="page-title">📋 Complaint History</h2>
 
 
-        {/* {user?.roleName === "ASM" && (
-  <RemarkSection
-    onSubmit={(remark) => {
-      console.log("Submitted remark:", remark);
-      // 👉 here you can call axiosInstance.post('/api/remark', { remark, ticketNo }) if needed
-    }}
-    onCancel={() => console.log("Remark canceled")}
-  />
-)} */}
 
+{fromPage === "dashboardcall" &&
+        user?.roleName === "ASM" &&
+        detail.complainT_STATUS === "Open" &&
+        detail.complaint_SubStatus === "Cancellation Request to ASM" && (
+          <RemarkSection
+            onSubmit={async (remark) => {
+              try {
+                const payload = {
+                  TICKET_NO: detail.tickeT_NO,
+                  remark: remark,
+                  type: "open",
+                  action: "Approved",
+                  uid: user?.userID || 0,
+                };
 
-{fromPage === "dashboardcall" && user?.roleName === "ASM" && detail.complainT_STATUS === "Open" && detail.complaint_SubStatus === "Cancellation Request to ASM" && (
-  <RemarkSection
-    onSubmit={(remark) => {
-      console.log("Submitted remark:", remark);
-      // 👉 Example: call API with remark + ticketNo
-      // axiosInstance.post('/api/remark', { remark, ticketNo })
-    }}
-    onCancel={() => console.log("Remark canceled")}
-  />
-)}
+                console.log("📦 Sending payload:", payload);
 
+                const res = await axiosInstance.post(
+                  "/Cancellation/request",
+                  payload
+                );
+                console.log("✅ API Success:", res.data);
+
+                // 🔹 show popup instead of toast
+                setPopupMessage("Call cancellation request Approved ✅");
+                setPopupOpen(true);
+              } catch (err) {
+                console.error("❌ API Failed:", err);
+                setPopupMessage("Failed to submit remark ❌");
+                setPopupOpen(true);
+              }
+            }}
+            onCancel={async () => {
+              try {
+                const payload = {
+                  TICKET_NO: detail.tickeT_NO,
+                  remark: "Cancellation rejected by ASM",
+                  type: "open",
+                  action: "Reject",
+                  uid: user?.userID || 0,
+                };
+
+                console.log("📦 Sending reject payload:", payload);
+
+                const res = await axiosInstance.post(
+                  "/Cancellation/request",
+                  payload
+                );
+                console.log("✅ Rejection Success:", res.data);
+
+                // 🔹 show popup instead of toast
+                setPopupMessage("Cancellation rejected ❌");
+                setPopupOpen(true);
+              } catch (err) {
+                console.error("❌ Reject API Failed:", err);
+                setPopupMessage("Failed to reject request ❌");
+                setPopupOpen(true);
+              }
+            }}
+          />
+        )}
+
+      {/* Popup modal */}
+      <Popup
+        isOpen={popupOpen}
+        message={popupMessage}
+        onClose={() => setPopupOpen(false)}
+      />
 
         {loading ? (
           <div className="loading">Loading history...</div>

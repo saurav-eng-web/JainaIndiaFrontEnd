@@ -62,30 +62,23 @@ const [popupMessage, setPopupMessage] = useState("");
   const { user } = useSelector((state) => state.auth); // ✅ logged-in user from Redux
 
   const loggedInUser = user?.userName || 'Unknown';
+  const loggedInUserId = user?.userID || 0;
+  const [popup, setPopup] = useState({
+    isOpen: false,
+    message: ""
+  });
 
   useEffect(() => {
     if (custDetail) {
       setFormData({
         ascName: custDetail.asC_NAME || "",
         tickeT_NO: custDetail.tickeT_NO || "",
+        calL_TYPE:custDetail.calL_TYPE||"-",
+        call_TypeID:custDetail.call_TypeID|| 0,
+        loggedInUserId:loggedInUserId|| 0,
         DOP:detail.purchasE_DATE || '-',
-        eng_ID:detail.eng_ID || '-',
         engineer: custDetail.engineeR_NAME || "-",
-        reAllot: custDetail.reAllot || false,
-        appointmentDate: custDetail.appointmentDate
-          ? custDetail.appointmentDate.split("T")[0]
-          : "",
-        appointmentHour: custDetail.appointmentTime
-          ? new Date(custDetail.appointmentTime).getHours().toString()
-          : "",
-        appointmentMinute: custDetail.appointmentTime
-          ? new Date(custDetail.appointmentTime).getMinutes().toString()
-          : "",
-        promiseDate: custDetail.promisE_DATE
-          ? new Date(custDetail.promisE_DATE).toISOString().split("T")[0]
-          : "",
-        asmRemark: custDetail.asmRemark || "",
-        customerRemark: custDetail.customerRemark || "",
+        eng_ID: custDetail.eng_ID || "-",
       });
     }
   }, [custDetail]);
@@ -95,7 +88,8 @@ const [popupMessage, setPopupMessage] = useState("");
   const [formData, setFormData] = useState({
     ascName: "",
     engineer: "",
-    reAllot: false,
+    eng_ID:"",
+     reAllot: false,
     appointmentDate: "",
     appointmentHour: "",
     appointmentMinute: "",
@@ -104,7 +98,12 @@ const [popupMessage, setPopupMessage] = useState("");
     customerRemark: "",
     tickeT_NO:"",
     DOP:"",
-    eng_ID:""
+    loggedInUserId:"",
+    calL_TYPE:"",
+    call_TypeID:"",
+    prevAppointment: "",   // ✅ added
+    reallotDate: "",       // ✅ added
+    ascReason: "" 
   });
   
   
@@ -115,45 +114,42 @@ const [popupMessage, setPopupMessage] = useState("");
   const buildPayload = (action) => ({
     TICKET_NO: formData.tickeT_NO,
     Apptdate: formData.appointmentDate,
-    Appttime: "12:55",
+    Appttime: `${formData.appointmentHour || "00"}:${formData.appointmentMinute || "00"}`,
     DOP: formData.DOP,
-    Reallot:"1",
+    Reallot: formData.reAllot ? 1 : 0,
     Type: "Re-Allot",
     Type1: "ASM",
-    ContactPersion: engineer,
-    CustomerRemark:customerRemark,
-    UsrId: user?.userID || 0, 
-    eng_ID: eng_ID,
-    CallTypeID: "4",
-    CallType: "Service",
-    Action: "Reject" // "Approve" | "Reject"
+    ContactPersion: formData.engineer,
+    CustomerRemark:formData.customerRemark,
+    UsrId: loggedInUserId, 
+    Eng_Id: formData.eng_ID,
+    CallTypeID: formData.call_TypeID,
+    CallType: formData.calL_TYPE,
+    Action: action
   });
-  console.log("payload",buildPayload)
   const handleApprove = async () => {
+    const payload = buildPayload("Approved");
+    console.log("Approve Payload:", payload); 
     try {
-      const res = await axiosInstance.post(
-        "/JobSheet/process",
-        buildPayload("Approve")
-      );
-      alert("Approved successfully!");
+      const res = await axiosInstance.post("/JobSheet/process", payload);
+      setPopup({ isOpen: true, message: "Approved successfully!" });
       console.log("Approve Response:", res.data);
     } catch (err) {
       console.error("Approve Error:", err);
-      toast.error("Failed to approve");
+      setPopup({ isOpen: true, message: "Failed to approve" });
     }
   };
-
+  
   const handleReject = async () => {
+    const payload = buildPayload("Reject");
+    console.log("Reject Payload:", payload);
     try {
-      const res = await axiosInstance.post(
-        "/JobSheet/process",
-        buildPayload("Reject")
-      );
-      alert("Rejected successfully!");
+      const res = await axiosInstance.post("/JobSheet/process", payload);
+      setPopup({ isOpen: true, message: "Rejected successfully!" });
       console.log("Reject Response:", res.data);
     } catch (err) {
       console.error("Reject Error:", err);
-      toast.error("Failed to reject");
+      setPopup({ isOpen: true, message: "Failed to reject" });
     }
   };
 
@@ -279,14 +275,24 @@ useEffect(() => {
 <SideBar />
      
       <div className="content-area">
-      {fromPage === "dashboardcall" && user?.roleName === "ASM" && detail.complainT_STATUS === "Open" && detail.complaint_SubStatus === "Request for re-allot" && (
-       <AllotmentDetails
-       formData={formData}
-       onChange={handleChange}
-       onApprove={handleApprove}
-       onReject={handleReject}
-     />
-      )}
+      {fromPage === "dashboardcall" &&
+  user?.roleName === "ASM" &&
+  detail.complainT_STATUS === "Open" &&
+  detail.complaint_SubStatus === "Request for re-allot" && (
+    <AllotmentDetails
+      formData={formData}
+      onChange={handleChange}
+      onApprove={handleApprove}
+      onReject={handleReject}
+    />
+)}
+
+{/* ✅ Popup goes here so it always overlays this page */}
+<Popup
+  isOpen={popup.isOpen}
+  message={popup.message}
+  onClose={() => setPopup({ isOpen: false, message: "" })}
+/>
         
         <h2 className="page-title">📋 Complaint History</h2>
 
@@ -757,9 +763,6 @@ useEffect(() => {
     )}
   </div>
 )}
-
- 
-
 
           </>
         )}

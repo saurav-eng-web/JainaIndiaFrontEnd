@@ -14,6 +14,7 @@ import CustomDropdown from '@/components/common/Dropdown';
 import RemarkSection from '@/components/history/RemarkSection';
 import AllotmentDetails from '@/components/history/AllotmentDetails';
 import Popup from '@/components/common/Popup';
+import { useRouter } from "next/navigation";
 
 const tabs = [
   'Job Details',
@@ -49,6 +50,8 @@ const [reminders, setReminders] = useState([]);
   const searchParams = useSearchParams();
 const fromPage = searchParams.get("fromPage");
 
+
+const router = useRouter();
 
 const [popupOpen, setPopupOpen] = useState(false);
 const [popupMessage, setPopupMessage] = useState("");
@@ -129,11 +132,13 @@ const [popupMessage, setPopupMessage] = useState("");
   });
   const handleApprove = async () => {
     const payload = buildPayload("Approved");
-    console.log("Approve Payload:", payload); 
     try {
-      const res = await axiosInstance.post("/JobSheet/process", payload);
+      await axiosInstance.post("/JobSheet/process", payload);
       setPopup({ isOpen: true, message: "Approved successfully!" });
-      console.log("Approve Response:", res.data);
+  
+      setTimeout(() => {
+        router.push("/nsp/dashboard"); // ✅ redirect to dashboard
+      }, 1500); // wait 1.5s so popup is visible
     } catch (err) {
       console.error("Approve Error:", err);
       setPopup({ isOpen: true, message: "Failed to approve" });
@@ -142,11 +147,13 @@ const [popupMessage, setPopupMessage] = useState("");
   
   const handleReject = async () => {
     const payload = buildPayload("Reject");
-    console.log("Reject Payload:", payload);
     try {
-      const res = await axiosInstance.post("/JobSheet/process", payload);
+      await axiosInstance.post("/JobSheet/process", payload);
       setPopup({ isOpen: true, message: "Rejected successfully!" });
-      console.log("Reject Response:", res.data);
+  
+      setTimeout(() => {
+        router.push("/nsp/dashboard"); // ✅ redirect to dashboard
+      }, 1500);
     } catch (err) {
       console.error("Reject Error:", err);
       setPopup({ isOpen: true, message: "Failed to reject" });

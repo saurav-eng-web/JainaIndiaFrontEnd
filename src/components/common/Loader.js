@@ -1,9 +1,13 @@
 'use client';
+import { useTheme } from '@/theme/ThemeContext';
 
 export default function Loader() {
+
+  const { colors } = useTheme();
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="w-12 h-12 border-4 border-t-transparent border-purple-600 rounded-full animate-spin"></div>
-    </div>
+    <div
+    className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin"
+    style={{ borderColor: colors.primary, borderTopColor: 'transparent' }}
+  ></div>
   );
-}
+} 

@@ -126,7 +126,7 @@ export default function Dashboard() {
   }; 
 
   return (
-     <ProtectedRoute allowedRoles={['br','asm']}> 
+     <ProtectedRoute allowedRoles={['br','asm','zone']}> 
         <div className="flex">
       <SideBar />
       <main className="flex-1 min-h-screen bg-gray-100 p-6 ml-[60px] transition-all duration-300">

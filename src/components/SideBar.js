@@ -256,7 +256,7 @@ export default function SideBar() {
       href: '/nsp/dashboard',
       icon: 'fa fa-home fa-2x',
       text: 'Dashboard',
-      roles: ['BR','ASM'],
+      roles: ['BR','ASM','ZONE'],
     },
     {
       href: '/call',
@@ -268,7 +268,7 @@ export default function SideBar() {
       href: '/search-complaint',
       icon: 'fa fa-search fa-2x',
       text: 'Call Search',
-      roles: ['CC', 'BR','ASM'],
+      roles: ['CC', 'BR','ASM','ZONE'],
     },
     {
       href: '/warrantyregisteration',
@@ -293,13 +293,13 @@ export default function SideBar() {
       href: '/nsp/reports',
       icon: 'fa fa-wrench fa-2x',
       text: 'Reports',
-      roles: ['BR'],
+      roles: ['BR','ZONE'],
     },
     {
       href: '/nsp/transfercall',
       icon: 'fa fa-phone fa-2x',
       text: 'Call Transfer',
-      roles: ['BR','ASM'],
+      roles: ['BR','ASM','ZONE'],
     },
   ];
 

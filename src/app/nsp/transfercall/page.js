@@ -366,7 +366,7 @@ const asmid = user?.asmid || 0;
 
   return (
 
-     <ProtectedRoute allowedRoles={['br','asm']}>  
+     <ProtectedRoute allowedRoles={['br','asm','zone']}>  
     <div className="flex min-h-screen bg-gray-100">
       <SideBar />
 

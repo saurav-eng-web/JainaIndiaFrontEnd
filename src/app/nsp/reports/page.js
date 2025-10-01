@@ -71,7 +71,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['br']}>
+    <ProtectedRoute allowedRoles={['br','zone']}>
       <div className="flex">
         {/* Sidebar */}
         <SideBar />

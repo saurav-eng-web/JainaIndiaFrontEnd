@@ -163,7 +163,7 @@ export default function ComplaintTable() {
       try {
        
         const response = await axiosInstance.get(
-          `CallRegister/getstatus/ToAllot/Not Assigned/${roleID}/${userID}`
+          `CallRegister/getstatus/Technical Approval/Not Assigned/${roleID}/${userID}`
         );
 
         setComplaints(response.data || []);

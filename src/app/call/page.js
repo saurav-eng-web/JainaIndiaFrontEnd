@@ -104,7 +104,7 @@ export default function CallRegister() {
   const requiredFieldsByStep = [
     ['callBy', 'title', 'firstName', 'lastName', 'phone', 'altPhone'],
     ['customerAddress', 'pincode'],
-    ['serialNo', 'productCategory', 'brand','pop'],
+    ['serialNo', 'productCategory', 'brand','pop','product','model','modelDescription','warranty'],
     ['callType', 'faultVoc', 'availableTime']
   ];
 

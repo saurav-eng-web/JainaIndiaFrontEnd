@@ -131,7 +131,7 @@ export default function LoginPage() {
       } else if (role === 'technician') {
         router.push('/technician/jobs');
       } else {
-        router.push('/search-complaint');
+        router.push('/unauthorized');
       }
     }
   }, [user]);

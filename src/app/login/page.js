@@ -130,10 +130,15 @@ export default function LoginPage() {
         router.push('/test');
       } else if (role === 'technician') {
         router.push('/technician/jobs');
+      } 
+      else if (role === 'sf/ssd') {
+        router.push('/search-complaint');
       } else {
         router.push('/unauthorized');
       }
     }
+
+   
   }, [user]);
 
   // 🔹 If loading, show spinner

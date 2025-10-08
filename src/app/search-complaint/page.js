@@ -28,15 +28,60 @@ export default function SearchComplaintPage() {
     router.push('/history'); // ✅ No ticket number in URL
   };
 
+  // const handleSearch = async () => {
+  //   const q = query.trim();
+
+  //   if (!q) {
+  //     alert('Please enter a complaint number, mobile number, or serial number');
+  //     return;
+  //   }
+  //   let paramType = '';
+
+  //   if (/^[0-9]{10}$/.test(q)) {
+  //     paramType = 'phone';
+  //   } else if (/^[A-Za-z]{2,}\d+$/.test(q)) {
+  //     // starts with letters + numbers → serialNo
+  //     paramType = 'serialNo';
+  //   } else {
+  //     // fallback → complaint number
+  //     paramType = 'callNumber';
+  //   }
+  //   try {
+  //     const response = await axiosInstance.get('CallSearch/search', {
+  //       params: {
+  //         phone: /^[0-9]{10}$/.test(q) ? q : '',
+  //         callNumber: q,
+  //         serialNo: q
+  //       },
+  //     });
+
+  //     const results = Array.isArray(response.data) ? response.data : [response.data];
+  //     setSearchResults(results);
+  //     setSearchAttempted(true);
+  //   } catch (error) {
+  //     console.error('Search error:', error);
+  //     setSearchResults([]);
+  //     setSearchAttempted(true);
+  //   }
+
+  //   setQuery('');
+  // };
+
   const handleSearch = async () => {
     const q = query.trim();
-
+  
     if (!q) {
       alert('Please enter a complaint number, mobile number, or serial number');
       return;
     }
+  
+    if (q.length < 10) {
+      alert('Please enter at least 10 characters to search');
+      return;
+    }
+  
     let paramType = '';
-
+  
     if (/^[0-9]{10}$/.test(q)) {
       paramType = 'phone';
     } else if (/^[A-Za-z]{2,}\d+$/.test(q)) {
@@ -46,6 +91,7 @@ export default function SearchComplaintPage() {
       // fallback → complaint number
       paramType = 'callNumber';
     }
+  
     try {
       const response = await axiosInstance.get('CallSearch/search', {
         params: {
@@ -54,7 +100,7 @@ export default function SearchComplaintPage() {
           serialNo: q
         },
       });
-
+  
       const results = Array.isArray(response.data) ? response.data : [response.data];
       setSearchResults(results);
       setSearchAttempted(true);
@@ -63,9 +109,10 @@ export default function SearchComplaintPage() {
       setSearchResults([]);
       setSearchAttempted(true);
     }
-
+  
     setQuery('');
   };
+  
 
   return (
     <ProtectedRoute allowedRoles={['cc','br','asm','zone','sf/ssd']}>

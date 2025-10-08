@@ -388,18 +388,7 @@ useEffect(() => {
                   <th>Entered By</th>
                 </tr>
               </thead>
-              {/* <tbody>
-                {logData.map((row, index) => (
-                  <tr key={index}>
-                    <td>{row.ticketNo}</td>
-                   
-                    <td><StatusBadge status={row.complaintStatus} /></td>
-                    <td>{row.complaintSubStatus || '-'}</td>
-                    <td>{row.tdate ? new Date(row.tdate).toLocaleString() : '-'}</td>
-                    <td>{row.enteredBy}</td>
-                  </tr>
-                ))}
-              </tbody> */}
+              
 
 
 <tbody>
@@ -512,40 +501,7 @@ useEffect(() => {
     )}
   </div>
 )}
-{/* 
 
-{activeTab === 'Document Uploaded' && (
-  <div className="tab-section2">
-    <h3 style={{ fontWeight: "bold" }}>📂 Document Uploaded</h3>
-
-    {documents.length === 0 ? (
-      <p>No documents found.</p>
-    ) : (
-      documents.map((doc, index) => (
-        <div className="row-content2" key={index}>
-          <div><strong>Sr. No.:</strong> {index + 1}</div>
-          <div><strong>Document Type:</strong> {doc.documentType || '-'}</div>
-          <div><strong>Entered Date:</strong> {doc.enteredDate || '-'}</div>
-          <div>
-  <strong>Action:</strong>{' '}
-  {doc.documentURL1 ? (
-    <a
-      href={doc.documentURL1.replace("..\\", "/")}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="view-btn"
-    >
-      View
-    </a>
-  ) : (
-    '-'
-  )}
-</div>
-        </div>
-      ))
-    )}
-  </div>
-)} */}
 
 
 {activeTab === 'Document Uploaded' && (

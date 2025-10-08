@@ -59,6 +59,31 @@ export default function CallRegister() {
     userIP: '' 
   });
 
+  useEffect(() => {
+    // now safe to use searchParams
+    setFormData(prev => ({
+      ...prev,
+      callBy: searchParams.get('callBy') || '',
+      title: searchParams.get('title') || '',
+      firstName: searchParams.get('firstName') || '',
+      lastName: searchParams.get('lastName') || '',
+      phone: searchParams.get('phone') || '',
+      altPhone: searchParams.get('altPhone') || '',
+      modelID: searchParams.get('modelID') || '',
+      cityId: searchParams.get('cityId') || '',
+      serialNo: searchParams.get('serialNo') || '',
+      productCategory: searchParams.get('productCategory') || '',
+      brand: searchParams.get('brand') || '',
+      pop: searchParams.get('pop') || '',
+      product: searchParams.get('product') || '',
+      productID: searchParams.get('productID') || '',
+      model: searchParams.get('model') || '',
+      warranty: searchParams.get('warranty') || '',
+      callType: searchParams.get('callType') || '',
+      faultVoc: searchParams.get('faultVoc') || '',
+      availableTime: searchParams.get('availableTime') || ''
+    }));
+  }, [searchParams]);
   // AUTH CHECK
   useEffect(() => {
     const userData = localStorage.getItem('userData');

@@ -28,10 +28,6 @@ const tabs = [
 ];
 
 
-const StatusBadge = ({ status }) => (
-  <span className={`badge ${status?.toLowerCase()}`}>{status}</span>
-);
-
 export default function HistoryPage() {
     const [pendingHistory, setPendingHistory] = useState([]);
   const { ticketNo } = useParams();

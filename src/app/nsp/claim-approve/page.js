@@ -4,6 +4,7 @@
 // import SideBar from '@/components/SideBar';
 // import { useRouter } from 'next/navigation';
 // import { useTheme } from '@/theme/ThemeContext';
+// import SectionHeading from '@/components/common/SectionHeading';
 
 // export default function ComplaintTable() {
 //   const { colors } = useTheme();
@@ -70,12 +71,10 @@
 //       <SideBar />
 //       <div className="flex-1 p-20 pt-10 pr-10">
 //         <div className="bg-white shadow-md rounded-xl p-6">
-//           <h2
-//             className="text-lg font-bold mb-6 border-2 rounded-md px-4 py-2 inline-block"
-//             style={{ borderColor: colors.primary, color: colors.primary }}
-//           >
-//             Complaint Dashboard
-//           </h2>
+//          <SectionHeading>
+//             Reject Claims call
+//             </SectionHeading>
+        
 
 //           {loading ? (
 //             <p className="text-gray-500">Loading complaints...</p>

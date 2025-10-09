@@ -84,7 +84,7 @@ export default function CallRegister() {
     availableTime: searchParams.get('availableTime') || ''
   }));
 }, [searchParams]);
-  // AUTH CHECK
+  // AUTH CHECK 
   useEffect(() => {
     const userData = localStorage.getItem('userData');
     if (!userData) {

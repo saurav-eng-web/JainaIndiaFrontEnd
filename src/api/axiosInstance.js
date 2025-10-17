@@ -33,9 +33,13 @@
 import axios from 'axios';  
 import { logout } from '@/redux/slices/authSlice';
 import { store } from '@/redux/store';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+console.log("🟡base url axios: ",BASE_URL)
 
 const axiosInstance = axios.create({
-  baseURL: 'https://ncapi.jainaindia.com/api/',
+  baseURL: BASE_URL,
+
 });
 
 // Attach token in requests

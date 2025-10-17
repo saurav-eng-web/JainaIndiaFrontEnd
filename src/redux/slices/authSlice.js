@@ -3,12 +3,17 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 
+// const BASE_URL
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ userName, uPassword }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        'https://ncapi.jainaindia.com/api/users/login',
+        `${BASE_URL}/users/login`,
         {
           userName: userName.trim(),
           uPassword: uPassword.trim(),

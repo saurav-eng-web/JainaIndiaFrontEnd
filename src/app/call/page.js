@@ -365,6 +365,8 @@ import ServiceDetailsStep from '@/components/CallRegisterSteps/ServiceDetailsSte
 
 const steps = ['Customer Details', 'Address Details', 'Product Details', 'Service Details'];
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
 function CallRegisterInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -557,7 +559,7 @@ function CallRegisterInner() {
         IPAddress: formData.userIP || "0.0.0.0"
       };
 
-      const response = await axiosInstance.post("/callregister/create-complaint", payload);
+      const response = await axiosInstance.post(`${BASE_URL}/callregister/create-complaint`, payload);
       setCallNumber(response.data?.returnNo || "");
       setCurrentStep(0);
     } catch (err) {

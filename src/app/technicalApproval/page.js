@@ -142,6 +142,8 @@ export default function ComplaintTable() {
   const user = reduxUser || localUser;
   const userID = user?.userID;
   const roleID = user?.roleID;
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
 
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
@@ -163,7 +165,7 @@ export default function ComplaintTable() {
       try {
        
         const response = await axiosInstance.get(
-          `CallRegister/getstatus/Technical Approval/Not Assigned/${roleID}/${userID}`
+          `${BASE_URL}/CallRegister/getstatus/Technical Approval/Not Assigned/${roleID}/${userID}`
         );
 
         setComplaints(response.data || []);

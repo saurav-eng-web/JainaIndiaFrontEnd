@@ -4,6 +4,13 @@ import "./globals.css";
 import ReduxProvider from "@/redux/ReduxProvider"; // ✅ Import client provider
 import { ThemeProvider } from '@/theme/ThemeContext'; 
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+console.log("🟡 layout base url: ",BASE_URL)
+
+
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

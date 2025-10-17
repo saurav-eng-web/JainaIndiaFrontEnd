@@ -2,6 +2,7 @@
 export const dynamic = 'force-dynamic';
 import { useState, useRef } from 'react';
 import axiosInstance from '@/api/axiosInstance';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export default function AddressDetailsStep({
   formData,
@@ -14,6 +15,7 @@ export default function AddressDetailsStep({
 }) {
   const [localities, setLocalities] = useState([]);
   const debounceTimer = useRef(null);
+
 
   const handlePincodeChange = (e) => {
     let value = e.target.value.replace(/\D/g, ''); // digits only
@@ -34,7 +36,7 @@ export default function AddressDetailsStep({
 
   const fetchPincodeDetails = async (pincode) => {
     try {
-      const res = await axiosInstance.get(`LocalityMaster/by-pincode/${pincode}`);
+      const res = await axiosInstance.get(`${BASE_URL}/LocalityMaster/by-pincode/${pincode}`);
       const data = res.data;
 
       if (Array.isArray(data) && data.length > 0) {

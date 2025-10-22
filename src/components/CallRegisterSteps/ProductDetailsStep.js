@@ -40,10 +40,23 @@ export default function ProductDetailsStep({
       setModels([]);
       return;
     }
+    // axiosInstance
+    //   .get(`Model/productid/${formData.productID}`)
+    //   .then((res) => setModels(res.data))
+    //   .catch((err) => {
+    //     setModels([]);
+    //     console.error("Model fetch error", err);
+    //   });
+
     axiosInstance
       .get(`Model/productid/${formData.productID}`)
-      .then((res) => setModels(res.data))
-      .catch((err) => console.error("Model fetch error", err));
+      .then((res) => {
+        setModels(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch((err) => {
+        setModels([]);
+        console.error("Model fetch error", err);
+      });
   }, [formData.productID]);
 
   const showPopup = (message, type) =>
@@ -223,7 +236,7 @@ export default function ProductDetailsStep({
                         (p) =>
                           p.product === val && formData.brandId === p.brandId
                       );
-                    
+
                       setFormData((prev) => ({
                         ...prev,
                         product: val,

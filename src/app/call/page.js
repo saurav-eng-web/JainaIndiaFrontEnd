@@ -1,4 +1,3 @@
-
 // 'use client';
 
 // import { useState, useEffect } from 'react';
@@ -26,7 +25,6 @@
 
 //   const [loggedInUser, setLoggedInUser] = useState(null);
 
-  
 //   const [pincodeStatus, setPincodeStatus] = useState('');
 
 //   const [formData, setFormData] = useState({
@@ -56,7 +54,7 @@
 //   callType: searchParams.get('callType') || '',
 //   faultVoc: searchParams.get('faultVoc') || '',
 //   availableTime: searchParams.get('availableTime') || '',
-//     userIP: '' 
+//     userIP: ''
 //   });
 
 //   useEffect(() => {
@@ -84,7 +82,7 @@
 //     availableTime: searchParams.get('availableTime') || ''
 //   }));
 // }, [searchParams]);
-//   // AUTH CHECK 
+//   // AUTH CHECK
 //   useEffect(() => {
 //     const userData = localStorage.getItem('userData');
 //     if (!userData) {
@@ -96,11 +94,10 @@
 //     if (role !== 'cc') {
 //       router.replace('/');
 //     } else {
-//       setLoggedInUser(user); 
+//       setLoggedInUser(user);
 //     }
 //   }, [router]);
 
-  
 //   useEffect(() => {
 //     const existing = localStorage.getItem('clientIP');
 //     if (existing) {
@@ -292,7 +289,7 @@
 //     }
 //   };
 
-//   return ( 
+//   return (
 //     <>
 //       <SideBar />
 //       <div className="main-content">
@@ -347,23 +344,27 @@
 //   );
 // }
 
+"use client";
 
-'use client';
+import { Suspense } from "react"; // ✅ ADD THIS IMPORT
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import "./stepper.css";
+import axios from "axios";
+import axiosInstance from "@/api/axiosInstance";
 
-import { Suspense } from 'react'; // ✅ ADD THIS IMPORT
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import './stepper.css';
-import axios from 'axios';
-import axiosInstance from '@/api/axiosInstance';
+import SideBar from "@/components/SideBar";
+import CustomerDetailsStep from "@/components/CallRegisterSteps/CustomerDetailsStep";
+import AddressDetailsStep from "@/components/CallRegisterSteps/AddressDetailsStep";
+import ProductDetailsStep from "@/components/CallRegisterSteps/ProductDetailsStep";
+import ServiceDetailsStep from "@/components/CallRegisterSteps/ServiceDetailsStep";
 
-import SideBar from '@/components/SideBar';
-import CustomerDetailsStep from '@/components/CallRegisterSteps/CustomerDetailsStep';
-import AddressDetailsStep from '@/components/CallRegisterSteps/AddressDetailsStep';
-import ProductDetailsStep from '@/components/CallRegisterSteps/ProductDetailsStep';
-import ServiceDetailsStep from '@/components/CallRegisterSteps/ServiceDetailsStep';
-
-const steps = ['Customer Details', 'Address Details', 'Product Details', 'Service Details'];
+const steps = [
+  "Customer Details",
+  "Address Details",
+  "Product Details",
+  "Service Details",
+];
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -372,137 +373,157 @@ function CallRegisterInner() {
   const router = useRouter();
   const [errors, setErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(0);
-  const [callNumber, setCallNumber] = useState('');
+  const [callNumber, setCallNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
-  const [pincodeStatus, setPincodeStatus] = useState('');
+  const [pincodeStatus, setPincodeStatus] = useState("");
 
   const [formData, setFormData] = useState({
-    callBy: searchParams.get('callBy') || '',
-    title: searchParams.get('title') || '',
-    firstName: searchParams.get('firstName') || '',
-    lastName: searchParams.get('lastName') || '',
-    phone: searchParams.get('phone') || '',
-    altPhone: searchParams.get('altPhone') || '',
-    customerAddress: searchParams.get('customerAddress') || '',
-    landmark: searchParams.get('landmark') || '',
-    pincode: '',
-    state: '',
-    city: '',
-    locality: '',
-    localityId: '',
-    modelID: searchParams.get('modelID') || '',
-    cityId: searchParams.get('cityId') || '',
-    serialNo: searchParams.get('serialNo') || '',
-    productCategory: searchParams.get('productCategory') || '',
-    brand: searchParams.get('brand') || '',
-    pop: searchParams.get('pop') || '',
-    product: searchParams.get('product') || '',
-    productID: searchParams.get('productID') || '',
-    model: searchParams.get('model') || '',
-    warranty: searchParams.get('warranty') || '',
-    callType: searchParams.get('callType') || '',
-    faultVoc: searchParams.get('faultVoc') || '',
-    availableTime: searchParams.get('availableTime') || '',
-    userIP: ''
+    callBy: searchParams.get("callBy") || "",
+    title: searchParams.get("title") || "",
+    firstName: searchParams.get("firstName") || "",
+    lastName: searchParams.get("lastName") || "",
+    phone: searchParams.get("phone") || "",
+    altPhone: searchParams.get("altPhone") || "",
+    customerAddress: searchParams.get("customerAddress") || "",
+    landmark: searchParams.get("landmark") || "",
+    pincode: "",
+    state: "",
+    city: "",
+    locality: "",
+    localityId: "",
+    modelID: searchParams.get("modelID") || "",
+    cityId: searchParams.get("cityId") || "",
+    serialNo: searchParams.get("serialNo") || "",
+    productCategory: searchParams.get("productCategory") || "",
+    brand: searchParams.get("brand") || "",
+    pop: searchParams.get("pop") || "",
+    product: searchParams.get("product") || "",
+    productID: searchParams.get("productID") || "",
+    model: searchParams.get("model") || "",
+    warranty: searchParams.get("warranty") || "",
+    callType: searchParams.get("callType") || "",
+    faultVoc: searchParams.get("faultVoc") || "",
+    availableTime: searchParams.get("availableTime") || "",
+    userIP: "",
   });
 
   useEffect(() => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      callBy: searchParams.get('callBy') || '',
-      title: searchParams.get('title') || '',
-      firstName: searchParams.get('firstName') || '',
-      lastName: searchParams.get('lastName') || '',
-      phone: searchParams.get('phone') || '',
-      altPhone: searchParams.get('altPhone') || '',
-      modelID: searchParams.get('modelID') || '',
-      cityId: searchParams.get('cityId') || '',
-      serialNo: searchParams.get('serialNo') || '',
-      productCategory: searchParams.get('productCategory') || '',
-      brand: searchParams.get('brand') || '',
-      pop: searchParams.get('pop') || '',
-      product: searchParams.get('product') || '',
-      productID: searchParams.get('productID') || '',
-      model: searchParams.get('model') || '',
-      warranty: searchParams.get('warranty') || '',
-      callType: searchParams.get('callType') || '',
-      faultVoc: searchParams.get('faultVoc') || '',
-      availableTime: searchParams.get('availableTime') || ''
+      callBy: searchParams.get("callBy") || "",
+      title: searchParams.get("title") || "",
+      firstName: searchParams.get("firstName") || "",
+      lastName: searchParams.get("lastName") || "",
+      phone: searchParams.get("phone") || "",
+      altPhone: searchParams.get("altPhone") || "",
+      modelID: searchParams.get("modelID") || "",
+      cityId: searchParams.get("cityId") || "",
+      serialNo: searchParams.get("serialNo") || "",
+      productCategory: searchParams.get("productCategory") || "",
+      brand: searchParams.get("brand") || "",
+      pop: searchParams.get("pop") || "",
+      product: searchParams.get("product") || "",
+      productID: searchParams.get("productID") || "",
+      model: searchParams.get("model") || "",
+      warranty: searchParams.get("warranty") || "",
+      callType: searchParams.get("callType") || "",
+      faultVoc: searchParams.get("faultVoc") || "",
+      availableTime: searchParams.get("availableTime") || "",
     }));
   }, [searchParams]);
 
-  // AUTH CHECK 
+  // AUTH CHECK
   useEffect(() => {
-    const userData = localStorage.getItem('userData');
+    const userData = localStorage.getItem("userData");
     if (!userData) {
-      router.replace('/');
+      router.replace("/");
       return;
     }
     const user = JSON.parse(userData);
     const role = user.roleName?.toLowerCase();
-    if (role !== 'cc') {
-      router.replace('/');
+    if (role !== "cc") {
+      router.replace("/");
     } else {
-      setLoggedInUser(user); 
+      setLoggedInUser(user);
     }
   }, [router]);
 
   useEffect(() => {
-    const existing = localStorage.getItem('clientIP');
+    const existing = localStorage.getItem("clientIP");
     if (existing) {
-      setFormData(prev => ({ ...prev, userIP: existing }));
+      setFormData((prev) => ({ ...prev, userIP: existing }));
       return;
     }
     (async () => {
       try {
-        const res = await axios.get('https://api.ipify.org?format=json');
-        const ip = res?.data?.ip || '';
+        const res = await axios.get("https://api.ipify.org?format=json");
+        const ip = res?.data?.ip || "";
         if (ip) {
-          localStorage.setItem('clientIP', ip);
-          setFormData(prev => ({ ...prev, userIP: ip }));
+          localStorage.setItem("clientIP", ip);
+          setFormData((prev) => ({ ...prev, userIP: ip }));
         }
       } catch (e) {
-        console.error('Failed to fetch IP:', e);
+        console.error("Failed to fetch IP:", e);
       }
     })();
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const requiredFieldsByStep = [
-    ['callBy', 'title', 'firstName', 'lastName', 'phone', 'altPhone'],
-    ['customerAddress', 'pincode'],
-    ['serialNo', 'productCategory', 'brand','pop','product','model','modelDescription','warranty'],
-    ['callType', 'faultVoc', 'availableTime']
+    ["callBy", "title", "firstName", "lastName", "phone", "altPhone"],
+    ["customerAddress", "pincode"],
+    [
+      "serialNo",
+      "productCategory",
+      "brand",
+      "pop",
+      "product",
+      "model",
+      "modelDescription",
+      "warranty",
+    ],
+    ["callType", "faultVoc", "availableTime"],
   ];
 
   const fieldLabels = {
-    callBy: 'Call By', title: 'Title', firstName: 'First Name', lastName: 'Last Name',
-    phone: 'Phone', altPhone: 'Alternate Phone', customerAddress: 'Customer Address',
-    pincode: 'Pincode', productCategory: 'Product Category', brand: 'Brand',
-    callType: 'Call Type', faultVoc: 'Fault Description', availableTime: 'Available Time', serialNo:'serial No', pop:'DOP'
+    callBy: "Call By",
+    title: "Title",
+    firstName: "First Name",
+    lastName: "Last Name",
+    phone: "Phone",
+    altPhone: "Alternate Phone",
+    customerAddress: "Customer Address",
+    pincode: "Pincode",
+    productCategory: "Product Category",
+    brand: "Brand",
+    callType: "Call Type",
+    faultVoc: "Fault Description",
+    availableTime: "Available Time",
+    serialNo: "serial No",
+    pop: "DOP",
   };
 
   const validateStep = () => {
     const fields = requiredFieldsByStep[currentStep] || [];
     const newErrors = {};
-    fields.forEach(f => {
-      if (!`${formData[f] ?? ''}`.trim()) {
+    fields.forEach((f) => {
+      if (!`${formData[f] ?? ""}`.trim()) {
         newErrors[f] = `Please fill the required field: ${fieldLabels[f]}`;
       }
     });
     if (currentStep === 1) {
-      const pin = `${formData.pincode || ''}`.trim();
-      if (pincodeStatus === 'checking') {
-        newErrors.pincode = 'Validating pincode… please wait';
+      const pin = `${formData.pincode || ""}`.trim();
+      if (pincodeStatus === "checking") {
+        newErrors.pincode = "Validating pincode… please wait";
       } else if (pin.length !== 6) {
-        newErrors.pincode = 'Please enter a 6-digit pincode';
-      } else if (pincodeStatus !== 'valid') {
-        newErrors.pincode = 'Please enter a valid pincode';
+        newErrors.pincode = "Please enter a 6-digit pincode";
+      } else if (pincodeStatus !== "valid") {
+        newErrors.pincode = "Please enter a valid pincode";
       }
     }
     setErrors(newErrors);
@@ -510,9 +531,10 @@ function CallRegisterInner() {
   };
 
   const nextStep = () => {
-    if (currentStep < steps.length - 1 && validateStep()) setCurrentStep(s => s + 1);
+    if (currentStep < steps.length - 1 && validateStep())
+      setCurrentStep((s) => s + 1);
   };
-  const prevStep = () => setCurrentStep(s => Math.max(s - 1, 0));
+  const prevStep = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
   const submitCall = async () => {
     setLoading(true);
@@ -556,15 +578,21 @@ function CallRegisterInner() {
         Legal: 0,
         EnteredBy: loggedInUser?.userName || "Unknown User",
         EnteredByID: loggedInUser?.userID || 0,
-        IPAddress: formData.userIP || "0.0.0.0"
+        IPAddress: formData.userIP || "0.0.0.0",
+        Complaint: formData.callerNumber,
       };
 
-      const response = await axiosInstance.post(`${BASE_URL}/callregister/create-complaint`, payload);
+      const response = await axiosInstance.post(
+        `${BASE_URL}/callregister/create-complaint`,
+        payload
+      );
       setCallNumber(response.data?.returnNo || "");
       setCurrentStep(0);
     } catch (err) {
       console.error("Call Register Error:", err);
-      alert("Error creating call: " + (err.response?.data?.message || err.message));
+      alert(
+        "Error creating call: " + (err.response?.data?.message || err.message)
+      );
     } finally {
       setLoading(false);
     }
@@ -583,13 +611,43 @@ function CallRegisterInner() {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <CustomerDetailsStep formData={formData} handleChange={handleChange} setFormData={setFormData} errors={errors} />;
+        return (
+          <CustomerDetailsStep
+            formData={formData}
+            handleChange={handleChange}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        );
       case 1:
-        return <AddressDetailsStep formData={formData} handleChange={handleChange} setFormData={setFormData} errors={errors} pincodeStatus={pincodeStatus} setPincodeStatus={setPincodeStatus} />;
+        return (
+          <AddressDetailsStep
+            formData={formData}
+            handleChange={handleChange}
+            setFormData={setFormData}
+            errors={errors}
+            pincodeStatus={pincodeStatus}
+            setPincodeStatus={setPincodeStatus}
+          />
+        );
       case 2:
-        return <ProductDetailsStep formData={formData} handleChange={handleChange} setFormData={setFormData} errors={errors} />;
+        return (
+          <ProductDetailsStep
+            formData={formData}
+            handleChange={handleChange}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        );
       case 3:
-        return <ServiceDetailsStep formData={formData} handleChange={handleChange} setFormData={setFormData} errors={errors} />;
+        return (
+          <ServiceDetailsStep
+            formData={formData}
+            handleChange={handleChange}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        );
       default:
         return null;
     }
@@ -603,11 +661,18 @@ function CallRegisterInner() {
           <h2>Call Registration</h2>
           {callNumber ? (
             <div className="success-message">
-              <h3 style={{ marginBottom: "30px" }}>Service Request No Created Successfully!</h3>
+              <h3 style={{ marginBottom: "30px" }}>
+                Service Request No Created Successfully!
+              </h3>
               <p style={{ marginBottom: "25px" }}>
                 Your Service Request No Number is: <strong>{callNumber}</strong>
               </p>
-              <button onClick={() => { setCallNumber(''); setFormData({}); }}>
+              <button
+                onClick={() => {
+                  setCallNumber("");
+                  setFormData({});
+                }}
+              >
                 Register Another
               </button>
             </div>
@@ -616,8 +681,10 @@ function CallRegisterInner() {
               <div className="stepper">
                 {steps.map((label, idx) => (
                   <div className="step" key={idx}>
-                    <div className={`circle ${idx <= currentStep ? 'active' : ''}`}>
-                      {idx <= currentStep ? '✔' : ''}
+                    <div
+                      className={`circle ${idx <= currentStep ? "active" : ""}`}
+                    >
+                      {idx <= currentStep ? "✔" : ""}
                     </div>
                     <div className="label">{label}</div>
                     {idx < steps.length - 1 && <div className="line"></div>}
@@ -633,7 +700,11 @@ function CallRegisterInner() {
                     </button>
                   )}
                   <button type="submit" disabled={loading}>
-                    {currentStep < steps.length - 1 ? 'Next →' : loading ? 'Submitting…' : 'Submit ✔'}
+                    {currentStep < steps.length - 1
+                      ? "Next →"
+                      : loading
+                      ? "Submitting…"
+                      : "Submit ✔"}
                   </button>
                 </div>
               </form>

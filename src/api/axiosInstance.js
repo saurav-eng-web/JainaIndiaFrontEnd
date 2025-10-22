@@ -35,7 +35,6 @@ import { logout } from '@/redux/slices/authSlice';
 import { store } from '@/redux/store';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-console.log("🟡base url axios: ",BASE_URL)
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,

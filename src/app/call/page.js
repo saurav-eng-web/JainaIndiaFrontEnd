@@ -476,7 +476,7 @@ function CallRegisterInner() {
 
   const requiredFieldsByStep = [
     ["callBy", "title", "firstName", "lastName", "phone", "altPhone"],
-    ["customerAddress", "pincode"],
+    ["customerAddress", "landmark", "pincode"],
     [
       "serialNo",
       "productCategory",

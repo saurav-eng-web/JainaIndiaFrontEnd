@@ -28,22 +28,19 @@
 
 // export default axiosInstance;
 
-
 // axiosInstance.js
-import axios from 'axios';  
-import { logout } from '@/redux/slices/authSlice';
-import { store } from '@/redux/store';
+import axios from "axios";
+import { logout } from "@/redux/slices/authSlice";
+import { store } from "@/redux/store";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-
 });
 
 // Attach token in requests
 axiosInstance.interceptors.request.use((config) => {
-  const userData = localStorage.getItem('userData');
+  const userData = localStorage.getItem("userData");
   if (userData) {
     const { token } = JSON.parse(userData);
     if (token) {
@@ -54,18 +51,48 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 // Handle expired/invalid token
+// axiosInstance.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401 && !isRedirecting) {
+//       // 1️⃣ clear Redux + localStorage
+//       store.dispatch(logout());
+//       console.log(`🔴 inside expired/invalid tokens`);
+
+//       // 2️⃣ redirect user to login page
+//       if (typeof window !== "undefined") {
+//         window.location.href = "/login";
+//       }
+//     }
+//     return Promise.reject(error);
+//   }
+// );
+
+let isRedirecting = false; // define this once outside the interceptor
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // 1️⃣ clear Redux + localStorage
-      store.dispatch(logout());
+    if (error.response?.status === 401 && !isRedirecting) {
+      const currentPath =
+        typeof window !== "undefined" ? window.location.pathname : "";
 
-      // 2️⃣ redirect user to login page
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+      // 🧠 avoid redirect loops if already on /login
+      if (currentPath !== "/login") {
+        isRedirecting = true;
+
+        console.log("🔴 Token expired or invalid, redirecting to login...");
+
+        // 1️⃣ clear Redux + localStorage
+        store.dispatch(logout());
+
+        // 2️⃣ redirect to login
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
       }
     }
+
     return Promise.reject(error);
   }
 );

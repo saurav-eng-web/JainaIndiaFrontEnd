@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
 /**
  * ProtectedRoute
@@ -13,9 +14,10 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    const userData = localStorage.getItem('userData');
+    const userData = localStorage.getItem("userData");
+
     if (!userData) {
-      router.replace('/'); // Not logged in
+      router.replace("/"); // Not logged in
       return;
     }
 
@@ -27,10 +29,10 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
       if (allowedRoles.length === 0 || allowedRoles.includes(role)) {
         setAuthorized(true);
       } else {
-        router.replace('/login'); 
+        router.replace("/login");
       }
     } catch {
-      router.replace('/');
+      router.replace("/");
     }
   }, [router, allowedRoles]);
 

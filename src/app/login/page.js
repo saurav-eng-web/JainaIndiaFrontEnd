@@ -1,11 +1,8 @@
-
-
-
-'use client';
-import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '@/redux/slices/authSlice';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "@/redux/slices/authSlice";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const dispatch = useDispatch();
@@ -22,21 +19,22 @@ export default function LoginPage() {
   useEffect(() => {
     if (user) {
       const role = user.roleName?.toLowerCase();
-      if (role === 'br') {
-        router.push('/search-complaint');
-      } else if (role === 'cc') {
-        router.push('/test');
-      } else if (role === 'technician') {
-        router.push('/technician/jobs');
-      } 
-      else if (role === 'sf/ssd') {
-        router.push('/search-complaint');
+      if (role === "br") {
+        router.push("/search-complaint");
+      } else if (role === "cc") {
+        router.push("/test");
+      } else if (role === "technician") {
+        router.push("/technician/jobs");
+      } else if (role === "sf/ssd") {
+        router.push("/search-complaint");
+      } else if (role === "asm") {
+        router.push("/nsp/dashboard");
+      } else if (role === "zone") {
+        router.push("/nsp/dashboard");
       } else {
-        router.push('/unauthorized');
+        router.push("/unauthorized");
       }
     }
-
-   
   }, [user]);
 
   return (
@@ -58,10 +56,10 @@ export default function LoginPage() {
       {/* Right Section */}
       <div className="flex-1 bg-white flex justify-center items-center">
         <div className="w-full max-w-sm">
-          <h2 className="text-2xl font-semibold mb-2">Sign in to your account</h2>
-          <p className="text-sm text-gray-600 mb-6">
-            
-          </p>
+          <h2 className="text-2xl font-semibold mb-2">
+            Sign in to your account
+          </h2>
+          <p className="text-sm text-gray-600 mb-6"></p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
@@ -90,13 +88,13 @@ export default function LoginPage() {
 
             {/* Sign In Button */}
             <button
-  type="submit"
-  className="w-full text-white py-3 rounded-lg transition duration-200 hover:opacity-90"
-  style={{ backgroundColor: '#714b67' }}
-  disabled={loading}
->
-  {loading ? 'Logging in...' : 'Sign in'}
-</button>
+              type="submit"
+              className="w-full text-white py-3 rounded-lg transition duration-200 hover:opacity-90"
+              style={{ backgroundColor: "#714b67" }}
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Sign in"}
+            </button>
             {/* Error */}
             {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
           </form>
@@ -105,10 +103,6 @@ export default function LoginPage() {
     </div>
   );
 }
-
-
-
-
 
 // 'use client';
 // import { useDispatch, useSelector } from 'react-redux';
@@ -138,7 +132,7 @@ export default function LoginPage() {
 //         router.push('/test');
 //       } else if (role === 'technician') {
 //         router.push('/technician/jobs');
-//       } 
+//       }
 //       else if (role === 'sf/ssd') {
 //         router.push('/search-complaint');
 //       } else {
@@ -146,7 +140,6 @@ export default function LoginPage() {
 //       }
 //     }
 
-   
 //   }, [user]);
 
 //   // 🔹 If loading, show spinner

@@ -77,16 +77,13 @@ axiosInstance.interceptors.response.use(
       const currentPath =
         typeof window !== "undefined" ? window.location.pathname : "";
 
-      // 🧠 avoid redirect loops if already on /login
       if (currentPath !== "/login") {
         isRedirecting = true;
 
         console.log("🔴 Token expired or invalid, redirecting to login...");
 
-        // 1️⃣ clear Redux + localStorage
         store.dispatch(logout());
 
-        // 2️⃣ redirect to login
         if (typeof window !== "undefined") {
           window.location.href = "/login";
         }

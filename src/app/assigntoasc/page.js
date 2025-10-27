@@ -1,98 +1,116 @@
-'use client';
- 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import SideBar from '@/components/SideBar';
-import './AssignToAscForm.css';
-import Swal from 'sweetalert2';
-import { useTheme } from '@/theme/ThemeContext';
-import axiosInstance from '@/api/axiosInstance';
-import { useSelector } from 'react-redux';
- 
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import SideBar from "@/components/SideBar";
+import "./AssignToAscForm.css";
+import Swal from "sweetalert2";
+import { useTheme } from "@/theme/ThemeContext";
+import axiosInstance from "@/api/axiosInstance";
+import { useSelector } from "react-redux";
+import CustomDropdown from "@/components/common/Dropdown";
+
 export default function AssignToAscForm() {
   const { colors } = useTheme();
   const router = useRouter();
- 
+
   const [complaint, setComplaint] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [remarks, setRemarks] = useState('');
-  const [selectedOption, setSelectedOption] = useState('');
- 
+  const [remarks, setRemarks] = useState("");
+  const [selectedOption, setSelectedOption] = useState("");
+
   const { user } = useSelector((state) => state.auth); // ✅ logged-in user from Redux
- 
-  const loggedInUser = user?.userName || 'Unknown';
+  const complaintOptions = [
+    { label: "----Select----", value: "" },
+    { label: "Software update", value: "Software update" },
+    { label: "Feature Explained", value: "Feature Explained" },
+    { label: "External Adjustment done", value: "External Adjustment done" },
+    { label: "Customer own issue", value: "Customer own issue" },
+    {
+      label: "Product damage/Liquid logged",
+      value: "Product damage/Liquid logged",
+    },
+    {
+      label: "OW Call Customer not ready to pay",
+      value: "OW Call Customer not ready to pay",
+    },
+    { label: "Invalid call", value: "Invalid call" },
+    { label: "Other", value: "Other" },
+  ];
+  const loggedInUser = user?.userName || "Unknown";
   const loggedInUserId = user?.userID || 0;
- 
+
   useEffect(() => {
-    const storedComplaint = localStorage.getItem('selectedComplaint');
+    const storedComplaint = localStorage.getItem("selectedComplaint");
     if (storedComplaint) {
       setComplaint(JSON.parse(storedComplaint));
     }
     setLoading(false);
   }, []);
- 
+
   // ✅ Common API caller
- const handleApiCall = async (actionType) => {
-  if (!complaint?.tickeT_NO || !remarks) {
-    Swal.fire('Error', 'Ticket No and Remarks are required', 'error');
-    return;
-  }
- 
-  try {
-    // 1. First API: approveOrUpdate
-    const response = await axiosInstance.post(
-      `/CallRegister/approveOrUpdate`,
-      {},
-      {
-        params: {
-          ticketNo: complaint.tickeT_NO,
-          userId: loggedInUserId,
-          action: actionType, // Assign or Close
-          remarks: remarks,
-          ascCode: complaint.asC_CODE || 'ASC-001',
-          dropdownSelection: selectedOption || 'Option1',
-          complaintStatus: actionType === 'Close' ? 'Ok' : 'ToAllot',
-          enteredBy: loggedInUser,
-          category: complaint.category || 'Electrical',
-        },
-      }
-    );
- 
-    // 2. Second API: only if action is 'Close'
-   
-      await axiosInstance.put(
-        `/CallRegister/UpdateComplaint/${complaint.tickeT_NO}`,
+  const handleApiCall = async (actionType) => {
+    if (!complaint?.tickeT_NO || !remarks) {
+      Swal.fire("Error", "Ticket No and Remarks are required", "error");
+      return;
+    }
+
+    try {
+      // 1. First API: approveOrUpdate
+
+      // if(actionType ==)
+      const response = await axiosInstance.post(
+        `/CallRegister/approveOrUpdate`,
+        {},
         {
-          ticketNo: complaint.tickeT_NO,
-           COMPLAINT_STATUS: actionType === 'Close' ? 'Ok' : 'ToAllot',
-            COMPLAINT_SUBSTATUS: actionType === 'Close' ? 'Ok' : 'Not Assigned'
-        },
-        {
-          headers: { 'Content-Type': 'application/json' }
+          params: {
+            ticketNo: complaint.tickeT_NO,
+            userId: loggedInUserId,
+            action: actionType, // Assign or Close
+            remarks: remarks,
+            ascCode: complaint.asC_CODE || "ASC-001",
+            dropdownSelection: selectedOption || "Option1",
+            complaintStatus: actionType === "Close" ? "Ok" : "ToAllot",
+            enteredBy: loggedInUser,
+            category: complaint.category || "Electrical",
+          },
         }
       );
-   
- 
-    await Swal.fire({
-      icon: 'success',
-      title: 'Success',
-      text: actionType === 'Close'
-        ? `Complaint ${complaint.tickeT_NO} closed successfully!`
-        : `Complaint ${complaint.tickeT_NO} assigned to ASC successfully!`,
-      confirmButtonText: 'OK',
-    });
- 
-    router.push('/technicalApproval');
-  } catch (error) {
-    console.error(`Failed to ${actionType}:`, error);
-    Swal.fire('Error', `Failed to ${actionType} complaint`, 'error');
-  }
-};
- 
- 
+
+      // 2. Second API: only if action is 'Close'
+
+      // await axiosInstance.put(
+      //   `/CallRegister/UpdateComplaint/${complaint.tickeT_NO}`,
+      //   {
+      //     ticketNo: complaint.tickeT_NO,
+      //     COMPLAINT_STATUS: actionType === "Close" ? "Ok" : "ToAllot",
+      //     COMPLAINT_SUBSTATUS: actionType === "Close" ? "Ok" : "Not Assigned",
+      //   },
+      //   {
+      //     headers: { "Content-Type": "application/json" },
+      //   }
+      // );
+
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text:
+          actionType === "Close"
+            ? `Complaint ${complaint.tickeT_NO} closed successfully!`
+            : `Complaint ${complaint.tickeT_NO} assigned to ASC successfully!`,
+        confirmButtonText: "OK",
+      });
+
+      router.push("/technicalApproval");
+    } catch (error) {
+      console.error(`Failed to ${actionType}:`, error);
+      Swal.fire("Error", `Failed to ${actionType} complaint`, "error");
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
   if (!complaint) return <p>No complaint found.</p>;
- 
+
   return (
     <div className="asc-wrapper">
       <SideBar />
@@ -108,23 +126,27 @@ export default function AssignToAscForm() {
             </div>
             <div>
               <p className="label">ASC Code</p>
-              <p className="value">{complaint.asC_CODE || 'N/A'}</p>
+              <p className="value">{complaint.asC_CODE || "N/A"}</p>
             </div>
             <div>
               <p className="label">ASC Name</p>
-              <p className="value">{complaint.asc_Name || 'N/A'}</p>
+              <p className="value">{complaint.asc_Name || "N/A"}</p>
             </div>
             <div>
               <p className="label">Issue Description</p>
-              <p className="value">{complaint.faultVoc || 'N/A'}</p>
+              <p className="value">{complaint.faultVoc || "N/A"}</p>
             </div>
             <div>
               <p className="label">Product</p>
-              <p className="value">{complaint.product}-{complaint.model}</p>
+              <p className="value">
+                {complaint.product}-{complaint.model}
+              </p>
             </div>
             <div>
-              <label className="label">Select Option (In case of job close)</label>
-              <select
+              <label className="label">
+                Select Option (In case of job close)
+              </label>
+              {/* <select
                 className="dropdown-select"
                 value={selectedOption}
                 onChange={(e) => setSelectedOption(e.target.value)}
@@ -132,16 +154,28 @@ export default function AssignToAscForm() {
                 <option value="">----Select----</option>
                 <option value="Software update">Software update</option>
                 <option value="Feature Explained">Feature Explained</option>
-                <option value="External Adjustment done">External Adjustment done</option>
+                <option value="External Adjustment done">
+                  External Adjustment done
+                </option>
                 <option value="Customer own issue">Customer own issue</option>
-                <option value="Product damage/Liquid logged">Product damage/Liquid logged</option>
-                <option value="OW Call Customer not ready to pay">OW Call Customer not ready to pay</option>
+                <option value="Product damage/Liquid logged">
+                  Product damage/Liquid logged
+                </option>
+                <option value="OW Call Customer not ready to pay">
+                  OW Call Customer not ready to pay
+                </option>
                 <option value="Invalid call">Invalid call</option>
                 <option value="Other">Other</option>
-              </select>
+              </select> */}
+              <CustomDropdown
+                options={complaintOptions}
+                value={selectedOption}
+                onChange={(val) => setSelectedOption(val)}
+                placeholder={"----Select----"}
+              />
             </div>
           </div>
- 
+
           <div className="remarks">
             <p className="remarks-label">Remarks</p>
             <textarea
@@ -152,17 +186,17 @@ export default function AssignToAscForm() {
               onChange={(e) => setRemarks(e.target.value)}
             />
           </div>
- 
+
           <div className="button-row">
             <button
               className="btn btn-secondary"
-              onClick={() => handleApiCall('Close')}
+              onClick={() => handleApiCall("Close")}
             >
               Close
             </button>
             <button
               className="btn btn-primary"
-              onClick={() => handleApiCall('Assign')}
+              onClick={() => handleApiCall("Assign")}
               style={{ background: colors.primary }}
             >
               Assign to ASC
@@ -173,5 +207,3 @@ export default function AssignToAscForm() {
     </div>
   );
 }
- 
- 

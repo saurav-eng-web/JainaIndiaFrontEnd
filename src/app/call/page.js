@@ -543,7 +543,7 @@ function CallRegisterInner() {
         SALUTATION: formData.title || "",
         FIRSTNAME: formData.firstName || "",
         LASTNAME: formData.lastName || "",
-        HMPH: formData.phone || "",
+        HMPH: formData.altPhone || "",
         WKPH: formData.altPhone || "",
         stdcode: formData.stdCode || "",
         pincode: formData.pincode || "",
@@ -584,7 +584,7 @@ function CallRegisterInner() {
 
       const response = await axiosInstance.post(
         `${BASE_URL}/callregister/create-complaint`,
-        payload
+        payload,
       );
 
       setCallNumber(response.data?.returnNo || "");
@@ -592,7 +592,7 @@ function CallRegisterInner() {
     } catch (err) {
       console.error("Call Register Error:", err);
       alert(
-        "Error creating call: " + (err.response?.data?.message || err.message)
+        "Error creating call: " + (err.response?.data?.message || err.message),
       );
     } finally {
       setLoading(false);
@@ -704,8 +704,8 @@ function CallRegisterInner() {
                     {currentStep < steps.length - 1
                       ? "Next →"
                       : loading
-                      ? "Submitting…"
-                      : "Submit ✔"}
+                        ? "Submitting…"
+                        : "Submit ✔"}
                   </button>
                 </div>
               </form>

@@ -139,7 +139,11 @@ export default function ProductDetailsStep({
         showPopup("❌ Invalid serial number", "error");
       } else {
         console.error("Error validating serial number:", err);
-        showPopup("⚠️ API error while checking serial number", "error");
+
+        showPopup(
+          "Error! The serial number may not exist. Please try again or select the model manually.",
+          "error"
+        );
       }
     }
   };

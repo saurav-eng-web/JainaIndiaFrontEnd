@@ -74,7 +74,7 @@ export default function DashboardPage() {
     try {
       const body = {
         Type: reportType,
-        UserId: Number(loggedInUserId), // ensure numeric
+        UserId: loggedInUserId,
         FromDate: fromDate,
         ToDate: toDate,
       };

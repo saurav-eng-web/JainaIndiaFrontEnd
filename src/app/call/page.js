@@ -368,7 +368,7 @@ const steps = [
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-function CallRegisterInner() {
+function CallRegisterInner({ showSidebar = true }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [errors, setErrors] = useState({});
@@ -656,7 +656,8 @@ function CallRegisterInner() {
 
   return (
     <>
-      <SideBar />
+      {/* <SideBar /> */}
+      {showSidebar && <SideBar />}
       <div className="main-content">
         <div className="registration-container">
           <h2>Call Registration</h2>
@@ -718,10 +719,10 @@ function CallRegisterInner() {
 }
 
 // ✅ Wrap in Suspense boundary for production builds
-export default function CallRegister() {
+export default function CallRegister({ showSidebar = true }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <CallRegisterInner />
+      <CallRegisterInner showSidebar={showSidebar} />
     </Suspense>
   );
 }

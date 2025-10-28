@@ -367,6 +367,7 @@ const steps = [
 ];
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const id = process.env.NEXT_PUBLIC_ID;
 
 function CallRegisterInner({ showSidebar = true }) {
   const searchParams = useSearchParams();
@@ -436,12 +437,14 @@ function CallRegisterInner({ showSidebar = true }) {
   // AUTH CHECK
   useEffect(() => {
     const userData = localStorage.getItem("userData");
+
     if (!userData) {
       router.replace("/");
       return;
     }
     const user = JSON.parse(userData);
     const role = user.roleName?.toLowerCase();
+
     if (role !== "cc") {
       router.replace("/");
     } else {

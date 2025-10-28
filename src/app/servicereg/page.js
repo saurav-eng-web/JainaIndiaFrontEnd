@@ -7,14 +7,18 @@ import axios from "axios";
 export default function ServiceRegistration() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState(""); // store generated OTP
   const [showside, setShowside] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const callRegisterRef = useRef(null);
 
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
   const id = process.env.NEXT_PUBLIC_ID;
   const pass = process.env.NEXT_PUBLIC_PASS;
 
+  // handle input change
   function handleChange(e) {
     const { name, value } = e.target;
     if (name === "mobileNumber") {
@@ -25,12 +29,25 @@ export default function ServiceRegistration() {
     }
   }
 
+  // generate 4-digit random OTP
+  function generateOtp() {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+  }
+
+  // send OTP via SMS API
   async function handleSendOTP() {
     if (!phoneNumber || phoneNumber.length !== 10) return;
+
+    setIsLoading(true);
+
+    const newOtp = generateOtp();
+    setGeneratedOtp(newOtp);
+    setOtpError("");
+
     try {
       const response = await axios.post(
         `${BASE_URL}/SMS/send`,
-        `message=Dear Customer, Your OTP is {ticketKey}. Jaina India&mobile=${phoneNumber}&ticketKey=1234&source=OTPWebCR`,
+        `message=Dear Customer, Your OTP is ${newOtp}. Jaina India&mobile=${phoneNumber}&ticketKey=${newOtp}&source=OTPWebCR`,
         {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -38,15 +55,28 @@ export default function ServiceRegistration() {
         },
       );
 
-      if (response.status == 200) {
+      if (response.status === 200) {
         setShowOtp(true);
       }
+      // await handleLogin();
     } catch (error) {
       console.error("Error sending OTP:", error);
-      throw error;
+    } finally {
+      setIsLoading(false);
     }
   }
 
+  // validate OTP entered by user
+  async function handleValidateOtp() {
+    if (otp.trim() === generatedOtp.trim()) {
+      setOtpError("");
+      await handleLogin();
+    } else {
+      setOtpError("❌ Invalid OTP. Please try again.");
+    }
+  }
+
+  // perform login with client credentials
   async function handleLogin() {
     try {
       const response = await axios.post(`${BASE_URL}/users/login`, {
@@ -69,10 +99,14 @@ export default function ServiceRegistration() {
         };
 
         localStorage.setItem("userData", JSON.stringify(user));
+        setShowside(true);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   }
 
+  // smooth scroll when CallRegister is shown
   useEffect(() => {
     if (showside && callRegisterRef.current) {
       callRegisterRef.current.scrollIntoView({
@@ -84,7 +118,7 @@ export default function ServiceRegistration() {
 
   return (
     <div>
-      {/* Header with logo left and title centered */}
+      {/* Header */}
       <div className="fx-6 flex h-20 items-center border-b border-gray-100 bg-[#ffffff]">
         <img src="/black-logo.webp" className="ml-6 w-34" alt="sansui logo" />
         <p className="flex-1 pr-32 text-center text-lg font-bold">
@@ -92,6 +126,7 @@ export default function ServiceRegistration() {
         </p>
       </div>
 
+      {/* Main Section */}
       <div className="-mt-4 flex flex-col items-center">
         <div className="registration-container flex gap-8">
           {/* Phone Section */}
@@ -110,8 +145,9 @@ export default function ServiceRegistration() {
                 type="tel"
               />
               <button
+                disabled={isLoading}
                 onClick={handleSendOTP}
-                className="h-12 items-center rounded-md px-3 !text-sm !font-semibold text-white"
+                className="h-12 rounded-md bg-blue-600 px-3 !text-sm font-semibold text-white"
               >
                 Send OTP
               </button>
@@ -138,12 +174,17 @@ export default function ServiceRegistration() {
                 type="text"
               />
               <button
-                onClick={() => setShowside((prevShow) => !prevShow)}
-                className="h-12 rounded-md bg-green-500 px-3 font-semibold text-white"
+                onClick={handleValidateOtp}
+                className="h-12 rounded-md bg-green-600 px-3 font-semibold text-white"
               >
                 Validate OTP
               </button>
             </div>
+            {otpError && (
+              <p className="mt-2 text-sm font-medium text-red-500">
+                {otpError}
+              </p>
+            )}
           </div>
         </div>
 

@@ -50,24 +50,6 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle expired/invalid token
-// axiosInstance.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401 && !isRedirecting) {
-//       // 1️⃣ clear Redux + localStorage
-//       store.dispatch(logout());
-//       console.log(`🔴 inside expired/invalid tokens`);
-
-//       // 2️⃣ redirect user to login page
-//       if (typeof window !== "undefined") {
-//         window.location.href = "/login";
-//       }
-//     }
-//     return Promise.reject(error);
-//   }
-// );
-
 let isRedirecting = false; // define this once outside the interceptor
 
 axiosInstance.interceptors.response.use(
@@ -91,7 +73,25 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;
+
+// Handle expired/invalid token
+// axiosInstance.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401 && !isRedirecting) {
+//       // 1️⃣ clear Redux + localStorage
+//       store.dispatch(logout());
+//       console.log(`🔴 inside expired/invalid tokens`);
+
+//       // 2️⃣ redirect user to login page
+//       if (typeof window !== "undefined") {
+//         window.location.href = "/login";
+//       }
+//     }
+//     return Promise.reject(error);
+//   }
+// );

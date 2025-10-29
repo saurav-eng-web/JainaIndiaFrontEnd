@@ -367,8 +367,9 @@ const steps = [
 ];
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const id = process.env.NEXT_PUBLIC_ID;
 
-function CallRegisterInner() {
+function CallRegisterInner({ showSidebar = true }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [errors, setErrors] = useState({});
@@ -436,12 +437,14 @@ function CallRegisterInner() {
   // AUTH CHECK
   useEffect(() => {
     const userData = localStorage.getItem("userData");
+
     if (!userData) {
       router.replace("/");
       return;
     }
     const user = JSON.parse(userData);
     const role = user.roleName?.toLowerCase();
+
     if (role !== "cc") {
       router.replace("/");
     } else {
@@ -569,7 +572,9 @@ function CallRegisterInner() {
         PROMISE_DATE: formData.serviceDate || "",
         PROMISE_TIME: formData.availableTime || "",
         Category: formData.productCategory || "",
-        EnterBy: loggedInUser?.userName || "Unknown User",
+        EnterBy: loggedInUser?.userName
+          ? `${loggedInUser.userName}-web`
+          : "Unknown User",
         COMPLAINT_STATUS: "OK",
         Remarks: formData.faultVoc || "",
         Email: formData.email || "",
@@ -656,7 +661,8 @@ function CallRegisterInner() {
 
   return (
     <>
-      <SideBar />
+      {/* <SideBar /> */}
+      {showSidebar && <SideBar />}
       <div className="main-content">
         <div className="registration-container">
           <h2>Call Registration</h2>
@@ -718,10 +724,10 @@ function CallRegisterInner() {
 }
 
 // ✅ Wrap in Suspense boundary for production builds
-export default function CallRegister() {
+export default function CallRegister({ showSidebar = true }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <CallRegisterInner />
+      <CallRegisterInner showSidebar={showSidebar} />
     </Suspense>
   );
 }

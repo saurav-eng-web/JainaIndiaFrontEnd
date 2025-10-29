@@ -1,0 +1,268 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f3f4f6;
+  margin: 0;
+  padding: 0;
+}
+
+.registration-container {
+  width: 95%;
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 30px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+input,
+select,
+textarea {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .registration-container {
+    padding: 20px;
+    margin: 20px auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .registration-container {
+    width: 92%;
+    padding: 16px;
+    margin: 20px auto;
+  }
+
+  h2 {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  button {
+    width: 40%;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  button {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  /* input,
+  select,
+  textarea {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 40%;
+    font-size: 14px;
+    box-sizing: border-box;
+  } */
+}
+
+@media (max-width: 320px) {
+  button {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 88%;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  .custom-dropdown {
+    width: 88%;
+  }
+
+  .service-date {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+h2 {
+  text-align: left;
+  padding-left: 10px;
+  margin-bottom: 30px;
+  font-weight: 700;
+  color: #714b67;
+  border: 2px solid #714b67;
+  font-size: larger;
+  padding: 5px;
+  border-radius: 7px;
+}
+
+.registration-form h3 {
+  margin-bottom: 20px;
+  font-size: 20px;
+  color: #333;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #333;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.button-wrapper {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+button {
+  padding: 12px 24px;
+  font-size: 15px;
+  background: #714b67;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+button:hover {
+  background: #9b7f94;
+}
+
+.stepper {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 50px;
+}
+
+.step {
+  flex: 1;
+  position: relative;
+  text-align: center;
+}
+
+.circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #ccc;
+  color: white;
+  display: inline-block;
+  line-height: 36px;
+  font-weight: bold;
+  z-index: 2;
+  position: relative;
+}
+
+.circle.active {
+  background-color: #714b67;
+}
+
+.label {
+  margin-top: 8px;
+  font-size: 14px;
+  display: block;
+  color: #333;
+}
+
+.line {
+  position: absolute;
+  height: 3px;
+  background-color: #ccc;
+  top: 18px;
+  left: 50%;
+  width: 100%;
+  z-index: 1;
+}
+
+.step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  height: 3px;
+  top: 18px;
+  left: 50%;
+  right: -50%;
+  z-index: 0;
+  background-color: #ccc;
+}
+
+.circle.active ~ .line,
+.step.active:not(:last-child)::after {
+  background-color: #714b67;
+}
+
+.stepper::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: inherit;
+  z-index: 0;
+}
+
+.step:last-child .line {
+  display: none;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px; /* space between groups */
+  margin-left: 4px;
+}
+
+.form-group label {
+  margin-bottom: 8px; /* space between label and input */
+  font-weight: 500;
+  font-size: 14px;
+  color: #333;
+  padding-left: 10px;
+}
+.error-text {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+/* -------- */
+
+.override-callregister-margin .callregister-container, /* target the internal container/class inside CallRegister */
+.override-callregister-margin .sidebar, /* or any class with margin-left */
+.override-callregister-margin * {
+  margin-left: 0 !important;
+}

@@ -126,8 +126,8 @@ export default function DashboardPage() {
         <SideBar />
 
         {/* Main content */}
-        <div className="flex-1 p-25 pt-10 bg-gray-50 min-h-screen">
-          <div className="bg-white p-6 rounded">
+        <div className="min-h-screen flex-1 bg-gray-50 p-25 pt-10">
+          <div className="rounded bg-white p-6">
             {/* Heading */}
             <h2
               className="mb-4"
@@ -144,43 +144,43 @@ export default function DashboardPage() {
             </h2>
 
             {/* Inputs */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
               {/* From Date */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-semibold text-gray-700">
                   From Date
                 </label>
                 <input
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-2 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
                 />
               </div>
 
               {/* To Date */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-semibold text-gray-700">
                   To Date
                 </label>
                 <input
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-2 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
                 />
               </div>
             </div>
 
             {/* Report Dropdown */}
             <div className="mb-4 md:w-1/3">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-semibold text-gray-700">
                 Select Report Name:
               </label>
               <select
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full rounded border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
               >
                 <option value="">---Select---</option>
                 <option value="OpencallReport">Open Call Report</option>
@@ -190,7 +190,7 @@ export default function DashboardPage() {
             {/* Download Button */}
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 text-white font-semibold px-4 py-2 rounded"
+              className="flex items-center gap-2 rounded px-4 py-2 font-semibold text-white"
               style={{ background: colors.primary }}
             >
               <FaDownload />

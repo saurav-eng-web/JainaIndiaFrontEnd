@@ -1,6 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
-import CustomDropdown from "@/components/common/Dropdown";
+import CustomDropdown from "./CustomDropdown";
 import { useState } from "react";
 
 export default function CustomerDetailsStep({

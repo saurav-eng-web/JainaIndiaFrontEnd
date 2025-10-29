@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import axiosInstance from "@/api/axiosInstance";
-import CustomDropdown from "@/components/common/Dropdown";
+import CustomDropdown from "./CustomDropdown";
 
 export default function ProductDetailsStep({
   formData,
@@ -40,13 +40,6 @@ export default function ProductDetailsStep({
       setModels([]);
       return;
     }
-    // axiosInstance
-    //   .get(`Model/productid/${formData.productID}`)
-    //   .then((res) => setModels(res.data))
-    //   .catch((err) => {
-    //     setModels([]);
-    //     console.error("Model fetch error", err);
-    //   });
 
     axiosInstance
       .get(`Model/productid/${formData.productID}`)
@@ -167,11 +160,7 @@ export default function ProductDetailsStep({
     }
     if (id === "model")
       return models.map((m) => ({ value: m.modelNo, label: m.modelNo }));
-    if (id === "warranty")
-      return warranties.map((w) => ({
-        value: w.warranty_Desc,
-        label: w.warranty_Desc,
-      }));
+
     return [];
   };
 
@@ -187,7 +176,6 @@ export default function ProductDetailsStep({
       disabled: isSerialValid || !!formData.modelID,
     },
     { id: "pop", type: "date" },
-    { id: "warranty", type: "select", disabled: false },
   ];
 
   return (
@@ -332,6 +320,69 @@ export default function ProductDetailsStep({
           align-items: center;
           z-index: 9999;
         }
+
+        .popup-box {
+          background: #fff;
+          padding: 80px 100px;
+          border-radius: 8px;
+          min-width: 250px;
+          text-align: center;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+          max-width: 90%;
+          display: flex;
+          flex-direction: column;
+          align-items: center; /* keeps button centered */
+        }
+
+        .popup-box.success {
+          border: 2px solid green;
+        }
+
+        .popup-box.error {
+          border: 2px solid red;
+        }
+
+        .popup-box button {
+          margin-top: 10px;
+          padding: 8px 16px;
+          background: #714b67;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          align-self: center; /* ensures button stays centered */
+        }
+
+        /* Responsive adjustment for smaller screens */
+        @media (max-width: 768px) {
+          .popup-box {
+            padding: 40px 24px;
+            margin: 0 16px;
+            width: auto;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .popup-box {
+            padding: 32px 20px;
+            margin: 0 12px;
+          }
+        }
+      `}</style>
+
+      {/* <style jsx>{`
+        .popup-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.4);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+        }
         .popup-box {
           background: #fff;
           padding: 80px 100px;
@@ -355,7 +406,7 @@ export default function ProductDetailsStep({
           border-radius: 4px;
           cursor: pointer;
         }
-      `}</style>
+      `}</style> */}
     </>
   );
 }

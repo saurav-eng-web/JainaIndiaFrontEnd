@@ -159,7 +159,7 @@ function HistoryPageContent() {
       axiosInstance
         .get(`ComplaintHistory/history-by-ticket/${storedTicket}`)
         .then((res) =>
-          setLogData(Array.isArray(res.data) ? res.data : [res.data])
+          setLogData(Array.isArray(res.data) ? res.data : [res.data]),
         )
         .catch((err) => console.error(err))
         .finally(() => setLoading(false));
@@ -189,10 +189,10 @@ function HistoryPageContent() {
       axiosInstance
         .get(`PartConsumption/ByTicket/${ticketNo}`)
         .then((res) =>
-          setPartConsumption(Array.isArray(res.data) ? res.data : [])
+          setPartConsumption(Array.isArray(res.data) ? res.data : []),
         )
         .catch((err) =>
-          console.error("Failed to fetch part consumption:", err)
+          console.error("Failed to fetch part consumption:", err),
         );
     }
   }, [ticketNo]);
@@ -206,10 +206,10 @@ function HistoryPageContent() {
       axiosInstance
         .get(`PartConsumption/ByTicket/${fetchTicket}`)
         .then((res) =>
-          setPartConsumption(Array.isArray(res.data) ? res.data : [res.data])
+          setPartConsumption(Array.isArray(res.data) ? res.data : [res.data]),
         )
         .catch((err) =>
-          console.error("Failed to fetch part consumption:", err)
+          console.error("Failed to fetch part consumption:", err),
         );
     }
   }, [ticketNo]);
@@ -233,10 +233,10 @@ function HistoryPageContent() {
       axiosInstance
         .get(`LevelPendingHistory/ticket/${fetchTicket}`)
         .then((res) =>
-          setPendingHistory(Array.isArray(res.data) ? res.data : [])
+          setPendingHistory(Array.isArray(res.data) ? res.data : []),
         )
         .catch((err) =>
-          console.error("Failed to fetch Pending Level History:", err)
+          console.error("Failed to fetch Pending Level History:", err),
         );
     }
   }, [ticketNo]);
@@ -318,7 +318,7 @@ function HistoryPageContent() {
 
                   const res = await axiosInstance.post(
                     "/Cancellation/request",
-                    payload
+                    payload,
                   );
                   console.log("✅ API Success:", res.data);
 
@@ -345,7 +345,7 @@ function HistoryPageContent() {
 
                   const res = await axiosInstance.post(
                     "/Cancellation/request",
-                    payload
+                    payload,
                   );
                   console.log("✅ Rejection Success:", res.data);
 
@@ -416,11 +416,11 @@ function HistoryPageContent() {
               ))}
             </div> */}
 
-            <div className="tab-bar flex gap-0 p-0 m-0">
+            <div className="tab-bar m-0 flex gap-0 p-0">
               {tabs.map((tab) => (
                 <button
                   key={tab}
-                  className={`tab-button p-0 m-0 ${
+                  className={`tab-button m-0 p-0 ${
                     tab === activeTab ? "active" : ""
                   }`}
                   onClick={() => setActiveTab(tab)}
@@ -529,7 +529,7 @@ function HistoryPageContent() {
                       {detail.wkph || detail.hmph || "-"}
                     </div>
                     <div>
-                      <strong>Email:</strong> {detail.email || "-"}
+                      <strong>Caller Number:</strong> {detail.complaint || "-"}
                     </div>
                     <div>
                       <strong>Address:</strong>{" "}
@@ -816,7 +816,7 @@ function HistoryPageContent() {
                       await axiosInstance.post("/reminder/create", payload);
 
                       const res = await axiosInstance.get(
-                        `/reminder/Ticket/${ticket}`
+                        `/reminder/Ticket/${ticket}`,
                       );
                       const data = Array.isArray(res.data)
                         ? res.data

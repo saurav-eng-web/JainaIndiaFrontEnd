@@ -56,7 +56,7 @@ function CallRegisterInner({ showSidebar = true }) {
     product: searchParams.get("product") || "",
     productID: searchParams.get("productID") || "",
     model: searchParams.get("model") || "",
-    warranty: searchParams.get("warranty") || "",
+    // warranty: searchParams.get("warranty") || "",
     callType: searchParams.get("callType") || "",
     faultVoc: searchParams.get("faultVoc") || "",
     availableTime: searchParams.get("availableTime") || "",
@@ -136,7 +136,6 @@ function CallRegisterInner({ showSidebar = true }) {
       "product",
       "model",
       "modelDescription",
-      "warranty",
     ],
     ["callType", "faultVoc", "availableTime"],
   ];
@@ -309,9 +308,9 @@ function CallRegisterInner({ showSidebar = true }) {
     <>
       {/* <SideBar /> */}
 
-      <div className="main-content">
+      <div className="">
         <div className="registration-container">
-          <h2>Web Call Registration</h2>
+          <h2>Call Registration</h2>
           {callNumber ? (
             <div className="success-message">
               <h3 style={{ marginBottom: "30px" }}>

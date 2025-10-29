@@ -572,7 +572,9 @@ function CallRegisterInner({ showSidebar = true }) {
         PROMISE_DATE: formData.serviceDate || "",
         PROMISE_TIME: formData.availableTime || "",
         Category: formData.productCategory || "",
-        EnterBy: loggedInUser?.userName || "Unknown User",
+        EnterBy: loggedInUser?.userName
+          ? `${loggedInUser.userName}-web`
+          : "Unknown User",
         COMPLAINT_STATUS: "OK",
         Remarks: formData.faultVoc || "",
         Email: formData.email || "",

@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
 import axiosInstance from "@/api/axiosInstance";
-import CustomDropdown from "@/components/common/Dropdown";
+import CustomDropdown from "./CustomDropdown";
 
 export default function ServiceDetailsStep({
   formData,
@@ -175,7 +175,8 @@ export default function ServiceDetailsStep({
           <label htmlFor="serviceDateTime">
             Customer Available Date & Time
           </label>
-          <div style={{ display: "flex", gap: "8px" }}>
+          {/* <div className="sm:flex sm:gap-[8px]"> */}
+          <div className="service-date" style={{ display: "flex", gap: "8px" }}>
             <input
               type="date"
               id="serviceDate"
@@ -241,42 +242,7 @@ export default function ServiceDetailsStep({
           )}
         </div>
 
-        <div className="flex w-full text-sm">
-          <div className="mr-6 w-full">
-            <p className="pb-2 pl-3">Remarks</p>
-            <textarea
-              onChange={(e) => hanldeRemarks(e)}
-              className=""
-              maxLength={150}
-              placeholder="Enter remarks"
-            />
-          </div>
-        </div>
-        {/* <div className="text-sm">
-          <div className="">
-            <p className="pl-3 pb-2">Caller Number</p>
-            <input
-              onChange={(e) => handleCaller(e)}
-              placeholder="Caller Number"
-            />
-          </div>
-        </div> */}
-
-        <div className="text-sm">
-          <div>
-            <p className="pb-2 pl-3">Caller Number</p>
-            <input
-              type="tel"
-              maxLength={10}
-              pattern="[0-9]{10}"
-              onChange={handleCaller}
-              value={formData.callerNumber || ""}
-              placeholder="Enter 10-digit mobile number"
-              className="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-          </div>
-        </div>
+        <div className="flex w-full text-sm"></div>
       </div>
     </>
   );

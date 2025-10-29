@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import "./servicereg.css";
 import CallRegister from "../call/page";
 import axios from "axios";
+import WebCallRegister from "./CallRegister";
 
 export default function ServiceRegistration() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -192,7 +193,7 @@ export default function ServiceRegistration() {
           className="override-callregister-margin -mt-18"
           ref={callRegisterRef}
         >
-          {showside && <CallRegister showSidebar={false} />}
+          {showside && <WebCallRegister showSidebar={false} />}
         </div>
       </div>
     </div>

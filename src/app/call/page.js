@@ -541,6 +541,7 @@ function CallRegisterInner({ showSidebar = true }) {
 
   const submitCall = async () => {
     setLoading(true);
+
     try {
       const payload = {
         SALUTATION: formData.title || "",
@@ -573,7 +574,7 @@ function CallRegisterInner({ showSidebar = true }) {
         PROMISE_TIME: formData.availableTime || "",
         Category: formData.productCategory || "",
         EnterBy: loggedInUser?.userName
-          ? `${loggedInUser.userName}-web`
+          ? `${loggedInUser.firstName}-web`
           : "Unknown User",
         COMPLAINT_STATUS: "OK",
         Remarks: formData.faultVoc || "",
@@ -593,6 +594,7 @@ function CallRegisterInner({ showSidebar = true }) {
       );
 
       setCallNumber(response.data?.returnNo || "");
+      await handleSendMessage(response.data?.returnNo);
       setCurrentStep(0);
     } catch (err) {
       console.error("Call Register Error:", err);
@@ -603,6 +605,42 @@ function CallRegisterInner({ showSidebar = true }) {
       setLoading(false);
     }
   };
+
+  async function handleSendMessage(requestNo) {
+    if (!requestNo) return;
+
+    const { callType, phone: phoneNumber } = formData;
+    if (!phoneNumber) return;
+
+    const validTypes = ["Installation", "Demo", "Service"];
+    if (!validTypes.includes(callType)) return;
+
+    let message = "";
+
+    if (["Installation", "Demo"].includes(callType)) {
+      message = `Dear Customer, Thank you for choosing our product. Your installation request has been registered with ${requestNo}, Our team will contact you shortly. Jaina India`;
+    } else if (callType === "Service") {
+      message = `Dear Customer, Happy to serve you! Your request for service has been registered with ${requestNo}, Our team will contact you shortly. Jaina India`;
+    }
+
+    try {
+      await axios.post(
+        `${BASE_URL}/SMS/send`,
+        new URLSearchParams({
+          message,
+          mobile: phoneNumber,
+          ticketKey: requestNo,
+          source: "Welcome",
+        }),
+        {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        },
+      );
+    } catch (error) {
+      // Optional: handle silently or report to monitoring service
+      console.error("SMS send failed:", error.message);
+    }
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();

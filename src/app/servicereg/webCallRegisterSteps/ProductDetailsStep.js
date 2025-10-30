@@ -10,14 +10,14 @@ export default function ProductDetailsStep({
   handleChange,
   setFormData,
   errors = {},
+  setIsSerialValidParent,
 }) {
-  const [isSerialValid, setIsSerialValid] = useState(false);
   const [brands, setBrands] = useState([]);
   const [products, setProducts] = useState([]);
   const [models, setModels] = useState([]);
   const [warranties, setWarranties] = useState([]);
   const [popup, setPopup] = useState({ visible: false, message: "", type: "" });
-
+  const [isSerialValid, setIsSerialValid] = useState(false);
   useEffect(() => {
     axiosInstance
       .get("BrandMaster")
@@ -112,6 +112,7 @@ export default function ProductDetailsStep({
       }));
 
       setIsSerialValid(true);
+      setIsSerialValidParent(true);
       showPopup("✅ Serial number is valid", "success");
     } catch (err) {
       if (err.response?.status === 404) {
@@ -129,6 +130,7 @@ export default function ProductDetailsStep({
         }));
         setModels([]);
         setIsSerialValid(false);
+        setIsSerialValidParent(false);
         showPopup("❌ Invalid serial number", "error");
       } else {
         console.error("Error validating serial number:", err);
@@ -166,16 +168,18 @@ export default function ProductDetailsStep({
 
   const fields = [
     { id: "serialNo", type: "text" },
-    { id: "brand", type: "select", disabled: isSerialValid },
-    { id: "productCategory", type: "select", disabled: isSerialValid },
-    { id: "product", type: "select", disabled: isSerialValid },
-    { id: "model", type: "select", disabled: isSerialValid },
+    { id: "pop", type: "date" },
+
+    { id: "brand", type: "text", disabled: true },
+    { id: "productCategory", type: "text", disabled: true },
+    { id: "product", type: "text", disabled: true },
+    { id: "model", type: "text", disabled: true },
     {
       id: "modelDescription",
       type: "text",
-      disabled: isSerialValid || !!formData.modelID,
+      disabled: true,
     },
-    { id: "pop", type: "date" },
+    // { id: "pop", type: "date" },
   ];
 
   return (
@@ -194,91 +198,25 @@ export default function ProductDetailsStep({
             <div className="form-group" key={id}>
               <label htmlFor={id}>{label}</label>
 
-              {type === "select" ? (
-                <CustomDropdown
-                  options={getFieldOptions(id)}
-                  value={formData[id] || ""}
-                  onChange={(val) => {
-                    // Preserve exact same logic as original <select>
-                    if (id === "brand") {
-                      const selected = brands.find((b) => b.brand_Name === val);
-                      setFormData((prev) => ({
-                        ...prev,
-                        brand: val,
-                        brandId: selected ? selected.brand_ID : "",
-                        productCategory: "",
-                        product: "",
-                        productID: "",
-                        model: "",
-                        modelID: "",
-                      }));
-                      setModels([]);
-                    } else if (id === "productCategory") {
-                      setFormData((prev) => ({
-                        ...prev,
-                        productCategory: val,
-                        product: "",
-                        productID: "",
-                        model: "",
-                        modelID: "",
-                      }));
-                      setModels([]);
-                    } else if (id === "product") {
-                      const selected = products.find(
-                        (p) =>
-                          p.product === val && formData.brandId === p.brandId,
-                      );
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        product: val,
-                        productID: selected ? selected.productID : "",
-                        model: "",
-                        modelID: "",
-                      }));
-                    } else if (id === "model") {
-                      const selected = models.find((m) => m.modelNo === val);
-                      setFormData((prev) => ({
-                        ...prev,
-                        model: val,
-                        modelID: selected ? selected.modelID : "",
-                        modelDescription: selected ? selected.description : "",
-                      }));
-                    } else if (id === "warranty") {
-                      const selected = warranties.find(
-                        (w) => w.warranty_Desc === val,
-                      );
-                      setFormData((prev) => ({
-                        ...prev,
-                        warranty: val,
-                        warranty_ID: selected ? selected.warranty_ID : "",
-                      }));
-                    }
-                  }}
-                  placeholder={`Select ${label}`}
-                  disabled={disabled}
-                />
-              ) : (
-                <input
-                  id={id}
-                  name={id}
-                  type={type}
-                  disabled={disabled}
-                  placeholder={label}
-                  onChange={handleChange}
-                  onBlur={
-                    id === "serialNo"
-                      ? (e) => checkSerialNumber(e.target.value)
-                      : undefined
-                  }
-                  value={formData[id] || ""}
-                  max={
-                    type === "date"
-                      ? new Date().toISOString().split("T")[0]
-                      : undefined
-                  }
-                />
-              )}
+              <input
+                id={id}
+                name={id}
+                type={type}
+                disabled={disabled}
+                placeholder={label}
+                onChange={handleChange}
+                onBlur={
+                  id === "serialNo"
+                    ? (e) => checkSerialNumber(e.target.value)
+                    : undefined
+                }
+                value={formData[id] || ""}
+                max={
+                  type === "date"
+                    ? new Date().toISOString().split("T")[0]
+                    : undefined
+                }
+              />
 
               {errors[id] && (
                 <div
@@ -369,44 +307,6 @@ export default function ProductDetailsStep({
           }
         }
       `}</style>
-
-      {/* <style jsx>{`
-        .popup-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.4);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 9999;
-        }
-        .popup-box {
-          background: #fff;
-          padding: 80px 100px;
-          border-radius: 8px;
-          min-width: 250px;
-          text-align: center;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        .popup-box.success {
-          border: 2px solid green;
-        }
-        .popup-box.error {
-          border: 2px solid red;
-        }
-        .popup-box button {
-          margin-top: 10px;
-          padding: 6px 12px;
-          background: #714b67;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-      `}</style> */}
     </>
   );
 }

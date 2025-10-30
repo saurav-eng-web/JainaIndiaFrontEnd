@@ -33,6 +33,10 @@ export default function ServiceRegistration() {
     if (name === "otp") setOtp(value);
   }
 
+  function generateOtp() {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+  }
+
   async function handleValidateOtp() {
     if (otp.trim() === generatedOtp.trim()) {
       setOtpError("");
@@ -40,10 +44,6 @@ export default function ServiceRegistration() {
     } else {
       setOtpError("❌ Invalid OTP. Please try again.");
     }
-  }
-
-  function generateOtp() {
-    return Math.floor(1000 + Math.random() * 9000).toString();
   }
 
   async function handleSendOTP() {
@@ -78,10 +78,6 @@ export default function ServiceRegistration() {
     } finally {
       setIsLoading(false);
     }
-  }
-
-  async function handleValidateOtp() {
-    await handleLogin();
   }
 
   async function handleLogin() {
@@ -199,36 +195,6 @@ export default function ServiceRegistration() {
                 {otpError}
               </p>
             )}
-
-            {/* Resend + Change Number Options */}
-            {/* {showOtp && (
-              <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                {resendTimer > 0 ? (
-                  <span className="text-sm text-gray-600">
-                    You can resend OTP in {resendTimer}s
-                  </span>
-                ) : (
-                  <button
-                    onClick={handleSendOTP}
-                    className="text-sm font-medium text-blue-600 hover:underline"
-                  >
-                    Resend OTP
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    setShowOtp(false);
-                    setPhoneNumber("");
-                    setOtp("");
-                    setOtpError("");
-                    setResendTimer(0);
-                  }}
-                  className="text-sm font-medium text-gray-600 hover:underline sm:ml-auto"
-                >
-                  Change Number
-                </button>
-              </div>
-            )} */}
           </div>
         </div>
 

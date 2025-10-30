@@ -32,6 +32,7 @@ function CallRegisterInner({ showSidebar = true }) {
   const [loading, setLoading] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [pincodeStatus, setPincodeStatus] = useState("");
+  const [isSerialValid, setIsSerialValid] = useState(false);
 
   const [formData, setFormData] = useState({
     callBy: searchParams.get("callBy") || "",
@@ -130,12 +131,12 @@ function CallRegisterInner({ showSidebar = true }) {
     ["customerAddress", "landmark", "pincode"],
     [
       "serialNo",
-      "productCategory",
-      "brand",
       "pop",
-      "product",
-      "model",
-      "modelDescription",
+      // "productCategory",
+      // "brand",
+      // "product",
+      // "model",
+      // "modelDescription",
     ],
     ["callType", "faultVoc", "availableTime"],
   ];
@@ -176,6 +177,13 @@ function CallRegisterInner({ showSidebar = true }) {
         newErrors.pincode = "Please enter a valid pincode";
       }
     }
+
+    if (currentStep === 2) {
+      if (!isSerialValid) {
+        newErrors.serialNo = "Please enter a valid serial number.";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -188,6 +196,7 @@ function CallRegisterInner({ showSidebar = true }) {
 
   const submitCall = async () => {
     setLoading(true);
+    console.log(`🔴 formdata: `, formData);
     try {
       const payload = {
         SALUTATION: formData.title || "",
@@ -219,7 +228,9 @@ function CallRegisterInner({ showSidebar = true }) {
         PROMISE_DATE: formData.serviceDate || "",
         PROMISE_TIME: formData.availableTime || "",
         Category: formData.productCategory || "",
-        EnterBy: loggedInUser?.userName || "Unknown User",
+        EnterBy: loggedInUser?.userName
+          ? `${loggedInUser.firstName}-web`
+          : "Unknown User",
         COMPLAINT_STATUS: "OK",
         Remarks: formData.faultVoc || "",
         Email: formData.email || "",
@@ -238,6 +249,7 @@ function CallRegisterInner({ showSidebar = true }) {
       );
 
       setCallNumber(response.data?.returnNo || "");
+      await handleSendMessage(response.data?.returnNo);
       setCurrentStep(0);
     } catch (err) {
       console.error("Call Register Error:", err);
@@ -258,6 +270,79 @@ function CallRegisterInner({ showSidebar = true }) {
       nextStep();
     }
   };
+
+  // async function handleSendMessage(requestNo) {
+  //   const callType = formData.callType;
+  //   const phoneNumber = formData.phone;
+  //   let message = "";
+
+  //   if (
+  //     callType !== "Installation" &&
+  //     callType !== "Demo" &&
+  //     callType !== "Service"
+  //   ) {
+  //     return;
+  //   }
+
+  //   if (callType === "Installation" || callType === "Demo") {
+  //     message = `Dear Customer, Thank you for choosing our product. Your installation request has been registered with ${requestNo}, Our team will contact you shortly. Jaina India`;
+  //   } else {
+  //     message = `Dear Customer, Happy to serve you! Your request for service has been registered with ${requestNo}, Our team will contact you shortly. Jaina India`;
+  //   }
+
+  //   try {
+  //     const response = await axios.post(
+  //       `${BASE_URL}/SMS/send`,
+  //       `message=${message}&mobile=${phoneNumber}&ticketKey=${requestNo}&source=Welcome`,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/x-www-form-urlencoded",
+  //         },
+  //       },
+  //     );
+
+  //     console.log(`🔴 response: `, response);
+  //   } catch (error) {
+  //     console.error("Error sending OTP:", error);
+  //   } finally {
+  //   }
+  // }
+
+  async function handleSendMessage(requestNo) {
+    if (!requestNo) return;
+
+    const { callType, phone: phoneNumber } = formData;
+    if (!phoneNumber) return;
+
+    const validTypes = ["Installation", "Demo", "Service"];
+    if (!validTypes.includes(callType)) return;
+
+    let message = "";
+
+    if (["Installation", "Demo"].includes(callType)) {
+      message = `Dear Customer, Thank you for choosing our product. Your installation request has been registered with ${requestNo}, Our team will contact you shortly. Jaina India`;
+    } else if (callType === "Service") {
+      message = `Dear Customer, Happy to serve you! Your request for service has been registered with ${requestNo}, Our team will contact you shortly. Jaina India`;
+    }
+
+    try {
+      await axios.post(
+        `${BASE_URL}/SMS/send`,
+        new URLSearchParams({
+          message,
+          mobile: phoneNumber,
+          ticketKey: requestNo,
+          source: "Welcome",
+        }),
+        {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        },
+      );
+    } catch (error) {
+      // Optional: handle silently or report to monitoring service
+      console.error("SMS send failed:", error.message);
+    }
+  }
 
   const renderStep = () => {
     switch (currentStep) {
@@ -288,6 +373,7 @@ function CallRegisterInner({ showSidebar = true }) {
             handleChange={handleChange}
             setFormData={setFormData}
             errors={errors}
+            setIsSerialValidParent={setIsSerialValid}
           />
         );
       case 3:
@@ -319,14 +405,14 @@ function CallRegisterInner({ showSidebar = true }) {
               <p style={{ marginBottom: "25px" }}>
                 Your Service Request No Number is: <strong>{callNumber}</strong>
               </p>
-              <button
+              {/* <button
                 onClick={() => {
                   setCallNumber("");
                   setFormData({});
                 }}
               >
                 Register Another
-              </button>
+              </button> */}
             </div>
           ) : (
             <>

@@ -13,31 +13,52 @@ export default function ServiceDetailsStep({
 }) {
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
-  const [callTypes, setCallTypes] = useState([]);
+  // const [callTypes, setCallTypes] = useState([]);
   const [faults, setFaults] = useState([]);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchCallTypes = async () => {
-      try {
-        if (!formData.product) {
-          setCallTypes([]);
-          return;
-        }
-        const res = await axiosInstance.get(
-          `CallType/subcategory/${formData.product}`,
-        );
-        if (Array.isArray(res.data)) {
-          setCallTypes(res.data);
-        }
-      } catch (err) {
-        console.error("Error fetching call types:", err);
-        setCallTypes([]);
-      }
-    };
+  const callTypes = [
+    {
+      callType_ID: 2,
+      callType_Name: "Installation",
+      callType_Active: "Yes",
+      aP_EP: null,
+    },
+    {
+      callType_ID: 3,
+      callType_Name: "Demo",
+      callType_Active: "Yes",
+      aP_EP: null,
+    },
+    {
+      callType_ID: 4,
+      callType_Name: "Service",
+      callType_Active: "Yes",
+      aP_EP: null,
+    },
+  ];
 
-    fetchCallTypes();
-  }, [formData.product]);
+  // useEffect(() => {
+  //   const fetchCallTypes = async () => {
+  //     try {
+  //       if (!formData.product) {
+  //         setCallTypes([]);
+  //         return;
+  //       }
+  //       const res = await axiosInstance.get(
+  //         `CallType/subcategory/${formData.product}`,
+  //       );
+  //       if (Array.isArray(res.data)) {
+  //         setCallTypes(res.data);
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching call types:", err);
+  //       setCallTypes([]);
+  //     }
+  //   };
+
+  //   fetchCallTypes();
+  // }, [formData.product]);
 
   // ✅ Fetch Faults (Symptoms) based on productID
   useEffect(() => {

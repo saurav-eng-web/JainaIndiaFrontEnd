@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import "./servicereg.css";
 import axios from "axios";
 import WebCallRegister from "./WebCallRegister";
+import axiosInstance from "@/api/axiosInstance";
 
 export default function ServiceRegistration() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -54,10 +55,11 @@ export default function ServiceRegistration() {
     const newOtp = generateOtp();
     setGeneratedOtp(newOtp);
     setOtpError("");
-
+    // `${BASE_URL}/SMS/send`,
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${BASE_URL}/SMS/send`,
+        // `api/SMS/send`,
         `message=Dear Customer, Your OTP is ${newOtp}. Jaina India&mobile=${phoneNumber}&ticketKey=${newOtp}&source=OTPWebCR`,
         {
           headers: {

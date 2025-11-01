@@ -41,11 +41,18 @@ export default function ServiceRegistration() {
   async function handleValidateOtp() {
     if (otp.trim() === generatedOtp.trim()) {
       setOtpError("");
-      await handleLogin();
+      setOtpVerified(true);
+      setTimeout(() => setShowside(true), 1000);
     } else {
       setOtpError("❌ Invalid OTP. Please try again.");
     }
   }
+
+  // async function handleSendOTP() {
+  //   setShowOtp(true);
+
+  //   await handleLogin();
+  // }
 
   async function handleSendOTP() {
     if (!phoneNumber || phoneNumber.length !== 10) return;
@@ -57,6 +64,8 @@ export default function ServiceRegistration() {
     setOtpError("");
     // `${BASE_URL}/SMS/send`,
     try {
+      await handleLogin();
+      setTimeout(() => console.log(`hi`), 800); // fake delay
       const response = await axiosInstance.post(
         `${BASE_URL}/SMS/send`,
         // `api/SMS/send`,
@@ -91,22 +100,20 @@ export default function ServiceRegistration() {
       const data = response.data;
       if (data.returnCode === 1 && data.token) {
         localStorage.setItem("userData", JSON.stringify(data));
-        setShowside(true);
-        setOtpVerified(true);
       }
     } catch (error) {
       console.error("Login failed:", error);
     }
   }
 
-  useEffect(() => {
-    if (showside && callRegisterRef.current) {
-      callRegisterRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [showside]);
+  // useEffect(() => {
+  //   if (showside && callRegisterRef.current) {
+  //     callRegisterRef.current.scrollIntoView({
+  //       behavior: "smooth",
+  //       block: "start",
+  //     });
+  //   }
+  // }, [showside]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -181,7 +188,7 @@ export default function ServiceRegistration() {
                 placeholder="Enter OTP"
                 value={otp}
                 onChange={handleChange}
-                maxLength={6}
+                maxLength={4}
                 type="text"
               />
               <button
@@ -199,6 +206,31 @@ export default function ServiceRegistration() {
             )}
           </div>
         </div>
+
+        {/* OTP Verified Success Animation */}
+        {otpVerified && !showside && (
+          <div className="flex h-64 flex-col items-center justify-center transition-all duration-500">
+            <div className="flex items-center justify-center rounded-full bg-green-100 p-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-12 w-12 text-green-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <p className="mt-3 text-lg font-semibold text-green-600">
+              OTP Verified Successfully!
+            </p>
+          </div>
+        )}
 
         {/* Call Register Section */}
         <div className="w-full" ref={callRegisterRef}>

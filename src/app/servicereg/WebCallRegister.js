@@ -249,7 +249,9 @@ function CallRegisterInner({ showSidebar = true }) {
       );
 
       setCallNumber(response.data?.returnNo || "");
-      await handleSendMessage(response.data?.returnNo);
+      if (response.statstatusCode === 1) {
+        await handleSendMessage(response.data?.returnNo);
+      }
       setCurrentStep(0);
     } catch (err) {
       console.error("Call Register Error:", err);
@@ -324,9 +326,10 @@ function CallRegisterInner({ showSidebar = true }) {
     } else if (callType === "Service") {
       message = `Dear Customer, Happy to serve you! Your request for service has been registered with ${requestNo}, Our team will contact you shortly. Jaina India`;
     }
-
+    // `${BASE_URL}/SMS/send`,// TODO: PREVIOUS ROUTE
     try {
-      await axios.post(
+      await axiosInstance.post(
+        // `api/SMS/send`,
         `${BASE_URL}/SMS/send`,
         new URLSearchParams({
           message,

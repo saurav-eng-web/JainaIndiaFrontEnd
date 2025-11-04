@@ -245,10 +245,9 @@ function CallRegisterInner({ showSidebar = true }) {
         `${BASE_URL}/callregister/create-complaint`,
         payload,
       );
-      console.log(`respnse: `, response);
+
       setCallNumber(response.data?.returnNo || "");
       if (response.data?.statusCode === 1) {
-        console.log(`calling send message`);
         await handleSendMessage(response.data?.returnNo);
       }
       setCurrentStep(0);
@@ -311,7 +310,7 @@ function CallRegisterInner({ showSidebar = true }) {
 
   async function handleSendMessage(requestNo) {
     if (!requestNo) return;
-    console.log(`🔴inside: handlemessage`, requestNo);
+
     const { callType, phone: phoneNumber } = formData;
     if (!phoneNumber) return;
 

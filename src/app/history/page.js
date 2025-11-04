@@ -20,7 +20,7 @@ const tabs = [
   "Job Details",
   "Customer Detail",
   "Product Details",
-  "Pending Level",
+  // "Pending Level",
   "Documents",
   "Job Done",
   "Consumption",
@@ -452,10 +452,18 @@ function HistoryPageContent() {
                     <div>
                       <strong>Call By:</strong> {detail.calL_BY || "-"}
                     </div>
-                    <div>
-                      <strong>Complaint Date:</strong>{" "}
+                    <div className="!overflow-hidden !text-ellipsis !whitespace-nowrap">
+                      <strong>Complaint Date:</strong>
+
                       {detail.tdate
-                        ? new Date(detail.tdate).toLocaleString()
+                        ? new Date(detail.tdate).toLocaleString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
                         : "-"}
                     </div>
                     <div>
@@ -469,7 +477,7 @@ function HistoryPageContent() {
                       {firstEntry.escalated === 1 ? "Yes" : "No"}
                     </div>
                     <div>
-                      <strong>NSP:</strong> {detail.asC_NAME || "-"}
+                      <strong>NSP:</strong> {detail.branchName || "-"}
                     </div>
                     <div>
                       <strong>SF Name:</strong> {detail.asC_NAME || "-"}
@@ -488,8 +496,18 @@ function HistoryPageContent() {
                     </div>
                     <div>
                       <strong>Promise Date:</strong>{" "}
-                      {detail.promisE_DATE
+                      {/* {detail.promisE_DATE
                         ? new Date(detail.promisE_DATE).toLocaleDateString()
+                        : "-"} */}
+                      {detail.promisE_DATE
+                        ? new Date(detail.promisE_DATE).toLocaleDateString(
+                            "en-IN",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            },
+                          )
                         : "-"}
                     </div>
                     <div>

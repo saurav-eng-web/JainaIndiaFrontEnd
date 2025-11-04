@@ -62,8 +62,6 @@ axiosInstance.interceptors.response.use(
       if (currentPath !== "/login") {
         isRedirecting = true;
 
-        console.log("🔴 Token expired or invalid, redirecting to login...");
-
         store.dispatch(logout());
 
         if (typeof window !== "undefined") {

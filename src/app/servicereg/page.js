@@ -62,13 +62,11 @@ export default function ServiceRegistration() {
     const newOtp = generateOtp();
     setGeneratedOtp(newOtp);
     setOtpError("");
-    // `${BASE_URL}/SMS/send`,
     try {
       await handleLogin();
-      setTimeout(() => console.log(`hi`), 800); // fake delay
+
       const response = await axiosInstance.post(
         `${BASE_URL}/SMS/send`,
-        // `api/SMS/send`,
         `message=Dear Customer, Your OTP is ${newOtp}. Jaina India&mobile=${phoneNumber}&ticketKey=${newOtp}&source=OTPWebCR`,
         {
           headers: {
@@ -78,12 +76,11 @@ export default function ServiceRegistration() {
       );
 
       setResendTimer(180); // start countdown
-      setTimeout(() => setIsLoading(false), 800); // fake delay
+      // setTimeout(() => setIsLoading(false), 800); // fake delay
 
       if (response.status === 200) {
         setShowOtp(true);
       }
-      // await handleLogin();
     } catch (error) {
       console.error("Error sending OTP:", error);
     } finally {
@@ -105,15 +102,6 @@ export default function ServiceRegistration() {
       console.error("Login failed:", error);
     }
   }
-
-  // useEffect(() => {
-  //   if (showside && callRegisterRef.current) {
-  //     callRegisterRef.current.scrollIntoView({
-  //       behavior: "smooth",
-  //       block: "start",
-  //     });
-  //   }
-  // }, [showside]);
 
   return (
     <div className="min-h-screen bg-gray-50">

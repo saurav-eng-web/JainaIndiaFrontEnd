@@ -13,9 +13,6 @@ export async function POST(req) {
       return new NextResponse("Authorization header missing", { status: 400 });
     }
 
-    console.log("Request body:", body);
-    console.log("JWT token received:", jwtToken.slice(0, 10) + "...");
-
     const backendRes = await fetch(`${BASE_URL}/reports/downloadreports`, {
       method: "POST",
       headers: {

@@ -1,5 +1,3 @@
-
-
 // 'use client';
 
 // import './Sidebar.css';
@@ -20,8 +18,8 @@
 // const roleName = user?.roleName;
 
 //   const handleLogout = () => {
-//     dispatch(logout()); 
-//     router.push('/login'); 
+//     dispatch(logout());
+//     router.push('/login');
 //   };
 
 //   return (
@@ -42,8 +40,8 @@
 //           </Link>
 //         </li>
 
-//         {/* Navigation */} 
-        
+//         {/* Navigation */}
+
 //         <li>
 //           <Link href="/test">
 //             <i className="fa fa-home fa-2x"></i>
@@ -96,7 +94,6 @@
 //     </nav>
 //   );
 // }
-
 
 // 'use client';
 
@@ -176,7 +173,7 @@
 
 //         {/* Role-based Navigation */}
 //         {menuItems
-//           .filter((item) => item.roles.includes(roleName)) 
+//           .filter((item) => item.roles.includes(roleName))
 //           .map((item, idx) => (
 //             <li key={idx}>
 //               <Link href={item.href}>
@@ -190,7 +187,7 @@
 //       {/* User Info at Bottom */}
 //       <div className="userInfo">
 //         <Image
-//           src="/avatar.png" 
+//           src="/avatar.png"
 //           alt="User Avatar"
 //           width={45}
 //           height={45}
@@ -208,16 +205,15 @@
 //   );
 // }
 
+"use client";
 
-'use client';
-
-import { useEffect, useState } from 'react';
-import './Sidebar.css';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '@/redux/slices/authSlice';
+import { useEffect, useState } from "react";
+import "./Sidebar.css";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "@/redux/slices/authSlice";
 
 export default function SideBar() {
   const router = useRouter();
@@ -236,7 +232,7 @@ export default function SideBar() {
 
   const handleLogout = () => {
     dispatch(logout());
-    router.push('/login');
+    router.push("/login");
   };
 
   // 🚀 2. Early return AFTER all hooks
@@ -247,59 +243,64 @@ export default function SideBar() {
   // Define menu items with allowed roles
   const menuItems = [
     {
-      href: '/test',
-      icon: 'fa fa-home fa-2x',
-      text: 'Dashboard',
-      roles: ['CC'],
+      href: "/test",
+      icon: "fa fa-home fa-2x",
+      text: "Dashboard",
+      roles: ["CC"],
     },
     {
-      href: '/nsp/dashboard',
-      icon: 'fa fa-home fa-2x',
-      text: 'Dashboard',
-      roles: ['BR','ASM','ZONE','SF/SSD'],
+      href: "/nsp/dashboard",
+      icon: "fa fa-home fa-2x",
+      text: "Dashboard",
+      roles: ["BR", "ASM", "ZONE", "SF/SSD"],
     },
     {
-      href: '/call',
-      icon: 'fa fa-phone fa-2x',
-      text: 'Call Registration',
-      roles: ['CC'],
+      href: "/call",
+      icon: "fa fa-phone fa-2x",
+      text: "Call Registration",
+      roles: ["CC"],
     },
     {
-      href: '/search-complaint',
-      icon: 'fa fa-search fa-2x',
-      text: 'Call Search',
-      roles: ['CC', 'BR','ASM','ZONE','SF/SSD'],
+      href: "/search-complaint",
+      icon: "fa fa-search fa-2x",
+      text: "Call Search",
+      roles: ["CC", "BR", "ASM", "ZONE", "SF/SSD"],
     },
     {
-      href: '/warrantyregisteration',
-      icon: 'fa fa-certificate fa-2x',
-      text: 'Warranty Registration',
-      roles: ['CC'],
+      href: "/warrantyregisteration",
+      icon: "fa fa-certificate fa-2x",
+      text: "Warranty Registration",
+      roles: ["CC"],
     },
     {
-      href: '/technicalApproval',
-      icon: 'fa fa-wrench fa-2x',
-      text: 'Technical Approval',
-      roles: ['CC'],
-    },
-
-    {
-      href: '/nsp/asc-creation',
-      icon: 'fa fa-plus fa-2x',
-      text: 'Asc Creation',
-      roles: ['BR'],
+      href: "/technicalApproval",
+      icon: "fa fa-wrench fa-2x",
+      text: "Technical Approval",
+      roles: ["CC"],
     },
     {
-      href: '/nsp/reports',
-      icon: 'fa fa-wrench fa-2x',
-      text: 'Reports',
-      roles: ['BR','ZONE','SF/SSD'],
+      href: "/bulk-uploader",
+      icon: "fa fa-phone fa-2x",
+      text: "Bulk Call Creation",
+      roles: ["CC"],
     },
     {
-      href: '/nsp/transfercall',
-      icon: 'fa fa-phone fa-2x',
-      text: 'Call Transfer',
-      roles: ['BR','ASM','ZONE'],
+      href: "/nsp/asc-creation",
+      icon: "fa fa-plus fa-2x",
+      text: "Asc Creation",
+      roles: ["BR"],
+    },
+    {
+      href: "/nsp/reports",
+      icon: "fa fa-wrench fa-2x",
+      text: "Reports",
+      roles: ["BR", "ZONE", "SF/SSD"],
+    },
+    {
+      href: "/nsp/transfercall",
+      icon: "fa fa-phone fa-2x",
+      text: "Call Transfer",
+      roles: ["BR", "ASM", "ZONE"],
     },
   ];
 
@@ -346,7 +347,7 @@ export default function SideBar() {
         <div className="userDetails">
           <p className="userName">{userName}</p>
           <p className="userRole">
-            {roleName ? `You are logged in as ${roleName}` : ''}
+            {roleName ? `You are logged in as ${roleName}` : ""}
           </p>
           <button onClick={handleLogout} className="signOutBtn">
             Sign Out
@@ -356,4 +357,3 @@ export default function SideBar() {
     </nav>
   );
 }
-

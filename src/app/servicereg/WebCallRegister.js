@@ -30,7 +30,7 @@ function CallRegisterInner({ showSidebar = true }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [callNumber, setCallNumber] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState(null);
+
   const [pincodeStatus, setPincodeStatus] = useState("");
   const [isSerialValid, setIsSerialValid] = useState(false);
 
@@ -196,7 +196,7 @@ function CallRegisterInner({ showSidebar = true }) {
 
   const submitCall = async () => {
     setLoading(true);
-    console.log(`🔴 formdata: `, formData);
+
     try {
       const payload = {
         SALUTATION: formData.title || "",
@@ -228,17 +228,15 @@ function CallRegisterInner({ showSidebar = true }) {
         PROMISE_DATE: formData.serviceDate || "",
         PROMISE_TIME: formData.availableTime || "",
         Category: formData.productCategory || "",
-        EnterBy: loggedInUser?.userName
-          ? `${loggedInUser.firstName}-web`
-          : "Unknown User",
+        EnterBy: "web",
         COMPLAINT_STATUS: "OK",
         Remarks: formData.faultVoc || "",
         Email: formData.email || "",
         Complaint_SubStatus: "",
         Excalated: 0,
         Legal: 0,
-        EnteredBy: loggedInUser?.userName || "Unknown User",
-        EnteredByID: loggedInUser?.userID || 0,
+        EnteredBy: "",
+        EnteredByID: 0,
         IPAddress: formData.userIP || "0.0.0.0",
         Complaint: formData.callerNumber,
       };
@@ -249,7 +247,7 @@ function CallRegisterInner({ showSidebar = true }) {
       );
 
       setCallNumber(response.data?.returnNo || "");
-      if (response.statstatusCode === 1) {
+      if (response.data?.statusCode === 1) {
         await handleSendMessage(response.data?.returnNo);
       }
       setCurrentStep(0);

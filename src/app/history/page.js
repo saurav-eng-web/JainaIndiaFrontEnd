@@ -50,6 +50,7 @@ function HistoryPageContent() {
   const [popupOpen, setPopupOpen] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
+  const [actions, setActions] = useState([]);
 
   const reminderOptions = [
     { value: "call", label: "📞 Not Attended" },
@@ -64,6 +65,23 @@ function HistoryPageContent() {
     isOpen: false,
     message: "",
   });
+
+  const role = user?.roleName;
+
+  useEffect(() => {
+    if (custDetail) {
+      setFormData({
+        ascName: custDetail.asC_NAME || "",
+        tickeT_NO: custDetail.tickeT_NO || "",
+        calL_TYPE: custDetail.calL_TYPE || "-",
+        call_TypeID: custDetail.call_TypeID || 0,
+        loggedInUserId: loggedInUserId || 0,
+        DOP: detail.purchasE_DATE || "-",
+        engineer: custDetail.engineeR_NAME || "-",
+        eng_ID: custDetail.eng_ID || "-",
+      });
+    }
+  }, [custDetail]);
 
   const [formData, setFormData] = useState({
     ascName: "",
@@ -339,11 +357,140 @@ function HistoryPageContent() {
   const firstEntry = logData[0] || {};
   const detail = custDetail || {}; // ✅ for tabs
 
+  // useEffect(() => {
+  //   const fetchActions = async () => {
+  //     try {
+  //       const storedTicket = sessionStorage.getItem("currentTicket");
+  //       if (!storedTicket) return;
+
+  //       const { data: complaintDetail } = await axiosInstance.get(
+  //         `ComplaintCustDetail/${storedTicket}`
+  //       );
+
+  //       if (!complaintDetail) return;
+
+  //       const complaintStatus = complaintDetail.complainT_STATUS ;
+  //       const complaintSubStatus = complaintDetail.complainT_SUBSTATUS ;
+  //       const role = "SF/SSD";
+
+  //       const payload = {
+  //         type: "jobactions",
+  //         role: "SF/SSD",
+  //         complaint_SubStatus: complaintSubStatus,
+  //         complaint_Status: "ToAllot",
+  //       };
+
+  //       const res = await axiosInstance.post("ActionMaster/get-actions", payload);
+  //       console.log("Response:", res.data);
+  //       if (Array.isArray(res.data) && res.data.length > 0) {
+  //         const actionsString = res.data[0].action || "";
+  //         setActions(actionsString.split(",").map((a) => a.trim()));
+  //       } else {
+  //         console.warn("No actions found for:", payload);
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to fetch actions:", error);
+  //     }
+  //   };
+
+  //   fetchActions();
+  // }, [ticketNo]);
+
+  useEffect(() => {
+    const fetchActions = async () => {
+      try {
+        const storedTicket = sessionStorage.getItem("currentTicket");
+        if (!storedTicket) return;
+
+        // ✅ Fetch complaint detail dynamically
+        const { data: complaintDetail } = await axiosInstance.get(
+          `ComplaintCustDetail/${storedTicket}`,
+        );
+
+        if (!complaintDetail) return;
+
+        // ✅ Dynamically extract from API + Redux
+        const complaintStatus = complaintDetail.complainT_STATUS || "";
+        const complaintSubStatus = complaintDetail.complaint_SubStatus || "";
+        const userRole = user?.roleName || "Unknown";
+
+        // ✅ Build payload dynamically
+        const payload = {
+          type: "jobactions",
+          role: userRole,
+          complaint_SubStatus: complaintSubStatus,
+          complaint_Status: complaintStatus,
+        };
+
+        console.log("Dynamic Payload:", payload);
+
+        const res = await axiosInstance.post(
+          "ActionMaster/get-actions",
+          payload,
+        );
+        console.log("Response:", res.data);
+
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          const actionsString = res.data[0].action || "";
+          setActions(actionsString.split(",").map((a) => a.trim()));
+        } else {
+          console.warn("No actions found for:", payload);
+          setActions([]); // clear if empty
+        }
+      } catch (error) {
+        console.error("Failed to fetch actions:", error);
+      }
+    };
+
+    fetchActions();
+  }, [ticketNo, user]);
+
+  const handleActionClick = (action) => {
+    switch (action.toLowerCase()) {
+      case "assign":
+        router.back();
+        break;
+      case "request for cnacellaion":
+      case "request for cancellation": // handle typo both ways
+        toast.info("Request For Cancellation clicked!");
+        break;
+      case "re-allot":
+        toast.success("Re-allot clicked!");
+        break;
+      default:
+        toast.warning(`Action '${action}' not handled yet.`);
+    }
+  };
+
   return (
     <div className="page-wrapper">
       <SideBar />
 
       <div className="content-area">
+        <h2 className="page-title">👉 Action</h2>
+        {/* ✅ Dynamic buttons from API */}
+        <div className="action-buttons mt-4 flex gap-4">
+          {actions.length === 0 ? (
+            <p className="text-gray-500">No actions available.</p>
+          ) : (
+            actions.map((action, index) => (
+              <button
+                key={index}
+                className={`rounded-md px-4 py-2 font-medium text-white transition-colors duration-200 ${
+                  index === 0
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : index === 1
+                      ? "bg-yellow-500 hover:bg-yellow-600"
+                      : "bg-green-600 hover:bg-green-700"
+                }`}
+                onClick={() => handleActionClick(action)}
+              >
+                {action}
+              </button>
+            ))
+          )}
+        </div>
+
         {fromPage === "dashboardcall" &&
           user?.roleName === "ASM" &&
           detail.complainT_STATUS === "Open" &&

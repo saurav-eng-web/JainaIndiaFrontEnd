@@ -401,10 +401,10 @@ function CallRegisterInner({ showSidebar = true }) {
           {callNumber ? (
             <div className="success-message">
               <h3 style={{ marginBottom: "30px" }}>
-                Service Request No Created Successfully!
+                Service Request Created Successfully!
               </h3>
               <p style={{ marginBottom: "25px" }}>
-                Your Service Request No Number is: <strong>{callNumber}</strong>
+                Your Service Request Number is: <strong>{callNumber}</strong>
               </p>
               {/* <button
                 onClick={() => {

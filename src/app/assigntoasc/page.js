@@ -74,7 +74,7 @@ export default function AssignToAscForm() {
             enteredBy: loggedInUser,
             category: complaint.category || "Electrical",
           },
-        }
+        },
       );
 
       // 2. Second API: only if action is 'Close'
@@ -146,27 +146,7 @@ export default function AssignToAscForm() {
               <label className="label">
                 Select Option (In case of job close)
               </label>
-              {/* <select
-                className="dropdown-select"
-                value={selectedOption}
-                onChange={(e) => setSelectedOption(e.target.value)}
-              >
-                <option value="">----Select----</option>
-                <option value="Software update">Software update</option>
-                <option value="Feature Explained">Feature Explained</option>
-                <option value="External Adjustment done">
-                  External Adjustment done
-                </option>
-                <option value="Customer own issue">Customer own issue</option>
-                <option value="Product damage/Liquid logged">
-                  Product damage/Liquid logged
-                </option>
-                <option value="OW Call Customer not ready to pay">
-                  OW Call Customer not ready to pay
-                </option>
-                <option value="Invalid call">Invalid call</option>
-                <option value="Other">Other</option>
-              </select> */}
+
               <CustomDropdown
                 options={complaintOptions}
                 value={selectedOption}

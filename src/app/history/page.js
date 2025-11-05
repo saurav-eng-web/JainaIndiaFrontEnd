@@ -15,6 +15,7 @@ import RemarkSection from "@/components/history/RemarkSection";
 import AllotmentDetails from "@/components/history/AllotmentDetails";
 import Popup from "@/components/common/Popup";
 import { useRouter } from "next/navigation";
+import CancelPopup from "./CancelPopup";
 
 const tabs = [
   "Job Details",
@@ -48,6 +49,7 @@ function HistoryPageContent() {
 
   const [popupOpen, setPopupOpen] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
 
   const reminderOptions = [
     { value: "call", label: "📞 Not Attended" },
@@ -62,21 +64,6 @@ function HistoryPageContent() {
     isOpen: false,
     message: "",
   });
-
-  useEffect(() => {
-    if (custDetail) {
-      setFormData({
-        ascName: custDetail.asC_NAME || "",
-        tickeT_NO: custDetail.tickeT_NO || "",
-        calL_TYPE: custDetail.calL_TYPE || "-",
-        call_TypeID: custDetail.call_TypeID || 0,
-        loggedInUserId: loggedInUserId || 0,
-        DOP: detail.purchasE_DATE || "-",
-        engineer: custDetail.engineeR_NAME || "-",
-        eng_ID: custDetail.eng_ID || "-",
-      });
-    }
-  }, [custDetail]);
 
   const [formData, setFormData] = useState({
     ascName: "",
@@ -149,6 +136,85 @@ function HistoryPageContent() {
       setPopup({ isOpen: true, message: "Failed to reject" });
     }
   };
+
+  const handleRequestCancellation = async () => {
+    const { tickeT_NO, tickeT_KEY } = custDetail;
+    const { cancelReason, customerRemarks, contactPerson, userIP } = formData;
+
+    setCancelPopupOpen((prev) => !prev);
+
+    const payload = {
+      transactionType: "jobno",
+      transactionID: tickeT_KEY.toString() || "",
+      transactionNo: tickeT_NO.toString() || "",
+      requestDate: new Date().toISOString(),
+      requestedBy: user ? `${loggedInUser}` : "Unknown User",
+      reason: cancelReason,
+      remarks: customerRemarks,
+      approvalStatus: "pending",
+      approvedBy: user ? `${loggedInUser}` : "Unknown User",
+      approvedDate: new Date().toISOString(),
+      approvalRemarks: "",
+      ipAddress: userIP || "0.0.0.0",
+      contactPerson,
+    };
+
+    try {
+      await axiosInstance.post("/RequestCancellation/create", payload);
+      setPopup({ isOpen: true, message: "Cancelled successfully!" });
+
+      // setTimeout(() => {
+      //   setPopup({ isOpen: false, message: "" }); // ✅ redirect to dashboard
+      // }, 1500);
+
+      // setTimeout(() => {
+      //   router.push("/nsp/dashboard"); // ✅ redirect to dashboard
+      // }, 1500);
+    } catch (err) {
+      console.error("Reject Error:", err);
+      setPopup({ isOpen: true, message: "Failed request for cancellation" });
+    }
+  };
+
+  // fetch user id
+  useEffect(() => {
+    const existing = localStorage.getItem("clientIP");
+
+    if (existing) {
+      setFormData((prev) => ({ ...prev, userIP: existing }));
+
+      return;
+    }
+    (async () => {
+      try {
+        const res = await axios.get("https://api.ipify.org?format=json");
+        const ip = res?.data?.ip || "";
+        if (ip) {
+          localStorage.setItem("clientIP", ip);
+
+          setFormData((prev) => ({ ...prev, userIP: ip }));
+        }
+      } catch (e) {
+        console.error("Failed to fetch IP:", e);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (custDetail) {
+      setFormData((prev) => ({
+        ...prev,
+        ascName: custDetail.asC_NAME || "",
+        tickeT_NO: custDetail.tickeT_NO || "",
+        calL_TYPE: custDetail.calL_TYPE || "-",
+        call_TypeID: custDetail.call_TypeID || 0,
+        loggedInUserId: loggedInUserId || 0,
+        DOP: detail.purchasE_DATE || "-",
+        engineer: custDetail.engineeR_NAME || "-",
+        eng_ID: custDetail.eng_ID || "-",
+      }));
+    }
+  }, [custDetail]);
 
   // end for realott
 
@@ -295,6 +361,19 @@ function HistoryPageContent() {
           isOpen={popup.isOpen}
           message={popup.message}
           onClose={() => setPopup({ isOpen: false, message: "" })}
+        />
+        <button
+          onClick={() => setCancelPopupOpen(true)}
+          className="mb-6 h-12 w-32 rounded-lg bg-blue-500"
+        >
+          cancel request
+        </button>
+        <CancelPopup
+          isOpen={cancelPopupOpen}
+          onClose={() => setCancelPopupOpen(false)}
+          onSubmit={handleRequestCancellation}
+          formData={formData}
+          setFormData={setFormData}
         />
 
         <h2 className="page-title">📋 Complaint History</h2>
@@ -486,7 +565,7 @@ function HistoryPageContent() {
                       <strong>SF Code:</strong> {detail.asC_CODE || "-"}
                     </div>
                     <div>
-                      <strong>SF Mobile No.:</strong> {detail.mobile || "-"}
+                      <strong>SF Mobile No.:</strong> {detail.stdCode || "-"}
                     </div>
                     <div>
                       <strong>Appointment Date:</strong> {"-"}

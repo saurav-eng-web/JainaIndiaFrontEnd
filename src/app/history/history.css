@@ -334,3 +334,34 @@
   background: #5d3a55;
   transform: translateY(-2px);
 }
+
+
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.action-buttons button {
+  background-color: #714b67;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.action-buttons .btn-secondary {
+  background-color: #714b67;
+}
+
+.action-buttons .btn-download {
+  background-color: #714b67;
+}
+
+.action-buttons button:hover {
+  opacity: 0.9;
+}

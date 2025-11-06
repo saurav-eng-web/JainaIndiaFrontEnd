@@ -5,7 +5,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
 const EXPECTED_COLUMNS = [
@@ -99,16 +99,6 @@ export default function BulkUploader() {
     });
   };
 
-  // const handleFileSelect = (e) => {
-  //   const selectedFile = e.target.files[0];
-  //   if (!selectedFile) return;
-
-  //   setErrorMsg("");
-  //   setFile(selectedFile);
-  //   setFileName(selectedFile.name);
-  //   setProgress({ phase: "", percentage: 0 });
-  // };
-
   const handleFileSelect = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
@@ -195,6 +185,24 @@ export default function BulkUploader() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+
+    if (!userData) {
+      router.replace("/");
+      return;
+    }
+    const user = JSON.parse(userData);
+    const userName = user?.userName;
+    const role = user.roleName?.toLowerCase();
+
+    const isAuthorized = role === "cc" && userName === "T284977";
+
+    if (!isAuthorized) {
+      router.replace("/test");
+    }
+  }, [router]);
 
   return (
     <ProtectedRoute allowedRoles={["cc"]}>

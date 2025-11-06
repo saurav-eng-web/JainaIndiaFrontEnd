@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState, Suspense } from "react"; // ✅ import Suspense
+import { useEffect, useState, Suspense, useCallback } from "react"; // ✅ import Suspense
 import { useParams, useSearchParams } from "next/navigation";
 import SideBar from "@/components/SideBar";
 import "./history.css";
@@ -16,6 +16,7 @@ import AllotmentDetails from "@/components/history/AllotmentDetails";
 import Popup from "@/components/common/Popup";
 import { useRouter } from "next/navigation";
 import CancelPopup from "./CancelPopup";
+import EditCustPopup from "./EditCustPopup";
 
 const tabs = [
   "Job Details",
@@ -50,7 +51,10 @@ function HistoryPageContent() {
   const [popupOpen, setPopupOpen] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
+  const [editCustomerPopupOpen, setEditCustomerPopupOpen] = useState(false);
   const [actions, setActions] = useState([]);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const reminderOptions = [
     { value: "call", label: "📞 Not Attended" },
@@ -235,7 +239,7 @@ function HistoryPageContent() {
   }, [custDetail]);
 
   // end for realott
-
+  // COMPLAINT DETAILS
   useEffect(() => {
     const storedTicket = sessionStorage.getItem("currentTicket");
     if (storedTicket) {
@@ -355,7 +359,21 @@ function HistoryPageContent() {
   }, [ticketNo]);
 
   const firstEntry = logData[0] || {};
-  const detail = custDetail || {}; // ✅ for tabs
+  const detail = custDetail || {};
+
+  const fetchCustomerDetails = useCallback(() => {
+    const storedTicket = sessionStorage.getItem("currentTicket");
+    if (!storedTicket) return;
+
+    axiosInstance
+      .get(`ComplaintCustDetail/${storedTicket}`)
+      .then((res) => setCustDetail(res.data))
+      .catch((err) => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    fetchCustomerDetails();
+  }, [fetchCustomerDetails]);
 
   // useEffect(() => {
   //   const fetchActions = async () => {
@@ -467,30 +485,37 @@ function HistoryPageContent() {
       <SideBar />
 
       <div className="content-area">
-        <h2 className="page-title">👉 Action</h2>
-        {/* ✅ Dynamic buttons from API */}
-        <div className="action-buttons mt-4 flex gap-4">
-          {actions.length === 0 ? (
-            <p className="text-gray-500">No actions available.</p>
-          ) : (
-            actions.map((action, index) => (
-              <button
-                key={index}
-                className={`rounded-md px-4 py-2 font-medium text-white transition-colors duration-200 ${
-                  index === 0
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : index === 1
-                      ? "bg-yellow-500 hover:bg-yellow-600"
-                      : "bg-green-600 hover:bg-green-700"
-                }`}
-                onClick={() => handleActionClick(action)}
-              >
-                {action}
-              </button>
-            ))
-          )}
-        </div>
+        {/* --------------------------- */}
 
+        {user?.roleName === "SF/SSD" && (
+          <>
+            <h2 className="page-title">👉 Action</h2>
+
+            <div className="action-buttons mt-4 flex gap-4">
+              {actions.length === 0 ? (
+                <p className="text-gray-500">No actions available.</p>
+              ) : (
+                actions.map((action, index) => (
+                  <button
+                    key={index}
+                    className={`rounded-md px-4 py-2 font-medium text-white transition-colors duration-200 ${
+                      index === 0
+                        ? "bg-blue-600 hover:bg-blue-700"
+                        : index === 1
+                          ? "bg-yellow-500 hover:bg-yellow-600"
+                          : "bg-green-600 hover:bg-green-700"
+                    }`}
+                    onClick={() => handleActionClick(action)}
+                  >
+                    {action}
+                  </button>
+                ))
+              )}
+            </div>
+          </>
+        )}
+
+        {/* -------------------------- */}
         {fromPage === "dashboardcall" &&
           user?.roleName === "ASM" &&
           detail.complainT_STATUS === "Open" &&
@@ -502,19 +527,35 @@ function HistoryPageContent() {
               onReject={handleReject}
             />
           )}
-
         {/* ✅ Popup goes here so it always overlays this page */}
         <Popup
           isOpen={popup.isOpen}
           message={popup.message}
           onClose={() => setPopup({ isOpen: false, message: "" })}
         />
-        <button
-          onClick={() => setCancelPopupOpen(true)}
-          className="mb-6 h-12 w-32 rounded-lg bg-blue-500"
-        >
-          cancel request
-        </button>
+        {mounted && user?.roleName === "CC" && (
+          <button
+            onClick={() => setEditCustomerPopupOpen(true)}
+            className="mb-6 h-12 w-32 rounded-lg bg-[#714b67] text-white"
+          >
+            Edit Customer
+          </button>
+        )}
+
+        {/* // TODO: */}
+
+        <EditCustPopup
+          isOpen={editCustomerPopupOpen}
+          onClose={() => setEditCustomerPopupOpen(false)}
+          details={{
+            firstName: custDetail?.firstname || "",
+            lastName: custDetail?.lastname || "",
+            address: custDetail?.addresS1 || "",
+            landmark: custDetail?.landmark || "",
+            custintcode: custDetail?.custintcode || "",
+          }}
+          onUpdated={fetchCustomerDetails}
+        />
         <CancelPopup
           isOpen={cancelPopupOpen}
           onClose={() => setCancelPopupOpen(false)}
@@ -522,9 +563,7 @@ function HistoryPageContent() {
           formData={formData}
           setFormData={setFormData}
         />
-
         <h2 className="page-title">📋 Complaint History</h2>
-
         {fromPage === "dashboardcall" &&
           user?.roleName === "ASM" &&
           detail.complainT_STATUS === "Open" &&
@@ -586,14 +625,12 @@ function HistoryPageContent() {
               }}
             />
           )}
-
         {/* Popup modal */}
         <Popup
           isOpen={popupOpen}
           message={popupMessage}
           onClose={() => setPopupOpen(false)}
         />
-
         {loading ? (
           <div className="loading">Loading history...</div>
         ) : logData.length === 0 ? (

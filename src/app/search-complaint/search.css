@@ -10,11 +10,12 @@ body {
   max-width: 1300px;
   margin: 40px 0 0 40px;
   padding: 40px;
-  /* background: linear-gradient(to bottom right, white, #d1e7ff, #64748b); */
   border-radius: 12px;
-  /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); */
   background: #dee2e6;
 }
+
+/* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); */
+/* background: linear-gradient(to bottom right, white, #d1e7ff, #64748b); */
 .h2 {
   text-align: left;
   padding-left: 10px;

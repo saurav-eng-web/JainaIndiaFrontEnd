@@ -1,3 +1,5 @@
+"use client";
+
 import CustomDropdown from "@/components/common/Dropdown";
 import { useTheme } from "@/theme/ThemeContext";
 import { useCallback, useMemo, useState } from "react";

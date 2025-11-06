@@ -88,17 +88,17 @@ export default function ProductDetailsStep({
       }
       if (matched.productID) {
         const modelRes = await axiosInstance.get(
-          `Model/productid/${matched.productID}`
+          `Model/productid/${matched.productID}`,
         );
         setModels(modelRes.data);
       }
 
       const selectedWarranty = warranties.find(
-        (w) => w.warranty_Desc === matched.purchstatus
+        (w) => w.warranty_Desc === matched.purchstatus,
       );
 
       const selectedProduct = products.find(
-        (p) => p.product === matched.product
+        (p) => p.product === matched.product,
       );
       const selectedModel = models.find((m) => m.modelNo === matched.model);
 
@@ -142,7 +142,7 @@ export default function ProductDetailsStep({
 
         showPopup(
           "Error! The serial number may not exist. Please try again or select the model manually.",
-          "error"
+          "error",
         );
       }
     }
@@ -161,12 +161,16 @@ export default function ProductDetailsStep({
         .filter(
           (p) =>
             p.brandId === formData.brandId &&
-            p.prd_Category === formData.productCategory
+            p.prd_Category === formData.productCategory,
         )
         .map((p) => ({ value: p.product, label: p.product }));
     }
+    // if (id === "model")
+    //   return models.map((m) => ({ value: m.modelNo, label: m.modelNo }));
     if (id === "model")
-      return models.map((m) => ({ value: m.modelNo, label: m.modelNo }));
+      return models
+        .filter((m) => m.status && m.status.toUpperCase() === "ACTIVE")
+        .map((m) => ({ value: m.modelNo, label: m.modelNo }));
     if (id === "warranty")
       return warranties.map((w) => ({
         value: w.warranty_Desc,
@@ -238,7 +242,7 @@ export default function ProductDetailsStep({
                     } else if (id === "product") {
                       const selected = products.find(
                         (p) =>
-                          p.product === val && formData.brandId === p.brandId
+                          p.product === val && formData.brandId === p.brandId,
                       );
 
                       setFormData((prev) => ({
@@ -258,7 +262,7 @@ export default function ProductDetailsStep({
                       }));
                     } else if (id === "warranty") {
                       const selected = warranties.find(
-                        (w) => w.warranty_Desc === val
+                        (w) => w.warranty_Desc === val,
                       );
                       setFormData((prev) => ({
                         ...prev,

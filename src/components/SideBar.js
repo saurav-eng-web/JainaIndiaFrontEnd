@@ -304,6 +304,8 @@ export default function SideBar() {
     },
   ];
 
+  const allowedBulkUsers = ["T284977"];
+
   return (
     <nav className="mainMenu">
       <ul>
@@ -323,7 +325,7 @@ export default function SideBar() {
         </li>
 
         {/* Role-based Navigation */}
-        {menuItems
+        {/* {menuItems
           .filter((item) => roleName && item.roles.includes(roleName))
           .map((item, idx) => (
             <li key={idx}>
@@ -332,7 +334,32 @@ export default function SideBar() {
                 <span className="navText">{item.text}</span>
               </Link>
             </li>
+          ))} */}
+        {menuItems
+          .filter((item) => {
+            // role check (as before)
+            if (!roleName || !item.roles.includes(roleName)) return false;
+
+            // special case: Bulk Call Creation allowed ONLY for T284977
+            if (
+              item.href === "/bulk-uploader" &&
+              !allowedBulkUsers.includes(userName)
+            ) {
+              return false;
+            }
+
+            return true;
+          })
+          .map((item, idx) => (
+            <li key={idx}>
+              <Link href={item.href}>
+                <i className={item.icon}></i>
+                <span className="navText">{item.text}</span>
+              </Link>
+            </li>
           ))}
+
+        {/* ----------------- */}
       </ul>
 
       {/* User Info at Bottom */}

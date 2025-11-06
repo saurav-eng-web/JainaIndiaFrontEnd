@@ -63,8 +63,15 @@
 - complaint date overflow
 - removed pending Pending Level
 
-## v1.7.0 | 05-11-25
+## v1.7.0 | 06-11-25
 
 ### feat
 
 - call cancellation request
+- action buttons on history
+- edit customer details on history page
+- allow bulk upload only for speicied user
+
+## v1.7.1 | 06-11-25
+
+- fixed reports download stream error

@@ -702,7 +702,7 @@ function HistoryPageContent() {
                       <strong>Ticket No:</strong> {detail.tickeT_NO || "-"}
                     </div>
                     <div>
-                      <strong>Complaint SubStatus:</strong>{" "}
+                      <strong>Complaint Sub-status:</strong>{" "}
                       {detail.complaint_SubStatus || "-"}
                     </div>
                     <div>
@@ -784,6 +784,9 @@ function HistoryPageContent() {
                     <div>
                       <strong>Special Instructions:</strong>{" "}
                       {detail.splInt || "-"}
+                    </div>
+                    <div>
+                      <strong>VOC:</strong> {detail.email || "-"}
                     </div>
                   </div>
                 </div>
@@ -978,46 +981,105 @@ function HistoryPageContent() {
                   </div>
                 </div>
               )}
-              {activeTab === "Part Consumption" && (
+              {activeTab === "Consumption" && (
                 <div className="tab-section">
                   <h3 style={{ fontWeight: "bold" }}>📦 Part Consumption</h3>
-                  {partConsumption.length === 0 ? (
-                    <p>No part consumption found.</p>
-                  ) : (
-                    partConsumption.map((item, index) => (
-                      <div className="row-content" key={item.pC_ID || index}>
-                        <div>
-                          <strong>Sr. No:</strong> {item.pC_Srno || "-"}
-                        </div>
-                        <div>
-                          <strong>Part Code:</strong> {item.pC_PartCode || "-"}
-                        </div>
-                        <div>
-                          <strong>Description:</strong>{" "}
-                          {item.pC_PartDesc || "-"}
-                        </div>
-                        <div>
-                          <strong>Date:</strong>{" "}
-                          {item.pC_Date
-                            ? new Date(item.pC_Date).toLocaleDateString()
-                            : "-"}
-                        </div>
-                        <div>
-                          <strong>Rate:</strong> {item.pC_Rate ?? "-"}
-                        </div>
-                        <div>
-                          <strong>Quantity:</strong> {item.pC_Quantity ?? "-"}
-                        </div>
-                        <div>
-                          <strong>Amount:</strong> {item.pC_Amount ?? "-"}
-                        </div>
-                        <div>
-                          <strong>Fresh Faulty:</strong>{" "}
-                          {item.isFreshFaulty ? "Yes" : "No"}
-                        </div>
+                  {
+                    partConsumption.length === 0 ? (
+                      <p>No part consumption found.</p>
+                    ) : (
+                      // -------------------------------------
+
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full border border-gray-300 text-sm">
+                          <thead className="bg-[#714b67] text-white">
+                            <tr>
+                              <th className="border border-gray-300 px-3 py-2">
+                                Sr. No
+                              </th>
+                              <th className="border border-gray-300 px-3 py-2">
+                                Part Code
+                              </th>
+                              <th className="border border-gray-300 px-3 py-2">
+                                Description
+                              </th>
+                              <th className="border border-gray-300 px-3 py-2">
+                                Consumption Date
+                              </th>
+                              <th className="border border-gray-300 px-3 py-2">
+                                Inventory Type
+                              </th>
+                              <th className="border border-gray-300 px-3 py-2">
+                                Fresh/Faulty
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {partConsumption.map((item, index) => (
+                              <tr key={index} className="even:bg-gray-50">
+                                <td className="border border-gray-300 px-3 py-2">
+                                  {index + 1 || "-"}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2">
+                                  {item.pC_PartCode || "-"}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2">
+                                  {item.pC_PartDesc || "-"}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2">
+                                  {item.pC_Date
+                                    ? new Date(
+                                        item.pC_Date,
+                                      ).toLocaleDateString()
+                                    : "-"}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2">
+                                  {item.inventoryType ?? "-"}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2">
+                                  {item.isFreshFaulty ? "Yes" : "No"}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    ))
-                  )}
+                    )
+
+                    //   partConsumption.map((item, index) => (
+                    //     <div className="row-content" key={item.pC_ID || index}>
+                    //       <div>
+                    //         <strong>Sr. No:</strong> {item.pC_Srno || "-"}
+                    //       </div>
+                    //       <div>
+                    //         <strong>Part Code:</strong>{" "}
+                    //         {item.pC_PartCode || "-"}
+                    //       </div>
+                    //       <div>
+                    //         <strong>Description:</strong>{" "}
+                    //         {item.pC_PartDesc || "-"}
+                    //       </div>
+                    //       <div>
+                    //         <strong>Consumption Date:</strong>{" "}
+                    //         {item.pC_Date
+                    //           ? new Date(item.pC_Date).toLocaleDateString()
+                    //           : "-"}
+                    //       </div>
+
+                    //       <div>
+                    //         <strong>Inventory Type:</strong>{" "}
+                    //         {item.inventoryType ?? "-"}
+                    //       </div>
+                    //       <div>
+                    //         <strong>Fresh Faulty:</strong>{" "}
+                    //         {item.isFreshFaulty ? "Yes" : "No"}
+                    //       </div>
+                    //     </div>
+                    //   ))
+                    // )
+                    // --------------------}
+                  }
                 </div>
               )}
               {activeTab === "Visit Detail" && (

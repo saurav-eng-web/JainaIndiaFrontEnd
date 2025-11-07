@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
@@ -15,8 +15,34 @@ export default function DashboardPage() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [reportType, setReportType] = useState("");
+  const [options, setOptions] = useState([]);
   const { user } = useSelector((state) => state.auth);
   const loggedInUserId = user?.userID ? String(user.userID) : "";
+  const role = user?.roleName ? user.roleName : "";
+
+  useEffect(() => {
+    async function fetchOptions() {
+      try {
+        const res = await axiosInstance.get(`ReportMaster`);
+
+        // const {status, data}
+        if (res.status === 200) {
+          const filtered = res.data.filter((option) => {
+            const roles = option.rolesAllowed.split(",").map((r) => r.trim());
+            return roles.includes(role);
+          });
+          console.log(`filtered: `, filtered);
+          setOptions(filtered);
+        }
+      } catch (error) {
+        console.log(`error: `, error);
+      }
+    }
+
+    fetchOptions();
+  }, []);
+
+  // filter((option) => option.role.includes(role));
 
   // const handleDownload = async () => {
   //   if (!fromDate || !toDate || !reportType) {
@@ -120,7 +146,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={["br", "zone"]}>
+    <ProtectedRoute allowedRoles={["br", "zone", "sf/ssd"]}>
       <div className="flex">
         {/* Sidebar */}
         <SideBar />
@@ -182,8 +208,12 @@ export default function DashboardPage() {
                 onChange={(e) => setReportType(e.target.value)}
                 className="w-full rounded border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
               >
-                <option value="">---Select---</option>
-                <option value="OpencallReport">Open Call Report</option>
+                <option value="">-----Select-----</option>
+                {options.map((option) => (
+                  <option key={option.id} value={option.reportAct}>
+                    {option.reportDis}
+                  </option>
+                ))}
               </select>
             </div>
 

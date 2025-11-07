@@ -104,7 +104,7 @@ export default function SearchComplaintPage() {
       const results = Array.isArray(response.data)
         ? response.data
         : [response.data];
-      console.log(`🔴 search result: `, results);
+
       setSearchResults(results);
       setSearchAttempted(true);
     } catch (error) {

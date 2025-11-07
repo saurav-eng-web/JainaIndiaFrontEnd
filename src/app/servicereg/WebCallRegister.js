@@ -301,7 +301,6 @@ function CallRegisterInner({ showSidebar = true }) {
   //       },
   //     );
 
-  //     console.log(`🔴 response: `, response);
   //   } catch (error) {
   //     console.error("Error sending OTP:", error);
   //   } finally {

@@ -74,4 +74,11 @@
 
 ## v1.7.1 | 06-11-25
 
+### fixes
+
 - fixed reports download stream error
+- fixed consumption tab, history page
+
+### etc
+
+- feat: image upload

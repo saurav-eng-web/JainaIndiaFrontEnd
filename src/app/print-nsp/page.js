@@ -79,7 +79,7 @@ export default function PrintNSP({ searchParams }) {
               <div className="text-xs">Goods Not For Sale / Return of Defective Parts</div>
               <div className="text-sm font-medium mt-1">{invoiceDetail?.ctype || "Defective Spare"}</div>
             </div>
-            <div className="mt-3 text-sm"><strong>Copy Type: </strong><span className="font-bold">NSP COPY</span></div>
+            {/* <div className="mt-3 text-sm"><strong>Copy Type: </strong><span className="font-bold">NSP COPY</span></div> */}
             <div className="mt-3 text-sm">
               <strong>NSP Name:</strong> {nspName}
               <div className="mt-1">{nspAddress}</div>
@@ -197,7 +197,7 @@ export default function PrintNSP({ searchParams }) {
         </div>
 
         <div className="text-center mt-3 text-xs font-medium">This is Computer Generated Challan.</div>
-        <div className="text-right text-xs mt-2">NSP COPY</div>
+       
       </article>
     </div>
   );

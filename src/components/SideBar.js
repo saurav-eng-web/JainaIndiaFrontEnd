@@ -408,6 +408,7 @@ export default function SideBar() {
     { href: "/nsp/asc-creation", icon: "fa fa-plus fa-2x", text: "Asc Creation", roles: ["BR"] },
     { href: "/nsp/reports", icon: "fa fa-wrench fa-2x", text: "Reports", roles: ["BR", "ZONE", "SF/SSD"] },
     { href: "/nsp/transfercall", icon: "fa fa-phone fa-2x", text: "Call Transfer", roles: ["BR", "ASM", "ZONE"] },
+    { href: "/print", icon: "fa fa-print fa-2x", text: "Print", roles: ["SF/SSD"] },
   ];
 
   return (

@@ -80,7 +80,7 @@ export default function PrintASC({ searchParams }) {
               <div className="text-xs">Goods Not For Sale / Return of Defective Parts</div>
               <div className="text-sm font-medium mt-1">{invoiceDetail?.ctype || "Defective Spare"}</div>
             </div>
-            <div className="mt-3 text-sm"><strong>Copy Type: </strong><span className="font-bold">ASC COPY</span></div>
+            {/* <div className="mt-3 text-sm"><strong>Copy Type: </strong><span className="font-bold">ASC COPY</span></div> */}
             <div className="mt-3 text-sm">
               <strong>ASC Name:</strong> {ascName}
               <div className="mt-1">{ascAddress}</div>
@@ -197,7 +197,7 @@ export default function PrintASC({ searchParams }) {
         </div>
 
         <div className="text-center mt-3 text-xs font-medium">This is Computer Generated Challan.</div>
-        <div className="text-right text-xs mt-2">ASC COPY</div>
+        
       </article>
     </div>
   );

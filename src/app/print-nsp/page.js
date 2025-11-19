@@ -27,13 +27,22 @@ export default function PrintNSP({ searchParams }) {
   const [totals, setTotals] = useState({ total: 0, totalTax: 0, grandTotal: 0 });
 
   useEffect(() => {
+    const challanType = searchParams?.challantype || "Defective";
     if (!pono) return;
     async function fetchData() {
       setLoading(true);
       try {
-        const invoiceRes = await axiosInstance.post("Print/fetch", { pono, Type: "invoicedetail", challantype: "Defective" });
-        const lineRes = await axiosInstance.post("Print/fetch", { pono, Type: "ChallanLine", challantype: "Defective" });
-
+        const invoiceRes = await axiosInstance.post("Print/fetch", { 
+            pono,
+            Type: "invoicedetail",
+            challantype: challanType
+          });
+          
+          const lineRes = await axiosInstance.post("Print/fetch", { 
+            pono, 
+            Type: "ChallanLine",
+            challantype: challanType
+          });
         const inv = invoiceRes.data?.data?.[0] || null;
         const lineItems = lineRes.data?.data || [];
 

@@ -118,11 +118,11 @@ export default function ChallanSearch() {
  
 
   const handleAscPrint = (challanNo) => {
-    router.push(`/print-asc?type=asc&pono=${challanNo}`);
+    router.push(`/print-asc?type=asc&pono=${challanNo}&challantype=${challanType}`);
   };
   
   const handleNspPrint = (challanNo) => {
-    router.push(`/print-nsp?type=nsp&pono=${challanNo}`);
+    router.push(`/print-nsp?type=nsp&pono=${challanNo}&challantype=${challanType}`);
   };
 
   return (

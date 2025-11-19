@@ -71,52 +71,75 @@ export default function PrintNSP({ searchParams }) {
       </button>
 
       <article className="challan nsp-copy bg-white border p-4 shadow-sm">
-        <header className="flex justify-between items-start border-b pb-2 mb-2">
-          <div className="flex-1">
-            <Image src="/SansuiLogo.jpg" alt="SANSUI Logo" width={160} height={60} className="object-contain" />
-            <div className="text-center">
-              <h2 className="text-lg font-semibold">Delivery Challan</h2>
-              <div className="text-xs">Goods Not For Sale / Return of Defective Parts</div>
-              <div className="text-sm font-medium mt-1">{invoiceDetail?.ctype || "Defective Spare"}</div>
-            </div>
-            {/* <div className="mt-3 text-sm"><strong>Copy Type: </strong><span className="font-bold">NSP COPY</span></div> */}
-            <div className="mt-3 text-sm">
-              <strong>NSP Name:</strong> {nspName}
-              <div className="mt-1">{nspAddress}</div>
-              <div className="mt-1"><strong>State:</strong> {invoiceDetail.nSpState || "-"}</div>
-              {invoiceDetail.gst && <div className="mt-1"><strong>GSTIN:</strong> {invoiceDetail.gst}</div>}
-            </div>
-          </div>
+      <header className="flex justify-between items-start border-b pb-2 mb-2 relative">
+  <div className="flex-1">
+    <Image src="/SansuiLogo.jpg" alt="SANSUI Logo" width={160} height={60} className="object-contain" />
 
-          <div className="w-64 ml-4 border p-2 text-sm">
-            <div><strong>GSTIN:</strong> {invoiceDetail.nspgst || "-"}</div>
-            <div><strong>DCR Number:</strong> {invoiceDetail.invno || "-"}</div>
-            <div><strong>DCR Date:</strong> {invoiceDetail.invdate || "-"}</div>
-            <div><strong>Shipment ID:</strong> {invoiceDetail.defPO_SFDocNo || "-"}</div>
-          </div>
-        </header>
+    <div className="text-center ml-40 -mt-15">
+      <h2 className="text-lg font-semibold">Delivery Challan</h2>
+      <div className="text-xs">Goods Not For Sale / Return of Defective Parts</div>
+      <div className="text-sm font-medium mt-1">
+        {invoiceDetail?.ctype || "Defective Spare"}
+      </div> 
+    </div>
+
+    <div className="mt-20 text-sm">
+      <strong>NSP Name:</strong> {nspName}
+      <div className="mt-1"><strong>Address: </strong>{nspAddress}</div>
+      <div className="mt-1"><strong>State:</strong> {invoiceDetail.nSpState || "-"}</div>
+    </div>
+  </div>
+
+  {/* ADDED COPY TYPE SECTION (positioned above GST box) */}
+  <div className="flex flex-col items-end text-xs absolute top-0 right-0 space-y-1">
+    <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
+      Original for Recipient
+    </div>
+    <div className="border-l border-gray-400 w-32 self-center border-r border-t-0 border-b-0 h-px bg-gray-400" />
+    <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
+      Duplicate for Transporter
+    </div>
+    <div className="border-l border-gray-400 w-32 self-center border-r border-t-0 border-b-0 h-px bg-gray-400" />
+    <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
+      Triplicate For Supplier
+    </div>
+  </div>
+
+  {/* EXISTING NSP INFO BOX */}
+  <div className="w-64 ml-4 border p-2 text-sm mt-30">
+    <div><strong>GSTIN:</strong> {invoiceDetail.nspgst || "-"}</div>
+    <div><strong>DCR Number:</strong> {invoiceDetail.invno || "-"}</div>
+    <div><strong>DCR Date:</strong> {invoiceDetail.invdate || "-"}</div>
+    <div><strong>Shipment ID:</strong> {invoiceDetail.defPO_SFDocNo || "-"}</div>
+    <div><strong>State Code:</strong> {invoiceDetail.nspStatecode || "-"}</div>
+  </div>
+</header>
 
         {/* Address & Shipment Blocks */}
         <section className="grid grid-cols-12 gap-4 text-sm mb-2">
           <div className="col-span-3 border p-2 text-xs">
             <div className="font-semibold mb-1">Billed To</div>
-            <div>{invoiceDetail.whs1 || "-"}</div>
-            <div className="mt-1">{invoiceDetail.cwhs1 || "-"}</div>
-            <div className="mt-1"><strong>GSTIN:</strong> {invoiceDetail.gsT1 || "-"}</div>
+            <div>{invoiceDetail.whs || "-"}</div>
+            <div className="mt-1">{invoiceDetail.cwhs || "-"}</div>
+            <div className="mt-1"><strong>GSTIN:</strong> {invoiceDetail.gst || "-"}</div>
+            <div className="mt-1"><strong>State Code:</strong> {invoiceDetail.whstat || "-"}</div>
           </div>
 
           <div className="col-span-3 border p-2 text-xs">
             <div className="font-semibold mb-1">Shipped To</div>
-            <div>{invoiceDetail.whs || nspName}</div>
-            <div className="mt-1">{invoiceDetail.cwhs || nspAddress}</div>
-            <div className="mt-1">GSTIN: {invoiceDetail.gst || "-"}</div>
+            <div>{invoiceDetail.whs1 || nspName}</div>
+            <div className="mt-1">{invoiceDetail.cwhs1 || nspAddress}</div>
+            <div className="mt-1">GSTIN: {invoiceDetail.gsT1 || "-"}</div>
+            <div className="mt-1">State Code: {invoiceDetail.whstat1 || "-"}</div>
           </div>
 
           <div className="col-span-3 border p-2 text-xs">
             <strong>Shipped From</strong>
             <div className="mt-1">{invoiceDetail.asC_Name || "-"}</div>
             <div className="mt-1">{invoiceDetail.address || "-"}</div>
-            <div className="mt-1"><strong>Mobile:</strong> {invoiceDetail.mobileno || "-"}</div>
+            <div className="mt-1"><strong>ASC Challan reference:</strong> {invoiceDetail.po || "-"}</div>
+            <div className="mt-1">GSTIN: {invoiceDetail.ascgSt || "-"}</div>
+            <div className="mt-1">State Code: {invoiceDetail.ascsTateCode || "-"}</div>
           </div>
 
           <div className="col-span-3 border p-2 text-xs">
@@ -162,7 +185,7 @@ export default function PrintNSP({ searchParams }) {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan="7" className="border px-2 py-1 text-right">Total:</td>
+              <td colSpan="7" className="border px-2 py-1 text-right">Total Quantity: {invoiceDetail.total}</td>
               <td className="border px-2 py-1 text-right">{formatMoney(totals.total)}</td>
             </tr>
             <tr>
@@ -192,7 +215,7 @@ export default function PrintNSP({ searchParams }) {
           </div>
           <div className="col-span-4 text-center p-3 text-xs">
             <div className="font-bold mb-2">{nspName}</div>
-            <div className="mt-10 font-semibold">(Authorized Signatory)</div>
+            <div className="mt-30 font-semibold">(Authorized Signatory)</div>
           </div>
         </div>
 

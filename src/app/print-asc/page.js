@@ -72,62 +72,112 @@ export default function PrintASC({ searchParams }) {
       </button>
 
       <article className="challan asc-copy bg-white border p-4 shadow-sm">
-        <header className="flex justify-between items-start border-b pb-2 mb-2">
-          <div className="flex-1">
-            <Image src="/SansuiLogo.jpg" alt="SANSUI Logo" width={160} height={60} className="object-contain" />
-            <div className="text-center">
-              <h2 className="text-lg font-semibold">Delivery Challan</h2>
-              <div className="text-xs">Goods Not For Sale / Return of Defective Parts</div>
-              <div className="text-sm font-medium mt-1">{invoiceDetail?.ctype || "Defective Spare"}</div>
-            </div>
-            {/* <div className="mt-3 text-sm"><strong>Copy Type: </strong><span className="font-bold">ASC COPY</span></div> */}
-            <div className="mt-3 text-sm">
-              <strong>ASC Name:</strong> {ascName}
-              <div className="mt-1">{ascAddress}</div>
-              <div className="mt-1"><strong>State:</strong> {invoiceDetail.asC_State || "-"}</div>
-            </div>
-          </div>
+      <header className="flex justify-between items-start border-b pb-2 mb-2 relative">
+  <div className="flex-1">
+    <Image
+      src="/SansuiLogo.jpg"
+      alt="SANSUI Logo"
+      width={160}
+      height={60}
+      className="object-contain"
+    />
 
-          <div className="w-64 ml-4 border p-2 text-sm">
-            <div><strong>GSTIN:</strong> {invoiceDetail.ascgst || "-"}</div>
-            <div><strong>DCR Number:</strong> {invoiceDetail.asc_dcrno || "-"}</div>
-            <div><strong>DCR Date:</strong> {invoiceDetail.asc_dcrdate || "-"}</div>
-            <div><strong>Shipment ID:</strong> {invoiceDetail.asc_shipid || "-"}</div>
-          </div>
-        </header>
+    <div className="text-center ml-40 -mt-15">
+      <h2 className="text-lg font-semibold">Delivery Challan</h2>
+      <div className="text-xs">Goods Not For Sale / Return of Defective Parts</div>
+      <div className="text-sm font-medium mt-1">
+        {invoiceDetail?.ctype || "Defective Spare"}
+      </div>
+    </div>
+
+    <div className="mt-20 text-sm">
+      <strong>ASC Name:</strong> {ascName}
+      <div className="mt-1"><strong>ASC Address: </strong>{ascAddress}</div>
+      <div className="mt-1"><strong>State:</strong> {invoiceDetail.asC_State || "-"}</div>
+    </div>
+  </div>
+
+  {/* ===== COPY TYPE SECTION (TOP-RIGHT) ===== */}
+  <div className="flex flex-col items-end text-xs absolute top-0 right-0 space-y-1">
+    <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
+      Original for Recipient
+    </div>
+    <div className="border-l border-gray-400 w-32 self-center border-r border-t-0 border-b-0 h-px bg-gray-400" />
+    <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
+      Duplicate for Transporter
+    </div>
+    <div className="border-l border-gray-400 w-32 self-center border-r border-t-0 border-b-0 h-px bg-gray-400" />
+    <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
+      Triplicate For Supplier
+    </div>
+  </div>
+
+  {/* ===== RIGHT SIDE BOX ===== */}
+  <div className="w-64 ml-4 border p-2 text-sm mt-28">
+    <div><strong>GSTIN:</strong> {invoiceDetail.ascgSt || "-"}</div>
+    <div><strong>DCR Number:</strong> {invoiceDetail.po || "-"}</div>
+    <div><strong>DCR Date:</strong> {invoiceDetail.ddate || "-"}</div>
+    <div><strong>Shipment ID:</strong> {invoiceDetail.asc_shipid || "-"}</div>
+    <div><strong>State Code:</strong> {invoiceDetail.ascsTateCode || "0"}</div>
+  </div>
+</header>
+
 
         {/* Address & Shipment Blocks */}
         <section className="grid grid-cols-12 gap-4 text-sm mb-2">
           <div className="col-span-3 border p-2 text-xs">
             <div className="font-semibold mb-1">Billed To</div>
-            <div>{invoiceDetail.whs1 || "-"}</div>
-            <div className="mt-1">{invoiceDetail.cwhs1 || "-"}</div>
-            <div className="mt-1"><strong>GSTIN:</strong> {invoiceDetail.gsT1 || "-"}</div>
+            <div><strong>Nsp Name: </strong>{invoiceDetail.nspName || "-"}</div>
+            <div className="mt-1"><strong>Address: </strong>{invoiceDetail.nspAddress || "-"}</div>
+            <div className="mt-1"><strong>GSTIN:</strong> {invoiceDetail.nspgst || "-"}</div>
+            <div className="mt-1"><strong>State Code:</strong> {invoiceDetail.nspStatecode || "-"}</div>
           </div>
 
-          <div className="col-span-3 border p-2 text-xs">
+          <div className="col-span-6 border p-2 text-xs">
             <div className="font-semibold mb-1">Shipped To</div>
-            <div>{ascName}</div>
-            <div className="mt-1">{ascAddress}</div>
-            <div className="mt-1"><strong>Mobile:</strong> {ascMobile}</div>
+            <div><strong>Warehouse:</strong>{invoiceDetail.whs1}</div>
+            <div className="mt-1"><strong>Address:</strong>{invoiceDetail.cwhs1}</div>
+            <div className="mt-1"><strong>GSTIN:</strong> {invoiceDetail.gsT1 || "-"}</div>
+            <div className="mt-1"><strong>State Code:</strong> {invoiceDetail.whstat1 || "-"}</div>
           </div>
-
+{/* 
           <div className="col-span-3 border p-2 text-xs">
             <strong>Shipped From</strong>
             <div className="mt-1">{ascName}</div>
             <div className="mt-1">{ascAddress}</div>
             <div className="mt-1"><strong>Mobile:</strong> {ascMobile}</div>
-          </div>
+          </div> */}
 
-          <div className="col-span-3 border p-2 text-xs">
-            <div><strong>LSP Name:</strong> {invoiceDetail.defPO_Crname || "-"}</div>
-            <div><strong>Weight:</strong> {invoiceDetail.courierWeight || "-"} gm</div>
-            <div><strong>Box Qty:</strong> {invoiceDetail.boxQty || "-"}</div>
-            <div className="mt-2"><strong>Docket No:</strong> {invoiceDetail.defPO_SFDocNo || "-"}</div>
-            <div className="mt-2">
-              <Barcode value={invoiceDetail.defPO_SFDocNo || "NA"} width={1.2} height={48} format="CODE128" />
-            </div>
-          </div>
+<div className="col-span-3 border p-2 text-xs">
+  <div><strong>LSP Name:</strong> {invoiceDetail.defPO_Crname || "-"}</div>
+  <div><strong>Weight:</strong> {invoiceDetail.courierWeight || "-"} gm</div>
+  <div><strong>Box Qty:</strong> {invoiceDetail.boxQty || "-"}</div>
+
+  <div className="mt-2"><strong>Docket No:</strong> {invoiceDetail.defPO_SFDocNo || "-"}</div>
+
+  <div className="mt-2">
+    <Barcode
+      value={invoiceDetail.defPO_SFDocNo || "NA"}
+      width={1.2}
+      height={48}
+      format="CODE128"
+    />
+  </div>
+
+ 
+
+  {invoiceDetail.po && (
+    <div className="mt-2">
+      <Barcode
+        value={invoiceDetail.po}
+        width={1.2}
+        height={48}
+        format="CODE128"
+      />
+    </div>
+  )}
+</div>
+
         </section>
 
         {/* Items Table */}
@@ -162,7 +212,7 @@ export default function PrintASC({ searchParams }) {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan="7" className="border px-2 py-1 text-right">Total:</td>
+              <td colSpan="7" className="border px-2 py-1 text-right">Total Quantity: {invoiceDetail.total}</td>
               <td className="border px-2 py-1 text-right">{formatMoney(totals.total)}</td>
             </tr>
             <tr>
@@ -192,7 +242,7 @@ export default function PrintASC({ searchParams }) {
           </div>
           <div className="col-span-4 text-center p-3 text-xs">
             <div className="font-bold mb-2">{ascName}</div>
-            <div className="mt-10 font-semibold">(Authorized Signatory)</div>
+            <div className="mt-30 font-semibold">(Authorized Signatory)</div>
           </div>
         </div>
 

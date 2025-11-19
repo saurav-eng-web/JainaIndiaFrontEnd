@@ -130,41 +130,30 @@ export default function PrintChallanPage() {
     </div>
   </div>
 
-  <div className="w-64 ml-4">
-    {/* Three Copies Labels */}
-    <div className="flex flex-col items-end text-xs absolute top-0 right-0 space-y-1">
-      <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
-        Original for Recipient
-      </div>
-      <div className="border-l border-gray-400 w-32 self-center border-r border-t-0 border-b-0 h-px bg-gray-400" />
-      <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
-        Duplicate for Transporter
-      </div>
-      <div className="border-l border-gray-400 w-32 self-center border-r border-t-0 border-b-0 h-px bg-gray-400" />
-      <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
-        Triplicate For Supplier
-      </div>
-    </div>
-
-    {/* Right Side Info Box */}
-    <div className="border p-2 text-sm mt-30">
-      <div>
-        <strong>GSTIN :</strong> {data.issuer.gstin}
-      </div>
-      <div>
-        <strong>State Code :</strong> 07
-      </div>
-      <div>
-        <strong>DCR Number :</strong> {data.asc.ref}
-      </div>
-      <div>
-        <strong>DCR Date :</strong> {data.asc.dcrDate}
-      </div>
-      <div>
-        <strong>Shipment ID :</strong> {data.meta.shipmentId || '-'}
-      </div>
-    </div>
+{/* NEW BLOCK (placed above the existing box) */}
+<div className="flex flex-col items-end text-xs absolute top-0 right-0 space-y-1">
+  <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
+    Original for Recipient
   </div>
+  <div className="border-l border-gray-400 w-32 self-center border-r border-t-0 border-b-0 h-px bg-gray-400" />
+  <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
+    Duplicate for Transporter
+  </div>
+  <div className="border-l border-gray-400 w-32 self-center border-r border-t-0 border-b-0 h-px bg-gray-400" />
+  <div className="border border-gray-400 px-3 py-1 w-48 text-center bg-gray-50 font-medium">
+    Triplicate For Supplier
+  </div>
+</div>
+
+{/* YOUR ORIGINAL BOX (kept same, placed below) */}
+<div className="w-64 ml-4 border p-2 text-sm">
+  <div><strong>GSTIN:</strong> {invoiceDetail.nspgst || "-"}</div>
+  <div><strong>DCR Number:</strong> {invoiceDetail.invno || "-"}</div>
+  <div><strong>DCR Date:</strong> {invoiceDetail.invdate || "-"}</div>
+  <div><strong>Shipment ID:</strong> {invoiceDetail.defPO_SFDocNo || "-"}</div>
+  <div><strong>State Code:</strong> {invoiceDetail.nspStatecode || "-"}</div>
+</div>
+
 </header>
 
 

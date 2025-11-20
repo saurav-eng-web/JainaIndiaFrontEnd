@@ -336,6 +336,8 @@ function HistoryPageContent() {
         const complaintStatus = complaintDetail.complainT_STATUS || "";
         const complaintSubStatus = complaintDetail.complaint_SubStatus || "";
         const userRole = user?.roleName || "Unknown";
+        const calltype = complaintDetail.calL_TYPE || "";
+        const product = complaintDetail.product || "";
   
         // ✅ Build payload dynamically
         const payload = {
@@ -343,6 +345,10 @@ function HistoryPageContent() {
           role: userRole,
           complaint_SubStatus: complaintSubStatus,
           complaint_Status: complaintStatus,
+          calltype:calltype,
+          product:product
+
+          
         };
   
         console.log("Dynamic Payload:", payload);

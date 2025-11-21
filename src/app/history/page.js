@@ -61,6 +61,7 @@ const [selectedReason, setSelectedReason] = useState("");
 const [appointmentDate, setAppointmentDate] = useState("");
 const [selectedHour, setSelectedHour] = useState("");
 const [selectedMinute, setSelectedMinute] = useState("");
+const [confirmCancel, setConfirmCancel] = useState(false);
 
 const today = new Date();
 const todayStr = today.toISOString().split("T")[0];
@@ -454,77 +455,95 @@ const currentMinute = today.getMinutes();
 
   )}{showPopup && (
 
-
-
-
-
-
-
-<div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-
-{/* ========================= */}
-{/* SMALL POPUP: Request For Cancellation */}
-{/* ========================= */}
-{selectedAction === "Request for cancellation" ? (
-  <div className="bg-white w-[450px] rounded-xl shadow-2xl p-6 animate-fadeIn">
-
-    {/* Header */}
-    <div className="flex justify-between items-center border-b pb-3 mb-5">
-      <h2 className="text-xl font-semibold text-gray-800">
-        Request For Cancellation
-      </h2>
-      <button
-        onClick={() => setShowPopup(false)}
-        className="text-xl text-gray-600 hover:text-red-600 transition"
-      >
-        ✕
-      </button>
-    </div>
-
-    {/* Cancel Reason */}
-    <div className="flex flex-col mb-5">
-      <label className="font-medium text-gray-700">Cancel Reason:</label>
-
-      <div style={{ width: "100%" }}>
-        <CustomDropdown
-          options={cancelReasons.map((item) => ({
-            label: item.value,
-            value: item.value, // reason text to send
-          }))}
-          value={selectedReason}
-          onChange={(val) => setSelectedReason(val)}
-          placeholder="----Select----"
-        />
-      </div>
-    </div>
-
-    {/* Remark */}
-    <div className="flex flex-col mb-5">
-      <label className="font-medium text-gray-700">Remark:</label>
-      <textarea
-        className="border rounded-md px-3 py-2 h-20"
-        placeholder="Enter remark here..."
-        value={remark}
-        onChange={(e) => setRemark(e.target.value)}
-      />
-    </div>
-
-    {/* Buttons */}
-    <div className="flex justify-end gap-4 mt-6">
-      <button
-        onClick={handleSubmitCancellation}
-        className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition"
-      >
-        Submit Cancellation
-      </button>
-    </div>
-
-  </div>
-
-
-
-
-
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+  
+      {/* ========================= */}
+      {/* SMALL POPUP: Request For Cancellation */}
+      {/* ========================= */}
+      {selectedAction === "Request for cancellation" ? (
+        <div className="bg-white w-[450px] rounded-xl shadow-2xl p-6 animate-fadeIn">
+  
+          {/* Header */}
+          <div className="flex justify-between items-center border-b pb-3 mb-5">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Request For Cancellation
+            </h2>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="text-xl text-gray-600 hover:text-red-600 transition"
+            >
+              ✕
+            </button>
+          </div>
+  
+          {/* Cancel Reason */}
+          <div className="flex flex-col mb-5">
+            <label className="font-medium text-gray-700">Cancel Reason:</label>
+  
+            <div style={{ width: "100%" }}>
+              <CustomDropdown
+                options={cancelReasons.map((item) => ({
+                  label: item.value,
+                  value: item.value,
+                }))}
+                value={selectedReason}
+                onChange={(val) => setSelectedReason(val)}
+                placeholder="----Select----"
+              />
+            </div>
+          </div>
+  
+          {/* Remark */}
+          <div className="flex flex-col mb-5">
+            <label className="font-medium text-gray-700">Remark:</label>
+            <textarea
+              className="border rounded-md px-3 py-2 h-20"
+              placeholder="Enter remark here..."
+              value={remark}
+              onChange={(e) => setRemark(e.target.value)}
+            />
+          </div>
+  
+          {/* ============================== */}
+          {/* CONFIRMATION BOX (ADDED) */}
+          {/* ============================== */}
+          {confirmCancel && (
+            <div className="mb-5 p-3 bg-yellow-100 text-yellow-800 rounded-md border border-yellow-300 animate-fadeIn">
+              <p className="font-medium">Are you sure you want to submit this cancellation?</p>
+  
+              <div className="flex justify-end gap-3 mt-3">
+                <button
+                  onClick={() => setConfirmCancel(false)}
+                  className="px-4 py-1 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md"
+                >
+                  No
+                </button>
+  
+                <button
+                  onClick={() => {
+                    setConfirmCancel(false);
+                    handleSubmitCancellation();
+                  }}
+                  className="px-4 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md"
+                >
+                  Yes, Submit
+                </button>
+              </div>
+            </div>
+          )}
+  
+          {/* Buttons */}
+          <div className="flex justify-end gap-4 mt-6">
+            <button
+              onClick={() => setConfirmCancel(true)}
+              className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition"
+            >
+              Submit Cancellation
+            </button>
+          </div>
+  
+        </div>
+  
       ) : selectedAction === "WIP" ? (
         /* ========================= */
         /* SPECIAL POPUP FOR WIP ONLY */

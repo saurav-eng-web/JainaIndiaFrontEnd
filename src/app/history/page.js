@@ -50,6 +50,12 @@ function HistoryPageContent() {
   const [popupMessage, setPopupMessage] = useState("");
   const [actions, setActions] = useState([]);
 
+  const [showPopup, setShowPopup] = useState(false);
+const [selectedAction, setSelectedAction] = useState("");
+
+const [cancelReasons, setCancelReasons] = useState([]);
+const [selectedReason, setSelectedReason] = useState("");
+
   const reminderOptions = [
     { value: "call", label: "📞 Not Attended" },
     { value: "email", label: "⏳ Part Pending" },
@@ -343,10 +349,10 @@ function HistoryPageContent() {
         const payload = {
           type: "jobactions",
           role: userRole,
-          complaint_SubStatus: complaintSubStatus,
-          complaint_Status: complaintStatus,
-          calltype:calltype,
-          product:product
+          complaint_SubStatus: "Assigned",
+          complaint_Status: "open",
+          calltype:"installation",
+          product:"smart led"
 
           
         };
@@ -370,24 +376,31 @@ function HistoryPageContent() {
   
     fetchActions();
   }, [ticketNo, user]);
+
+  useEffect(() => {
+    fetchCancelReasons();
+  }, []);
+  
+  const fetchCancelReasons = async () => {
+    try {
+      const res = await axiosInstance.post(
+        "DropdownMaster/GetDropdown",
+        { type: "CancelReason" }   // ✅ required payload
+      );
+  
+      if (res?.data?.data) {
+        setCancelReasons(res.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching cancel reasons:", error);
+    }
+  };
   
 
 
   const handleActionClick = (action) => {
-    switch (action.toLowerCase()) {
-      case "assign":
-        router.back();
-        break;
-      case "request for cnacellaion":
-      case "request for cancellation": // handle typo both ways
-        toast.info("Request For Cancellation clicked!");
-        break;
-      case "re-allot":
-        toast.success("Re-allot clicked!");
-        break;
-      default:
-        toast.warning(`Action '${action}' not handled yet.`);
-    }
+    setSelectedAction(action);
+    setShowPopup(true);   // 👉 open popup on button click
   };
   
 
@@ -418,7 +431,251 @@ function HistoryPageContent() {
         {action}
       </button>
     ))
+  )}{showPopup && (
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+  
+      {/* ========================= */}
+      {/* SMALL POPUP: Request For Cancellation */}
+      {/* ========================= */}
+      {selectedAction === "Request for cancellation" ? (
+      <div className="bg-white w-[450px] rounded-xl shadow-2xl p-6 animate-fadeIn">
+
+      {/* Header */}
+      <div className="flex justify-between items-center border-b pb-3 mb-5">
+        <h2 className="text-xl font-semibold text-gray-800">
+          Request For Cancellation
+        </h2>
+        <button
+          onClick={() => setShowPopup(false)}
+          className="text-xl text-gray-600 hover:text-red-600 transition"
+        >
+          ✕
+        </button>
+      </div>
+  
+      {/* Cancel Reason (API Dropdown) */}
+      <div className="flex flex-col mb-5">
+  <label className="font-medium text-gray-700">Cancel Reason:</label>
+
+  <div style={{ width: "100%" }}>
+    <CustomDropdown
+      options={cancelReasons.map((item) => ({
+        label: item.value,   // show text
+        value: item.key      // actual value
+      }))}
+      value={selectedReason}
+      onChange={(val) => setSelectedReason(val)}
+      placeholder="----Select----"
+    />
+  </div>
+</div>
+      {/* Remark */}
+      <div className="flex flex-col mb-5">
+        <label className="font-medium text-gray-700">Remark:</label>
+        <textarea
+          className="border rounded-md px-3 py-2 h-20"
+          placeholder="Enter remark here..."
+        />
+      </div>
+  
+      {/* Buttons */}
+      <div className="flex justify-end gap-4 mt-6">
+        <button className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition">
+          Submit Cancellation
+        </button>
+      </div>
+  
+    </div>
+      ) : selectedAction === "WIP" ? (
+        /* ========================= */
+        /* SPECIAL POPUP FOR WIP ONLY */
+        /* ========================= */
+        <div className="bg-white w-[450px] rounded-xl shadow-2xl p-6 animate-fadeIn">
+  
+          {/* Header */}
+          <div className="flex justify-between items-center border-b pb-3 mb-5">
+            <h2 className="text-xl font-semibold text-gray-800">WIP</h2>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="text-xl text-gray-600 hover:text-red-600 transition"
+            >
+              ✕
+            </button>
+          </div>
+  
+          {/* Serial Number Input */}
+            {/* Ticket Number */}
+            <div className="flex flex-col mb-10">
+              <label className="font-medium text-gray-700">Ticket Number:</label>
+              <div className="bg-gray-100 px-3 py-2 rounded-md border">
+                {detail.tickeT_NO || "-"}
+              </div>
+            </div>
+          <div className="flex flex-col mb-6">
+            <label className="font-medium text-gray-700">
+              Validate Serial Number:
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Serial Number"
+              className="border rounded-md px-3 py-2"
+            />
+          </div>
+  
+          {/* Buttons */}
+          <div className="flex justify-end gap-4">
+           
+  
+            <button className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition">
+              Check Serial Number
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* ========================= */
+        /* BIG POPUP: Re-allot, Assigned, etc. */
+        /* ========================= */
+        <div className="bg-white w-[85%] max-w-5xl rounded-xl shadow-2xl p-6 animate-fadeIn">
+  
+          {/* Header */}
+          <div className="flex justify-between items-center border-b pb-3 mb-5">
+            <h2 className="text-2xl font-semibold text-gray-800 tracking-wide">
+              {selectedAction}
+            </h2>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="text-xl text-gray-600 hover:text-red-600 transition"
+            >
+              ✕
+            </button>
+          </div>
+  
+          {/* FORM GRID */}
+          <div className="grid grid-cols-3 gap-6">
+  
+            {/* Ticket Number */}
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-700">Ticket Number:</label>
+              <div className="bg-gray-100 px-3 py-2 rounded-md border">
+                {detail.tickeT_NO || "-"}
+              </div>
+            </div>
+  
+            {/* ASC Name */}
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-700">ASC Name:</label>
+              <div className="bg-gray-100 px-3 py-2 rounded-md border">
+                {detail.asC_NAME || "-"}
+              </div>
+            </div>
+  
+            {/* Engineer Name */}
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-700">Engineer Name:</label>
+              <div className="bg-gray-100 px-3 py-2 rounded-md border">
+                {detail.engName || "Null"}
+              </div>
+            </div>
+
+            <div className="flex flex-col">
+                <label className="font-medium text-gray-700">Address:</label>
+                <textarea
+                  className="border rounded-md px-3 py-2 h-20 bg-gray-100"
+                  readOnly
+                  value={[
+                    detail?.addresS1,
+                    detail?.addresS2,
+                    detail?.addresS3
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                />
+              </div>
+
+
+              <div className="flex flex-col">
+              <label className="font-medium text-gray-700">Promise Date:</label>
+              <div className="border rounded-md px-3 py-2 bg-gray-100">
+                {detail?.promisE_DATE?.split("T")[0] || "-"}
+              </div>
+            </div>
+  
+          
+            {/* Appointment Date */}
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-700">Appointment Date:</label>
+              <input
+                type="date"
+                className="border rounded-md px-3 py-2"
+                defaultValue="2025-11-10"
+              />
+            </div>
+  
+            {/* Hour */}
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-700">Hour:</label>
+              <select className="border rounded-md px-3 py-2">
+                {[...Array(24)].map((_, i) => (
+                  <option key={i}>{i < 10 ? "0" + i : i}</option>
+                ))}
+              </select>
+            </div>
+  
+            {/* Minute */}
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-700">Minute:</label>
+              <select className="border rounded-md px-3 py-2">
+                {[...Array(60)].map((_, i) => (
+                  <option key={i}>{i < 10 ? "0" + i : i}</option>
+                ))}
+              </select>
+            </div>
+  
+            {/* Promise Date */}
+         
+  
+            {/* Contact Person */}
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-700">Contact Person:</label>
+              <input className="border rounded-md px-3 py-2" defaultValue="" />
+            </div>
+  
+            {/* Address + Remark */}
+            <div className="col-span-3 grid grid-cols-2 gap-6">
+  
+              {/* Address */}
+          
+  
+              {/* Customer Remark */}
+              <div className="flex flex-col">
+                <label className="font-medium text-gray-700">Customer Remark:</label>
+                <textarea className="border rounded-md px-3 py-2 h-20" />
+              </div>
+            </div>
+  
+            {/* Cancel Reason */}
+           
+  
+          </div>
+  
+          {/* Footer */}
+          <div className="flex justify-end gap-4 mt-8">
+         
+  
+            <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition">
+              Save
+            </button>
+          </div>
+  
+        </div>
+      )}
+    </div>
   )}
+  
+  
+
+
+
 </div>
 
 

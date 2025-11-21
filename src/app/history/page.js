@@ -56,6 +56,16 @@ const [selectedAction, setSelectedAction] = useState("");
 const [cancelReasons, setCancelReasons] = useState([]);
 const [selectedReason, setSelectedReason] = useState("");
 
+
+const [appointmentDate, setAppointmentDate] = useState("");
+const [selectedHour, setSelectedHour] = useState("");
+const [selectedMinute, setSelectedMinute] = useState("");
+
+const today = new Date();
+const todayStr = today.toISOString().split("T")[0];
+const currentHour = today.getHours();
+const currentMinute = today.getMinutes();
+
   const reminderOptions = [
     { value: "call", label: "📞 Not Attended" },
     { value: "email", label: "⏳ Part Pending" },
@@ -591,59 +601,97 @@ const [selectedReason, setSelectedReason] = useState("");
                     .join(", ")}
                 />
               </div>
-
-
               <div className="flex flex-col">
               <label className="font-medium text-gray-700">Promise Date:</label>
               <div className="border rounded-md px-3 py-2 bg-gray-100">
                 {detail?.promisE_DATE?.split("T")[0] || "-"}
               </div>
             </div>
-  
-          
-            {/* Appointment Date */}
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-700">Appointment Date:</label>
-              <input
-                type="date"
-                className="border rounded-md px-3 py-2"
-                defaultValue="2025-11-10"
-              />
-            </div>
-  
-            {/* Hour */}
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-700">Hour:</label>
-              <select className="border rounded-md px-3 py-2">
-                {[...Array(24)].map((_, i) => (
-                  <option key={i}>{i < 10 ? "0" + i : i}</option>
-                ))}
-              </select>
-            </div>
-  
-            {/* Minute */}
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-700">Minute:</label>
-              <select className="border rounded-md px-3 py-2">
-                {[...Array(60)].map((_, i) => (
-                  <option key={i}>{i < 10 ? "0" + i : i}</option>
-                ))}
-              </select>
-            </div>
+            <div className="col-span-3 grid grid-cols-3 gap-6">
+
+{/* Appointment Date */}
+<div className="flex flex-col">
+  <label className="font-medium text-gray-700">Appointment Date:</label>
+  <input
+    type="date"
+    className="border rounded-md px-3 py-2"
+    min={todayStr} // 🚀 minimum = today
+    value={appointmentDate}
+    onChange={(e) => {
+      setAppointmentDate(e.target.value);
+      setSelectedHour("");
+      setSelectedMinute("");
+    }}
+  />
+</div>
+
+{/* Hour */}
+<div className="flex flex-col">
+  <label className="font-medium text-gray-700">Hour:</label>
+  <select
+    className="border rounded-md px-3 py-2"
+    value={selectedHour}
+    onChange={(e) => setSelectedHour(e.target.value)}
+  >
+    <option value="">--Hour--</option>
+
+    {Array.from({ length: 24 }).map((_, i) => {
+      const hr = i < 10 ? "0" + i : i.toString();
+
+      // If date is today → disable past hours
+      const disabled =
+        appointmentDate === todayStr && i < currentHour;
+
+      return (
+        <option key={i} value={hr} disabled={disabled}>
+          {hr}
+        </option>
+      );
+    })}
+  </select>
+</div>
+
+{/* Minute */}
+<div className="flex flex-col">
+  <label className="font-medium text-gray-700">Minute:</label>
+  <select
+    className="border rounded-md px-3 py-2"
+    value={selectedMinute}
+    onChange={(e) => setSelectedMinute(e.target.value)}
+  >
+    <option value="">--Minute--</option>
+
+    {Array.from({ length: 60 }).map((_, i) => {
+      const mn = i < 10 ? "0" + i : i.toString();
+
+      const disabled =
+        appointmentDate === todayStr &&
+        selectedHour === currentHour.toString().padStart(2, "0") &&
+        i < currentMinute;
+
+      return (
+        <option key={i} value={mn} disabled={disabled}>
+          {mn}
+        </option>
+      );
+    })}
+  </select>
+</div>
+
+</div>
   
             {/* Promise Date */}
          
   
             {/* Contact Person */}
+            
+            {/* Address + Remark */}
+            <div className="col-span-3 grid grid-cols-2 gap-6">
+  
             <div className="flex flex-col">
               <label className="font-medium text-gray-700">Contact Person:</label>
               <input className="border rounded-md px-3 py-2" defaultValue="" />
             </div>
-  
-            {/* Address + Remark */}
-            <div className="col-span-3 grid grid-cols-2 gap-6">
-  
-              {/* Address */}
           
   
               {/* Customer Remark */}
@@ -651,6 +699,9 @@ const [selectedReason, setSelectedReason] = useState("");
                 <label className="font-medium text-gray-700">Customer Remark:</label>
                 <textarea className="border rounded-md px-3 py-2 h-20" />
               </div>
+
+             
+  
             </div>
   
             {/* Cancel Reason */}

@@ -41,6 +41,7 @@ function HistoryPageContent() {
   const [reminderText, setReminderText] = useState("");
   const [reminders, setReminders] = useState([]);
   const [loadingReminders, setLoadingReminders] = useState(true);
+  const [remark, setRemark] = useState("");
 
   const searchParams = useSearchParams(); // ✅ now safe inside Suspense
   const fromPage = searchParams.get("fromPage");
@@ -365,6 +366,53 @@ const currentMinute = today.getMinutes();
       console.error("Error fetching cancel reasons:", error);
     }
   };
+
+
+  const handleSubmitCancellation = async () => {
+    if (!selectedReason) {
+      alert("Please select a cancel reason!");
+      return;
+    }
+  
+
+
+    
+  try {
+ 
+    const payload = {
+      transactionType: "Jobno",
+      transactionID: String(custDetail?.tickeT_KEY || ""),// dynamic ticket key
+      transactionNo: formData?.tickeT_NO || ticketNo || "", // dynamic ticket number
+      requestedBy: loggedInUser,  // dynamic user
+      createdBy: loggedInUser,    // dynamic user
+      reason: selectedReason,
+      remarks: remark
+    };
+    const res = await axiosInstance.post(
+      "/RequestCancellation/create",
+      payload
+    );
+
+    console.log("API Response:", res.data);
+
+    // ✔ Show the message coming from API response
+    if (res?.data?.statusMsg) {
+      alert(res.data.statusMsg);
+    } else {
+      alert("Cancellation Request Submitted Successfully!");
+    }
+
+    // ✔ Close popup only when success
+    // If statusMsg indicates failure, popup will remain open
+    if (res?.data?.statusCode === 200 && res.data.statusMsg.includes("success")) {
+      setShowPopup(false);
+    }
+
+  } catch (error) {
+    console.error("Error submitting cancellation:", error);
+    alert("Failed to submit cancellation.");
+  }
+};
   
 
 
@@ -401,61 +449,82 @@ const currentMinute = today.getMinutes();
         {action}
       </button>
     ))
+
+
+
   )}{showPopup && (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-  
-      {/* ========================= */}
-      {/* SMALL POPUP: Request For Cancellation */}
-      {/* ========================= */}
-      {selectedAction === "Request for cancellation" ? (
-      <div className="bg-white w-[450px] rounded-xl shadow-2xl p-6 animate-fadeIn">
 
-      {/* Header */}
-      <div className="flex justify-between items-center border-b pb-3 mb-5">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Request For Cancellation
-        </h2>
-        <button
-          onClick={() => setShowPopup(false)}
-          className="text-xl text-gray-600 hover:text-red-600 transition"
-        >
-          ✕
-        </button>
-      </div>
-  
-      {/* Cancel Reason (API Dropdown) */}
-      <div className="flex flex-col mb-5">
-  <label className="font-medium text-gray-700">Cancel Reason:</label>
 
-  <div style={{ width: "100%" }}>
-    <CustomDropdown
-      options={cancelReasons.map((item) => ({
-        label: item.value,   // show text
-        value: item.key      // actual value
-      }))}
-      value={selectedReason}
-      onChange={(val) => setSelectedReason(val)}
-      placeholder="----Select----"
-    />
-  </div>
-</div>
-      {/* Remark */}
-      <div className="flex flex-col mb-5">
-        <label className="font-medium text-gray-700">Remark:</label>
-        <textarea
-          className="border rounded-md px-3 py-2 h-20"
-          placeholder="Enter remark here..."
+
+
+
+
+
+<div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+
+{/* ========================= */}
+{/* SMALL POPUP: Request For Cancellation */}
+{/* ========================= */}
+{selectedAction === "Request for cancellation" ? (
+  <div className="bg-white w-[450px] rounded-xl shadow-2xl p-6 animate-fadeIn">
+
+    {/* Header */}
+    <div className="flex justify-between items-center border-b pb-3 mb-5">
+      <h2 className="text-xl font-semibold text-gray-800">
+        Request For Cancellation
+      </h2>
+      <button
+        onClick={() => setShowPopup(false)}
+        className="text-xl text-gray-600 hover:text-red-600 transition"
+      >
+        ✕
+      </button>
+    </div>
+
+    {/* Cancel Reason */}
+    <div className="flex flex-col mb-5">
+      <label className="font-medium text-gray-700">Cancel Reason:</label>
+
+      <div style={{ width: "100%" }}>
+        <CustomDropdown
+          options={cancelReasons.map((item) => ({
+            label: item.value,
+            value: item.value, // reason text to send
+          }))}
+          value={selectedReason}
+          onChange={(val) => setSelectedReason(val)}
+          placeholder="----Select----"
         />
       </div>
-  
-      {/* Buttons */}
-      <div className="flex justify-end gap-4 mt-6">
-        <button className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition">
-          Submit Cancellation
-        </button>
-      </div>
-  
     </div>
+
+    {/* Remark */}
+    <div className="flex flex-col mb-5">
+      <label className="font-medium text-gray-700">Remark:</label>
+      <textarea
+        className="border rounded-md px-3 py-2 h-20"
+        placeholder="Enter remark here..."
+        value={remark}
+        onChange={(e) => setRemark(e.target.value)}
+      />
+    </div>
+
+    {/* Buttons */}
+    <div className="flex justify-end gap-4 mt-6">
+      <button
+        onClick={handleSubmitCancellation}
+        className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition"
+      >
+        Submit Cancellation
+      </button>
+    </div>
+
+  </div>
+
+
+
+
+
       ) : selectedAction === "WIP" ? (
         /* ========================= */
         /* SPECIAL POPUP FOR WIP ONLY */

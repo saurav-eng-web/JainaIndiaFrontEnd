@@ -62,3 +62,14 @@
 - nsp and sf were same, fixed, nsp to branchName
 - complaint date overflow
 - removed pending Pending Level
+
+
+
+- created Print page UI with integration
+- created challan page UI with integration
+- created separate print for nsp and asp  
+- add actions on history page with api integration
+- created popus for re-alott 
+- created popup for cancellation with api integration
+- created popup for WIP 
+  

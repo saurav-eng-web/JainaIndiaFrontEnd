@@ -58,21 +58,20 @@ function HistoryPageContent() {
   useEffect(() => setMounted(true), []);
 
   const [showPopup, setShowPopup] = useState(false);
-const [selectedAction, setSelectedAction] = useState("");
+  const [selectedAction, setSelectedAction] = useState("");
 
-const [cancelReasons, setCancelReasons] = useState([]);
-const [selectedReason, setSelectedReason] = useState("");
+  const [cancelReasons, setCancelReasons] = useState([]);
+  const [selectedReason, setSelectedReason] = useState("");
 
+  const [appointmentDate, setAppointmentDate] = useState("");
+  const [selectedHour, setSelectedHour] = useState("");
+  const [selectedMinute, setSelectedMinute] = useState("");
+  const [confirmCancel, setConfirmCancel] = useState(false);
 
-const [appointmentDate, setAppointmentDate] = useState("");
-const [selectedHour, setSelectedHour] = useState("");
-const [selectedMinute, setSelectedMinute] = useState("");
-const [confirmCancel, setConfirmCancel] = useState(false);
-
-const today = new Date();
-const todayStr = today.toISOString().split("T")[0];
-const currentHour = today.getHours();
-const currentMinute = today.getMinutes();
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+  const currentHour = today.getHours();
+  const currentMinute = today.getMinutes();
 
   const reminderOptions = [
     { value: "call", label: "📞 Not Attended" },
@@ -451,17 +450,15 @@ const currentMinute = today.getMinutes();
         const userRole = user?.roleName || "Unknown";
         const calltype = complaintDetail.calL_TYPE || "";
         const product = complaintDetail.product || "";
-  
+
         // ✅ Build payload dynamically
         const payload = {
           type: "jobactions",
           role: userRole,
           complaint_SubStatus: "Assigned",
           complaint_Status: "open",
-          calltype:"installation",
-          product:"smart led"
-
-          
+          calltype: "installation",
+          product: "smart led",
         };
 
         console.log("Dynamic Payload:", payload);
@@ -490,14 +487,14 @@ const currentMinute = today.getMinutes();
   useEffect(() => {
     fetchCancelReasons();
   }, []);
-  
+
   const fetchCancelReasons = async () => {
     try {
       const res = await axiosInstance.post(
         "DropdownMaster/GetDropdown",
-        { type: "CancelReason" }   // ✅ required payload
+        { type: "CancelReason" }, // ✅ required payload
       );
-  
+
       if (res?.data?.data) {
         setCancelReasons(res.data.data);
       }
@@ -506,58 +503,53 @@ const currentMinute = today.getMinutes();
     }
   };
 
-
   const handleSubmitCancellation = async () => {
     if (!selectedReason) {
       alert("Please select a cancel reason!");
       return;
     }
-  
 
+    try {
+      const payload = {
+        transactionType: "Jobno",
+        transactionID: String(custDetail?.tickeT_KEY || ""), // dynamic ticket key
+        transactionNo: formData?.tickeT_NO || ticketNo || "", // dynamic ticket number
+        requestedBy: loggedInUser, // dynamic user
+        createdBy: loggedInUser, // dynamic user
+        reason: selectedReason,
+        remarks: remark,
+      };
+      const res = await axiosInstance.post(
+        "/RequestCancellation/create",
+        payload,
+      );
 
-    
-  try {
- 
-    const payload = {
-      transactionType: "Jobno",
-      transactionID: String(custDetail?.tickeT_KEY || ""),// dynamic ticket key
-      transactionNo: formData?.tickeT_NO || ticketNo || "", // dynamic ticket number
-      requestedBy: loggedInUser,  // dynamic user
-      createdBy: loggedInUser,    // dynamic user
-      reason: selectedReason,
-      remarks: remark
-    };
-    const res = await axiosInstance.post(
-      "/RequestCancellation/create",
-      payload
-    );
+      console.log("API Response:", res.data);
 
-    console.log("API Response:", res.data);
+      // ✔ Show the message coming from API response
+      if (res?.data?.statusMsg) {
+        alert(res.data.statusMsg);
+      } else {
+        alert("Cancellation Request Submitted Successfully!");
+      }
 
-    // ✔ Show the message coming from API response
-    if (res?.data?.statusMsg) {
-      alert(res.data.statusMsg);
-    } else {
-      alert("Cancellation Request Submitted Successfully!");
+      // ✔ Close popup only when success
+      // If statusMsg indicates failure, popup will remain open
+      if (
+        res?.data?.statusCode === 200 &&
+        res.data.statusMsg.includes("success")
+      ) {
+        setShowPopup(false);
+      }
+    } catch (error) {
+      console.error("Error submitting cancellation:", error);
+      alert("Failed to submit cancellation.");
     }
-
-    // ✔ Close popup only when success
-    // If statusMsg indicates failure, popup will remain open
-    if (res?.data?.statusCode === 200 && res.data.statusMsg.includes("success")) {
-      setShowPopup(false);
-    }
-
-  } catch (error) {
-    console.error("Error submitting cancellation:", error);
-    alert("Failed to submit cancellation.");
-  }
-};
-  
-
+  };
 
   const handleActionClick = (action) => {
     setSelectedAction(action);
-    setShowPopup(true);   // 👉 open popup on button click
+    setShowPopup(true); // 👉 open popup on button click
   };
 
   return (
@@ -566,364 +558,374 @@ const currentMinute = today.getMinutes();
 
       <div className="content-area">
         {/* --------------------------- */}
-
-      <h2 className="page-title">👉 Action</h2>
-    {/* ✅ Dynamic buttons from API */}
-<div className="action-buttons flex gap-4 mt-4">
-  {actions.length === 0 ? (
-    <p className="text-gray-500">No actions available.</p>
-  ) : (
-    actions.map((action, index) => (
-      <button
-        key={index}
-        className={`px-4 py-2 rounded-md text-white font-medium transition-colors duration-200 ${
-          index === 0
-            ? "bg-blue-600 hover:bg-blue-700"
-            : index === 1
-            ? "bg-yellow-500 hover:bg-yellow-600"
-            : "bg-green-600 hover:bg-green-700"
-        }`}
-        onClick={() => handleActionClick(action)}
-      >
-        {action}
-      </button>
-    ))
-
-
-
-  )}{showPopup && (
-
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-  
-      {/* ========================= */}
-      {/* SMALL POPUP: Request For Cancellation */}
-      {/* ========================= */}
-      {selectedAction === "Request for cancellation" ? (
-        <div className="bg-white w-[450px] rounded-xl shadow-2xl p-6 animate-fadeIn">
-  
-          {/* Header */}
-          <div className="flex justify-between items-center border-b pb-3 mb-5">
-            <h2 className="text-xl font-semibold text-gray-800">
-              Request For Cancellation
-            </h2>
-            <button
-              onClick={() => setShowPopup(false)}
-              className="text-xl text-gray-600 hover:text-red-600 transition"
-            >
-              ✕
-            </button>
-          </div>
-  
-          {/* Cancel Reason */}
-          <div className="flex flex-col mb-5">
-            <label className="font-medium text-gray-700">Cancel Reason:</label>
-  
-            <div style={{ width: "100%" }}>
-              <CustomDropdown
-                options={cancelReasons.map((item) => ({
-                  label: item.value,
-                  value: item.value,
-                }))}
-                value={selectedReason}
-                onChange={(val) => setSelectedReason(val)}
-                placeholder="----Select----"
-              />
-            </div>
-          </div>
-  
-          {/* Remark */}
-          <div className="flex flex-col mb-5">
-            <label className="font-medium text-gray-700">Remark:</label>
-            <textarea
-              className="border rounded-md px-3 py-2 h-20"
-              placeholder="Enter remark here..."
-              value={remark}
-              onChange={(e) => setRemark(e.target.value)}
-            />
-          </div>
-  
-          {/* ============================== */}
-          {/* CONFIRMATION BOX (ADDED) */}
-          {/* ============================== */}
-          {confirmCancel && (
-            <div className="mb-5 p-3 bg-yellow-100 text-yellow-800 rounded-md border border-yellow-300 animate-fadeIn">
-              <p className="font-medium">Are you sure you want to submit this cancellation?</p>
-  
-              <div className="flex justify-end gap-3 mt-3">
-                <button
-                  onClick={() => setConfirmCancel(false)}
-                  className="px-4 py-1 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md"
-                >
-                  No
-                </button>
-  
-                <button
-                  onClick={() => {
-                    setConfirmCancel(false);
-                    handleSubmitCancellation();
-                  }}
-                  className="px-4 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md"
-                >
-                  Yes, Submit
-                </button>
-              </div>
-            </div>
-          )}
-  
-          {/* Buttons */}
-          <div className="flex justify-end gap-4 mt-6">
-            <button
-              onClick={() => setConfirmCancel(true)}
-              className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition"
-            >
-              Submit Cancellation
-            </button>
-          </div>
-  
-        </div>
-  
-      ) : selectedAction === "WIP" ? (
-        /* ========================= */
-        /* SPECIAL POPUP FOR WIP ONLY */
-        /* ========================= */
-        <div className="bg-white w-[450px] rounded-xl shadow-2xl p-6 animate-fadeIn">
-  
-          {/* Header */}
-          <div className="flex justify-between items-center border-b pb-3 mb-5">
-            <h2 className="text-xl font-semibold text-gray-800">WIP</h2>
-            <button
-              onClick={() => setShowPopup(false)}
-              className="text-xl text-gray-600 hover:text-red-600 transition"
-            >
-              ✕
-            </button>
-          </div>
-  
-          {/* Serial Number Input */}
-            {/* Ticket Number */}
-            <div className="flex flex-col mb-10">
-              <label className="font-medium text-gray-700">Ticket Number:</label>
-              <div className="bg-gray-100 px-3 py-2 rounded-md border">
-                {detail.tickeT_NO || "-"}
-              </div>
-            </div>
-          <div className="flex flex-col mb-6">
-            <label className="font-medium text-gray-700">
-              Validate Serial Number:
-            </label>
-            <input
-              type="text"
-              placeholder="Enter Serial Number"
-              className="border rounded-md px-3 py-2"
-            />
-          </div>
-  
-          {/* Buttons */}
-          <div className="flex justify-end gap-4">
-           
-  
-            <button className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition">
-              Check Serial Number
-            </button>
-          </div>
-        </div>
-      ) : (
-        /* ========================= */
-        /* BIG POPUP: Re-allot, Assigned, etc. */
-        /* ========================= */
-        <div className="bg-white w-[85%] max-w-5xl rounded-xl shadow-2xl p-6 animate-fadeIn">
-  
-          {/* Header */}
-          <div className="flex justify-between items-center border-b pb-3 mb-5">
-            <h2 className="text-2xl font-semibold text-gray-800 tracking-wide">
-              {selectedAction}
-            </h2>
-            <button
-              onClick={() => setShowPopup(false)}
-              className="text-xl text-gray-600 hover:text-red-600 transition"
-            >
-              ✕
-            </button>
-          </div>
-  
-          {/* FORM GRID */}
-          <div className="grid grid-cols-3 gap-6">
-  
-            {/* Ticket Number */}
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-700">Ticket Number:</label>
-              <div className="bg-gray-100 px-3 py-2 rounded-md border">
-                {detail.tickeT_NO || "-"}
-              </div>
-            </div>
-  
-            {/* ASC Name */}
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-700">ASC Name:</label>
-              <div className="bg-gray-100 px-3 py-2 rounded-md border">
-                {detail.asC_NAME || "-"}
-              </div>
-            </div>
-  
-            {/* Engineer Name */}
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-700">Engineer Name:</label>
-              <div className="bg-gray-100 px-3 py-2 rounded-md border">
-                {detail.engName || "Null"}
-              </div>
-            </div>
-
-            <div className="flex flex-col">
-                <label className="font-medium text-gray-700">Address:</label>
-                <textarea
-                  className="border rounded-md px-3 py-2 h-20 bg-gray-100"
-                  readOnly
-                  value={[
-                    detail?.addresS1,
-                    detail?.addresS2,
-                    detail?.addresS3
-                  ]
-                    .filter(Boolean)
-                    .join(", ")}
-                />
-              </div>
-              <div className="flex flex-col">
-              <label className="font-medium text-gray-700">Promise Date:</label>
-              <div className="border rounded-md px-3 py-2 bg-gray-100">
-                {detail?.promisE_DATE?.split("T")[0] || "-"}
-              </div>
-            </div>
-            <div className="col-span-3 grid grid-cols-3 gap-6">
-
-{/* Appointment Date */}
-<div className="flex flex-col">
-  <label className="font-medium text-gray-700">Appointment Date:</label>
-  <input
-    type="date"
-    className="border rounded-md px-3 py-2"
-    min={todayStr} // 🚀 minimum = today
-    value={appointmentDate}
-    onChange={(e) => {
-      setAppointmentDate(e.target.value);
-      setSelectedHour("");
-      setSelectedMinute("");
-    }}
-  />
-</div>
-
-{/* Hour */}
-<div className="flex flex-col">
-  <label className="font-medium text-gray-700">Hour:</label>
-  <select
-    className="border rounded-md px-3 py-2"
-    value={selectedHour}
-    onChange={(e) => setSelectedHour(e.target.value)}
-  >
-    <option value="">--Hour--</option>
-
-    {Array.from({ length: 24 }).map((_, i) => {
-      const hr = i < 10 ? "0" + i : i.toString();
-
-      // If date is today → disable past hours
-      const disabled =
-        appointmentDate === todayStr && i < currentHour;
-
-      return (
-        <option key={i} value={hr} disabled={disabled}>
-          {hr}
-        </option>
-      );
-    })}
-  </select>
-</div>
-
-{/* Minute */}
-<div className="flex flex-col">
-  <label className="font-medium text-gray-700">Minute:</label>
-  <select
-    className="border rounded-md px-3 py-2"
-    value={selectedMinute}
-    onChange={(e) => setSelectedMinute(e.target.value)}
-  >
-    <option value="">--Minute--</option>
-
-    {Array.from({ length: 60 }).map((_, i) => {
-      const mn = i < 10 ? "0" + i : i.toString();
-
-      const disabled =
-        appointmentDate === todayStr &&
-        selectedHour === currentHour.toString().padStart(2, "0") &&
-        i < currentMinute;
-
-      return (
-        <option key={i} value={mn} disabled={disabled}>
-          {mn}
-        </option>
-      );
-    })}
-  </select>
-</div>
-
-</div>
-  
-            {/* Promise Date */}
-         
-  
-            {/* Contact Person */}
-            
-            {/* Address + Remark */}
-            <div className="col-span-3 grid grid-cols-2 gap-6">
-  
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-700">Contact Person:</label>
-              <input className="border rounded-md px-3 py-2" defaultValue="" />
-            </div>
-          
-  
-              {/* Customer Remark */}
-              <div className="flex flex-col">
-                <label className="font-medium text-gray-700">Customer Remark:</label>
-                <textarea className="border rounded-md px-3 py-2 h-20" />
-              </div>
-
-             
-  
-            </div>
-  
-            {/* Cancel Reason */}
-           
-  
-          </div>
-  
-          {/* Footer */}
-          <div className="flex justify-end gap-4 mt-8">
-         
-  
-            <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition">
-              Save
-            </button>
-          </div>
-  
-        </div>
-      )}
-    </div>
-  )}
-  
-  
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
         {user?.roleName === "SF/SSD" && (
+          <>
+            <h2 className="page-title">👉 Action</h2>
+            {/* ✅ Dynamic buttons from API */}
+            <div className="action-buttons mt-4 flex gap-4">
+              {actions.length === 0 ? (
+                <p className="text-gray-500">No actions available.</p>
+              ) : (
+                actions.map((action, index) => (
+                  <button
+                    key={index}
+                    className={`rounded-md px-4 py-2 font-medium text-white transition-colors duration-200 ${
+                      index === 0
+                        ? "bg-blue-600 hover:bg-blue-700"
+                        : index === 1
+                          ? "bg-yellow-500 hover:bg-yellow-600"
+                          : "bg-green-600 hover:bg-green-700"
+                    }`}
+                    onClick={() => handleActionClick(action)}
+                  >
+                    {action}
+                  </button>
+                ))
+              )}
+              {showPopup && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  {/* ========================= */}
+                  {/* SMALL POPUP: Request For Cancellation */}
+                  {/* ========================= */}
+                  {selectedAction === "Request for cancellation" ? (
+                    <div className="animate-fadeIn w-[450px] rounded-xl bg-white p-6 shadow-2xl">
+                      {/* Header */}
+                      <div className="mb-5 flex items-center justify-between border-b pb-3">
+                        <h2 className="text-xl font-semibold text-gray-800">
+                          Request For Cancellation
+                        </h2>
+                        <button
+                          onClick={() => setShowPopup(false)}
+                          className="text-xl text-gray-600 transition hover:text-red-600"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      {/* Cancel Reason */}
+                      <div className="mb-5 flex flex-col">
+                        <label className="font-medium text-gray-700">
+                          Cancel Reason:
+                        </label>
+
+                        <div style={{ width: "100%" }}>
+                          <CustomDropdown
+                            options={cancelReasons.map((item) => ({
+                              label: item.value,
+                              value: item.value,
+                            }))}
+                            value={selectedReason}
+                            onChange={(val) => setSelectedReason(val)}
+                            placeholder="----Select----"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Remark */}
+                      <div className="mb-5 flex flex-col">
+                        <label className="font-medium text-gray-700">
+                          Remark:
+                        </label>
+                        <textarea
+                          className="h-20 rounded-md border px-3 py-2"
+                          placeholder="Enter remark here..."
+                          value={remark}
+                          onChange={(e) => setRemark(e.target.value)}
+                        />
+                      </div>
+
+                      {/* ============================== */}
+                      {/* CONFIRMATION BOX (ADDED) */}
+                      {/* ============================== */}
+                      {confirmCancel && (
+                        <div className="animate-fadeIn mb-5 rounded-md border border-yellow-300 bg-yellow-100 p-3 text-yellow-800">
+                          <p className="font-medium">
+                            Are you sure you want to submit this cancellation?
+                          </p>
+
+                          <div className="mt-3 flex justify-end gap-3">
+                            <button
+                              onClick={() => setConfirmCancel(false)}
+                              className="rounded-md bg-gray-300 px-4 py-1 text-gray-800 hover:bg-gray-400"
+                            >
+                              No
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setConfirmCancel(false);
+                                handleSubmitCancellation();
+                              }}
+                              className="rounded-md bg-red-600 px-4 py-1 text-white hover:bg-red-700"
+                            >
+                              Yes, Submit
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Buttons */}
+                      <div className="mt-6 flex justify-end gap-4">
+                        <button
+                          onClick={() => setConfirmCancel(true)}
+                          className="rounded-md bg-red-600 px-5 py-2 text-white transition hover:bg-red-700"
+                        >
+                          Submit Cancellation
+                        </button>
+                      </div>
+                    </div>
+                  ) : selectedAction === "WIP" ? (
+                    /* ========================= */
+                    /* SPECIAL POPUP FOR WIP ONLY */
+                    /* ========================= */
+                    <div className="animate-fadeIn w-[450px] rounded-xl bg-white p-6 shadow-2xl">
+                      {/* Header */}
+                      <div className="mb-5 flex items-center justify-between border-b pb-3">
+                        <h2 className="text-xl font-semibold text-gray-800">
+                          WIP
+                        </h2>
+                        <button
+                          onClick={() => setShowPopup(false)}
+                          className="text-xl text-gray-600 transition hover:text-red-600"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      {/* Serial Number Input */}
+                      {/* Ticket Number */}
+                      <div className="mb-10 flex flex-col">
+                        <label className="font-medium text-gray-700">
+                          Ticket Number:
+                        </label>
+                        <div className="rounded-md border bg-gray-100 px-3 py-2">
+                          {detail.tickeT_NO || "-"}
+                        </div>
+                      </div>
+                      <div className="mb-6 flex flex-col">
+                        <label className="font-medium text-gray-700">
+                          Validate Serial Number:
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Enter Serial Number"
+                          className="rounded-md border px-3 py-2"
+                        />
+                      </div>
+
+                      {/* Buttons */}
+                      <div className="flex justify-end gap-4">
+                        <button className="rounded-md bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700">
+                          Check Serial Number
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* ========================= */
+                    /* BIG POPUP: Re-allot, Assigned, etc. */
+                    /* ========================= */
+                    <div className="animate-fadeIn w-[85%] max-w-5xl rounded-xl bg-white p-6 shadow-2xl">
+                      {/* Header */}
+                      <div className="mb-5 flex items-center justify-between border-b pb-3">
+                        <h2 className="text-2xl font-semibold tracking-wide text-gray-800">
+                          {selectedAction}
+                        </h2>
+                        <button
+                          onClick={() => setShowPopup(false)}
+                          className="text-xl text-gray-600 transition hover:text-red-600"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      {/* FORM GRID */}
+                      <div className="grid grid-cols-3 gap-6">
+                        {/* Ticket Number */}
+                        <div className="flex flex-col">
+                          <label className="font-medium text-gray-700">
+                            Ticket Number:
+                          </label>
+                          <div className="rounded-md border bg-gray-100 px-3 py-2">
+                            {detail.tickeT_NO || "-"}
+                          </div>
+                        </div>
+
+                        {/* ASC Name */}
+                        <div className="flex flex-col">
+                          <label className="font-medium text-gray-700">
+                            ASC Name:
+                          </label>
+                          <div className="rounded-md border bg-gray-100 px-3 py-2">
+                            {detail.asC_NAME || "-"}
+                          </div>
+                        </div>
+
+                        {/* Engineer Name */}
+                        <div className="flex flex-col">
+                          <label className="font-medium text-gray-700">
+                            Engineer Name:
+                          </label>
+                          <div className="rounded-md border bg-gray-100 px-3 py-2">
+                            {detail.engName || "Null"}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col">
+                          <label className="font-medium text-gray-700">
+                            Address:
+                          </label>
+                          <textarea
+                            className="h-20 rounded-md border bg-gray-100 px-3 py-2"
+                            readOnly
+                            value={[
+                              detail?.addresS1,
+                              detail?.addresS2,
+                              detail?.addresS3,
+                            ]
+                              .filter(Boolean)
+                              .join(", ")}
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="font-medium text-gray-700">
+                            Promise Date:
+                          </label>
+                          <div className="rounded-md border bg-gray-100 px-3 py-2">
+                            {detail?.promisE_DATE?.split("T")[0] || "-"}
+                          </div>
+                        </div>
+                        <div className="col-span-3 grid grid-cols-3 gap-6">
+                          {/* Appointment Date */}
+                          <div className="flex flex-col">
+                            <label className="font-medium text-gray-700">
+                              Appointment Date:
+                            </label>
+                            <input
+                              type="date"
+                              className="rounded-md border px-3 py-2"
+                              min={todayStr} // 🚀 minimum = today
+                              value={appointmentDate}
+                              onChange={(e) => {
+                                setAppointmentDate(e.target.value);
+                                setSelectedHour("");
+                                setSelectedMinute("");
+                              }}
+                            />
+                          </div>
+
+                          {/* Hour */}
+                          <div className="flex flex-col">
+                            <label className="font-medium text-gray-700">
+                              Hour:
+                            </label>
+                            <select
+                              className="rounded-md border px-3 py-2"
+                              value={selectedHour}
+                              onChange={(e) => setSelectedHour(e.target.value)}
+                            >
+                              <option value="">--Hour--</option>
+
+                              {Array.from({ length: 24 }).map((_, i) => {
+                                const hr = i < 10 ? "0" + i : i.toString();
+
+                                // If date is today → disable past hours
+                                const disabled =
+                                  appointmentDate === todayStr &&
+                                  i < currentHour;
+
+                                return (
+                                  <option
+                                    key={i}
+                                    value={hr}
+                                    disabled={disabled}
+                                  >
+                                    {hr}
+                                  </option>
+                                );
+                              })}
+                            </select>
+                          </div>
+
+                          {/* Minute */}
+                          <div className="flex flex-col">
+                            <label className="font-medium text-gray-700">
+                              Minute:
+                            </label>
+                            <select
+                              className="rounded-md border px-3 py-2"
+                              value={selectedMinute}
+                              onChange={(e) =>
+                                setSelectedMinute(e.target.value)
+                              }
+                            >
+                              <option value="">--Minute--</option>
+
+                              {Array.from({ length: 60 }).map((_, i) => {
+                                const mn = i < 10 ? "0" + i : i.toString();
+
+                                const disabled =
+                                  appointmentDate === todayStr &&
+                                  selectedHour ===
+                                    currentHour.toString().padStart(2, "0") &&
+                                  i < currentMinute;
+
+                                return (
+                                  <option
+                                    key={i}
+                                    value={mn}
+                                    disabled={disabled}
+                                  >
+                                    {mn}
+                                  </option>
+                                );
+                              })}
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Promise Date */}
+
+                        {/* Contact Person */}
+
+                        {/* Address + Remark */}
+                        <div className="col-span-3 grid grid-cols-2 gap-6">
+                          <div className="flex flex-col">
+                            <label className="font-medium text-gray-700">
+                              Contact Person:
+                            </label>
+                            <input
+                              className="rounded-md border px-3 py-2"
+                              defaultValue=""
+                            />
+                          </div>
+
+                          {/* Customer Remark */}
+                          <div className="flex flex-col">
+                            <label className="font-medium text-gray-700">
+                              Customer Remark:
+                            </label>
+                            <textarea className="h-20 rounded-md border px-3 py-2" />
+                          </div>
+                        </div>
+
+                        {/* Cancel Reason */}
+                      </div>
+
+                      {/* Footer */}
+                      <div className="mt-8 flex justify-end gap-4">
+                        <button className="rounded-md bg-blue-600 px-6 py-2 text-white transition hover:bg-blue-700">
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* {user?.roleName === "SF/SSD" && (
           <>
             <h2 className="page-title">👉 Action</h2>
 
@@ -949,7 +951,7 @@ const currentMinute = today.getMinutes();
               )}
             </div>
           </>
-        )}
+        )} */}
 
         {/* -------------------------- */}
         {fromPage === "dashboardcall" &&
@@ -1146,7 +1148,7 @@ const currentMinute = today.getMinutes();
                       {detail.complainT_STATUS || "-"}
                     </div>
                     <div>
-                      <strong>Remarks:</strong> {detail.remarks || "-"}
+                      <strong>Remarks:</strong> {detail.email || "-"}
                     </div>
                     <div>
                       <strong>Call By:</strong> {detail.calL_BY || "-"}
@@ -1222,7 +1224,7 @@ const currentMinute = today.getMinutes();
                       {detail.splInt || "-"}
                     </div>
                     <div>
-                      <strong>VOC:</strong> {detail.email || "-"}
+                      <strong>VOC:</strong> {detail.remarks || "-"}
                     </div>
                   </div>
                 </div>

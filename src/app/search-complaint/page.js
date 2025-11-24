@@ -166,6 +166,7 @@ export default function SearchComplaintPage() {
                       <th>Serial No.</th>
                       <th>Call Type</th>
                       <th>Sub Status</th>
+                      <th>ASC Code</th>
                       <th>Date</th>
                     </tr>
                   </thead>
@@ -275,6 +276,7 @@ export default function SearchComplaintPage() {
                           <td>{result.seriaL_NO || "-"}</td>
                           <td>{result.calL_TYPE || "-"}</td>
                           <td>{result.complainT_SUBSTATUS || "-"}</td>
+                          <td>{result.asC_CODE || "-"}</td>
                           <td>
                             {result.pop
                               ? new Date(result.pop).toLocaleDateString()

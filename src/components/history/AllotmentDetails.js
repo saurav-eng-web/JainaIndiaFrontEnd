@@ -1,4 +1,3 @@
-
 // 'use client';
 
 // import SectionHeading from "../common/SectionHeading";
@@ -6,15 +5,14 @@
 // import { useTheme } from '@/theme/ThemeContext';
 
 // export default function AllotmentDetails({
-  
+
 //   formData,
 //   onChange,
 //   onApprove,
 //   onReject,
 // }) {
 
-//   const { colors } = useTheme(); 
-
+//   const { colors } = useTheme();
 
 //   return (
 //     <div className="p-6 shadow-md border rounded-xl bg-white mb-10">
@@ -45,7 +43,6 @@
 //       <div className="space-y-8">
 
 //         {/* ✅ Previous Appointment Details */}
-      
 
 //         {/* ASC + Engineer */}
 //         <div className="grid grid-cols-3 gap-4">
@@ -178,61 +175,68 @@
 //   );
 // }
 
-
-'use client';
+"use client";
 
 import SectionHeading from "../common/SectionHeading";
 import ThemedButton from "../common/ThemedButton";
-import { useTheme } from '@/theme/ThemeContext';
+import { useTheme } from "@/theme/ThemeContext";
 
 export default function AllotmentDetails({
-  
   formData,
   onChange,
   onApprove,
   onReject,
 }) {
-
-  const { colors } = useTheme(); 
-
+  const { colors } = useTheme();
 
   return (
-    <div className="p-6 shadow-md border rounded-xl bg-white mb-10">
-  <div className="border rounded-lg overflow-hidden mb-10">
+    <div className="mb-10 rounded-xl border bg-white p-6 shadow-md">
+      <div className="mb-10 overflow-hidden rounded-lg border">
         <SectionHeading>Previous Appointment Date/Time</SectionHeading>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="text-left"style={{background:colors.primary,color:colors.textColor}}>
-                <th className="border px-4 py-2">Ticket No.</th>
-                <th className="border px-4 py-2">Previous Appointment Date/Time</th>
-                <th className="border px-4 py-2">Request Re-allot date/time</th>
-                <th className="border px-4 py-2">ASC reason</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border px-4 py-2">{formData.tickeT_NO || 'Not Available'}</td>
-                <td className="border px-4 py-2">{formData.prevAppointment || 'Not Available'}</td>
-                <td className="border px-4 py-2">{formData.reallotDate || 'Not Available'}</td>
-                <td className="border px-4 py-2">{formData.ascReason || 'Not Available'}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <table className="w-full border-collapse">
+          <thead>
+            <tr
+              className="text-left"
+              style={{ background: colors.primary, color: colors.textColor }}
+            >
+              <th className="border px-4 py-2">Ticket No.</th>
+              <th className="border px-4 py-2">
+                Previous Appointment Date/Time
+              </th>
+              <th className="border px-4 py-2">Request Re-allot date/time</th>
+              <th className="border px-4 py-2">ASC reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border px-4 py-2">
+                {formData.tickeT_NO || "Not Available"}
+              </td>
+              <td className="border px-4 py-2">
+                {formData.prevAppointment || "Not Available"}
+              </td>
+              <td className="border px-4 py-2">
+                {formData.reallotDate || "Not Available"}
+              </td>
+              <td className="border px-4 py-2">
+                {formData.ascReason || "Not Available"}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <SectionHeading>📝Allotment Details</SectionHeading>
 
       <div className="space-y-8">
-
         {/* ✅ Previous Appointment Details */}
-      
 
         {/* ASC + Engineer */}
         <div className="grid grid-cols-3 gap-4">
           <label className="flex flex-col">
             <span className="font-semibold">ASC Name:</span>
             <select
-              className="border p-2 rounded"
+              className="rounded border p-2"
               value={formData.ascName}
               onChange={(e) => onChange("ascName", e.target.value)}
             >
@@ -246,7 +250,7 @@ export default function AllotmentDetails({
           <label className="flex flex-col">
             <span className="font-semibold">Engineer Name:</span>
             <select
-              className="border p-2 rounded"
+              className="rounded border p-2"
               value={formData.engineer}
               onChange={(e) => onChange("engineer", e.target.value)}
             >
@@ -257,7 +261,7 @@ export default function AllotmentDetails({
             </select>
           </label>
 
-          <label className="flex items-center gap-2 mt-6">
+          <label className="mt-6 flex items-center gap-2">
             <input
               type="checkbox"
               checked={formData.reAllot}
@@ -274,16 +278,17 @@ export default function AllotmentDetails({
             <span className="font-semibold">Appointment Date:</span>
             <input
               type="date"
-              className="border p-2 rounded"
+              className="rounded border p-2"
               value={formData.appointmentDate}
               onChange={(e) => onChange("appointmentDate", e.target.value)}
+              min={new Date().toISOString().split("T")[0]}
             />
           </label>
 
           {/* Appointment Time */}
-          <div className="grid grid-cols-2 gap-2 h-10 mt-6">
+          <div className="mt-6 grid h-10 grid-cols-2 gap-2">
             <select
-              className="border p-2 rounded"
+              className="rounded border p-2"
               value={formData.appointmentHour}
               onChange={(e) => onChange("appointmentHour", e.target.value)}
             >
@@ -295,7 +300,7 @@ export default function AllotmentDetails({
               ))}
             </select>
             <select
-              className="border p-2 rounded"
+              className="rounded border p-2"
               value={formData.appointmentMinute}
               onChange={(e) => onChange("appointmentMinute", e.target.value)}
             >
@@ -313,9 +318,10 @@ export default function AllotmentDetails({
             <span className="font-semibold">Promise Date:</span>
             <input
               type="date"
-              className="border p-2 rounded"
+              className="rounded border p-2"
               value={formData.promiseDate}
               onChange={(e) => onChange("promiseDate", e.target.value)}
+              min={new Date().toISOString().split("T")[0]}
             />
           </label>
         </div>
@@ -325,7 +331,7 @@ export default function AllotmentDetails({
           <label className="flex flex-col">
             <span className="font-semibold">ASM Remark:</span>
             <textarea
-              className="border p-2 rounded"
+              className="rounded border p-2"
               value={formData.asmRemark}
               onChange={(e) => onChange("asmRemark", e.target.value)}
             />
@@ -334,7 +340,7 @@ export default function AllotmentDetails({
           <label className="flex flex-col">
             <span className="font-semibold">Customer Remark (If Any):</span>
             <textarea
-              className="border p-2 rounded"
+              className="rounded border p-2"
               value={formData.customerRemark}
               onChange={(e) => onChange("customerRemark", e.target.value)}
             />
@@ -342,9 +348,9 @@ export default function AllotmentDetails({
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-end gap-4 mt-4">
+        <div className="mt-4 flex justify-end gap-4">
           <button
-            className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
+            className="rounded border border-gray-300 px-4 py-2 hover:bg-gray-100"
             onClick={onReject}
           >
             Reject
@@ -357,4 +363,3 @@ export default function AllotmentDetails({
     </div>
   );
 }
-

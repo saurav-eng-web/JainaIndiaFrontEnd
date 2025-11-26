@@ -120,18 +120,17 @@ function HistoryPageContent() {
       calL_TYPE: custDetail.calL_TYPE || "-",
       call_TypeID: custDetail.call_TypeID || 0,
       loggedInUserId: loggedInUserId || 0,
-      DOP: detail?.purchasE_DATE || "-", // safe optional chaining
+      DOP: custDetail?.purchasE_DATE || "-", // safe optional chaining
       engineer: custDetail.engineeR_NAME || "-",
       eng_ID: custDetail.Eng_ID || "-",
       sf_ID: custDetail.sf_ID || 0,
     }));
-  }, [custDetail, detail?.purchasE_DATE, loggedInUserId]);
+  }, [custDetail, loggedInUserId]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // console.log("🔴🔴eng id: ", formData.Eng_ID);
   const buildPayload = (action) => ({
     TICKET_NO: formData.tickeT_NO,
     Apptdate: formData.appointmentDate,

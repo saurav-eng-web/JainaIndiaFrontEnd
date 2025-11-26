@@ -89,21 +89,6 @@ function HistoryPageContent() {
 
   const role = user?.roleName;
 
-  useEffect(() => {
-    if (custDetail) {
-      setFormData({
-        ascName: custDetail.asC_NAME || "",
-        tickeT_NO: custDetail.tickeT_NO || "",
-        calL_TYPE: custDetail.calL_TYPE || "-",
-        call_TypeID: custDetail.call_TypeID || 0,
-        loggedInUserId: loggedInUserId || 0,
-        DOP: detail.purchasE_DATE || "-",
-        engineer: custDetail.engineeR_NAME || "-",
-        eng_ID: custDetail.eng_ID || "-",
-      });
-    }
-  }, [custDetail]);
-
   const [formData, setFormData] = useState({
     ascName: "",
     engineer: "",
@@ -125,9 +110,28 @@ function HistoryPageContent() {
     ascReason: "",
   });
 
+  useEffect(() => {
+    if (!custDetail) return;
+
+    setFormData((prevData) => ({
+      ...prevData,
+      ascName: custDetail.asC_NAME || "",
+      tickeT_NO: custDetail.tickeT_NO || "",
+      calL_TYPE: custDetail.calL_TYPE || "-",
+      call_TypeID: custDetail.call_TypeID || 0,
+      loggedInUserId: loggedInUserId || 0,
+      DOP: detail?.purchasE_DATE || "-", // safe optional chaining
+      engineer: custDetail.engineeR_NAME || "-",
+      eng_ID: custDetail.Eng_ID || "-",
+      sf_ID: custDetail.sf_ID || 0,
+    }));
+  }, [custDetail]);
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  // console.log("🔴🔴eng id: ", formData.Eng_ID);
   const buildPayload = (action) => ({
     TICKET_NO: formData.tickeT_NO,
     Apptdate: formData.appointmentDate,
@@ -461,13 +465,13 @@ function HistoryPageContent() {
           product: "smart led",
         };
 
-        console.log("Dynamic Payload:", payload);
+        // console.log("Dynamic Payload:", payload);
 
         const res = await axiosInstance.post(
           "ActionMaster/get-actions",
           payload,
         );
-        console.log("Response:", res.data);
+        // console.log("Response:", res.data);
 
         if (Array.isArray(res.data) && res.data.length > 0) {
           const actionsString = res.data[0].action || "";

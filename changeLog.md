@@ -83,13 +83,19 @@
 
 - feat: image upload
 
-
+## v1.7.2
 
 - created Print page UI with integration
 - created challan page UI with integration
-- created separate print for nsp and asp  
+- created separate print for nsp and asp
 - add actions on history page with api integration
-- created popus for re-alott 
+- created popus for re-alott
 - created popup for cancellation with api integration
-- created popup for WIP 
-  
+- created popup for WIP
+
+## v1.7.3
+
+- get engineer api, on select menu
+- asc code added on table in history page
+- calendar bug fixed on re allot page - ASM (allowed only future dates)
+- re allot approve fixed

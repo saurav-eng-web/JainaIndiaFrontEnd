@@ -1,4 +1,3 @@
-
 // 'use client';
 
 // import { useEffect, useState } from 'react';
@@ -28,7 +27,7 @@
 //       try {
 //         const url = `https://ncapi.jainaindia.com/api/CallRegister/getstatus/${encodeURIComponent(
 //           status
-//         )}/${encodeURIComponent(subStatus)}/${roleID}/${firstID}`; 
+//         )}/${encodeURIComponent(subStatus)}/${roleID}/${firstID}`;
 //         const response = await axiosInstance.get(url);
 //         setComplaints(response.data || []);
 //       } catch (error) {
@@ -39,7 +38,7 @@
 //     };
 
 //     fetchComplaints();
-//   }, [status, subStatus, roleID, firstID]); 
+//   }, [status, subStatus, roleID, firstID]);
 
 //   const getStatusClass = (status) => {
 //     switch (status?.toLowerCase()) {
@@ -63,7 +62,6 @@
 //   //   sessionStorage.setItem("currentTicket", ticketNo);
 //   //   router.push(`/history?fromPage=dashboardcall&ticketNo=${ticketNo}`);
 //   // };
-
 
 //   const handleViewHistory = (ticketNo) => {
 //   sessionStorage.setItem("currentTicket", ticketNo);
@@ -153,24 +151,24 @@
 //   );
 // }
 
+"use client";
 
-'use client';
-
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import axiosInstance from '@/api/axiosInstance';
-import SideBar from '@/components/SideBar';
-import { useTheme } from '@/theme/ThemeContext';
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import axiosInstance from "@/api/axiosInstance";
+import SideBar from "@/components/SideBar";
+import { useTheme } from "@/theme/ThemeContext";
+const BASE_URL = "https://ncapi.jainaindia.com/api";
 
 function ComplaintTableInner() {
   const { colors } = useTheme();
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const status = searchParams.get('status');
-  const subStatus = searchParams.get('subStatus');
-  const roleID = searchParams.get('roleID');
-  const firstID = searchParams.get('firstID');
+  const status = searchParams.get("status");
+  const subStatus = searchParams.get("subStatus");
+  const roleID = searchParams.get("roleID");
+  const firstID = searchParams.get("firstID");
 
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -181,14 +179,14 @@ function ComplaintTableInner() {
     const fetchComplaints = async () => {
       setLoading(true);
       try {
-        const url = `https://ncapi.jainaindia.com/api/CallRegister/getstatus/${encodeURIComponent(
-          status
+        const url = `${BASE_URL}/CallRegister/getstatus/${encodeURIComponent(
+          status,
         )}/${encodeURIComponent(subStatus)}/${roleID}/${firstID}`;
 
         const response = await axiosInstance.get(url);
         setComplaints(response.data || []);
       } catch (error) {
-        console.error('Error fetching complaints:', error);
+        console.error("Error fetching complaints:", error);
       } finally {
         setLoading(false);
       }
@@ -199,29 +197,29 @@ function ComplaintTableInner() {
 
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
-      case 'open':
-        return 'bg-green-100 text-green-700';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'closed':
-        return 'bg-gray-200 text-gray-800';
+      case "open":
+        return "bg-green-100 text-green-700";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "closed":
+        return "bg-gray-200 text-gray-800";
       default:
-        return 'bg-gray-100 text-gray-600';
+        return "bg-gray-100 text-gray-600";
     }
   };
 
   const handleViewHistory = (ticketNo) => {
-    sessionStorage.setItem('currentTicket', ticketNo);
-    router.push('/history?fromPage=dashboardcall');
+    sessionStorage.setItem("currentTicket", ticketNo);
+    router.push("/history?fromPage=dashboardcall");
   };
 
   return (
     <div className="flex">
       <SideBar />
-      <main className="flex-1 bg-gray-100 p-6 ml-[60px] transition-all duration-300">
-        <section className="bg-white shadow-md rounded-lg p-6">
+      <main className="ml-[60px] flex-1 bg-gray-100 p-6 transition-all duration-300">
+        <section className="rounded-lg bg-white p-6 shadow-md">
           <h2
-            className="font-semibold mb-6"
+            className="mb-6 font-semibold"
             style={{
               color: colors.primary,
               fontSize: 18,
@@ -238,20 +236,37 @@ function ComplaintTableInner() {
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider">
-                    <th className="text-left py-3 px-4 font-semibold">History</th>
-                    <th className="text-left py-3 px-4 font-semibold">Complaint No.</th>
-                    <th className="text-left py-3 px-4 font-semibold">Customer Name</th>
-                    <th className="text-left py-3 px-4 font-semibold">Product</th>
-                    <th className="text-left py-3 px-4 font-semibold">Call Type</th>
-                    <th className="text-left py-3 px-4 font-semibold">Status</th>
-                    <th className="text-left py-3 px-4 font-semibold">Sub Status</th>
+                  <tr className="bg-gray-100 text-xs tracking-wider text-gray-700 uppercase">
+                    <th className="px-4 py-3 text-left font-semibold">
+                      History
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      Complaint No.
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      Customer Name
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      Product
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      Call Type
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      Sub Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {complaints.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="text-center py-4 text-gray-500">
+                      <td
+                        colSpan="7"
+                        className="py-4 text-center text-gray-500"
+                      >
                         No complaints found.
                       </td>
                     </tr>
@@ -259,35 +274,37 @@ function ComplaintTableInner() {
                     complaints.map((item, idx) => (
                       <tr
                         key={idx}
-                        className="hover:bg-gray-50 border-b border-gray-200"
+                        className="border-b border-gray-200 hover:bg-gray-50"
                       >
-                        <td className="py-3 px-4">
+                        <td className="px-4 py-3">
                           <button
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                             style={{ background: colors.primary }}
                             onClick={() => handleViewHistory(item.tickeT_NO)}
                           >
                             History
                           </button>
                         </td>
-                        <td className="py-3 px-4">{item.tickeT_NO}</td>
-                        <td className="py-3 px-4">
-                          {`${item.salutation || ''} ${item.firstname || ''} ${
-                            item.lastname || ''
+                        <td className="px-4 py-3">{item.tickeT_NO}</td>
+                        <td className="px-4 py-3">
+                          {`${item.salutation || ""} ${item.firstname || ""} ${
+                            item.lastname || ""
                           }`}
                         </td>
-                        <td className="py-3 px-4">{item.product}</td>
-                        <td className="py-3 px-4">{item.calL_TYPE}</td>
-                        <td className="py-3 px-4">
+                        <td className="px-4 py-3">{item.product}</td>
+                        <td className="px-4 py-3">{item.calL_TYPE}</td>
+                        <td className="px-4 py-3">
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusClass(
-                              item.complainT_STATUS
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
+                              item.complainT_STATUS,
                             )}`}
                           >
                             {item.complainT_STATUS}
                           </span>
                         </td>
-                        <td className="py-3 px-4">{item.complainT_SUBSTATUS}</td>
+                        <td className="px-4 py-3">
+                          {item.complainT_SUBSTATUS}
+                        </td>
                       </tr>
                     ))
                   )}

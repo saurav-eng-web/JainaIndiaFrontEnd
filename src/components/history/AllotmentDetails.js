@@ -177,9 +177,13 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import SectionHeading from "../common/SectionHeading";
 import ThemedButton from "../common/ThemedButton";
 import { useTheme } from "@/theme/ThemeContext";
+import axiosInstance from "@/api/axiosInstance";
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export default function AllotmentDetails({
   formData,
@@ -187,7 +191,37 @@ export default function AllotmentDetails({
   onApprove,
   onReject,
 }) {
+  const [engineerData, setEngineerData] = useState([]);
   const { colors } = useTheme();
+  // console.log("allotment details formData: ", formData);
+  // console.log(`🔴sf id: `, sf_Id);
+
+  useEffect(() => {
+    async function fetchEngineerData() {
+      try {
+        console.log("sf id: ", formData.sf_ID);
+        const res = await axiosInstance.post(
+          `Engineer/Manage`,
+          {
+            Action: "SELECT_ACTIVE_BY_SFID",
+            Eng_SFID: formData.sf_ID || 0,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        const resData = res.data;
+        setEngineerData(resData.data);
+      } catch (err) {
+        console.error("Error fetching engineer data:", err);
+      }
+    }
+
+    fetchEngineerData();
+  }, [formData.sf_ID]);
 
   return (
     <div className="mb-10 rounded-xl border bg-white p-6 shadow-md">
@@ -251,13 +285,14 @@ export default function AllotmentDetails({
             <span className="font-semibold">Engineer Name:</span>
             <select
               className="rounded border p-2"
-              value={formData.engineer}
-              onChange={(e) => onChange("engineer", e.target.value)}
+              value={formData.Eng_ID}
+              onChange={(e) => onChange("eng_ID", e.target.value)}
             >
               <option value="">-- Select Engineer --</option>
-              {formData.engineer && (
-                <option value={formData.engineer}>{formData.engineer}</option>
-              )}
+              {engineerData &&
+                engineerData.map((data) => (
+                  <option value={data.Eng_ID}>{data.Eng_Name}</option>
+                ))}
             </select>
           </label>
 

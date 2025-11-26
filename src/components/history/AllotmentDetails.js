@@ -291,7 +291,9 @@ export default function AllotmentDetails({
               <option value="">-- Select Engineer --</option>
               {engineerData &&
                 engineerData.map((data) => (
-                  <option value={data.Eng_ID}>{data.Eng_Name}</option>
+                  <option key={data.Eng_ID} value={data.Eng_ID}>
+                    {data.Eng_Name}
+                  </option>
                 ))}
             </select>
           </label>

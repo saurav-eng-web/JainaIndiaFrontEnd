@@ -99,3 +99,7 @@
 - asc code added on table in history page
 - calendar bug fixed on re allot page - ASM (allowed only future dates)
 - re allot approve fixed
+
+## v1.7.4
+
+- fix deps, missing key in options - Allotment page

@@ -125,7 +125,7 @@ function HistoryPageContent() {
       eng_ID: custDetail.Eng_ID || "-",
       sf_ID: custDetail.sf_ID || 0,
     }));
-  }, [custDetail]);
+  }, [custDetail, detail?.purchasE_DATE, loggedInUserId]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

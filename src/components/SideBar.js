@@ -366,8 +366,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "@/redux/slices/authSlice";
+
 import Loader from "./common/Loader";
+
+import { logout } from "@/redux/slices/authSlice";
 export default function SideBar() {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -391,7 +393,7 @@ export default function SideBar() {
   // ✅ Show loader before mount
   if (!mounted) {
     return (
-      <div className="flex items-center justify-center h-screen w-1/6 bg-white dark:bg-gray-900">
+      <div className="flex h-screen w-1/6 items-center justify-center bg-white dark:bg-gray-900">
         <Loader />
       </div>
     );
@@ -399,15 +401,60 @@ export default function SideBar() {
 
   const menuItems = [
     { href: "/test", icon: "fa fa-home fa-2x", text: "Dashboard", roles: ["CC"] },
-    { href: "/nsp/dashboard", icon: "fa fa-home fa-2x", text: "Dashboard", roles: ["BR", "ASM", "ZONE", "SF/SSD"] },
-    { href: "/call", icon: "fa fa-phone fa-2x", text: "Call Registration", roles: ["CC"] },
-    { href: "/search-complaint", icon: "fa fa-search fa-2x", text: "Call Search", roles: ["CC", "BR", "ASM", "ZONE", "SF/SSD"] },
-    { href: "/warrantyregisteration", icon: "fa fa-certificate fa-2x", text: "Warranty Registration", roles: ["CC"] },
-    { href: "/technicalApproval", icon: "fa fa-wrench fa-2x", text: "Technical Approval", roles: ["CC"] },
-    { href: "/bulk-uploader", icon: "fa fa-phone fa-2x", text: "Bulk Call Creation", roles: ["CC"] },
-    { href: "/nsp/asc-creation", icon: "fa fa-plus fa-2x", text: "Asc Creation", roles: ["BR"] },
-    { href: "/nsp/reports", icon: "fa fa-wrench fa-2x", text: "Reports", roles: ["BR", "ZONE", "SF/SSD"] },
-    { href: "/nsp/transfercall", icon: "fa fa-phone fa-2x", text: "Call Transfer", roles: ["BR", "ASM", "ZONE"] },
+    {
+      href: "/nsp/dashboard",
+      icon: "fa fa-home fa-2x",
+      text: "Dashboard",
+      roles: ["BR", "ASM", "ZONE", "SF/SSD"],
+    },
+    {
+      href: "/call",
+      icon: "fa fa-phone fa-2x",
+      text: "Call Registration",
+      roles: ["CC"],
+    },
+    {
+      href: "/search-complaint",
+      icon: "fa fa-search fa-2x",
+      text: "Call Search",
+      roles: ["CC", "BR", "ASM", "ZONE", "SF/SSD"],
+    },
+    {
+      href: "/warrantyregisteration",
+      icon: "fa fa-certificate fa-2x",
+      text: "Warranty Registration",
+      roles: ["CC"],
+    },
+    {
+      href: "/technicalApproval",
+      icon: "fa fa-wrench fa-2x",
+      text: "Technical Approval",
+      roles: ["CC"],
+    },
+    {
+      href: "/bulk-uploader",
+      icon: "fa fa-phone fa-2x",
+      text: "Bulk Call Creation",
+      roles: ["CC"],
+    },
+    {
+      href: "/nsp/asc-creation",
+      icon: "fa fa-plus fa-2x",
+      text: "Asc Creation",
+      roles: ["BR"],
+    },
+    {
+      href: "/nsp/reports",
+      icon: "fa fa-wrench fa-2x",
+      text: "Reports",
+      roles: ["BR", "ZONE", "SF/SSD", "NSP", "ASM", "RSM", "HOuser"],
+    },
+    {
+      href: "/nsp/transfercall",
+      icon: "fa fa-phone fa-2x",
+      text: "Call Transfer",
+      roles: ["BR", "ASM", "ZONE"],
+    },
     { href: "/print", icon: "fa fa-print fa-2x", text: "Print", roles: ["SF/SSD"] },
   ];
 
@@ -448,10 +495,7 @@ export default function SideBar() {
             if (!roleName || !item.roles.includes(roleName)) return false;
 
             // special case: Bulk Call Creation allowed ONLY for T284977
-            if (
-              item.href === "/bulk-uploader" &&
-              !allowedBulkUsers.includes(userName)
-            ) {
+            if (item.href === "/bulk-uploader" && !allowedBulkUsers.includes(userName)) {
               return false;
             }
 
@@ -480,9 +524,7 @@ export default function SideBar() {
         />
         <div className="userDetails">
           <p className="userName">{userName}</p>
-          <p className="userRole">
-            {roleName ? `You are logged in as ${roleName}` : ""}
-          </p>
+          <p className="userRole">{roleName ? `You are logged in as ${roleName}` : ""}</p>
           <button onClick={handleLogout} className="signOutBtn">
             Sign Out
           </button>

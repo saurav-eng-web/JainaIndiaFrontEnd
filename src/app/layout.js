@@ -1,10 +1,11 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ReduxProvider from "@/redux/ReduxProvider"; // ✅ Import client provider
-import { ThemeProvider } from "@/theme/ThemeContext";
 import Script from "next/script";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+import ReduxProvider from "@/redux/ReduxProvider"; // ✅ Import client provider
+import { ThemeProvider } from "@/theme/ThemeContext";
+
+// const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

@@ -2,21 +2,23 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState, Suspense, useCallback } from "react"; // ✅ import Suspense
-import { useParams, useSearchParams } from "next/navigation";
-import SideBar from "@/components/SideBar";
-import "./history.css";
-import axiosInstance from "@/api/axiosInstance";
+import { useEffect, useState, Suspense, useCallback, act } from "react"; // ✅ import Suspense
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
+import CancelPopup from "./CancelPopup";
+import EditCustPopup from "./EditCustPopup";
+
+import SideBar from "@/components/SideBar";
+import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import RemarkSection from "@/components/history/RemarkSection";
 import AllotmentDetails from "@/components/history/AllotmentDetails";
 import Popup from "@/components/common/Popup";
-import { useRouter } from "next/navigation";
-import CancelPopup from "./CancelPopup";
-import EditCustPopup from "./EditCustPopup";
+import "./history.css";
+
+import "react-toastify/dist/ReactToastify.css";
 
 const tabs = [
   "Job Details",
@@ -87,7 +89,10 @@ function HistoryPageContent() {
     message: "",
   });
 
-  const role = user?.roleName;
+  const firstEntry = logData[0] || {};
+  const detail = custDetail || {};
+
+  // const role = user?.roleName;
 
   const [formData, setFormData] = useState({
     ascName: "",
@@ -112,11 +117,12 @@ function HistoryPageContent() {
 
   useEffect(() => {
     if (!custDetail) return;
-
+    console.log("custDetail: ", custDetail);
     setFormData((prevData) => ({
       ...prevData,
       ascName: custDetail.asC_NAME || "",
       tickeT_NO: custDetail.tickeT_NO || "",
+      ticketKey: custDetail.tickeT_KEY || 0,
       calL_TYPE: custDetail.calL_TYPE || "-",
       call_TypeID: custDetail.call_TypeID || 0,
       loggedInUserId: loggedInUserId || 0,
@@ -124,6 +130,7 @@ function HistoryPageContent() {
       engineer: custDetail.engineeR_NAME || "-",
       eng_ID: custDetail.Eng_ID || "-",
       sf_ID: custDetail.sf_ID || 0,
+      firstName: custDetail.firstname || "-",
     }));
   }, [custDetail, loggedInUserId]);
 
@@ -131,48 +138,114 @@ function HistoryPageContent() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const buildPayload = (action) => ({
-    TICKET_NO: formData.tickeT_NO,
-    Apptdate: formData.appointmentDate,
-    Appttime: `${formData.appointmentHour || "00"}:${
-      formData.appointmentMinute || "00"
-    }`,
-    DOP: formData.DOP,
-    Reallot: formData.reAllot ? 1 : 0,
-    Type: "Re-Allot",
-    Type1: "ASM",
-    ContactPersion: formData.engineer,
-    CustomerRemark: formData.customerRemark,
-    UsrId: loggedInUserId,
-    Eng_Id: formData.eng_ID,
-    CallTypeID: formData.call_TypeID,
+  const buildPayloadReallot = (type) => ({
+    ticketNo: formData.tickeT_NO,
+    usrName: loggedInUser,
+    type,
+    apptdate: formData.appointmentDate,
+    appttime: `${formData.appointmentHour || "00"}:${formData.appointmentMinute || "00"}`,
+    dop: formData.DOP,
+    contactPersion: formData.firstName,
+    customerRemark: formData.customerRemark,
+    usrId: loggedInUserId.toString(),
+    eng_id: formData.eng_ID,
+    callTypeID: formData.call_TypeID.toString(),
     CallType: formData.calL_TYPE,
-    Action: action,
+    // Reallot: formData.reAllot ? 1 : 0,
+    // Type1: "ASM",
+    // Action: action,
   });
+
+  const updateJobAndHistory = async (status, subStatus, message, serialNumber) => {
+    const ticketNumber = formData.tickeT_NO;
+
+    await axiosInstance.post(`/CallRegister/UpdateComplaint/${ticketNumber}`, {
+      complaint_Status: status,
+      complaint_SubStatus: subStatus,
+    });
+
+    await axiosInstance.post(`/ComplaintHistory`, {
+      ticketNo: ticketNumber,
+      complaintStatus: status,
+      complaintSubStatus: `${subStatus}${serialNumber ? ` - ${serialNumber}` : " Call moved to Assign from Re-Allot"}`, // WIP
+      tdate: new Date().toISOString().split("T")[0],
+      enteredBy: loggedInUser,
+      enteredByID: loggedInUserId,
+    });
+  };
+
   const handleApprove = async () => {
-    const payload = buildPayload("Approved");
+    const payload = buildPayloadReallot("Re-AllotASMApproved");
+
     try {
-      await axiosInstance.post("/JobSheet/process", payload);
+      // 1) LEVEL 1 processing
+      const level1Res = await axiosInstance.post(
+        "/Level1Operation/UpdateLevel1Operation",
+        payload
+      );
+
+      const msg = level1Res?.data?.message || "";
+      const [status, subStatus, message] = msg.split("|").map((x) => x.trim());
+
+      if (!status || !subStatus) {
+        throw new Error("Invalid Level1 response format");
+      }
+
+      // 2) JOB UPDATE + HISTORY
+      await updateJobAndHistory(status, subStatus, message);
+
+      // 3) CALL SCHEDULE (Approve only)
+      const callSchedulePayload = {
+        sfId: formData.sf_ID,
+        engId: payload.eng_id,
+        appointmentDate: payload.apptdate,
+        appointmentTime: payload.appttime,
+        talkToWhomeAllot: payload.contactPersion,
+        ticketNo: payload.ticketNo,
+        ticketKey: formData.ticketKey || 0,
+        status: 1,
+        apptDateandTime: new Date().toISOString(),
+      };
+
+      await axiosInstance.post("/CallSchedule/create", callSchedulePayload);
+
+      // SUCCESS
       setPopup({ isOpen: true, message: "Approved successfully!" });
 
       setTimeout(() => {
-        router.push("/nsp/dashboard"); // ✅ redirect to dashboard
-      }, 1500); // wait 1.5s so popup is visible
+        // router.push("/nsp/dashboard");
+      }, 1500);
     } catch (err) {
-      console.error("Approve Error:", err);
+      console.error("Approve Error:", {
+        status: err?.response?.status,
+        data: err?.response?.data,
+        message: err?.message,
+      });
+
       setPopup({ isOpen: true, message: "Failed to approve" });
     }
   };
 
   const handleReject = async () => {
-    const payload = buildPayload("Reject");
-    try {
-      await axiosInstance.post("/JobSheet/process", payload);
-      setPopup({ isOpen: true, message: "Rejected successfully!" });
+    const payload = buildPayloadReallot("Re-AllotASMReject");
 
-      setTimeout(() => {
-        router.push("/nsp/dashboard"); // ✅ redirect to dashboard
-      }, 1500);
+    try {
+      // 1) LEVEL 1
+      const res = await axiosInstance.post(
+        "/Level1Operation/UpdateLevel1Operation",
+        payload
+      );
+
+      const msg = res?.data?.message || "";
+      const [status, subStatus, message] = msg.split("|").map((x) => x.trim());
+
+      // 2) Update Job + History (added now)
+      await updateJobAndHistory(status, subStatus, message);
+
+      // 3) NO call schedule on reject
+
+      setPopup({ isOpen: true, message: "Rejected successfully!" });
+      // setTimeout(() => router.push("/nsp/dashboard"), 1500);
     } catch (err) {
       console.error("Reject Error:", err);
       setPopup({ isOpen: true, message: "Failed to reject" });
@@ -256,7 +329,7 @@ function HistoryPageContent() {
         eng_ID: custDetail.eng_ID || "-",
       }));
     }
-  }, [custDetail]);
+  }, [custDetail, detail?.purchasE_DATE, loggedInUserId]);
 
   // end for realott
   // COMPLAINT DETAILS
@@ -266,9 +339,7 @@ function HistoryPageContent() {
       // fetch data with storedTicket
       axiosInstance
         .get(`ComplaintHistory/history-by-ticket/${storedTicket}`)
-        .then((res) =>
-          setLogData(Array.isArray(res.data) ? res.data : [res.data]),
-        )
+        .then((res) => setLogData(Array.isArray(res.data) ? res.data : [res.data]))
         .catch((err) => console.error(err))
         .finally(() => setLoading(false));
 
@@ -296,12 +367,8 @@ function HistoryPageContent() {
     if (ticketNo) {
       axiosInstance
         .get(`PartConsumption/ByTicket/${ticketNo}`)
-        .then((res) =>
-          setPartConsumption(Array.isArray(res.data) ? res.data : []),
-        )
-        .catch((err) =>
-          console.error("Failed to fetch part consumption:", err),
-        );
+        .then((res) => setPartConsumption(Array.isArray(res.data) ? res.data : []))
+        .catch((err) => console.error("Failed to fetch part consumption:", err));
     }
   }, [ticketNo]);
 
@@ -310,15 +377,13 @@ function HistoryPageContent() {
     const storedTicket = sessionStorage.getItem("currentTicket");
     const fetchTicket = ticketNo || storedTicket; // fallback
     if (fetchTicket) {
-      console.log("Fetching PartConsumption for ticket:", fetchTicket);
+      // console.log("Fetching PartConsumption for ticket:", fetchTicket);
       axiosInstance
         .get(`PartConsumption/ByTicket/${fetchTicket}`)
         .then((res) =>
-          setPartConsumption(Array.isArray(res.data) ? res.data : [res.data]),
+          setPartConsumption(Array.isArray(res.data) ? res.data : [res.data])
         )
-        .catch((err) =>
-          console.error("Failed to fetch part consumption:", err),
-        );
+        .catch((err) => console.error("Failed to fetch part consumption:", err));
     }
   }, [ticketNo]);
 
@@ -340,12 +405,8 @@ function HistoryPageContent() {
     if (fetchTicket) {
       axiosInstance
         .get(`LevelPendingHistory/ticket/${fetchTicket}`)
-        .then((res) =>
-          setPendingHistory(Array.isArray(res.data) ? res.data : []),
-        )
-        .catch((err) =>
-          console.error("Failed to fetch Pending Level History:", err),
-        );
+        .then((res) => setPendingHistory(Array.isArray(res.data) ? res.data : []))
+        .catch((err) => console.error("Failed to fetch Pending Level History:", err));
     }
   }, [ticketNo]);
 
@@ -377,9 +438,6 @@ function HistoryPageContent() {
         .finally(() => setLoadingReminders(false));
     }
   }, [ticketNo]);
-
-  const firstEntry = logData[0] || {};
-  const detail = custDetail || {};
 
   const fetchCustomerDetails = useCallback(() => {
     const storedTicket = sessionStorage.getItem("currentTicket");
@@ -442,39 +500,43 @@ function HistoryPageContent() {
 
         // ✅ Fetch complaint detail dynamically
         const { data: complaintDetail } = await axiosInstance.get(
-          `ComplaintCustDetail/${storedTicket}`,
+          `ComplaintCustDetail/${storedTicket}`
         );
-
         if (!complaintDetail) return;
 
         // ✅ Dynamically extract from API + Redux
+        const userRole = user?.roleName || "Unknown";
         const complaintStatus = complaintDetail.complainT_STATUS || "";
         const complaintSubStatus = complaintDetail.complaint_SubStatus || "";
-        const userRole = user?.roleName || "Unknown";
         const calltype = complaintDetail.calL_TYPE || "";
         const product = complaintDetail.product || "";
+
+        console.log("complainStatus: ", complaintStatus);
+        console.log("complainSubStatus: ", complaintSubStatus);
+        console.log("calltype: ", calltype);
+        console.log("product: ", product);
 
         // ✅ Build payload dynamically
         const payload = {
           type: "jobactions",
           role: userRole,
-          complaint_SubStatus: "Assigned",
-          complaint_Status: "open",
-          calltype: "installation",
-          product: "smart led",
+          complaint_SubStatus: complaintSubStatus,
+          complaint_Status: complaintStatus,
+          calltype,
+          product,
         };
 
         // console.log("Dynamic Payload:", payload);
 
-        const res = await axiosInstance.post(
-          "ActionMaster/get-actions",
-          payload,
-        );
-        // console.log("Response:", res.data);
+        const res = await axiosInstance.post("ActionMaster/get-actions", payload);
+        // console.log("resonse: ", res);
+        const data = res.data.data || [];
 
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          const actionsString = res.data[0].action || "";
-          setActions(actionsString.split(",").map((a) => a.trim()));
+        if (Array.isArray(data) && data.length > 0) {
+          const actionsString = data[0].actions.map((a) => a.action) || "";
+
+          // console.log("actions:", actionsString);
+          setActions(actionsString);
         } else {
           console.warn("No actions found for:", payload);
           setActions([]); // clear if empty
@@ -495,7 +557,7 @@ function HistoryPageContent() {
     try {
       const res = await axiosInstance.post(
         "DropdownMaster/GetDropdown",
-        { type: "CancelReason" }, // ✅ required payload
+        { type: "CancelReason" } // ✅ required payload
       );
 
       if (res?.data?.data) {
@@ -522,10 +584,7 @@ function HistoryPageContent() {
         reason: selectedReason,
         remarks: remark,
       };
-      const res = await axiosInstance.post(
-        "/RequestCancellation/create",
-        payload,
-      );
+      const res = await axiosInstance.post("/RequestCancellation/create", payload);
 
       console.log("API Response:", res.data);
 
@@ -538,10 +597,7 @@ function HistoryPageContent() {
 
       // ✔ Close popup only when success
       // If statusMsg indicates failure, popup will remain open
-      if (
-        res?.data?.statusCode === 200 &&
-        res.data.statusMsg.includes("success")
-      ) {
+      if (res?.data?.statusCode === 200 && res.data.statusMsg.includes("success")) {
         setShowPopup(false);
       }
     } catch (error) {
@@ -626,9 +682,7 @@ function HistoryPageContent() {
 
                       {/* Remark */}
                       <div className="mb-5 flex flex-col">
-                        <label className="font-medium text-gray-700">
-                          Remark:
-                        </label>
+                        <label className="font-medium text-gray-700">Remark:</label>
                         <textarea
                           className="h-20 rounded-md border px-3 py-2"
                           placeholder="Enter remark here..."
@@ -684,9 +738,7 @@ function HistoryPageContent() {
                     <div className="animate-fadeIn w-[450px] rounded-xl bg-white p-6 shadow-2xl">
                       {/* Header */}
                       <div className="mb-5 flex items-center justify-between border-b pb-3">
-                        <h2 className="text-xl font-semibold text-gray-800">
-                          WIP
-                        </h2>
+                        <h2 className="text-xl font-semibold text-gray-800">WIP</h2>
                         <button
                           onClick={() => setShowPopup(false)}
                           className="text-xl text-gray-600 transition hover:text-red-600"
@@ -755,9 +807,7 @@ function HistoryPageContent() {
 
                         {/* ASC Name */}
                         <div className="flex flex-col">
-                          <label className="font-medium text-gray-700">
-                            ASC Name:
-                          </label>
+                          <label className="font-medium text-gray-700">ASC Name:</label>
                           <div className="rounded-md border bg-gray-100 px-3 py-2">
                             {detail.asC_NAME || "-"}
                           </div>
@@ -774,17 +824,11 @@ function HistoryPageContent() {
                         </div>
 
                         <div className="flex flex-col">
-                          <label className="font-medium text-gray-700">
-                            Address:
-                          </label>
+                          <label className="font-medium text-gray-700">Address:</label>
                           <textarea
                             className="h-20 rounded-md border bg-gray-100 px-3 py-2"
                             readOnly
-                            value={[
-                              detail?.addresS1,
-                              detail?.addresS2,
-                              detail?.addresS3,
-                            ]
+                            value={[detail?.addresS1, detail?.addresS2, detail?.addresS3]
                               .filter(Boolean)
                               .join(", ")}
                           />
@@ -818,9 +862,7 @@ function HistoryPageContent() {
 
                           {/* Hour */}
                           <div className="flex flex-col">
-                            <label className="font-medium text-gray-700">
-                              Hour:
-                            </label>
+                            <label className="font-medium text-gray-700">Hour:</label>
                             <select
                               className="rounded-md border px-3 py-2"
                               value={selectedHour}
@@ -833,15 +875,10 @@ function HistoryPageContent() {
 
                                 // If date is today → disable past hours
                                 const disabled =
-                                  appointmentDate === todayStr &&
-                                  i < currentHour;
+                                  appointmentDate === todayStr && i < currentHour;
 
                                 return (
-                                  <option
-                                    key={i}
-                                    value={hr}
-                                    disabled={disabled}
-                                  >
+                                  <option key={i} value={hr} disabled={disabled}>
                                     {hr}
                                   </option>
                                 );
@@ -851,15 +888,11 @@ function HistoryPageContent() {
 
                           {/* Minute */}
                           <div className="flex flex-col">
-                            <label className="font-medium text-gray-700">
-                              Minute:
-                            </label>
+                            <label className="font-medium text-gray-700">Minute:</label>
                             <select
                               className="rounded-md border px-3 py-2"
                               value={selectedMinute}
-                              onChange={(e) =>
-                                setSelectedMinute(e.target.value)
-                              }
+                              onChange={(e) => setSelectedMinute(e.target.value)}
                             >
                               <option value="">--Minute--</option>
 
@@ -873,11 +906,7 @@ function HistoryPageContent() {
                                   i < currentMinute;
 
                                 return (
-                                  <option
-                                    key={i}
-                                    value={mn}
-                                    disabled={disabled}
-                                  >
+                                  <option key={i} value={mn} disabled={disabled}>
                                     {mn}
                                   </option>
                                 );
@@ -1022,10 +1051,7 @@ function HistoryPageContent() {
 
                   console.log("📦 Sending payload:", payload);
 
-                  const res = await axiosInstance.post(
-                    "/Cancellation/request",
-                    payload,
-                  );
+                  const res = await axiosInstance.post("/Cancellation/request", payload);
                   console.log("✅ API Success:", res.data);
 
                   // 🔹 show popup instead of toast
@@ -1049,10 +1075,7 @@ function HistoryPageContent() {
 
                   console.log("📦 Sending reject payload:", payload);
 
-                  const res = await axiosInstance.post(
-                    "/Cancellation/request",
-                    payload,
-                  );
+                  const res = await axiosInstance.post("/Cancellation/request", payload);
                   console.log("✅ Rejection Success:", res.data);
 
                   // 🔹 show popup instead of toast
@@ -1096,9 +1119,7 @@ function HistoryPageContent() {
                     <td>{row.ticketNo}</td>
                     <td> {row.complaintStatus}</td>
                     <td>{row.complaintSubStatus || "-"}</td>
-                    <td>
-                      {row.tdate ? new Date(row.tdate).toLocaleString() : "-"}
-                    </td>
+                    <td>{row.tdate ? new Date(row.tdate).toLocaleString() : "-"}</td>
                     <td>{row.enteredBy}</td>
                   </tr>
                 ))}
@@ -1124,9 +1145,7 @@ function HistoryPageContent() {
               {tabs.map((tab) => (
                 <button
                   key={tab}
-                  className={`tab-button m-0 p-0 ${
-                    tab === activeTab ? "active" : ""
-                  }`}
+                  className={`tab-button m-0 p-0 ${tab === activeTab ? "active" : ""}`}
                   onClick={() => setActiveTab(tab)}
                 >
                   {tab}
@@ -1147,8 +1166,7 @@ function HistoryPageContent() {
                       {detail.complaint_SubStatus || "-"}
                     </div>
                     <div>
-                      <strong>Complaint Status:</strong>{" "}
-                      {detail.complainT_STATUS || "-"}
+                      <strong>Complaint Status:</strong> {detail.complainT_STATUS || "-"}
                     </div>
                     <div>
                       <strong>Remarks:</strong> {detail.email || "-"}
@@ -1204,27 +1222,21 @@ function HistoryPageContent() {
                         ? new Date(detail.promisE_DATE).toLocaleDateString()
                         : "-"} */}
                       {detail.promisE_DATE
-                        ? new Date(detail.promisE_DATE).toLocaleDateString(
-                            "en-IN",
-                            {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            },
-                          )
+                        ? new Date(detail.promisE_DATE).toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
                         : "-"}
                     </div>
                     <div>
-                      <strong>Promise Time:</strong>{" "}
-                      {detail.promisE_TIME || "-"}
+                      <strong>Promise Time:</strong> {detail.promisE_TIME || "-"}
                     </div>
                     <div>
-                      <strong>Legal Case:</strong>{" "}
-                      {detail.legal === 1 ? "Yes" : "No"}
+                      <strong>Legal Case:</strong> {detail.legal === 1 ? "Yes" : "No"}
                     </div>
                     <div>
-                      <strong>Special Instructions:</strong>{" "}
-                      {detail.splInt || "-"}
+                      <strong>Special Instructions:</strong> {detail.splInt || "-"}
                     </div>
                     <div>
                       <strong>VOC:</strong> {detail.remarks || "-"}
@@ -1250,8 +1262,7 @@ function HistoryPageContent() {
                       <strong>Mobile No:</strong> {detail.mobile || "-"}
                     </div>
                     <div>
-                      <strong>Alternate No:</strong>{" "}
-                      {detail.wkph || detail.hmph || "-"}
+                      <strong>Alternate No:</strong> {detail.wkph || detail.hmph || "-"}
                     </div>
                     <div>
                       <strong>Caller Number:</strong> {detail.complaint || "-"}
@@ -1289,8 +1300,7 @@ function HistoryPageContent() {
                       <strong>Model:</strong> {detail.model || "-"}
                     </div>
                     <div>
-                      <strong>Product Category:</strong>{" "}
-                      {detail.category || "-"}
+                      <strong>Product Category:</strong> {detail.category || "-"}
                     </div>
                     <div>
                       <strong>Serial No.:</strong> {detail.seriaL_NO || "-"}
@@ -1308,8 +1318,7 @@ function HistoryPageContent() {
                       <strong>BOM Type:</strong> {detail.bomType || "-"}
                     </div>
                     <div>
-                      <strong>Model Description:</strong>{" "}
-                      {detail.modelDesc || "-"}
+                      <strong>Model Description:</strong> {detail.modelDesc || "-"}
                     </div>
                   </div>
                 </div>
@@ -1435,9 +1444,7 @@ function HistoryPageContent() {
                         <table className="min-w-full border border-gray-300 text-sm">
                           <thead className="bg-[#714b67] text-white">
                             <tr>
-                              <th className="border border-gray-300 px-3 py-2">
-                                Sr. No
-                              </th>
+                              <th className="border border-gray-300 px-3 py-2">Sr. No</th>
                               <th className="border border-gray-300 px-3 py-2">
                                 Part Code
                               </th>
@@ -1470,9 +1477,7 @@ function HistoryPageContent() {
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2">
                                   {item.pC_Date
-                                    ? new Date(
-                                        item.pC_Date,
-                                      ).toLocaleDateString()
+                                    ? new Date(item.pC_Date).toLocaleDateString()
                                     : "-"}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2">
@@ -1530,8 +1535,7 @@ function HistoryPageContent() {
                     visitDetails.map((visit, index) => (
                       <div key={index} className="row-content">
                         <div>
-                          <strong>VISIT DETAIL:</strong>{" "}
-                          {visit.visitDetail || "N/A"}
+                          <strong>VISIT DETAIL:</strong> {visit.visitDetail || "N/A"}
                         </div>
                         <div>
                           <strong>DATE:</strong>{" "}
@@ -1582,8 +1586,7 @@ function HistoryPageContent() {
                   className="reminder-form"
                   onSubmit={async (e) => {
                     e.preventDefault();
-                    const storedTicket =
-                      sessionStorage.getItem("currentTicket");
+                    const storedTicket = sessionStorage.getItem("currentTicket");
                     const ticket = ticketNo || storedTicket;
                     if (!ticket) return alert("Ticket not found");
 
@@ -1599,12 +1602,8 @@ function HistoryPageContent() {
                       // console.log("📦 Sending Reminder Payload:", payload);
                       await axiosInstance.post("/reminder/create", payload);
 
-                      const res = await axiosInstance.get(
-                        `/reminder/Ticket/${ticket}`,
-                      );
-                      const data = Array.isArray(res.data)
-                        ? res.data
-                        : [res.data];
+                      const res = await axiosInstance.get(`/reminder/Ticket/${ticket}`);
+                      const data = Array.isArray(res.data) ? res.data : [res.data];
                       setReminders(data);
 
                       setReminderReason("");

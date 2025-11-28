@@ -70,7 +70,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 
 /**
  * ProtectedRoute
@@ -92,9 +92,9 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
     try {
       const user = JSON.parse(userData);
       const role = user.roleName?.toLowerCase();
+      const allowed = allowedRoles.map((x) => x.toLowerCase());
 
-      // If no roles specified, allow all logged-in users
-      if (allowedRoles.length === 0 || allowedRoles.includes(role)) {
+      if (allowed.length === 0 || allowed.includes(role)) {
         setAuthorized(true);
       } else {
         router.replace("/login");

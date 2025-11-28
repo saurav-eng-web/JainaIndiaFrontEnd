@@ -1,17 +1,16 @@
+"use client";
 
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-'use client';
-
-import SideBar from '@/components/SideBar';
-import { useTheme } from '@/theme/ThemeContext';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import SideBar from "@/components/SideBar";
+import { useTheme } from "@/theme/ThemeContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 function Loader() {
   return (
     <div className="flex items-center justify-center">
-      <div className="w-8 h-8 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-white border-t-transparent"></div>
     </div>
   );
 }
@@ -27,47 +26,47 @@ export default function Test() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['cc']}>
+    <ProtectedRoute allowedRoles={["cc"]}>
       <div className="flex min-h-screen" style={{ backgroundColor: colors.background }}>
         <SideBar />
-        <div className="flex justify-center items-start pt-[100px] flex-1">
+        <div className="flex flex-1 items-start justify-center pt-[100px]">
           <div
-            className="max-w-[600px] w-full p-[40px] text-center rounded-[12px] shadow-[0_8px_24px_rgba(0,0,0,0.2)]"
+            className="w-full max-w-[600px] rounded-[12px] p-[40px] text-center shadow-[0_8px_24px_rgba(0,0,0,0.2)]"
             style={{
               background: `linear-gradient(to bottom right, ${colors.primary}, ${colors.secondary}, ${colors.accent})`,
             }}
           >
             <h2
               style={{
-                textAlign: 'left',
-                paddingLeft: '10px',
-                marginBottom: '30px',
+                textAlign: "left",
+                paddingLeft: "10px",
+                marginBottom: "30px",
                 fontWeight: 700,
-                color: '#714b67',
-                border: '2px solid #714b67',
-                fontSize: 'larger',
-                padding: '5px',
-                borderRadius: '5px',
+                color: "#714b67",
+                border: "2px solid #714b67",
+                fontSize: "larger",
+                padding: "5px",
+                borderRadius: "5px",
               }}
             >
               Welcome to Jaina CRM
             </h2>
             <div className="flex flex-col items-center gap-[20px]">
               <button
-                className="w-[400px] py-[16px] px-[24px] text-[18px] font-bold rounded-[8px] transition-colors flex items-center justify-center"
+                className="flex w-[400px] items-center justify-center rounded-[8px] px-[24px] py-[16px] text-[18px] font-bold transition-colors"
                 style={{ backgroundColor: colors.primary, color: colors.warning }}
-                onClick={() => handleNavigate('call')}
+                onClick={() => handleNavigate("call")}
                 disabled={loading}
               >
-                {loading ? <Loader /> : 'New Registration'}
+                {loading ? <Loader /> : "New Registration"}
               </button>
               <button
-                className="w-[400px] py-[16px] px-[24px] text-[18px] font-bold rounded-[8px] transition-colors flex items-center justify-center"
+                className="flex w-[400px] items-center justify-center rounded-[8px] px-[24px] py-[16px] text-[18px] font-bold transition-colors"
                 style={{ backgroundColor: colors.primary, color: colors.warning }}
-                onClick={() => handleNavigate('/search-complaint')}
+                onClick={() => handleNavigate("/search-complaint")}
                 disabled={loading}
               >
-                {loading ? <Loader /> : 'Search Complaint'}
+                {loading ? <Loader /> : "Search Complaint"}
               </button>
             </div>
           </div>

@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { FaDownload } from "react-icons/fa";
+
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
-import { FaDownload } from "react-icons/fa";
 import axiosInstance from "@/api/axiosInstance";
-import { useSelector } from "react-redux";
 
 export default function DashboardPage() {
   const { colors } = useTheme();
@@ -40,7 +41,7 @@ export default function DashboardPage() {
     }
 
     fetchOptions();
-  }, []);
+  }, [role]);
 
   // filter((option) => option.role.includes(role));
 
@@ -146,7 +147,9 @@ export default function DashboardPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={["br", "zone", "sf/ssd"]}>
+    <ProtectedRoute
+      allowedRoles={["BR", "ZONE", "SF/SSD", "NSP", "ASM", "RSM", "HOuser"]}
+    >
       <div className="flex">
         {/* Sidebar */}
         <SideBar />
@@ -209,11 +212,22 @@ export default function DashboardPage() {
                 className="w-full rounded border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
               >
                 <option value="">-----Select-----</option>
+                {/*
                 {options.map((option) => (
                   <option key={option.id} value={option.reportAct}>
                     {option.reportDis}
                   </option>
-                ))}
+
+                ))} */}
+                {options.length === 0 ? (
+                  <option disabled>No reports available</option>
+                ) : (
+                  options.map((option) => (
+                    <option key={option.id} value={option.reportAct}>
+                      {option.reportDis}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 

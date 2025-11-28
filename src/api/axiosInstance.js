@@ -30,13 +30,17 @@
 
 // axiosInstance.js
 import axios from "axios";
+
 import { logout } from "@/redux/slices/authSlice";
 import { store } from "@/redux/store";
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
 });
+
+console.log("inside axiosInstance");
 
 // Attach token in requests
 axiosInstance.interceptors.request.use((config) => {
@@ -50,29 +54,59 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
-let isRedirecting = false; // define this once outside the interceptor
+let isRedirecting = false;
 
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !isRedirecting) {
-      const currentPath =
-        typeof window !== "undefined" ? window.location.pathname : "";
+    console.log("error:", error);
 
-      if (currentPath !== "/login") {
-        isRedirecting = true;
+    const status = error.response?.status;
 
-        store.dispatch(logout());
+    // handle expired token or unauthorized access
+    if ([401, 403].includes(status) && !isRedirecting) {
+      if (typeof window !== "undefined") {
+        const currentPath = window.location.pathname;
 
-        if (typeof window !== "undefined") {
+        if (currentPath !== "/login") {
+          isRedirecting = true;
+
+          // logout and clear store
+          store.dispatch(logout());
+
+          // redirect safely
           window.location.href = "/login";
         }
       }
     }
 
     return Promise.reject(error);
-  },
+  }
 );
+
+// let isRedirecting = false; // define this once outside the interceptor
+
+// axiosInstance.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     console.log("error:", error);
+//     if (error.response?.status === 401 && !isRedirecting) {
+//       const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+
+//       if (currentPath !== "/login") {
+//         isRedirecting = true;
+
+//         store.dispatch(logout());
+
+//         if (typeof window !== "undefined") {
+//           window.location.href = "/login";
+//         }
+//       }
+//     }
+
+//     return Promise.reject(error);
+//   }
+// );
 
 export default axiosInstance;
 

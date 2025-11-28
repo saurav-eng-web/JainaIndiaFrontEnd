@@ -1,8 +1,9 @@
 "use client";
 
+import { useCallback, useMemo, useState } from "react";
+
 import CustomDropdown from "@/components/common/Dropdown";
 import { useTheme } from "@/theme/ThemeContext";
-import { useCallback, useMemo, useState } from "react";
 
 export default function CancelPopup({
   isOpen,
@@ -77,7 +78,7 @@ export default function CancelPopup({
       },
       { label: "Others", value: "Others" },
     ],
-    [],
+    []
   );
 
   const handleChange = useCallback(
@@ -85,7 +86,7 @@ export default function CancelPopup({
       const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));
     },
-    [setFormData],
+    [setFormData]
   );
 
   const handleSubmit = (e) => {
@@ -160,17 +161,13 @@ export default function CancelPopup({
             <CustomDropdown
               options={cancelOptions}
               value={formData.cancelReason}
-              onChange={(val) =>
-                setFormData((prev) => ({ ...prev, cancelReason: val }))
-              }
+              onChange={(val) => setFormData((prev) => ({ ...prev, cancelReason: val }))}
               placeholder="----Select----"
             />
           </div>
 
           {/* Warning Message */}
-          {warning && (
-            <p className="text-sm font-medium text-red-600">{warning}</p>
-          )}
+          {warning && <p className="text-sm font-medium text-red-600">{warning}</p>}
 
           {/* Buttons */}
           <div className="mt-6 flex justify-end gap-3">

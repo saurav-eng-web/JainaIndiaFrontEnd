@@ -180,7 +180,7 @@ function ComplaintTableInner() {
       setLoading(true);
       try {
         const url = `${BASE_URL}/CallRegister/getstatus/${encodeURIComponent(
-          status,
+          status
         )}/${encodeURIComponent(subStatus)}/${roleID}/${firstID}`;
 
         const response = await axiosInstance.get(url);
@@ -237,45 +237,25 @@ function ComplaintTableInner() {
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="bg-gray-100 text-xs tracking-wider text-gray-700 uppercase">
-                    <th className="px-4 py-3 text-left font-semibold">
-                      History
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold">
-                      Complaint No.
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold">
-                      Customer Name
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold">
-                      Product
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold">
-                      Call Type
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold">
-                      Status
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold">
-                      Sub Status
-                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">History</th>
+                    <th className="px-4 py-3 text-left font-semibold">Complaint No.</th>
+                    <th className="px-4 py-3 text-left font-semibold">Customer Name</th>
+                    <th className="px-4 py-3 text-left font-semibold">Product</th>
+                    <th className="px-4 py-3 text-left font-semibold">Call Type</th>
+                    <th className="px-4 py-3 text-left font-semibold">Status</th>
+                    <th className="px-4 py-3 text-left font-semibold">Sub Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {complaints.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan="7"
-                        className="py-4 text-center text-gray-500"
-                      >
+                      <td colSpan="7" className="py-4 text-center text-gray-500">
                         No complaints found.
                       </td>
                     </tr>
                   ) : (
                     complaints.map((item, idx) => (
-                      <tr
-                        key={idx}
-                        className="border-b border-gray-200 hover:bg-gray-50"
-                      >
+                      <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
                         <td className="px-4 py-3">
                           <button
                             className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -296,15 +276,13 @@ function ComplaintTableInner() {
                         <td className="px-4 py-3">
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
-                              item.complainT_STATUS,
+                              item.complainT_STATUS
                             )}`}
                           >
                             {item.complainT_STATUS}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
-                          {item.complainT_SUBSTATUS}
-                        </td>
+                        <td className="px-4 py-3">{item.complainT_SUBSTATUS}</td>
                       </tr>
                     ))
                   )}

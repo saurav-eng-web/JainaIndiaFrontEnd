@@ -178,19 +178,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import SectionHeading from "../common/SectionHeading";
 import ThemedButton from "../common/ThemedButton";
+
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-export default function AllotmentDetails({
-  formData,
-  onChange,
-  onApprove,
-  onReject,
-}) {
+export default function AllotmentDetails({ formData, onChange, onApprove, onReject }) {
   const [engineerData, setEngineerData] = useState([]);
   const { colors } = useTheme();
   // console.log("allotment details formData: ", formData);
@@ -210,7 +207,7 @@ export default function AllotmentDetails({
             headers: {
               "Content-Type": "application/json",
             },
-          },
+          }
         );
 
         const resData = res.data;
@@ -223,6 +220,69 @@ export default function AllotmentDetails({
     fetchEngineerData();
   }, [formData.sf_ID]);
 
+  function isToday(dateStr) {
+    const today = new Date();
+    const d = new Date(dateStr);
+
+    return (
+      d.getFullYear() === today.getFullYear() &&
+      d.getMonth() === today.getMonth() &&
+      d.getDate() === today.getDate()
+    );
+  }
+
+  function getAllowedHours(selectedDate) {
+    const start = 9;
+    const end = 20;
+
+    if (!selectedDate) return [];
+
+    if (!isToday(selectedDate)) {
+      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    }
+
+    // If today → enforce +1 hour rule
+    const now = new Date();
+    const nextAllowedHour = now.getHours() + 1;
+
+    const finalStart = Math.max(start, nextAllowedHour);
+
+    if (finalStart > end) return []; // No valid hours left today
+
+    return Array.from({ length: end - finalStart + 1 }, (_, i) => finalStart + i);
+  }
+
+  function getNearestValidMinute(minute) {
+    const slots = [0, 15, 30, 45];
+    for (const m of slots) {
+      if (m >= minute) return m;
+    }
+    return null; // no valid minute in this hour
+  }
+
+  function getAllowedMinutes(selectedDate, selectedHour) {
+    const slots = [0, 15, 30, 45];
+
+    if (!selectedDate || selectedHour === "") return slots;
+
+    if (!isToday(selectedDate)) return slots;
+
+    const now = new Date();
+    const nextHour = now.getHours() + 1;
+
+    if (selectedHour > nextHour) {
+      return slots; // full range allowed
+    }
+
+    if (selectedHour == nextHour) {
+      const nearest = getNearestValidMinute(now.getMinutes());
+      if (nearest === null) return []; // no valid minute this hour
+      return slots.filter((m) => m >= nearest);
+    }
+
+    return []; // anything earlier than required hour
+  }
+
   return (
     <div className="mb-10 rounded-xl border bg-white p-6 shadow-md">
       <div className="mb-10 overflow-hidden rounded-lg border">
@@ -234,9 +294,7 @@ export default function AllotmentDetails({
               style={{ background: colors.primary, color: colors.textColor }}
             >
               <th className="border px-4 py-2">Ticket No.</th>
-              <th className="border px-4 py-2">
-                Previous Appointment Date/Time
-              </th>
+              <th className="border px-4 py-2">Previous Appointment Date/Time</th>
               <th className="border px-4 py-2">Request Re-allot date/time</th>
               <th className="border px-4 py-2">ASC reason</th>
             </tr>
@@ -319,35 +377,84 @@ export default function AllotmentDetails({
               value={formData.appointmentDate}
               onChange={(e) => onChange("appointmentDate", e.target.value)}
               min={new Date().toISOString().split("T")[0]}
+              max={new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]}
             />
           </label>
 
           {/* Appointment Time */}
-          <div className="mt-6 grid h-10 grid-cols-2 gap-2">
-            <select
-              className="rounded border p-2"
-              value={formData.appointmentHour}
-              onChange={(e) => onChange("appointmentHour", e.target.value)}
-            >
-              <option value="">--Hour--</option>
-              {[...Array(24).keys()].map((h) => (
-                <option key={h} value={h}>
-                  {h}
-                </option>
-              ))}
-            </select>
-            <select
-              className="rounded border p-2"
-              value={formData.appointmentMinute}
-              onChange={(e) => onChange("appointmentMinute", e.target.value)}
-            >
-              <option value="">--Minute--</option>
-              {[0, 15, 30, 45].map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
+          {/* <div className="grid grid-cols-2 gap-2">
+            <label className="flex flex-col">
+              <span className="font-semibold">Hour:</span>
+              <select
+                className="rounded border p-2"
+                value={formData.appointmentHour}
+                onChange={(e) => onChange("appointmentHour", e.target.value)}
+              >
+                <option value="">--Hour--</option>
+
+                {getAllowedHours(formData.appointmentDate).map((h) => (
+                  <option key={h} value={h}>
+                    {h}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="flex flex-col">
+              <span className="font-semibold">Minute:</span>
+              <select
+                className="rounded border p-2"
+                value={formData.appointmentMinute}
+                onChange={(e) => onChange("appointmentMinute", e.target.value)}
+              >
+                <option value="">--Minute--</option>
+
+                {getAllowedMinutes(
+                  formData.appointmentDate,
+                  formData.appointmentHour
+                ).map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div> */}
+          <div className="grid grid-cols-2 gap-4">
+            <label className="flex flex-col">
+              <span className="font-semibold">Hour:</span>
+              <select
+                className="h-11 rounded border p-2"
+                value={formData.appointmentHour}
+                onChange={(e) => onChange("appointmentHour", e.target.value)}
+              >
+                <option value="">--Hour--</option>
+                {getAllowedHours(formData.appointmentDate).map((h) => (
+                  <option key={h} value={h}>
+                    {h}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="flex flex-col">
+              <span className="font-semibold">Minute:</span>
+              <select
+                className="h-11 rounded border p-2"
+                value={formData.appointmentMinute}
+                onChange={(e) => onChange("appointmentMinute", e.target.value)}
+              >
+                <option value="">--Minute--</option>
+                {getAllowedMinutes(
+                  formData.appointmentDate,
+                  formData.appointmentHour
+                ).map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
           {/* Promise Date */}
@@ -359,6 +466,7 @@ export default function AllotmentDetails({
               value={formData.promiseDate}
               onChange={(e) => onChange("promiseDate", e.target.value)}
               min={new Date().toISOString().split("T")[0]}
+              max={new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]}
             />
           </label>
         </div>

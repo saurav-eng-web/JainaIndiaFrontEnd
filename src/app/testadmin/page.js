@@ -1,8 +1,7 @@
-
-'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import SideBar from '@/components/SideBar';
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import SideBar from "@/components/SideBar";
 
 export default function Test() {
   // const router = useRouter();
@@ -24,25 +23,24 @@ export default function Test() {
   //   }
   // }, [router]);
 
-
   return (
-    <div className="flex bg-[#d1e7ff] min-h-screen">
+    <div className="flex min-h-screen bg-[#d1e7ff]">
       <SideBar />
-      <div className="flex justify-center items-start pt-[100px] flex-1">
-        <div className="max-w-[600px] w-full p-[40px] text-center bg-gradient-to-br from-white via-[#d1e7ff] to-slate-500 rounded-[12px] shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
-          <h2 className="text-[28px] mb-[30px] text-[#333] font-semibold">
+      <div className="flex flex-1 items-start justify-center pt-[100px]">
+        <div className="w-full max-w-[600px] rounded-[12px] bg-gradient-to-br from-white via-[#d1e7ff] to-slate-500 p-[40px] text-center shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
+          <h2 className="mb-[30px] text-[28px] font-semibold text-[#333]">
             Welcome to Jaina CRM
           </h2>
           <div className="flex flex-col items-center gap-[20px]">
             <button
-              className=" w-[400px] py-[16px] px-[24px] text-[18px] font-bold rounded-[8px] bg-[#2979ff] text-white hover:bg-[#1565c0] transition-colors"
-              onClick={() => router.push('call')}
+              className="w-[400px] rounded-[8px] bg-[#2979ff] px-[24px] py-[16px] text-[18px] font-bold text-white transition-colors hover:bg-[#1565c0]"
+              onClick={() => router.push("call")}
             >
               ➕ test
             </button>
             <button
-              className="w-[400px] py-[16px] px-[24px] text-[18px] font-bold rounded-[8px] bg-[#2979ff] text-white hover:bg-[#1565c0] transition-colors"
-              onClick={() => router.push('/search-complaint')}
+              className="w-[400px] rounded-[8px] bg-[#2979ff] px-[24px] py-[16px] text-[18px] font-bold text-white transition-colors hover:bg-[#1565c0]"
+              onClick={() => router.push("/search-complaint")}
             >
               🔍 Search Complaint
             </button>

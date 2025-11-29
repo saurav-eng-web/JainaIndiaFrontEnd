@@ -59,42 +59,68 @@ export default function DashboardPage() {
   //       ToDate: toDate,
   //     };
 
-  //     const response = await axiosInstance.post(
-  //       "/reports/downloadreports",
-  //       body,
-  //       { responseType: "blob" }
-  //     );
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const a = document.createElement("a");
-  //     a.href = url;
+  //     const response = await axiosInstance.post("/reports/downloadreports", body, {
+  //       responseType: "blob",
+  //     });
 
-  //     // ✅ Extract filename from backend
-  //     const contentDisposition = response.headers["content-disposition"];
-  //     let fileName = "report.csv"; // fallback
+  //     // STEP 1 — detect if the blob is actually JSON (means error)
+  //     const contentType = response.headers["content-type"];
 
-  //     if (contentDisposition) {
-  //       const match = contentDisposition.match(/filename="?([^"]+)"?/);
-  //       if (match?.[1]) {
-  //         fileName = match[1];
+  //     if (contentType?.includes("application/json")) {
+  //       const text = await response.data.text();
+  //       const json = JSON.parse(text);
+
+  //       console.error("Report API Error:", json);
+
+  //       if (json.detail?.includes("expired")) {
+  //         alert("Session expired. Please login again.");
+  //       } else if (json.error?.includes("not available")) {
+  //         alert("No report available for selected criteria.");
+  //       } else {
+  //         alert("Unable to download report.");
   //       }
+
+  //       return; // STOP here — do not download anything
   //     }
 
+  //     // STEP 2 — extract filename from headers safely
+  //     const cd = response.headers["content-disposition"];
+  //     let fileName = "report.xlsx";
+
+  //     if (cd) {
+  //       // filename=abc.xlsx
+  //       const match1 = cd.match(/filename="?([^";]+)"?/);
+  //       if (match1) fileName = match1[1];
+
+  //       // filename*=UTF-8''abc.xlsx
+  //       const match2 = cd.match(/filename\*\=UTF-8''(.+)/);
+  //       if (match2) fileName = decodeURIComponent(match2[1]);
+  //     }
+
+  //     // remove trailing junk
+  //     fileName = fileName.split(";")[0].trim();
+
+  //     // STEP 3 — download file
+  //     const url = URL.createObjectURL(new Blob([response.data]));
+  //     const a = document.createElement("a");
+  //     a.href = url;
   //     a.download = fileName;
   //     document.body.appendChild(a);
   //     a.click();
 
-  //     // Cleanup
+  //     // cleanup
   //     a.remove();
-  //     window.URL.revokeObjectURL(url);
+  //     URL.revokeObjectURL(url);
   //   } catch (error) {
   //     console.error("Download failed:", error);
-  //     alert("Download failed");
+  //     alert("Download failed. Check console for details.");
   //   }
   // };
 
+  // ----------
   const handleDownload = async () => {
     if (!fromDate || !toDate || !reportType) {
-      alert("Please select From Date, To Date and Report");
+      alert("Please select dates and report type");
       return;
     }
 
@@ -106,45 +132,112 @@ export default function DashboardPage() {
         ToDate: toDate,
       };
 
-      // Call the Next.js proxy API instead of backend directly
-      // const response = await fetch("/api/proxyDownload", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: jwtToken,
-      //   },
-      //   body: JSON.stringify(body),
-      // });
-
       const response = await axiosInstance.post("/api/proxyDownload", body, {
         responseType: "blob",
-        baseURL: "", // empty overrides global baseURL
+        baseURL: "",
       });
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const a = document.createElement("a");
-      a.href = url;
+      // Extract filename from Content-Disposition
+      const cd = response.headers["content-disposition"];
+      let fileName = "report.xlsx";
 
-      // Extract filename from headers
-      const contentDisposition = response.headers["content-disposition"];
-      let fileName = "report.csv"; // fallback
-      if (contentDisposition) {
-        const match = contentDisposition.match(/filename="?([^"]+)"?/);
-        if (match?.[1]) fileName = match[1];
+      if (cd) {
+        // 1) filename="..."
+        const fnMatch = cd.match(/filename="?([^";]+)"?/);
+        if (fnMatch) fileName = fnMatch[1];
+
+        // 2) filename*=UTF-8''encoded
+        const fnUtf8 = cd.match(/filename\*\=UTF-8''(.+)/);
+        if (fnUtf8) fileName = decodeURIComponent(fnUtf8[1]);
       }
 
+      // Remove any trailing garbage, if present
+      fileName = fileName.split(";")[0].trim();
+
+      // Save file
+      const url = URL.createObjectURL(new Blob([response.data]));
+      const a = document.createElement("a");
+      a.href = url;
       a.download = fileName;
       document.body.appendChild(a);
       a.click();
-
-      // Cleanup
       a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Download failed:", error);
-      alert("Download failed");
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed:", err);
+
+      // Extract JSON error if available
+      if (err.response?.data && err.response.data instanceof Blob) {
+        const text = await err.response.data.text();
+        try {
+          const json = JSON.parse(text);
+          alert(json.error || "Failed to download");
+        } catch {
+          alert("Failed to download");
+        }
+      } else {
+        alert("Failed to download");
+      }
     }
   };
+
+  // ------------
+
+  // const handleDownload = async () => {
+  //   if (!fromDate || !toDate || !reportType) {
+  //     alert("Please select From Date, To Date and Report");
+  //     return;
+  //   }
+
+  //   try {
+  //     const body = {
+  //       Type: reportType,
+  //       UserId: loggedInUserId,
+  //       FromDate: fromDate,
+  //       ToDate: toDate,
+  //     };
+
+  //     // Call the Next.js proxy API instead of backend directly
+  //     // const response = await fetch("/api/proxyDownload", {
+  //     //   method: "POST",
+  //     //   headers: {
+  //     //     "Content-Type": "application/json",
+  //     //     Authorization: jwtToken,
+  //     //   },
+  //     //   body: JSON.stringify(body),
+  //     // });
+
+  //     const response = await axiosInstance.post("/api/proxyDownload", body, {
+  //       responseType: "blob",
+  //       baseURL: "", // empty overrides global baseURL
+  //     });
+
+  //     const url = window.URL.createObjectURL(new Blob([response.data]));
+  //     const a = document.createElement("a");
+  //     a.href = url;
+
+  //     // Extract filename from headers
+  //     const contentDisposition = response.headers["content-disposition"];
+  //     let fileName = "report.csv"; // fallback
+  //     if (contentDisposition) {
+  //       const match = contentDisposition.match(/filename="?([^"]+)"?/);
+  //       if (match?.[1]) fileName = match[1];
+  //     }
+
+  //     a.download = fileName;
+  //     document.body.appendChild(a);
+  //     a.click();
+
+  //     console.log("🔴 fileName: ", fileName);
+  //     // console.log("fileName: ", fileName);
+  //     // Cleanup
+  //     a.remove();
+  //     window.URL.revokeObjectURL(url);
+  //   } catch (error) {
+  //     console.error("Download failed:", error);
+  //     alert("Download failed");
+  //   }
+  // };
 
   return (
     <ProtectedRoute

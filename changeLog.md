@@ -111,3 +111,4 @@
 - allotment page: date, and time fix (now the date is only allowed for next 72 hours, time 8 am - 9m. for today, only time allowed min after one hour)
 - improved eslint, prettier for dev.
 - re allot: change the api - level1 -> update job -> complaint history -> call schedule
+- download report fix: name issue, handling errors

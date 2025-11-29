@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const { user } = useSelector((state) => state.auth);
   const loggedInUserId = user?.userID ? String(user.userID) : "";
   const role = user?.roleName ? user.roleName : "";
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function fetchOptions() {
@@ -123,7 +124,7 @@ export default function DashboardPage() {
       alert("Please select dates and report type");
       return;
     }
-
+    setIsLoading(true);
     try {
       const body = {
         Type: reportType,
@@ -178,6 +179,8 @@ export default function DashboardPage() {
       } else {
         alert("Failed to download");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -324,14 +327,18 @@ export default function DashboardPage() {
               </select>
             </div>
 
-            {/* Download Button */}
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 rounded px-4 py-2 font-semibold text-white"
+              disabled={isLoading}
+              className={`flex items-center gap-2 rounded px-6 py-3 font-semibold text-white shadow-sm transition-all ${
+                isLoading
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:opacity-90 hover:shadow active:scale-95"
+              }`}
               style={{ background: colors.primary }}
             >
               <FaDownload />
-              Download Report
+              {isLoading ? "Downloading..." : "Download Report"}
             </button>
           </div>
         </div>

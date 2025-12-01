@@ -69,6 +69,8 @@ function HistoryPageContent() {
   const [selectedHour, setSelectedHour] = useState("");
   const [selectedMinute, setSelectedMinute] = useState("");
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [serialNumber, setSerialNumber] = useState("");
+  const [engineerData, setEngineerData] = useState([]);
 
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
@@ -131,164 +133,12 @@ function HistoryPageContent() {
       eng_ID: custDetail.Eng_ID || "-",
       sf_ID: custDetail.sf_ID || 0,
       firstName: custDetail.firstname || "-",
+      pinCode: custDetail.pincode || "-",
     }));
   }, [custDetail, loggedInUserId]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const buildPayloadReallot = (type) => ({
-    ticketNo: formData.tickeT_NO,
-    usrName: loggedInUser,
-    type,
-    apptdate: formData.appointmentDate,
-    appttime: `${formData.appointmentHour || "00"}:${formData.appointmentMinute || "00"}`,
-    dop: formData.DOP,
-    contactPersion: formData.firstName,
-    customerRemark: formData.customerRemark,
-    usrId: loggedInUserId.toString(),
-    eng_id: formData.eng_ID,
-    callTypeID: formData.call_TypeID.toString(),
-    CallType: formData.calL_TYPE,
-    // Reallot: formData.reAllot ? 1 : 0,
-    // Type1: "ASM",
-    // Action: action,
-  });
-
-  const updateJobAndHistory = async (status, subStatus, message, serialNumber) => {
-    const ticketNumber = formData.tickeT_NO;
-
-    await axiosInstance.post(`/CallRegister/UpdateComplaint/${ticketNumber}`, {
-      complaint_Status: status,
-      complaint_SubStatus: subStatus,
-    });
-
-    await axiosInstance.post(`/ComplaintHistory`, {
-      ticketNo: ticketNumber,
-      complaintStatus: status,
-      complaintSubStatus: `${subStatus}${serialNumber ? ` - ${serialNumber}` : " Call moved to Assign from Re-Allot"}`, // WIP
-      tdate: new Date().toISOString().split("T")[0],
-      enteredBy: loggedInUser,
-      enteredByID: loggedInUserId,
-    });
-  };
-
-  const handleApprove = async () => {
-    const payload = buildPayloadReallot("Re-AllotASMApproved");
-
-    try {
-      // 1) LEVEL 1 processing
-      const level1Res = await axiosInstance.post(
-        "/Level1Operation/UpdateLevel1Operation",
-        payload
-      );
-
-      const msg = level1Res?.data?.message || "";
-      const [status, subStatus, message] = msg.split("|").map((x) => x.trim());
-
-      if (!status || !subStatus) {
-        throw new Error("Invalid Level1 response format");
-      }
-
-      // 2) JOB UPDATE + HISTORY
-      await updateJobAndHistory(status, subStatus, message);
-
-      // 3) CALL SCHEDULE (Approve only)
-      const callSchedulePayload = {
-        sfId: formData.sf_ID,
-        engId: payload.eng_id,
-        appointmentDate: payload.apptdate,
-        appointmentTime: payload.appttime,
-        talkToWhomeAllot: payload.contactPersion,
-        ticketNo: payload.ticketNo,
-        ticketKey: formData.ticketKey || 0,
-        status: 1,
-        apptDateandTime: new Date().toISOString(),
-      };
-
-      await axiosInstance.post("/CallSchedule/create", callSchedulePayload);
-
-      // SUCCESS
-      setPopup({ isOpen: true, message: "Approved successfully!" });
-
-      setTimeout(() => {
-        // router.push("/nsp/dashboard");
-      }, 1500);
-    } catch (err) {
-      console.error("Approve Error:", {
-        status: err?.response?.status,
-        data: err?.response?.data,
-        message: err?.message,
-      });
-
-      setPopup({ isOpen: true, message: "Failed to approve" });
-    }
-  };
-
-  const handleReject = async () => {
-    const payload = buildPayloadReallot("Re-AllotASMReject");
-
-    try {
-      // 1) LEVEL 1
-      const res = await axiosInstance.post(
-        "/Level1Operation/UpdateLevel1Operation",
-        payload
-      );
-
-      const msg = res?.data?.message || "";
-      const [status, subStatus, message] = msg.split("|").map((x) => x.trim());
-
-      // 2) Update Job + History (added now)
-      await updateJobAndHistory(status, subStatus, message);
-
-      // 3) NO call schedule on reject
-
-      setPopup({ isOpen: true, message: "Rejected successfully!" });
-      // setTimeout(() => router.push("/nsp/dashboard"), 1500);
-    } catch (err) {
-      console.error("Reject Error:", err);
-      setPopup({ isOpen: true, message: "Failed to reject" });
-    }
-  };
-
-  const handleRequestCancellation = async () => {
-    const { tickeT_NO, tickeT_KEY } = custDetail;
-    const { cancelReason, customerRemarks, contactPerson, userIP } = formData;
-
-    setCancelPopupOpen((prev) => !prev);
-
-    const payload = {
-      transactionType: "jobno",
-      transactionID: tickeT_KEY.toString() || "",
-      transactionNo: tickeT_NO.toString() || "",
-      requestDate: new Date().toISOString(),
-      requestedBy: user ? `${loggedInUser}` : "Unknown User",
-      reason: cancelReason,
-      remarks: customerRemarks,
-      approvalStatus: "pending",
-      approvedBy: user ? `${loggedInUser}` : "Unknown User",
-      approvedDate: new Date().toISOString(),
-      approvalRemarks: "",
-      ipAddress: userIP || "0.0.0.0",
-      contactPerson,
-    };
-
-    try {
-      await axiosInstance.post("/RequestCancellation/create", payload);
-      setPopup({ isOpen: true, message: "Cancelled successfully!" });
-
-      // setTimeout(() => {
-      //   setPopup({ isOpen: false, message: "" }); // ✅ redirect to dashboard
-      // }, 1500);
-
-      // setTimeout(() => {
-      //   router.push("/nsp/dashboard"); // ✅ redirect to dashboard
-      // }, 1500);
-    } catch (err) {
-      console.error("Reject Error:", err);
-      setPopup({ isOpen: true, message: "Failed request for cancellation" });
-    }
   };
 
   // fetch user id
@@ -609,7 +459,236 @@ function HistoryPageContent() {
   const handleActionClick = (action) => {
     setSelectedAction(action);
     setShowPopup(true); // 👉 open popup on button click
+    if (action === "Assigned") {
+      fetchEngineerData();
+    }
   };
+
+  const buildPayloadReallot = (type) => ({
+    ticketNo: formData.tickeT_NO,
+    usrName: loggedInUser,
+    type,
+    apptdate: formData.appointmentDate,
+    appttime: `${formData.appointmentHour || "00"}:${formData.appointmentMinute || "00"}`,
+    dop: formData.DOP,
+    contactPersion: formData.firstName,
+    customerRemark: formData.customerRemark,
+    usrId: loggedInUserId.toString(),
+    eng_id: formData.eng_ID,
+    callTypeID: formData.call_TypeID.toString(),
+    CallType: formData.calL_TYPE,
+    // Reallot: formData.reAllot ? 1 : 0,
+    // Type1: "ASM",
+    // Action: action,
+  });
+
+  const updateJobAndHistory = async (status, subStatus, message, serialNumber) => {
+    const ticketNumber = formData.tickeT_NO;
+
+    await axiosInstance.post(`/CallRegister/UpdateComplaint/${ticketNumber}`, {
+      complaint_Status: status,
+      complaint_SubStatus: subStatus,
+    });
+
+    await axiosInstance.post(`/ComplaintHistory`, {
+      ticketNo: ticketNumber,
+      complaintStatus: `${status}|${subStatus}`,
+      complaintSubStatus: `${serialNumber ? `${message} - ${serialNumber}` : " Call moved to Assign from Re-Allot"}`, // WIP
+      tdate: new Date().toISOString().split("T")[0],
+      enteredBy: loggedInUser,
+      enteredByID: loggedInUserId,
+    });
+  };
+
+  const handleApprove = async () => {
+    const payload = buildPayloadReallot("Re-AllotASMApproved");
+
+    try {
+      // 1) LEVEL 1 processing
+      const level1Res = await axiosInstance.post(
+        "/Level1Operation/UpdateLevel1Operation",
+        payload
+      );
+
+      const msg = level1Res?.data?.message || "";
+      const [status, subStatus, message] = msg.split("|").map((x) => x.trim());
+
+      if (!status || !subStatus) {
+        throw new Error("Invalid Level1 response format");
+      }
+
+      // 2) JOB UPDATE + HISTORY
+      await updateJobAndHistory(status, subStatus, message);
+
+      // 3) CALL SCHEDULE (Approve only)
+      const callSchedulePayload = {
+        sfId: formData.sf_ID,
+        engId: payload.eng_id,
+        appointmentDate: payload.apptdate,
+        appointmentTime: payload.appttime,
+        talkToWhomeAllot: payload.contactPersion,
+        ticketNo: payload.ticketNo,
+        ticketKey: formData.ticketKey || 0,
+        status: 1,
+        apptDateandTime: new Date().toISOString(),
+      };
+
+      await axiosInstance.post("/CallSchedule/create", callSchedulePayload);
+
+      // SUCCESS
+      setPopup({ isOpen: true, message: "Approved successfully!" });
+
+      setTimeout(() => {
+        // router.push("/nsp/dashboard");
+      }, 1500);
+    } catch (err) {
+      console.error("Approve Error:", {
+        status: err?.response?.status,
+        data: err?.response?.data,
+        message: err?.message,
+      });
+
+      setPopup({ isOpen: true, message: "Failed to approve" });
+    }
+  };
+
+  const handleReject = async () => {
+    const payload = buildPayloadReallot("Re-AllotASMReject");
+
+    try {
+      // 1) LEVEL 1
+      const res = await axiosInstance.post(
+        "/Level1Operation/UpdateLevel1Operation",
+        payload
+      );
+
+      const msg = res?.data?.message || "";
+      const [status, subStatus, message] = msg.split("|").map((x) => x.trim());
+
+      // 2) Update Job + History (added now)
+      await updateJobAndHistory(status, subStatus, message);
+
+      // 3) NO call schedule on reject
+
+      setPopup({ isOpen: true, message: "Rejected successfully!" });
+      // setTimeout(() => router.push("/nsp/dashboard"), 1500);
+    } catch (err) {
+      console.error("Reject Error:", err);
+      setPopup({ isOpen: true, message: "Failed to reject" });
+    }
+  };
+
+  const handleRequestCancellation = async () => {
+    const { tickeT_NO, tickeT_KEY } = custDetail;
+    const { cancelReason, customerRemarks, contactPerson, userIP } = formData;
+
+    setCancelPopupOpen((prev) => !prev);
+
+    const payload = {
+      transactionType: "jobno",
+      transactionID: tickeT_KEY.toString() || "",
+      transactionNo: tickeT_NO.toString() || "",
+      requestDate: new Date().toISOString(),
+      requestedBy: user ? `${loggedInUser}` : "Unknown User",
+      reason: cancelReason,
+      remarks: customerRemarks,
+      approvalStatus: "pending",
+      approvedBy: user ? `${loggedInUser}` : "Unknown User",
+      approvedDate: new Date().toISOString(),
+      approvalRemarks: "",
+      ipAddress: userIP || "0.0.0.0",
+      contactPerson,
+    };
+
+    try {
+      await axiosInstance.post("/RequestCancellation/create", payload);
+      setPopup({ isOpen: true, message: "Cancelled successfully!" });
+
+      // setTimeout(() => {
+      //   setPopup({ isOpen: false, message: "" }); // ✅ redirect to dashboard
+      // }, 1500);
+
+      // setTimeout(() => {
+      //   router.push("/nsp/dashboard"); // ✅ redirect to dashboard
+      // }, 1500);
+    } catch (err) {
+      console.error("Reject Error:", err);
+      setPopup({ isOpen: true, message: "Failed request for cancellation" });
+    }
+  };
+
+  const handleSerialCheck = async () => {
+    // setShowSerialPopup(true);
+    const payload = {
+      serialNo: serialNumber,
+      ticketNo: formData.tickeT_NO,
+      pincode: formData.pinCode || 0,
+      type: "WIPProcess",
+    };
+    try {
+      console.log("serial check");
+      const res = await axiosInstance.post("/CheckSerialNo/CheckSerial", payload);
+      console.log("res: ", res);
+      const message = res?.data?.message?.trim() || "";
+      console.log("message: ", message);
+
+      const parts = message.split("|");
+
+      // When "Open|WIP ..."  => parts.length >= 2
+      const hasStatus = parts.length >= 2;
+
+      // If response does not contain status => show message only
+      if (!hasStatus) {
+        alert(message);
+        console.log("Info message:", message);
+        return;
+      }
+
+      // Extract status and substatus
+      const status = parts[0]?.trim(); // Open
+      const subStatus = parts[1]?.trim(); // WIP Approval or WIP
+      const responseMessage = parts[2]?.trim() || "";
+      console.log("🔴 message build", {
+        status,
+        subStatus,
+        responseMessage,
+      });
+      // Only proceed if status is expected - we may check this later on
+      // if (status !== "Open" || !["WIP", "WIP Approval"].includes(subStatus)) {
+      //   console.log("Unexpected status response:", message);
+      //   return;
+      // }
+
+      // Everything valid => call updateHistory
+      await updateJobAndHistory(status, subStatus, responseMessage, serialNumber);
+      console.log("🔴update hob history");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  async function fetchEngineerData() {
+    try {
+      console.log("sf id: ", formData.sf_ID);
+      const res = await axiosInstance.post(
+        `Engineer/Manage`,
+        {
+          Action: "SELECT_ACTIVE_BY_SFID",
+          Eng_SFID: formData.sf_ID || 0,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const resData = res.data;
+      setEngineerData(resData.data);
+    } catch (err) {
+      console.error("Error fetching engineer data:", err);
+    }
+  }
 
   return (
     <div className="page-wrapper">
@@ -765,12 +844,17 @@ function HistoryPageContent() {
                           type="text"
                           placeholder="Enter Serial Number"
                           className="rounded-md border px-3 py-2"
+                          value={serialNumber}
+                          onChange={(e) => setSerialNumber(e.target.value)}
                         />
                       </div>
 
                       {/* Buttons */}
                       <div className="flex justify-end gap-4">
-                        <button className="rounded-md bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700">
+                        <button
+                          onClick={handleSerialCheck}
+                          className="rounded-md bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
+                        >
                           Check Serial Number
                         </button>
                       </div>
@@ -815,12 +899,28 @@ function HistoryPageContent() {
 
                         {/* Engineer Name */}
                         <div className="flex flex-col">
-                          <label className="font-medium text-gray-700">
+                          {/* <label className="font-medium text-gray-700">
                             Engineer Name:
                           </label>
                           <div className="rounded-md border bg-gray-100 px-3 py-2">
                             {detail.engName || "Null"}
-                          </div>
+                          </div> */}
+                          <label className="flex flex-col">
+                            <span className="font-semibold">Engineer Name:</span>
+                            <select
+                              className="rounded border p-2"
+                              value={formData.Eng_ID}
+                              onChange={(e) => onChange("eng_ID", e.target.value)}
+                            >
+                              <option value="">-- Select Engineer --</option>
+                              {engineerData &&
+                                engineerData.map((data) => (
+                                  <option key={data.Eng_ID} value={data.Eng_ID}>
+                                    {data.Eng_Name}
+                                  </option>
+                                ))}
+                            </select>
+                          </label>
                         </div>
 
                         <div className="flex flex-col">

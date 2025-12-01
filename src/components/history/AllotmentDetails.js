@@ -185,7 +185,7 @@ import ThemedButton from "../common/ThemedButton";
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+// const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export default function AllotmentDetails({ formData, onChange, onApprove, onReject }) {
   const [engineerData, setEngineerData] = useState([]);

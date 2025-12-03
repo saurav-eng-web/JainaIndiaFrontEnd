@@ -5,8 +5,6 @@ export async function POST(request) {
   try {
     const body = await request.json();
 
-    // 1. Handle both single log (legacy) and batch logs (new)
-    // The new logger sends { logs: [...] }, so we extract that.
     const logs = body.logs || [body];
 
     if (!logs || logs.length === 0) {
@@ -43,7 +41,8 @@ export async function POST(request) {
 
     // 3. Send ONE request to Loki containing ALL log streams
     const response = await axios.post(
-      "http://192.168.47.24:3100/loki/api/v1/push",
+      "${LOKI_URL}/v1/push",
+      // "http://192.168.47.24:3100/loki/api/v1/push",
       {
         streams: lokiStreams,
       },

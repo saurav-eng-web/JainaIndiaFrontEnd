@@ -1,12 +1,14 @@
 "use client";
 
 import "./search.css";
-import SideBar from "@/components/SideBar";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import EditCustPopup from "../history/EditCustPopup";
+
+import SideBar from "@/components/SideBar";
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import EditCustPopup from "../history/EditCustPopup";
 
 export default function SearchComplaintPage() {
   const router = useRouter();
@@ -101,9 +103,7 @@ export default function SearchComplaintPage() {
         },
       });
 
-      const results = Array.isArray(response.data)
-        ? response.data
-        : [response.data];
+      const results = Array.isArray(response.data) ? response.data : [response.data];
 
       setSearchResults(results);
       setSearchAttempted(true);
@@ -149,8 +149,7 @@ export default function SearchComplaintPage() {
                       {searchResults.some(
                         (result) =>
                           result.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
-                          result.complainT_SUBSTATUS?.toLowerCase() ===
-                            "cancel",
+                          result.complainT_SUBSTATUS?.toLowerCase() === "cancel"
                       ) && <th>Registration</th>}
                       {/* {searchResults.some(
                         (result) =>
@@ -182,9 +181,7 @@ export default function SearchComplaintPage() {
                           <td>
                             <button
                               className="action-btn"
-                              onClick={() =>
-                                handleViewHistory(result.tickeT_NO)
-                              }
+                              onClick={() => handleViewHistory(result.tickeT_NO)}
                             >
                               History
                             </button>
@@ -194,7 +191,7 @@ export default function SearchComplaintPage() {
                           {searchResults.some(
                             (r) =>
                               r.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
-                              r.complainT_SUBSTATUS?.toLowerCase() === "cancel",
+                              r.complainT_SUBSTATUS?.toLowerCase() === "cancel"
                           ) && (
                             <td>
                               {showRegistration && (
@@ -217,18 +214,15 @@ export default function SearchComplaintPage() {
                                       state: result.state || "",
                                       city: result.city || "",
                                       locality: result.locality || "",
-                                      localityId:
-                                        result.localitY_ID?.toString() || "",
-                                      modelID:
-                                        result.modeL_ID?.toString() || "",
+                                      localityId: result.localitY_ID?.toString() || "",
+                                      modelID: result.modeL_ID?.toString() || "",
                                       cityId: result.citY_ID?.toString() || "",
                                       serialNo: result.seriaL_NO || "",
                                       productCategory: result.category || "",
                                       brand: result.brand || "",
                                       pop: result.purchasE_DATE || "",
                                       product: result.product || "",
-                                      productID:
-                                        result.producT_ID?.toString() || "",
+                                      productID: result.producT_ID?.toString() || "",
                                       model: result.model || "",
                                       warranty: result.warranty || "",
                                       callType: result.calL_TYPE || "",
@@ -278,9 +272,7 @@ export default function SearchComplaintPage() {
                           <td>{result.complainT_SUBSTATUS || "-"}</td>
                           <td>{result.asC_CODE || "-"}</td>
                           <td>
-                            {result.pop
-                              ? new Date(result.pop).toLocaleDateString()
-                              : "-"}
+                            {result.pop ? new Date(result.pop).toLocaleDateString() : "-"}
                           </td>
                         </tr>
                       );
@@ -290,9 +282,7 @@ export default function SearchComplaintPage() {
               </div>
             )}
             {searchAttempted && searchResults.length === 0 && (
-              <p style={{ marginTop: "20px", color: "red" }}>
-                No results found.
-              </p>
+              <p style={{ marginTop: "20px", color: "red" }}>No results found.</p>
             )}
           </div>
         </div>

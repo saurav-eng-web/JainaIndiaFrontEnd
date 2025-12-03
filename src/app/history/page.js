@@ -19,6 +19,7 @@ import Popup from "@/components/common/Popup";
 import "./history.css";
 
 import "react-toastify/dist/ReactToastify.css";
+import { logger } from "@/utils/logger";
 
 const tabs = [
   "Job Details",
@@ -119,7 +120,6 @@ function HistoryPageContent() {
 
   useEffect(() => {
     if (!custDetail) return;
-    console.log("custDetail: ", custDetail);
     setFormData((prevData) => ({
       ...prevData,
       ascName: custDetail.asC_NAME || "",
@@ -165,6 +165,7 @@ function HistoryPageContent() {
     })();
   }, []);
 
+  // formData = custDetail
   useEffect(() => {
     if (custDetail) {
       setFormData((prev) => ({
@@ -181,113 +182,144 @@ function HistoryPageContent() {
     }
   }, [custDetail, detail?.purchasE_DATE, loggedInUserId]);
 
-  // end for realott
-  // COMPLAINT DETAILS
-  useEffect(() => {
-    const storedTicket = sessionStorage.getItem("currentTicket");
-    if (storedTicket) {
-      // fetch data with storedTicket
-      axiosInstance
-        .get(`ComplaintHistory/history-by-ticket/${storedTicket}`)
-        .then((res) => setLogData(Array.isArray(res.data) ? res.data : [res.data]))
-        .catch((err) => console.error(err))
-        .finally(() => setLoading(false));
+  // fetch history by ticket and complaint cust details
+  // useEffect(() => {
+  //   const storedTicket = sessionStorage.getItem("currentTicket");
+  //   if (storedTicket) {
+  //     // fetch data with storedTicket
+  //     axiosInstance
+  //       .get(`ComplaintHistory/history-by-ticket/${storedTicket}`)
+  //       .then((res) => setLogData(Array.isArray(res.data) ? res.data : [res.data]))
+  //       .catch((err) => console.error(err))
+  //       .finally(() => setLoading(false));
 
-      axiosInstance
-        .get(`ComplaintCustDetail/${storedTicket}`)
-        .then((res) => setCustDetail(res.data))
-        .catch((err) => console.error(err));
+  //     axiosInstance
+  //       .get(`ComplaintCustDetail/${storedTicket}`)
+  //       .then((res) => setCustDetail(res.data))
+  //       .catch((err) => console.error(err));
+  //   }
+  // }, []);
+
+  // // Fetch history logs
+  // useEffect(() => {
+  //   if (ticketNo) {
+  //     axiosInstance
+  //       .get(`ComplaintHistory/history-by-ticket/${ticketNo}`)
+  //       .then((res) => {
+  //         const data = Array.isArray(res.data) ? res.data : [res.data];
+  //         setLogData(data);
+  //       })
+  //       .catch((err) => console.error("Failed to fetch history:", err))
+  //       .finally(() => setLoading(false));
+  //   }
+  // }, [ticketNo]);
+  // ---------
+  // 1. Centralize the Ticket ID Logic
+  const activeTicket = ticketNo || sessionStorage.getItem("currentTicket");
+
+  // 2. Main Data Fetching Effect
+  useEffect(() => {
+    if (!activeTicket) return;
+
+    // Start Loaders
+    setLoading(true);
+    setLoadingReminders(true);
+
+    const fetchAllTicketData = async () => {
+      try {
+        // execute all independent requests in parallel
+        const results = await Promise.allSettled([
+          axiosInstance.get(`ComplaintHistory/history-by-ticket/${activeTicket}`), // 0
+          axiosInstance.get(`ComplaintCustDetail/${activeTicket}`), // 1
+          axiosInstance.get(`PartConsumption/ByTicket/${activeTicket}`), // 2
+          axiosInstance.get(`DocumentUpload/ticket/${activeTicket}`), // 3
+          axiosInstance.get(`LevelPendingHistory/ticket/${activeTicket}`), // 4
+          axiosInstance.get(`visit/ticket/${activeTicket}`), // 5
+          axiosInstance.get(`reminder/Ticket/${activeTicket}`), // 6
+        ]);
+
+        // Helper to safely extract data or default to empty array/obj
+        const unwrap = (res, defaultVal = []) =>
+          res.status === "fulfilled" ? res.value.data : defaultVal;
+
+        // --- Process Results ---
+
+        // 0. History
+        const historyData = unwrap(results[0]);
+        setLogData(Array.isArray(historyData) ? historyData : [historyData]);
+
+        // 1. Customer Detail (Critical for Actions)
+        const custData = unwrap(results[1], null);
+        setCustDetail(custData);
+
+        // 2. Part Consumption
+        const partData = unwrap(results[2]);
+        setPartConsumption(Array.isArray(partData) ? partData : [partData]);
+
+        // 3. Documents
+        const docData = unwrap(results[3]);
+        setDocuments(Array.isArray(docData) ? docData : []);
+
+        // 4. Pending History
+        const pendingData = unwrap(results[4]);
+        setPendingHistory(Array.isArray(pendingData) ? pendingData : []);
+
+        // 5. Visits
+        const visitData = unwrap(results[5]);
+        setVisitDetails(Array.isArray(visitData) ? visitData : []);
+
+        // 6. Reminders
+        const reminderData = unwrap(results[6]);
+        setReminders(Array.isArray(reminderData) ? reminderData : [reminderData]);
+
+        // --- Dependent Logic: Fetch Actions ---
+        // We do this here because we already have 'custData' and don't want to fetch it again.
+        if (custData && user) {
+          fetchActionsInternal(custData, user.roleName);
+        }
+      } catch (err) {
+        console.error("Critical error during batch fetch:", err);
+        logger.error(`Batch fetch error: ${err.message}`, "loading data on history page");
+      } finally {
+        setLoading(false);
+        setLoadingReminders(false);
+      }
+    };
+
+    fetchAllTicketData();
+  }, [activeTicket, user]); // Re-run if ticket changes or user logs in/out
+
+  // 3. Helper Function for Actions
+  // (Moved outside effect to keep the main logic clean)
+  const fetchActionsInternal = async (complaintDetail, userRole) => {
+    try {
+      const payload = {
+        type: "jobactions",
+        role: userRole || "Unknown",
+        complaint_SubStatus: complaintDetail.complaint_SubStatus || "",
+        complaint_Status: complaintDetail.complainT_STATUS || "",
+        calltype: complaintDetail.calL_TYPE || "",
+        product: complaintDetail.product || "",
+      };
+
+      const res = await axiosInstance.post("ActionMaster/get-actions", payload);
+      const data = res.data.data || [];
+
+      if (Array.isArray(data) && data.length > 0) {
+        // Assuming structure is [{ actions: [...] }]
+        const actionsString = data[0].actions.map((a) => a.action) || "";
+        setActions(actionsString);
+      } else {
+        setActions([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch actions:", error);
     }
+  };
+  // fetch cancel reasons
+  useEffect(() => {
+    fetchCancelReasons();
   }, []);
-  // Fetch history logs
-  useEffect(() => {
-    if (ticketNo) {
-      axiosInstance
-        .get(`ComplaintHistory/history-by-ticket/${ticketNo}`)
-        .then((res) => {
-          const data = Array.isArray(res.data) ? res.data : [res.data];
-          setLogData(data);
-        })
-        .catch((err) => console.error("Failed to fetch history:", err))
-        .finally(() => setLoading(false));
-    }
-  }, [ticketNo]);
-
-  useEffect(() => {
-    if (ticketNo) {
-      axiosInstance
-        .get(`PartConsumption/ByTicket/${ticketNo}`)
-        .then((res) => setPartConsumption(Array.isArray(res.data) ? res.data : []))
-        .catch((err) => console.error("Failed to fetch part consumption:", err));
-    }
-  }, [ticketNo]);
-
-  // Fetch customer + complaint detail
-  useEffect(() => {
-    const storedTicket = sessionStorage.getItem("currentTicket");
-    const fetchTicket = ticketNo || storedTicket; // fallback
-    if (fetchTicket) {
-      // console.log("Fetching PartConsumption for ticket:", fetchTicket);
-      axiosInstance
-        .get(`PartConsumption/ByTicket/${fetchTicket}`)
-        .then((res) =>
-          setPartConsumption(Array.isArray(res.data) ? res.data : [res.data])
-        )
-        .catch((err) => console.error("Failed to fetch part consumption:", err));
-    }
-  }, [ticketNo]);
-
-  useEffect(() => {
-    const storedTicket = sessionStorage.getItem("currentTicket");
-    const fetchTicket = ticketNo || storedTicket; // fallback
-    if (fetchTicket) {
-      axiosInstance
-        .get(`DocumentUpload/ticket/${fetchTicket}`)
-        .then((res) => setDocuments(Array.isArray(res.data) ? res.data : []))
-        .catch((err) => console.error("Failed to fetch documents:", err));
-    }
-  }, [ticketNo]);
-
-  useEffect(() => {
-    const storedTicket = sessionStorage.getItem("currentTicket");
-    const fetchTicket = ticketNo || storedTicket;
-
-    if (fetchTicket) {
-      axiosInstance
-        .get(`LevelPendingHistory/ticket/${fetchTicket}`)
-        .then((res) => setPendingHistory(Array.isArray(res.data) ? res.data : []))
-        .catch((err) => console.error("Failed to fetch Pending Level History:", err));
-    }
-  }, [ticketNo]);
-
-  useEffect(() => {
-    const storedTicket = sessionStorage.getItem("currentTicket");
-    const fetchTicket = ticketNo || storedTicket;
-
-    if (fetchTicket) {
-      axiosInstance
-        .get(`visit/ticket/${fetchTicket}`)
-        .then((res) => setVisitDetails(Array.isArray(res.data) ? res.data : []))
-        .catch((err) => console.error("Failed to fetch visit details:", err));
-    }
-  }, [ticketNo]);
-
-  useEffect(() => {
-    const storedTicket = sessionStorage.getItem("currentTicket");
-    const fetchTicket = ticketNo || storedTicket;
-
-    if (fetchTicket) {
-      axiosInstance
-        .get(`reminder/Ticket/${fetchTicket}`)
-        .then((res) => {
-          // ✅ Handle single object OR array
-          const data = Array.isArray(res.data) ? res.data : [res.data];
-          setReminders(data);
-        })
-        .catch((err) => console.error("Failed to fetch reminders:", err))
-        .finally(() => setLoadingReminders(false));
-    }
-  }, [ticketNo]);
 
   const fetchCustomerDetails = useCallback(() => {
     const storedTicket = sessionStorage.getItem("currentTicket");
@@ -297,110 +329,6 @@ function HistoryPageContent() {
       .get(`ComplaintCustDetail/${storedTicket}`)
       .then((res) => setCustDetail(res.data))
       .catch((err) => console.error(err));
-  }, []);
-
-  useEffect(() => {
-    fetchCustomerDetails();
-  }, [fetchCustomerDetails]);
-
-  // useEffect(() => {
-  //   const fetchActions = async () => {
-  //     try {
-  //       const storedTicket = sessionStorage.getItem("currentTicket");
-  //       if (!storedTicket) return;
-
-  //       const { data: complaintDetail } = await axiosInstance.get(
-  //         `ComplaintCustDetail/${storedTicket}`
-  //       );
-
-  //       if (!complaintDetail) return;
-
-  //       const complaintStatus = complaintDetail.complainT_STATUS ;
-  //       const complaintSubStatus = complaintDetail.complainT_SUBSTATUS ;
-  //       const role = "SF/SSD";
-
-  //       const payload = {
-  //         type: "jobactions",
-  //         role: "SF/SSD",
-  //         complaint_SubStatus: complaintSubStatus,
-  //         complaint_Status: "ToAllot",
-  //       };
-
-  //       const res = await axiosInstance.post("ActionMaster/get-actions", payload);
-  //       console.log("Response:", res.data);
-  //       if (Array.isArray(res.data) && res.data.length > 0) {
-  //         const actionsString = res.data[0].action || "";
-  //         setActions(actionsString.split(",").map((a) => a.trim()));
-  //       } else {
-  //         console.warn("No actions found for:", payload);
-  //       }
-  //     } catch (error) {
-  //       console.error("Failed to fetch actions:", error);
-  //     }
-  //   };
-
-  //   fetchActions();
-  // }, [ticketNo]);
-
-  useEffect(() => {
-    const fetchActions = async () => {
-      try {
-        const storedTicket = sessionStorage.getItem("currentTicket");
-        if (!storedTicket) return;
-
-        // ✅ Fetch complaint detail dynamically
-        const { data: complaintDetail } = await axiosInstance.get(
-          `ComplaintCustDetail/${storedTicket}`
-        );
-        if (!complaintDetail) return;
-
-        // ✅ Dynamically extract from API + Redux
-        const userRole = user?.roleName || "Unknown";
-        const complaintStatus = complaintDetail.complainT_STATUS || "";
-        const complaintSubStatus = complaintDetail.complaint_SubStatus || "";
-        const calltype = complaintDetail.calL_TYPE || "";
-        const product = complaintDetail.product || "";
-
-        console.log("complainStatus: ", complaintStatus);
-        console.log("complainSubStatus: ", complaintSubStatus);
-        console.log("calltype: ", calltype);
-        console.log("product: ", product);
-
-        // ✅ Build payload dynamically
-        const payload = {
-          type: "jobactions",
-          role: userRole,
-          complaint_SubStatus: complaintSubStatus,
-          complaint_Status: complaintStatus,
-          calltype,
-          product,
-        };
-
-        // console.log("Dynamic Payload:", payload);
-
-        const res = await axiosInstance.post("ActionMaster/get-actions", payload);
-        // console.log("resonse: ", res);
-        const data = res.data.data || [];
-
-        if (Array.isArray(data) && data.length > 0) {
-          const actionsString = data[0].actions.map((a) => a.action) || "";
-
-          // console.log("actions:", actionsString);
-          setActions(actionsString);
-        } else {
-          console.warn("No actions found for:", payload);
-          setActions([]); // clear if empty
-        }
-      } catch (error) {
-        console.error("Failed to fetch actions:", error);
-      }
-    };
-
-    fetchActions();
-  }, [ticketNo, user]);
-
-  useEffect(() => {
-    fetchCancelReasons();
   }, []);
 
   const fetchCancelReasons = async () => {
@@ -464,14 +392,14 @@ function HistoryPageContent() {
     }
   };
 
-  const buildPayloadReallot = (type) => ({
+  const buildActionPayload = (type) => ({
     ticketNo: formData.tickeT_NO,
     usrName: loggedInUser,
     type,
     apptdate: formData.appointmentDate,
     appttime: `${formData.appointmentHour || "00"}:${formData.appointmentMinute || "00"}`,
     dop: formData.DOP,
-    contactPersion: formData.firstName,
+    contactPersion: formData.contactPersion || formData.firstName || "",
     customerRemark: formData.customerRemark,
     usrId: loggedInUserId.toString(),
     eng_id: formData.eng_ID,
@@ -501,7 +429,7 @@ function HistoryPageContent() {
   };
 
   const handleApprove = async () => {
-    const payload = buildPayloadReallot("Re-AllotASMApproved");
+    const payload = buildActionPayload("Re-AllotASMApproved");
 
     try {
       // 1) LEVEL 1 processing
@@ -553,7 +481,7 @@ function HistoryPageContent() {
   };
 
   const handleReject = async () => {
-    const payload = buildPayloadReallot("Re-AllotASMReject");
+    const payload = buildActionPayload("Re-AllotASMReject");
 
     try {
       // 1) LEVEL 1
@@ -575,6 +503,31 @@ function HistoryPageContent() {
     } catch (err) {
       console.error("Reject Error:", err);
       setPopup({ isOpen: true, message: "Failed to reject" });
+    }
+  };
+
+  const handleAssigned = async () => {
+    const payload = buildActionPayload("Assigned");
+
+    try {
+      // 1) LEVEL 1
+      const res = await axiosInstance.post(
+        "/Level1Operation/UpdateLevel1Operation",
+        payload
+      );
+
+      // const msg = res?.data?.message || "";
+      console.log("res assigned: ", res);
+      // const [status, subStatus, message] = msg.split("|").map((x) => x.trim());
+
+      // // 2) Update Job + History (added now)
+      // await updateJobAndHistory(status, subStatus, message);
+
+      setPopup({ isOpen: true, message: "Assigned successfully!" });
+      // setTimeout(() => router.push("/nsp/dashboard"), 1500);
+    } catch (err) {
+      console.error("Reject Error:", err);
+      setPopup({ isOpen: true, message: "Failed to Assign" });
     }
   };
 
@@ -669,7 +622,6 @@ function HistoryPageContent() {
 
   async function fetchEngineerData() {
     try {
-      console.log("sf id: ", formData.sf_ID);
       const res = await axiosInstance.post(
         `Engineer/Manage`,
         {
@@ -687,7 +639,74 @@ function HistoryPageContent() {
       setEngineerData(resData.data);
     } catch (err) {
       console.error("Error fetching engineer data:", err);
+      logger.error(
+        `Error fetching engineer data: ${err.message}`,
+        "fetching engineer data, history page"
+      );
     }
+  }
+
+  function isToday(dateStr) {
+    const today = new Date();
+    const d = new Date(dateStr);
+
+    return (
+      d.getFullYear() === today.getFullYear() &&
+      d.getMonth() === today.getMonth() &&
+      d.getDate() === today.getDate()
+    );
+  }
+
+  function getAllowedHours(selectedDate) {
+    const start = 9;
+    const end = 20;
+
+    if (!selectedDate) return [];
+
+    if (!isToday(selectedDate)) {
+      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    }
+
+    // If today → enforce +1 hour rule
+    const now = new Date();
+    const nextAllowedHour = now.getHours() + 1;
+
+    const finalStart = Math.max(start, nextAllowedHour);
+
+    if (finalStart > end) return []; // No valid hours left today
+
+    return Array.from({ length: end - finalStart + 1 }, (_, i) => finalStart + i);
+  }
+
+  function getNearestValidMinute(minute) {
+    const slots = [0, 15, 30, 45];
+    for (const m of slots) {
+      if (m >= minute) return m;
+    }
+    return null; // no valid minute in this hour
+  }
+
+  function getAllowedMinutes(selectedDate, selectedHour) {
+    const slots = [0, 15, 30, 45];
+
+    if (!selectedDate || selectedHour === "") return slots;
+
+    if (!isToday(selectedDate)) return slots;
+
+    const now = new Date();
+    const nextHour = now.getHours() + 1;
+
+    if (selectedHour > nextHour) {
+      return slots; // full range allowed
+    }
+
+    if (selectedHour == nextHour) {
+      const nearest = getNearestValidMinute(now.getMinutes());
+      if (nearest === null) return []; // no valid minute this hour
+      return slots.filter((m) => m >= nearest);
+    }
+
+    return []; // anything earlier than required hour
   }
 
   return (
@@ -910,7 +929,7 @@ function HistoryPageContent() {
                             <select
                               className="rounded border p-2"
                               value={formData.Eng_ID}
-                              onChange={(e) => onChange("eng_ID", e.target.value)}
+                              onChange={(e) => handleChange("eng_ID", e.target.value)}
                             >
                               <option value="">-- Select Engineer --</option>
                               {engineerData &&
@@ -951,12 +970,20 @@ function HistoryPageContent() {
                               type="date"
                               className="rounded-md border px-3 py-2"
                               min={todayStr} // 🚀 minimum = today
-                              value={appointmentDate}
+                              // value={appointmentDate}
+                              value={formData.appointmentDate}
                               onChange={(e) => {
-                                setAppointmentDate(e.target.value);
+                                // setAppointmentDate(e.target.value);
+                                handleChange("appointmentDate", e.target.value);
                                 setSelectedHour("");
                                 setSelectedMinute("");
                               }}
+                              // min={new Date().toISOString().split("T")[0]}
+                              max={
+                                new Date(Date.now() + 72 * 60 * 60 * 1000)
+                                  .toISOString()
+                                  .split("T")[0]
+                              }
                             />
                           </div>
 
@@ -965,24 +992,19 @@ function HistoryPageContent() {
                             <label className="font-medium text-gray-700">Hour:</label>
                             <select
                               className="rounded-md border px-3 py-2"
-                              value={selectedHour}
-                              onChange={(e) => setSelectedHour(e.target.value)}
+                              // value={selectedHour}
+                              // onChange={(e) => setSelectedHour(e.target.value)}
+                              value={formData.appointmentHour}
+                              onChange={(e) =>
+                                handleChange("appointmentHour", e.target.value)
+                              }
                             >
                               <option value="">--Hour--</option>
-
-                              {Array.from({ length: 24 }).map((_, i) => {
-                                const hr = i < 10 ? "0" + i : i.toString();
-
-                                // If date is today → disable past hours
-                                const disabled =
-                                  appointmentDate === todayStr && i < currentHour;
-
-                                return (
-                                  <option key={i} value={hr} disabled={disabled}>
-                                    {hr}
-                                  </option>
-                                );
-                              })}
+                              {getAllowedHours(formData.appointmentDate).map((h) => (
+                                <option key={h} value={h}>
+                                  {h}
+                                </option>
+                              ))}
                             </select>
                           </div>
 
@@ -991,26 +1013,22 @@ function HistoryPageContent() {
                             <label className="font-medium text-gray-700">Minute:</label>
                             <select
                               className="rounded-md border px-3 py-2"
-                              value={selectedMinute}
-                              onChange={(e) => setSelectedMinute(e.target.value)}
+                              // value={selectedMinute}
+                              // onChange={(e) => setSelectedMinute(e.target.value)}
+                              value={formData.appointmentMinute}
+                              onChange={(e) =>
+                                handleChange("appointmentMinute", e.target.value)
+                              }
                             >
                               <option value="">--Minute--</option>
-
-                              {Array.from({ length: 60 }).map((_, i) => {
-                                const mn = i < 10 ? "0" + i : i.toString();
-
-                                const disabled =
-                                  appointmentDate === todayStr &&
-                                  selectedHour ===
-                                    currentHour.toString().padStart(2, "0") &&
-                                  i < currentMinute;
-
-                                return (
-                                  <option key={i} value={mn} disabled={disabled}>
-                                    {mn}
-                                  </option>
-                                );
-                              })}
+                              {getAllowedMinutes(
+                                formData.appointmentDate,
+                                formData.appointmentHour
+                              ).map((m) => (
+                                <option key={m} value={m}>
+                                  {m}
+                                </option>
+                              ))}
                             </select>
                           </div>
                         </div>
@@ -1028,6 +1046,9 @@ function HistoryPageContent() {
                             <input
                               className="rounded-md border px-3 py-2"
                               defaultValue=""
+                              onChange={(e) =>
+                                handleChange("contactPerson", e.target.value)
+                              }
                             />
                           </div>
 
@@ -1036,7 +1057,13 @@ function HistoryPageContent() {
                             <label className="font-medium text-gray-700">
                               Customer Remark:
                             </label>
-                            <textarea className="h-20 rounded-md border px-3 py-2" />
+                            <textarea
+                              value={formData.customerRemark}
+                              onChange={(e) =>
+                                handleChange("customerRemark", e.target.value)
+                              }
+                              className="h-20 rounded-md border px-3 py-2"
+                            />
                           </div>
                         </div>
 
@@ -1045,7 +1072,10 @@ function HistoryPageContent() {
 
                       {/* Footer */}
                       <div className="mt-8 flex justify-end gap-4">
-                        <button className="rounded-md bg-blue-600 px-6 py-2 text-white transition hover:bg-blue-700">
+                        <button
+                          onClick={handleAssigned}
+                          className="rounded-md bg-blue-600 px-6 py-2 text-white transition hover:bg-blue-700"
+                        >
                           Save
                         </button>
                       </div>
@@ -1159,6 +1189,10 @@ function HistoryPageContent() {
                   setPopupOpen(true);
                 } catch (err) {
                   console.error("❌ API Failed:", err);
+                  logger.error(
+                    `Call cancellation request API Failed: ${err.message}, ${err.stack}`,
+                    "submitting remark"
+                  );
                   setPopupMessage("Failed to submit remark ❌");
                   setPopupOpen(true);
                 }

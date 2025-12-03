@@ -1,8 +1,9 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+
 import axiosInstance from "@/api/axiosInstance";
 import { useTheme } from "@/theme/ThemeContext";
-import { useCallback, useEffect, useState } from "react";
 
 export default function EditCustPopup({ isOpen, onClose, details, onUpdated }) {
   const { colors } = useTheme();
@@ -94,11 +95,7 @@ export default function EditCustPopup({ isOpen, onClose, details, onUpdated }) {
                 stroke="currentColor"
                 strokeWidth={2}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <p className="mt-3 text-lg font-semibold text-green-600">
@@ -162,9 +159,7 @@ export default function EditCustPopup({ isOpen, onClose, details, onUpdated }) {
               />
             </div>
 
-            {warning && (
-              <p className="text-sm font-medium text-red-600">{warning}</p>
-            )}
+            {warning && <p className="text-sm font-medium text-red-600">{warning}</p>}
 
             <div className="mt-6 flex justify-end gap-3">
               <button

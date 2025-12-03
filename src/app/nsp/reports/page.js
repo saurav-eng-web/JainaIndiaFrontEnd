@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
+import { logger } from "@/utils/logger";
 
 export default function DashboardPage() {
   const { colors } = useTheme();
@@ -38,6 +39,10 @@ export default function DashboardPage() {
         }
       } catch (error) {
         console.log(`error: `, error);
+        logger.error(
+          `Error fetching: ${JSON.stringify(error, null, 2)}`,
+          "fetching report master, reports page"
+        );
       }
     }
 
@@ -165,19 +170,61 @@ export default function DashboardPage() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
+      // console.error("Download failed:", err);
+
+      // // Extract JSON error if available
+      // if (err.response?.data && err.response.data instanceof Blob) {
+      //   const text = await err.response.data.text();
+      //   try {
+      //     const json = JSON.parse(text);
+      //     alert(json.error || "Failed to download");
+      //   } catch {
+      //     alert("Failed to download");
+      //   }
+      // } else {
+      //   alert("Failed to download");
+      // }
       console.error("Download failed:", err);
 
-      // Extract JSON error if available
+      // 1. Prepare Meta Data (What caused the error?)
+      const meta = {
+        reportType,
+        fromDate,
+        toDate,
+
+        status: err.response?.status, // e.g., 404, 500
+      };
+
+      // 2. Try to extract the specific error message from the Blob
       if (err.response?.data && err.response.data instanceof Blob) {
         const text = await err.response.data.text();
         try {
           const json = JSON.parse(text);
-          alert(json.error || "Failed to download");
-        } catch {
+          const serverMsg = json.error || "Unknown Server Error";
+
+          alert(serverMsg);
+
+          // ✅ LOG THE DECODED SERVER MESSAGE
+          logger.error(`Download failed (Server): ${serverMsg}`, "Download Report", meta);
+        } catch (parseError) {
           alert("Failed to download");
+
+          // ✅ LOG IF JSON PARSING FAILED
+          logger.error(
+            `Download failed (Blob Parse Error): ${parseError.message}`,
+            "Download Report",
+            { ...meta, rawText: text.substring(0, 100) } // Log first 100 chars to see what went wrong
+          );
         }
       } else {
         alert("Failed to download");
+
+        // ✅ LOG STANDARD JS ERROR
+        logger.error(
+          `Download failed (Network/Code): ${err.message}`,
+          "Download Report",
+          meta
+        );
       }
     } finally {
       setIsLoading(false);

@@ -2,6 +2,7 @@
 import axios from "axios";
 
 export async function POST(request) {
+  const LOKI_URL = process.env.NEXT_PUBLIC_LOKI_URL;
   try {
     const body = await request.json();
 
@@ -41,8 +42,8 @@ export async function POST(request) {
 
     // 3. Send ONE request to Loki containing ALL log streams
     const response = await axios.post(
-      "${LOKI_URL}/v1/push",
-      // "http://192.168.47.24:3100/loki/api/v1/push",
+      `${LOKI_URL}/v1/push`,
+
       {
         streams: lokiStreams,
       },

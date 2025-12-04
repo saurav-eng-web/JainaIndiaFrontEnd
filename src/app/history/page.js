@@ -16,10 +16,11 @@ import CustomDropdown from "@/components/common/Dropdown";
 import RemarkSection from "@/components/history/RemarkSection";
 import AllotmentDetails from "@/components/history/AllotmentDetails";
 import Popup from "@/components/common/Popup";
+import { logger } from "@/utils/logger";
+
 import "./history.css";
 
 import "react-toastify/dist/ReactToastify.css";
-import { logger } from "@/utils/logger";
 
 const tabs = [
   "Job Details",
@@ -410,22 +411,26 @@ function HistoryPageContent() {
     // Action: action,
   });
 
-  const updateJobAndHistory = async (status, subStatus, message, serialNumber) => {
+  const updateJob = async (status, subStatus, message, serialNumber) => {
     const ticketNumber = formData.tickeT_NO;
 
     await axiosInstance.post(`/CallRegister/UpdateComplaint/${ticketNumber}`, {
       complaint_Status: status,
       complaint_SubStatus: subStatus,
+      CallTransferBY: loggedInUser,
+      dlcity:
+        `${serialNumber ? `${message} - ${serialNumber}` : "Call moved to Assign from Re-Allot"}` ||
+        "",
     });
 
-    await axiosInstance.post(`/ComplaintHistory`, {
-      ticketNo: ticketNumber,
-      complaintStatus: `${status}|${subStatus}`,
-      complaintSubStatus: `${serialNumber ? `${message} - ${serialNumber}` : " Call moved to Assign from Re-Allot"}`, // WIP
-      tdate: new Date().toISOString().split("T")[0],
-      enteredBy: loggedInUser,
-      enteredByID: loggedInUserId,
-    });
+    // await axiosInstance.post(`/ComplaintHistory`, {
+    //   ticketNo: ticketNumber,
+    //   complaintStatus: `${status}|${subStatus}`,
+    //   complaintSubStatus: `${serialNumber ? `${message} - ${serialNumber}` : "Call moved to Assign from Re-Allot"}`, // WIP
+    //   tdate: new Date().toISOString().split("T")[0],
+    //   enteredBy: loggedInUser,
+    //   enteredByID: loggedInUserId,
+    // });
   };
 
   const handleApprove = async () => {
@@ -601,22 +606,21 @@ function HistoryPageContent() {
       const status = parts[0]?.trim(); // Open
       const subStatus = parts[1]?.trim(); // WIP Approval or WIP
       const responseMessage = parts[2]?.trim() || "";
-      console.log("🔴 message build", {
-        status,
-        subStatus,
-        responseMessage,
-      });
-      // Only proceed if status is expected - we may check this later on
-      // if (status !== "Open" || !["WIP", "WIP Approval"].includes(subStatus)) {
-      //   console.log("Unexpected status response:", message);
-      //   return;
-      // }
 
       // Everything valid => call updateHistory
       await updateJobAndHistory(status, subStatus, responseMessage, serialNumber);
-      console.log("🔴update hob history");
+      logger.info(
+        `Serial check: ${status}|${subStatus}|${message}`,
+        "serial check WIP, history page",
+        { payload, res }
+      );
     } catch (error) {
       console.log(error);
+      logger.error(
+        `Error serial check: ${error.message}`,
+        "serial check WIP, history page",
+        { payload }
+      );
     }
   };
 

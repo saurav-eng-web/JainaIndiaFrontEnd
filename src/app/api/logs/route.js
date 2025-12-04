@@ -34,7 +34,7 @@ export async function POST(request) {
         stream: {
           job: "crm-full",
           level: level.toLowerCase(), // Loki likes lowercase levels
-          action_type: action || "unknown",
+          // action_type: action || "unknown",
         },
         values: [[nanoTimestamp, logContent]],
       };

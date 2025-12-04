@@ -1,38 +1,9 @@
-// import axios from 'axios';
-
-// const axiosInstance = axios.create({
-//   baseURL: 'https://ncapi.jainaindia.com/api/',
-// });
-
-// // Request interceptor to attach token
-// axiosInstance.interceptors.request.use((config) => {
-//   const userData = localStorage.getItem('userData');
-//   if (userData) {
-//     const { token } = JSON.parse(userData);
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//   }
-//   return config;
-// });
-// axiosInstance.interceptors.response.use(
-//     (response) => response,
-//     (error) => {
-//       if (error.response?.status === 401) {
-//         localStorage.removeItem('userData');
-//         window.location.href = '/login';
-//       }
-//       return Promise.reject(error);
-//     }
-//   );
-
-// export default axiosInstance;
-
 // axiosInstance.js
 import axios from "axios";
 
 import { logout } from "@/redux/slices/authSlice";
 import { store } from "@/redux/store";
+import { logger } from "@/utils/logger";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -40,15 +11,31 @@ const axiosInstance = axios.create({
   baseURL: BASE_URL,
 });
 
-console.log("inside axiosInstance");
+// Mask sensitive values before logging
+function maskSensitive(data) {
+  if (!data) return data;
 
-// Attach token in requests
+  try {
+    const obj = typeof data === "string" ? JSON.parse(data) : { ...data };
+
+    const fields = ["password", "pass", "token", "otp"];
+    for (const key of fields) {
+      if (obj[key]) obj[key] = "***masked***";
+    }
+
+    return obj;
+  } catch {
+    return data; // if parsing fails, return raw
+  }
+}
+
+// Attach token to requests
 axiosInstance.interceptors.request.use((config) => {
   const userData = localStorage.getItem("userData");
   if (userData) {
-    const { token } = JSON.parse(userData);
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const parsed = JSON.parse(userData);
+    if (parsed.token) {
+      config.headers.Authorization = `Bearer ${parsed.token}`;
     }
   }
   return config;
@@ -56,25 +43,36 @@ axiosInstance.interceptors.request.use((config) => {
 
 let isRedirecting = false;
 
+// Handle API errors + log them
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    console.log("error:", error);
 
+  async (error) => {
+    const config = error.config || {};
+
+    const safeParams = config.params || {};
+
+    // Send error log to Loki
+    logger.error(`API Request Failed on ${config.url}`, "api error", {
+      method: config.method,
+      status: error.response?.status,
+      errorMessage: error.message,
+      payload: config.data,
+      params: safeParams,
+    });
+
+    // Handle redirect on auth/network error
+    const isNetworkError = error.code === "ERR_NETWORK";
     const status = error.response?.status;
+    const shouldLogout = isNetworkError || status === 401 || status === 403;
 
-    // handle expired token or unauthorized access
-    if ([401, 403].includes(status) && !isRedirecting) {
+    if (shouldLogout && !isRedirecting) {
       if (typeof window !== "undefined") {
         const currentPath = window.location.pathname;
 
         if (currentPath !== "/login") {
           isRedirecting = true;
-
-          // logout and clear store
           store.dispatch(logout());
-
-          // redirect safely
           window.location.href = "/login";
         }
       }
@@ -84,21 +82,55 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-// let isRedirecting = false; // define this once outside the interceptor
+export default axiosInstance;
+
+// import axios from "axios";
+
+// import { logout } from "@/redux/slices/authSlice";
+// import { store } from "@/redux/store";
+
+// const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+// const axiosInstance = axios.create({
+//   baseURL: BASE_URL,
+// });
+
+// console.log("inside axiosInstance");
+
+// // Attach token in requests
+// axiosInstance.interceptors.request.use((config) => {
+//   const userData = localStorage.getItem("userData");
+//   if (userData) {
+//     const { token } = JSON.parse(userData);
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+//   }
+//   return config;
+// });
+
+// let isRedirecting = false;
 
 // axiosInstance.interceptors.response.use(
 //   (response) => response,
 //   (error) => {
 //     console.log("error:", error);
-//     if (error.response?.status === 401 && !isRedirecting) {
-//       const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
 
-//       if (currentPath !== "/login") {
-//         isRedirecting = true;
+//     const isNetworkError = error.code === "ERR_NETWORK";
 
-//         store.dispatch(logout());
+//     const status = error.response?.status;
 
-//         if (typeof window !== "undefined") {
+//     const shouldLogout = isNetworkError || status === 401 || status === 403;
+
+//     if (shouldLogout && !isRedirecting) {
+//       if (typeof window !== "undefined") {
+//         const currentPath = window.location.pathname;
+
+//         if (currentPath !== "/login") {
+//           isRedirecting = true;
+
+//           store.dispatch(logout());
+
 //           window.location.href = "/login";
 //         }
 //       }
@@ -108,22 +140,4 @@ axiosInstance.interceptors.response.use(
 //   }
 // );
 
-export default axiosInstance;
-
-// Handle expired/invalid token
-// axiosInstance.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401 && !isRedirecting) {
-//       // 1️⃣ clear Redux + localStorage
-//       store.dispatch(logout());
-//       console.log(`🔴 inside expired/invalid tokens`);
-
-//       // 2️⃣ redirect user to login page
-//       if (typeof window !== "undefined") {
-//         window.location.href = "/login";
-//       }
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+// export default axiosInstance;

@@ -112,10 +112,10 @@
 - improved eslint, prettier for dev.
 - re allot: change the api - level1 -> update job -> complaint history -> call schedule
 - download report fix: name issue, handling errors
--
+- improve history page, efficient use of useEffect for loading data
 
 ## feat
 
 - WIP
 - get engineer api, action -> Assigned
--
+- added logger api, utility to log on loki

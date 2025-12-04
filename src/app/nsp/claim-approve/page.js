@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SideBar from "@/components/SideBar";
 import { useRouter } from "next/navigation";
+
+import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
 import SectionHeading from "@/components/common/SectionHeading";
 
@@ -94,9 +95,7 @@ export default function ComplaintTable() {
                     <tr key={idx} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <button
-                          onClick={() =>
-                            router.push(`/assign-to-asc/${item.callNumber}`)
-                          }
+                          onClick={() => router.push(`/assign-to-asc/${item.callNumber}`)}
                           className="rounded-md px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
                           style={{ backgroundColor: colors.primary }}
                         >
@@ -110,7 +109,7 @@ export default function ComplaintTable() {
                       <td className="px-4 py-3">
                         <span
                           className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
-                            item.complaint_Status,
+                            item.complaint_Status
                           )}`}
                         >
                           {item.complaint_Status}

@@ -346,13 +346,12 @@
 
 "use client";
 
-import { Suspense } from "react"; // ✅ ADD THIS IMPORT
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import "./stepper.css";
 import axios from "axios";
-import axiosInstance from "@/api/axiosInstance";
 
+import axiosInstance from "@/api/axiosInstance";
 import SideBar from "@/components/SideBar";
 import CustomerDetailsStep from "@/components/CallRegisterSteps/CustomerDetailsStep";
 import AddressDetailsStep from "@/components/CallRegisterSteps/AddressDetailsStep";
@@ -534,8 +533,7 @@ function CallRegisterInner({ showSidebar = true }) {
   };
 
   const nextStep = () => {
-    if (currentStep < steps.length - 1 && validateStep())
-      setCurrentStep((s) => s + 1);
+    if (currentStep < steps.length - 1 && validateStep()) setCurrentStep((s) => s + 1);
   };
   const prevStep = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
@@ -590,7 +588,7 @@ function CallRegisterInner({ showSidebar = true }) {
 
       const response = await axiosInstance.post(
         `${BASE_URL}/callregister/create-complaint`,
-        payload,
+        payload
       );
       setCallNumber(response.data?.returnNo || "");
 
@@ -600,9 +598,7 @@ function CallRegisterInner({ showSidebar = true }) {
       setCurrentStep(0);
     } catch (err) {
       console.error("Call Register Error:", err);
-      alert(
-        "Error creating call: " + (err.response?.data?.message || err.message),
-      );
+      alert("Error creating call: " + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -636,7 +632,7 @@ function CallRegisterInner({ showSidebar = true }) {
         }),
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        },
+        }
       );
     } catch (error) {
       // Optional: handle silently or report to monitoring service
@@ -728,9 +724,7 @@ function CallRegisterInner({ showSidebar = true }) {
               <div className="stepper">
                 {steps.map((label, idx) => (
                   <div className="step" key={idx}>
-                    <div
-                      className={`circle ${idx <= currentStep ? "active" : ""}`}
-                    >
+                    <div className={`circle ${idx <= currentStep ? "active" : ""}`}>
                       {idx <= currentStep ? "✔" : ""}
                     </div>
                     <div className="label">{label}</div>

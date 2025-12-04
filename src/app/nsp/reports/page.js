@@ -40,7 +40,7 @@ export default function DashboardPage() {
       } catch (error) {
         console.log(`error: `, error);
         logger.error(
-          `Error fetching: ${JSON.stringify(error, null, 2)}`,
+          `Error fetching: ${error.message}`,
           "fetching report master, reports page"
         );
       }

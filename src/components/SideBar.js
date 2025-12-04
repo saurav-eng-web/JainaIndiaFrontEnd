@@ -456,6 +456,12 @@ export default function SideBar() {
       roles: ["BR", "ASM", "ZONE"],
     },
     { href: "/print", icon: "fa fa-print fa-2x", text: "Print", roles: ["SF/SSD"] },
+    {
+      href: "/sf/receive-po",
+      icon: "fa fa-print fa-2x",
+      text: "Receive PO",
+      roles: ["SF/SSD"],
+    },
   ];
 
   const allowedBulkUsers = ["T284977"];

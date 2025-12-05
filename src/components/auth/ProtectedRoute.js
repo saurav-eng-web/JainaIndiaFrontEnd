@@ -97,7 +97,7 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
       if (allowed.length === 0 || allowed.includes(role)) {
         setAuthorized(true);
       } else {
-        router.replace("/login");
+        router.replace("/unauthorized");
       }
     } catch {
       router.replace("/login");

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { FaUserCircle, FaChevronDown } from 'react-icons/fa';
-import './Header.css';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { FaUserCircle, FaChevronDown } from "react-icons/fa";
+import "./Header.css";
 
 export default function Header() {
   const router = useRouter();
@@ -11,33 +11,27 @@ export default function Header() {
   const [showMainMenu, setShowMainMenu] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem('userData');
-    router.push('/login');
+    localStorage.removeItem("userData");
+    router.push("/login");
   };
 
   return (
     <header className="header">
       <div className="relative">
-        <div
-          className="menu-title"
-          onClick={() => setShowMainMenu((prev) => !prev)}
-        >
+        <div className="menu-title" onClick={() => setShowMainMenu((prev) => !prev)}>
           Main Menu <FaChevronDown size={14} style={{ marginLeft: 4 }} />
         </div>
         {showMainMenu && (
-  <ul className="main-menu-dropdown">
-    <li onClick={() => router.push('/call-registration')}>Call Registration</li>
-    <li>Reports</li>
-    <li>Uploader</li>
-  </ul>
-)}
+          <ul className="main-menu-dropdown">
+            <li onClick={() => router.push("/call-registration")}>Call Registration</li>
+            <li>Reports</li>
+            <li>Uploader</li>
+          </ul>
+        )}
       </div>
 
       <div className="relative">
-        <button
-          className="user-icon"
-          onClick={() => setShowUserMenu(!showUserMenu)}
-        >
+        <button className="user-icon" onClick={() => setShowUserMenu(!showUserMenu)}>
           <FaUserCircle />
         </button>
         {showUserMenu && (

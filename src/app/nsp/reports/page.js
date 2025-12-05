@@ -49,8 +49,6 @@ export default function DashboardPage() {
     fetchOptions();
   }, [role]);
 
-  // filter((option) => option.role.includes(role));
-
   // const handleDownload = async () => {
   //   if (!fromDate || !toDate || !reportType) {
   //     alert("Please select From Date, To Date and Report");
@@ -124,6 +122,7 @@ export default function DashboardPage() {
   // };
 
   // ----------
+
   const handleDownload = async () => {
     if (!fromDate || !toDate || !reportType) {
       alert("Please select dates and report type");
@@ -170,20 +169,6 @@ export default function DashboardPage() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
-      // console.error("Download failed:", err);
-
-      // // Extract JSON error if available
-      // if (err.response?.data && err.response.data instanceof Blob) {
-      //   const text = await err.response.data.text();
-      //   try {
-      //     const json = JSON.parse(text);
-      //     alert(json.error || "Failed to download");
-      //   } catch {
-      //     alert("Failed to download");
-      //   }
-      // } else {
-      //   alert("Failed to download");
-      // }
       console.error("Download failed:", err);
 
       // 1. Prepare Meta Data (What caused the error?)
@@ -230,64 +215,6 @@ export default function DashboardPage() {
       setIsLoading(false);
     }
   };
-
-  // ------------
-
-  // const handleDownload = async () => {
-  //   if (!fromDate || !toDate || !reportType) {
-  //     alert("Please select From Date, To Date and Report");
-  //     return;
-  //   }
-
-  //   try {
-  //     const body = {
-  //       Type: reportType,
-  //       UserId: loggedInUserId,
-  //       FromDate: fromDate,
-  //       ToDate: toDate,
-  //     };
-
-  //     // Call the Next.js proxy API instead of backend directly
-  //     // const response = await fetch("/api/proxyDownload", {
-  //     //   method: "POST",
-  //     //   headers: {
-  //     //     "Content-Type": "application/json",
-  //     //     Authorization: jwtToken,
-  //     //   },
-  //     //   body: JSON.stringify(body),
-  //     // });
-
-  //     const response = await axiosInstance.post("/api/proxyDownload", body, {
-  //       responseType: "blob",
-  //       baseURL: "", // empty overrides global baseURL
-  //     });
-
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const a = document.createElement("a");
-  //     a.href = url;
-
-  //     // Extract filename from headers
-  //     const contentDisposition = response.headers["content-disposition"];
-  //     let fileName = "report.csv"; // fallback
-  //     if (contentDisposition) {
-  //       const match = contentDisposition.match(/filename="?([^"]+)"?/);
-  //       if (match?.[1]) fileName = match[1];
-  //     }
-
-  //     a.download = fileName;
-  //     document.body.appendChild(a);
-  //     a.click();
-
-  //     console.log("🔴 fileName: ", fileName);
-  //     // console.log("fileName: ", fileName);
-  //     // Cleanup
-  //     a.remove();
-  //     window.URL.revokeObjectURL(url);
-  //   } catch (error) {
-  //     console.error("Download failed:", error);
-  //     alert("Download failed");
-  //   }
-  // };
 
   return (
     <ProtectedRoute

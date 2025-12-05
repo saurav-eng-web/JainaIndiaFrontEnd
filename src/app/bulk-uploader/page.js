@@ -1,12 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import * as XLSX from "xlsx";
+
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import * as XLSX from "xlsx";
 
 const EXPECTED_COLUMNS = [
   "First_Name",
@@ -61,11 +62,9 @@ export default function BulkUploader() {
           }
 
           // Check for missing and extra columns
-          const missing = EXPECTED_COLUMNS.filter(
-            (col) => !firstRow.includes(col),
-          );
+          const missing = EXPECTED_COLUMNS.filter((col) => !firstRow.includes(col));
           const extra = firstRow.filter(
-            (col) => !EXPECTED_COLUMNS.includes(col) && col !== "",
+            (col) => !EXPECTED_COLUMNS.includes(col) && col !== ""
           );
 
           if (missing.length > 0 || extra.length > 0) {
@@ -145,25 +144,21 @@ export default function BulkUploader() {
       formData.append("file", file);
 
       // Upload file with progress tracking
-      await axiosInstance.post(
-        `${BASE_URL}/CallCreationUploader/create-bulk`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total,
-            );
-            setProgress({
-              phase: "Uploading file...",
-              percentage: percentCompleted,
-            });
-          },
-          timeout: 300000, // 5 minutes timeout for large files
+      await axiosInstance.post(`${BASE_URL}/CallCreationUploader/create-bulk`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-      );
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setProgress({
+            phase: "Uploading file...",
+            percentage: percentCompleted,
+          });
+        },
+        timeout: 300000, // 5 minutes timeout for large files
+      });
 
       setProgress({
         phase: "Complete",
@@ -178,7 +173,7 @@ export default function BulkUploader() {
         setErrorMsg(
           err?.response?.data?.message ||
             err.message ||
-            "Error uploading file. Please try again.",
+            "Error uploading file. Please try again."
         );
       }
     } finally {
@@ -226,9 +221,7 @@ export default function BulkUploader() {
             </h2>
 
             <div className="flex flex-col items-center gap-6">
-              <h1 className="text-xl font-semibold text-[#714b67]">
-                Upload Excel File
-              </h1>
+              <h1 className="text-xl font-semibold text-[#714b67]">Upload Excel File</h1>
 
               <input
                 type="file"
@@ -239,9 +232,9 @@ export default function BulkUploader() {
               />
 
               <p className="mt-0.5 text-xs text-gray-600 italic">
-                Only <span className="font-semibold text-[#714b67]">.xlsx</span>{" "}
-                or <span className="font-semibold text-[#714b67]">.xls</span>{" "}
-                files are supported.
+                Only <span className="font-semibold text-[#714b67]">.xlsx</span> or{" "}
+                <span className="font-semibold text-[#714b67]">.xls</span> files are
+                supported.
               </p>
 
               {loading && progress.phase && (

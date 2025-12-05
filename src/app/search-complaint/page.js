@@ -1,10 +1,7 @@
 "use client";
 
-import "./search.css";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-import EditCustPopup from "../history/EditCustPopup";
 
 import SideBar from "@/components/SideBar";
 import axiosInstance from "@/api/axiosInstance";
@@ -23,51 +20,11 @@ export default function SearchComplaintPage() {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchAttempted, setSearchAttempted] = useState(false);
-  const [openPopup, setOpenPopup] = useState(false);
 
   const handleViewHistory = (ticketNo) => {
     sessionStorage.setItem("currentTicket", ticketNo);
-    router.push("/history"); // ✅ No ticket number in URL
+    router.push("/history");
   };
-
-  // const handleSearch = async () => {
-  //   const q = query.trim();
-
-  //   if (!q) {
-  //     alert('Please enter a complaint number, mobile number, or serial number');
-  //     return;
-  //   }
-  //   let paramType = '';
-
-  //   if (/^[0-9]{10}$/.test(q)) {
-  //     paramType = 'phone';
-  //   } else if (/^[A-Za-z]{2,}\d+$/.test(q)) {
-  //     // starts with letters + numbers → serialNo
-  //     paramType = 'serialNo';
-  //   } else {
-  //     // fallback → complaint number
-  //     paramType = 'callNumber';
-  //   }
-  //   try {
-  //     const response = await axiosInstance.get('CallSearch/search', {
-  //       params: {
-  //         phone: /^[0-9]{10}$/.test(q) ? q : '',
-  //         callNumber: q,
-  //         serialNo: q
-  //       },
-  //     });
-
-  //     const results = Array.isArray(response.data) ? response.data : [response.data];
-  //     setSearchResults(results);
-  //     setSearchAttempted(true);
-  //   } catch (error) {
-  //     console.error('Search error:', error);
-  //     setSearchResults([]);
-  //     setSearchAttempted(true);
-  //   }
-
-  //   setQuery('');
-  // };
 
   const handleSearch = async () => {
     const q = query.trim();
@@ -80,18 +37,6 @@ export default function SearchComplaintPage() {
     if (q.length < 10) {
       alert("Please enter at least 10 characters to search");
       return;
-    }
-
-    let paramType = "";
-
-    if (/^[0-9]{10}$/.test(q)) {
-      paramType = "phone";
-    } else if (/^[A-Za-z]{2,}\d+$/.test(q)) {
-      // starts with letters + numbers → serialNo
-      paramType = "serialNo";
-    } else {
-      // fallback → complaint number
-      paramType = "callNumber";
     }
 
     try {
@@ -118,55 +63,86 @@ export default function SearchComplaintPage() {
 
   return (
     <ProtectedRoute allowedRoles={["cc", "br", "asm", "zone", "sf/ssd"]}>
-      <div style={{ display: "flex" }}>
+      <div className="flex w-full">
         <SideBar />
-        <div className="content">
-          <div className="container">
-            <h2 className="h2">Search Complaint</h2>
 
-            <div className="search-box">
+        {/* Content Wrapper */}
+        <div className="ml-[60px] w-full transition-all duration-300 ease-in-out">
+          {/* Main Container */}
+          <div className="mt-10 ml-10 max-w-[1300px] rounded-xl bg-[#dee2e6] p-10">
+            {/* Header */}
+            <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
+              Search Complaint
+            </h2>
+
+            {/* Search Box Section */}
+            <div className="mt-5 flex flex-col items-start gap-2.5">
               <input
                 type="text"
                 placeholder="Complaint No / Mobile No / Serial No"
-                className="search-input"
+                className="w-[350px] rounded-md border border-[#714b67] bg-white px-4 py-3 text-base outline-none focus:ring-2 focus:ring-[#714b67]"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-              <div className="search-buttons">
-                <button className="search-btn" onClick={handleSearch}>
+              <div className="mt-5 flex gap-2.5">
+                <button
+                  className="cursor-pointer rounded-lg bg-[#714b67] px-5 py-3 text-base font-bold text-white transition-colors duration-300 hover:bg-[#5a3c52]"
+                  onClick={handleSearch}
+                >
                   Search
                 </button>
               </div>
             </div>
 
+            {/* Results Table */}
             {searchResults.length > 0 && (
-              <div className="result-table">
-                <table>
+              <div className="mt-8 overflow-x-auto rounded-xl bg-white">
+                <table className="w-full min-w-[1000px] border-separate border-spacing-0 overflow-hidden rounded-xl">
                   <thead>
-                    <tr>
-                      <th>History</th>
-                      {/* ✅ Conditionally render Registration column */}
+                    <tr className="bg-[#714b67]">
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        History
+                      </th>
                       {searchResults.some(
                         (result) =>
                           result.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
                           result.complainT_SUBSTATUS?.toLowerCase() === "cancel"
-                      ) && <th>Registration</th>}
-                      {/* {searchResults.some(
-                        (result) =>
-                          result.complainT_SUBSTATUS?.toLowerCase() !== "ok" ||
-                          result.complainT_SUBSTATUS?.toLowerCase() !==
-                            "cancel",
-                      ) && <th>Edit Customer</th>} */}
-                      <th>Name</th>
-                      <th>Mobile No.</th>
-                      <th>Product</th>
-                      <th>Model</th>
-                      <th>Complaint No.</th>
-                      <th>Serial No.</th>
-                      <th>Call Type</th>
-                      <th>Sub Status</th>
-                      <th>ASC Code</th>
-                      <th>Date</th>
+                      ) && (
+                        <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                          Registration
+                        </th>
+                      )}
+
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        Name
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        Mobile No.
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        Product
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        Model
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        Complaint No.
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        Serial No.
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        Call Type
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        Sub Status
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        ASC Code
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                        Date
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -176,31 +152,30 @@ export default function SearchComplaintPage() {
                         result.complainT_SUBSTATUS?.toLowerCase() === "cancel";
 
                       return (
-                        <tr key={index}>
-                          {/* History button */}
-                          <td>
+                        <tr
+                          key={index}
+                          className="group bg-[#f9f9f9] transition-colors duration-200 even:bg-[#f1faff] hover:bg-[#e3f2fd]"
+                        >
+                          {/* History Button */}
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
                             <button
-                              className="action-btn"
+                              className="cursor-pointer rounded-md bg-[#714b67] px-3.5 py-2 text-[13px] text-white transition-colors duration-300 hover:bg-[#5a3c52]"
                               onClick={() => handleViewHistory(result.tickeT_NO)}
                             >
                               History
                             </button>
                           </td>
 
-                          {/* ✅ Registration button cell only if header exists */}
+                          {/* Registration Button */}
                           {searchResults.some(
                             (r) =>
                               r.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
                               r.complainT_SUBSTATUS?.toLowerCase() === "cancel"
                           ) && (
-                            <td>
+                            <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
                               {showRegistration && (
                                 <button
-                                  className="action-btn"
-                                  style={{
-                                    backgroundColor: "#714b67",
-                                    color: "#fff",
-                                  }}
+                                  className="cursor-pointer rounded-md bg-[#714b67] px-3.5 py-2 text-[13px] text-white transition-colors duration-300 hover:bg-[#5a3c52]"
                                   onClick={() => {
                                     const params = new URLSearchParams({
                                       title: result.salutation || "",
@@ -229,7 +204,6 @@ export default function SearchComplaintPage() {
                                       faultVoc: result.remarks || "",
                                       availableTime: result.promisE_TIME || "",
                                     });
-
                                     router.push(`/call?${params.toString()}`);
                                   }}
                                 >
@@ -239,39 +213,35 @@ export default function SearchComplaintPage() {
                             </td>
                           )}
 
-                          {/* {searchResults.some(
-                            (result) =>
-                              result.complainT_SUBSTATUS?.toLowerCase() !==
-                                "ok" ||
-                              result.complainT_SUBSTATUS?.toLowerCase() !==
-                                "cancel",
-                          ) && (
-                            <td>
-                              <button
-                                className="action-btn !w-full"
-                                onClick={() => {
-                                  setOpenPopup(true);
-
-                                  // handleEditCustomer(result.tickeT_NO)
-                                  router.push(`/call?${params.toString()}`);
-                                }}
-                              >
-                                Edit cust.
-                              </button>
-                            </td>
-                          )} */}
-
-                          {/* Other details */}
-                          <td>{`${result.salutation} ${result.firstname} ${result.lastname}`}</td>
-                          <td>{result.mobile}</td>
-                          <td>{result.category || "-"}</td>
-                          <td>{result.model || "-"}</td>
-                          <td>{result.tickeT_NO || "-"}</td>
-                          <td>{result.seriaL_NO || "-"}</td>
-                          <td>{result.calL_TYPE || "-"}</td>
-                          <td>{result.complainT_SUBSTATUS || "-"}</td>
-                          <td>{result.asC_CODE || "-"}</td>
-                          <td>
+                          {/* Data Cells */}
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                            {`${result.salutation} ${result.firstname} ${result.lastname}`}
+                          </td>
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                            {result.mobile}
+                          </td>
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                            {result.category || "-"}
+                          </td>
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                            {result.model || "-"}
+                          </td>
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                            {result.tickeT_NO || "-"}
+                          </td>
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                            {result.seriaL_NO || "-"}
+                          </td>
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                            {result.calL_TYPE || "-"}
+                          </td>
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                            {result.complainT_SUBSTATUS || "-"}
+                          </td>
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                            {result.asC_CODE || "-"}
+                          </td>
+                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
                             {result.pop ? new Date(result.pop).toLocaleDateString() : "-"}
                           </td>
                         </tr>
@@ -281,8 +251,9 @@ export default function SearchComplaintPage() {
                 </table>
               </div>
             )}
+
             {searchAttempted && searchResults.length === 0 && (
-              <p style={{ marginTop: "20px", color: "red" }}>No results found.</p>
+              <p className="mt-5 text-red-600">No results found.</p>
             )}
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 
 import SideBar from "@/components/SideBar";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { useTheme } from "@/theme/ThemeContext";
 // import { Search, Send } from "lucide-react";
 // unit 1 of 3 dispatched qty
 const rawData = [
@@ -36,6 +37,7 @@ const rawData = [
 export default function ReceivePO() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selections, setSelections] = useState({});
+  const { colors } = useTheme();
 
   const expandedData = useMemo(() => {
     return rawData.flatMap((item) => {
@@ -96,21 +98,21 @@ export default function ReceivePO() {
       <ProtectedRoute allowedRoles={["sf/ssd"]}>
         <SideBar />
         <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900">
-          {/* Header Section */}
-          <header
-            className="w-full text-white shadow-md"
-            style={{ backgroundColor: "#714b67" }}
-          >
-            <div className="container mx-auto px-4 py-6">
-              <h1 className="text-2xl font-bold tracking-tight">Receive against PO</h1>
-            </div>
-          </header>
-
           <main className="container mx-auto flex-1 px-4 py-8">
+            <h2
+              className="mb-6 rounded-lg py-3 text-left text-xl font-bold"
+              style={{
+                color: colors.primary,
+                fontWeight: 700,
+                padding: 10,
+                border: `2px solid ${colors.primary}`,
+              }}
+            >
+              Dashboard Overview
+            </h2>
             {/* Top Controls */}
             <div className="mb-8 flex items-start gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
               <div className="relative w-full sm:max-w-sm">
-                {/* <Search className="absolute top-2.5 right-2.5 h-4 w-4 text-slate-400" /> */}
                 <input
                   type="text"
                   placeholder="Search Challan or Part Code..."

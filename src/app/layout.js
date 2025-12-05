@@ -4,6 +4,8 @@ import Script from "next/script";
 
 import ReduxProvider from "@/redux/ReduxProvider"; // ✅ Import client provider
 import { ThemeProvider } from "@/theme/ThemeContext";
+import NavigationLoader from "@/components/NavigationLoader";
+import GlobalOverlayLoader from "@/components/Loader";
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -31,6 +33,8 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ReduxProvider>
+          <GlobalOverlayLoader />
+          <NavigationLoader />
           <ThemeProvider>{children}</ThemeProvider>
         </ReduxProvider>
         <Script

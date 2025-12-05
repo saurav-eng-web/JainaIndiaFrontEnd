@@ -6,45 +6,14 @@ import { useRouter } from "next/navigation";
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
 import SectionHeading from "@/components/common/SectionHeading";
+import axiosInstance from "@/api/axiosInstance";
 
 export default function ComplaintTable() {
   const { colors } = useTheme();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const router = useRouter();
-
-  const dummyData = [
-    {
-      callNumber: "CN001",
-      title: "Mr.",
-      firstName: "John",
-      lastName: "Doe",
-      product: "Washing Machine",
-      callType: "Installation",
-      complaint_Status: "Open",
-      complaint_SubStatus: "Waiting for parts",
-    },
-    {
-      callNumber: "CN002",
-      title: "Ms.",
-      firstName: "Jane",
-      lastName: "Smith",
-      product: "Refrigerator",
-      callType: "Repair",
-      complaint_Status: "Pending",
-      complaint_SubStatus: "Under review",
-    },
-    {
-      callNumber: "CN003",
-      title: "Dr.",
-      firstName: "Raj",
-      lastName: "Kumar",
-      product: "Microwave",
-      callType: "Maintenance",
-      complaint_Status: "Closed",
-      complaint_SubStatus: "Completed",
-    },
-  ];
 
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
@@ -59,12 +28,31 @@ export default function ComplaintTable() {
     }
   };
 
-  useEffect(() => {
-    // Simulate data fetch
-    setTimeout(() => {
-      setComplaints(dummyData);
+  const fetchClaimData = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.post("ClaimProcess/select", {
+        userId: 48694,
+        type: "Open",
+        action: "Select",
+      });
+
+      if (res?.data?.status) {
+        setComplaints(res.data.table1 || []);
+      } else {
+        setError("No data found");
+      }
+    } catch (err) {
+      console.error("API Error:", err);
+      setError("Failed to load data");
+    } finally {
       setLoading(false);
-    }, 500); // fake delay
+    }
+  };
+
+  useEffect(() => {
+    fetchClaimData();
   }, []);
 
   return (
@@ -76,46 +64,42 @@ export default function ComplaintTable() {
 
           {loading ? (
             <p className="text-gray-500">Loading complaints...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-md">
               <table className="min-w-full text-left text-sm">
                 <thead>
                   <tr className="bg-gray-200 text-xs text-gray-700 uppercase">
                     <th className="px-4 py-3">Action</th>
-                    <th className="px-4 py-3">Complaint No.</th>
-                    <th className="px-4 py-3">Customer Name</th>
-                    <th className="px-4 py-3">Product</th>
+                    <th className="px-4 py-3">Ticket No</th>
+                    <th className="px-4 py-3">ASC Name</th>
                     <th className="px-4 py-3">Call Type</th>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Sub Status</th>
+                    <th className="px-4 py-3">Serial No</th>
+                    <th className="px-4 py-3">Finance Remarks</th>
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {complaints.map((item, idx) => (
                     <tr key={idx} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <button
-                          onClick={() => router.push(`/assign-to-asc/${item.callNumber}`)}
+                          onClick={() => router.push(`/nsp/claim-approve/details`)}
                           className="rounded-md px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
                           style={{ backgroundColor: colors.primary }}
                         >
                           Update
                         </button>
                       </td>
-                      <td className="px-4 py-3">{item.callNumber}</td>
-                      <td className="px-4 py-3">{`${item.title || ""} ${item.firstName} ${item.lastName}`}</td>
-                      <td className="px-4 py-3">{item.product}</td>
+
+                      <td className="px-4 py-3">{item.ticket_no}</td>
+                      <td className="px-4 py-3">{item.asC_NAME}</td>
                       <td className="px-4 py-3">{item.callType}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
-                            item.complaint_Status
-                          )}`}
-                        >
-                          {item.complaint_Status}
-                        </span>
+                      <td className="px-4 py-3">{item.serialNo}</td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {item.financeRemarks || "-"}
                       </td>
-                      <td className="px-4 py-3">{item.complaint_SubStatus}</td>
                     </tr>
                   ))}
                 </tbody>

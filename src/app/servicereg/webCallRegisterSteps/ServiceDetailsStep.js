@@ -2,8 +2,10 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
-import axiosInstance from "@/api/axiosInstance";
+
 import CustomDropdown from "./CustomDropdown";
+
+import axiosInstance from "@/api/axiosInstance";
 
 export default function ServiceDetailsStep({
   formData,
@@ -38,29 +40,6 @@ export default function ServiceDetailsStep({
     },
   ];
 
-  // useEffect(() => {
-  //   const fetchCallTypes = async () => {
-  //     try {
-  //       if (!formData.product) {
-  //         setCallTypes([]);
-  //         return;
-  //       }
-  //       const res = await axiosInstance.get(
-  //         `CallType/subcategory/${formData.product}`,
-  //       );
-  //       if (Array.isArray(res.data)) {
-  //         setCallTypes(res.data);
-  //       }
-  //     } catch (err) {
-  //       console.error("Error fetching call types:", err);
-  //       setCallTypes([]);
-  //     }
-  //   };
-
-  //   fetchCallTypes();
-  // }, [formData.product]);
-
-  // ✅ Fetch Faults (Symptoms) based on productID
   useEffect(() => {
     const fetchFaults = async () => {
       try {
@@ -69,7 +48,7 @@ export default function ServiceDetailsStep({
           return;
         }
         const res = await axiosInstance.get(
-          `SymptomMaster/byProduct/${formData.productID}`,
+          `SymptomMaster/byProduct/${formData.productID}`
         );
         if (Array.isArray(res.data)) {
           setFaults(res.data);
@@ -111,9 +90,7 @@ export default function ServiceDetailsStep({
   // ✅ Handle call type change (store ID + Name in formData)
   const handleCallTypeChange = (e) => {
     const selectedId = e.target.value;
-    const selectedObj = callTypes.find(
-      (c) => c.callType_ID.toString() === selectedId,
-    );
+    const selectedObj = callTypes.find((c) => c.callType_ID.toString() === selectedId);
 
     setFormData((prev) => ({
       ...prev,
@@ -186,16 +163,12 @@ export default function ServiceDetailsStep({
             placeholder="Select Call Type"
           />
 
-          {errors.callType && (
-            <span className="error-text">{errors.callType}</span>
-          )}
+          {errors.callType && <span className="error-text">{errors.callType}</span>}
         </div>
 
         {/* ✅ Service Date & Time */}
         <div className="form-group">
-          <label htmlFor="serviceDateTime">
-            Customer Available Date & Time
-          </label>
+          <label htmlFor="serviceDateTime">Customer Available Date & Time</label>
           {/* <div className="sm:flex sm:gap-[8px]"> */}
           <div className="service-date" style={{ display: "flex", gap: "8px" }}>
             <input
@@ -258,9 +231,7 @@ export default function ServiceDetailsStep({
             placeholder="Select Fault"
           />
 
-          {errors.faultVoc && (
-            <span className="error-text">{errors.faultVoc}</span>
-          )}
+          {errors.faultVoc && <span className="error-text">{errors.faultVoc}</span>}
         </div>
 
         <div className="flex w-full text-sm"></div>

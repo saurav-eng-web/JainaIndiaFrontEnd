@@ -119,3 +119,10 @@
 - WIP
 - get engineer api, action -> Assigned
 - added logger api, utility to log on loki
+
+## v1.8
+
+- code clean, removed clutter
+- po receive
+- claim approve
+- claim approve cust details

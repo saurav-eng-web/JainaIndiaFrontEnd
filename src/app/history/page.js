@@ -183,39 +183,6 @@ function HistoryPageContent() {
     }
   }, [custDetail, detail?.purchasE_DATE, loggedInUserId]);
 
-  // fetch history by ticket and complaint cust details
-  // useEffect(() => {
-  //   const storedTicket = sessionStorage.getItem("currentTicket");
-  //   if (storedTicket) {
-  //     // fetch data with storedTicket
-  //     axiosInstance
-  //       .get(`ComplaintHistory/history-by-ticket/${storedTicket}`)
-  //       .then((res) => setLogData(Array.isArray(res.data) ? res.data : [res.data]))
-  //       .catch((err) => console.error(err))
-  //       .finally(() => setLoading(false));
-
-  //     axiosInstance
-  //       .get(`ComplaintCustDetail/${storedTicket}`)
-  //       .then((res) => setCustDetail(res.data))
-  //       .catch((err) => console.error(err));
-  //   }
-  // }, []);
-
-  // // Fetch history logs
-  // useEffect(() => {
-  //   if (ticketNo) {
-  //     axiosInstance
-  //       .get(`ComplaintHistory/history-by-ticket/${ticketNo}`)
-  //       .then((res) => {
-  //         const data = Array.isArray(res.data) ? res.data : [res.data];
-  //         setLogData(data);
-  //       })
-  //       .catch((err) => console.error("Failed to fetch history:", err))
-  //       .finally(() => setLoading(false));
-  //   }
-  // }, [ticketNo]);
-  // ---------
-  // 1. Centralize the Ticket ID Logic
   const activeTicket = ticketNo || sessionStorage.getItem("currentTicket");
 
   // 2. Main Data Fetching Effect
@@ -422,15 +389,6 @@ function HistoryPageContent() {
         `${serialNumber ? `${message} - ${serialNumber}` : "Call moved to Assign from Re-Allot"}` ||
         "",
     });
-
-    // await axiosInstance.post(`/ComplaintHistory`, {
-    //   ticketNo: ticketNumber,
-    //   complaintStatus: `${status}|${subStatus}`,
-    //   complaintSubStatus: `${serialNumber ? `${message} - ${serialNumber}` : "Call moved to Assign from Re-Allot"}`, // WIP
-    //   tdate: new Date().toISOString().split("T")[0],
-    //   enteredBy: loggedInUser,
-    //   enteredByID: loggedInUserId,
-    // });
   };
 
   const handleApprove = async () => {
@@ -1090,34 +1048,6 @@ function HistoryPageContent() {
             </div>
           </>
         )}
-
-        {/* {user?.roleName === "SF/SSD" && (
-          <>
-            <h2 className="page-title">👉 Action</h2>
-
-            <div className="action-buttons mt-4 flex gap-4">
-              {actions.length === 0 ? (
-                <p className="text-gray-500">No actions available.</p>
-              ) : (
-                actions.map((action, index) => (
-                  <button
-                    key={index}
-                    className={`rounded-md px-4 py-2 font-medium text-white transition-colors duration-200 ${
-                      index === 0
-                        ? "bg-blue-600 hover:bg-blue-700"
-                        : index === 1
-                          ? "bg-yellow-500 hover:bg-yellow-600"
-                          : "bg-green-600 hover:bg-green-700"
-                    }`}
-                    onClick={() => handleActionClick(action)}
-                  >
-                    {action}
-                  </button>
-                ))
-              )}
-            </div>
-          </>
-        )} */}
 
         {/* -------------------------- */}
         {fromPage === "dashboardcall" &&

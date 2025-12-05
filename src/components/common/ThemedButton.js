@@ -1,33 +1,33 @@
-'use client';
+"use client";
 
-import { useTheme } from '@/theme/ThemeContext';
+import { useTheme } from "@/theme/ThemeContext";
 
-export default function ThemedButton({ children, onClick, type = 'default' }) {
+export default function ThemedButton({ children, onClick, type = "default" }) {
   const { colors } = useTheme();
 
   // Define background and border based on type
-  let bgColor = 'transparent';
-  let textColor = colors.text || '#000';
-  let borderColor = colors.border || '#ccc';
-  let hoverBg = '#f0f0f0';
+  let bgColor = "transparent";
+  let textColor = colors.text || "#000";
+  let borderColor = colors.border || "#ccc";
+  let hoverBg = "#f0f0f0";
 
-  if (type === 'primary') {
+  if (type === "primary") {
     bgColor = colors.primary;
-    textColor = '#fff';
+    textColor = "#fff";
     borderColor = colors.primary;
     hoverBg = colors.primaryHover || colors.primary;
-  } else if (type === 'secondary') {
-    bgColor = colors.secondary || '#eee';
-    textColor = '#000';
-    borderColor = colors.secondary || '#ccc';
-    hoverBg = colors.secondaryHover || '#ddd';
+  } else if (type === "secondary") {
+    bgColor = colors.secondary || "#eee";
+    textColor = "#000";
+    borderColor = colors.secondary || "#ccc";
+    hoverBg = colors.secondaryHover || "#ddd";
   }
 
   return (
     <button
       onClick={onClick}
       style={{ backgroundColor: bgColor, color: textColor, borderColor }}
-      className={`px-4 py-2 rounded border hover:brightness-90 transition`}
+      className={`rounded border px-4 py-2 transition hover:brightness-90`}
     >
       {children}
     </button>

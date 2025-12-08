@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 import { useTheme } from "@/theme/ThemeContext";
@@ -64,18 +64,45 @@ export default function ComplaintDetailsContent() {
   // Form State
   const [remarks, setRemarks] = useState("");
   const [file, setFile] = useState(null);
+  const [documents, setDocuments] = useState([]);
 
   const username = process.env.NEXT_PUBLIC_DOC_USERNAME;
   const password = process.env.NEXT_PUBLIC_DOC_PASSWORD;
   const accessCode = process.env.NEXT_PUBLIC_DOC_ACCESSCODE;
   const BASE_URL = process.env.NEXT_PUBLIC_DOC_BASE_URL;
 
-  // Documents Data
-  const documents = [
-    { id: 1, srNo: 1, type: "Invoice Document", date: "17 Nov 2025" },
-    { id: 2, srNo: 1, type: "Serial No. Document", date: "17 Nov 2025" },
-    { id: 3, srNo: 2, type: "Serial No. Document", date: "17 Nov 2025" },
-  ];
+  useEffect(() => {
+    async function fetchDocuments() {
+      const payload = {
+        Ticket_no: "123mm",
+        UserName: username,
+        Password: password,
+        AccessCode: accessCode,
+      };
+      try {
+        const res = await axios.post(
+          `${BASE_URL}/DocumentUpload/get-documents`,
+          payload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
+          }
+        );
+        console.log("res: ", res);
+        setDocuments(res.data.documents);
+      } catch (error) {
+        console.error("Error fetching documents:", error);
+        logger.error(
+          `Error fetching documents: ${error.message}`,
+          "fetching documents | claim approve"
+        );
+      }
+    }
+    //
+    fetchDocuments();
+  }, [accessCode, password, username, BASE_URL]);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -111,6 +138,34 @@ export default function ComplaintDetailsContent() {
     }
   };
 
+  const handleDownload = async (url, filename) => {
+    try {
+      // 1. Fetch the file data
+      const response = await fetch(url);
+
+      // 2. Convert to Blob (Binary Large Object)
+      const blob = await response.blob();
+
+      // 3. Create a temporary URL for the Blob
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      // 4. Create a temporary anchor element
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename; // This forces the download name
+
+      // 5. Append to body, click, and cleanup
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+      // Fallback: Just open in new tab if the fetch fails (e.g. CORS error)
+      window.open(url, "_blank");
+    }
+  };
+
   return (
     <>
       <ProtectedRoute allowedRoles={["sf/ssd"]}>
@@ -121,6 +176,9 @@ export default function ComplaintDetailsContent() {
             <div className="rounded-xl p-6 sm:p-10">
               {/* shadow-md */}
               {/* Header */}
+              {/* <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
+                Claim Approve Details
+              </h2> */}
               <div className="space-y-8">
                 <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
                   Complaint Details
@@ -184,28 +242,46 @@ export default function ComplaintDetailsContent() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {documents.map((doc) => (
-                        <tr
-                          key={doc.id}
-                          className="transition-colors duration-200 hover:bg-[#e3f2fd]"
-                        >
-                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {doc.srNo}
-                          </td>
-                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm font-medium text-[#333]">
-                            {doc.type}
-                          </td>
-                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {doc.date}
-                          </td>
-                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            <button className="group flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline">
-                              {/* <Download className="h-4 w-4 transition-transform group-hover:scale-110" /> */}
-                              Download
-                            </button>
+                      {documents.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="p-4 text-center text-slate-500">
+                            No data available
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        documents.map((doc) => (
+                          <tr
+                            key={doc.rowNum}
+                            className="transition-colors duration-200 hover:bg-[#e3f2fd]"
+                          >
+                            <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                              {doc.rowNum}
+                            </td>
+                            <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm font-medium text-[#333]">
+                              {doc.documentType}
+                            </td>
+                            <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                              {doc.enteredDate}
+                            </td>
+                            <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                              <button
+                                onClick={() =>
+                                  handleDownload(
+                                    doc?.documentURL,
+                                    doc?.documentURL.split("/")[
+                                      doc?.documentURL?.split("/").length - 1
+                                    ]
+                                  )
+                                }
+                                className="group flex cursor-pointer items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                              >
+                                {/* <Download className="h-4 w-4 transition-transform group-hover:scale-110" /> */}
+                                Download
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>

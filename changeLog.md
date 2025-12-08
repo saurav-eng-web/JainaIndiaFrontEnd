@@ -126,3 +126,6 @@
 - po receive
 - claim approve
 - claim approve cust details
+
+- improve Dockerfile, add .dockerignore
+- fix: next js issue

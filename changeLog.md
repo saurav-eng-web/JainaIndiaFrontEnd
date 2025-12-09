@@ -135,3 +135,4 @@
 - Dockerfile fix -> secured it further
 - fix: claim-approve
 - integration: claim-approve/details
+- secured document upload and fetch

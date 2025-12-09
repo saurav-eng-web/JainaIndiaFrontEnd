@@ -129,3 +129,9 @@
 
 - improve Dockerfile, add .dockerignore
 - fix: next js issue
+
+## 1.8.2
+
+- Dockerfile fix -> secured it further
+- fix: claim-approve
+- integration: claim-approve/details

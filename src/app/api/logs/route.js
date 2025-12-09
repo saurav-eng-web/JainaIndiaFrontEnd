@@ -2,7 +2,7 @@
 import axios from "axios";
 
 export async function POST(request) {
-  const LOKI_URL = process.env.NEXT_PUBLIC_LOKI_URL;
+  const LOKI_URL = process.env.LOKI_URL;
   try {
     const body = await request.json();
 
@@ -67,82 +67,3 @@ export async function POST(request) {
     );
   }
 }
-
-// // app/api/logs/route.js
-// import axios from "axios";
-
-// export async function POST(request) {
-//   try {
-//     const body = await request.json();
-//     const { level, message, action, user, meta = {} } = body;
-
-//     // Validate required fields
-//     if (!level || !message || !action) {
-//       return Response.json(
-//         { error: "Missing required fields: level, message, action" },
-//         { status: 400 }
-//       );
-//     }
-
-//     // Generate nanosecond timestamp
-//     const nanoTimestamp = `${Date.now()}${String(
-//       Math.floor(Math.random() * 1000000)
-//     ).padStart(6, "0")}`;
-
-//     // 1. Prepare the actual log content (The dynamic data)
-//     const logContent = JSON.stringify({
-//       message,
-//       action,
-//       user: user || "anonymous",
-//       meta,
-//     });
-
-//     const response = await axios.post(
-//       "http://192.168.47.24:3100/loki/api/v1/push",
-//       {
-//         streams: [
-//           {
-//             // 2. Labels: KEEP THESE STATIC (Low Cardinality)
-//             // Do not put unique IDs, messages, or user names here.
-//             stream: {
-//               job: "crm-full",
-//               level: level.toLowerCase(),
-//               action_type: action, // Only if 'action' has few variations (login, logout, etc)
-//             },
-//             // 3. Values: Must be [ "timestamp", "log line string" ]
-//             values: [[nanoTimestamp, logContent]],
-//           },
-//         ],
-//       },
-//       {
-//         timeout: 5000,
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-
-//     if (response.status === 204) {
-//       return Response.json({ success: true }, { status: 200 });
-//     } else {
-//       return Response.json(
-//         { error: "Loki rejected log", status: response.status },
-//         { status: 500 }
-//       );
-//     }
-//   } catch (err) {
-//     console.error("Loki push failed:", {
-//       message: err.message,
-//       status: err.response?.status,
-//       data: err.response?.data,
-//     });
-
-//     return Response.json(
-//       {
-//         error: "Failed to send log",
-//         details: err.message,
-//       },
-//       { status: 500 }
-//     );
-//   }
-// }

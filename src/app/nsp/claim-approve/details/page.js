@@ -7,6 +7,10 @@ import { useTheme } from "@/theme/ThemeContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import { logger } from "@/utils/logger";
+import { useRouter } from "next/navigation";
+
+import { useSearchParams } from "next/navigation";
+import axiosInstance from "@/api/axiosInstance";
 
 const tableHeaders = [
   "Id",
@@ -18,91 +22,93 @@ const tableHeaders = [
   "Finance Remarks",
   "Rejection Reason",
   "Rejection Date",
-  "OK Call Date",
+  "OK Date",
   "Customer Name",
   "Customer Mobile",
 ];
 
-const tableRows = [
-  {
-    id: "JAI-2025-00123",
-    complaintNumber: "CMP-458921",
-    serialNumber: "SN-8791-XY23",
-    callTye: "Installation",
-    warranty: "Within Warranty",
-    dop: "2024-02-15",
-    financeRemarks: "Approved by Finance Team",
-    rejectionReason: "Not Applicable",
-    rejecetionDate: "-",
-    OKCallDate: "2025-01-12",
-    customerName: "Rahul Sharma",
-    customerMobile: "9876543210",
-  },
+const columnOrder = [
+  "TicketKey",
+  "ticket_no",
+  "serialNo",
+  "callType",
+  "warranty",
+  "DOP",
+  "FinanceRemarks",
+  "Action",
+  "RejectionDate",
+  "OKDate",
+  "CustName",
+  "CustMobile",
 ];
 
 // --- Sub-components for Table ---
-function Th({ title }) {
-  return (
-    <th className="px-4 py-3.5 text-left text-[15px] font-semibold text-white">
-      {title}
-    </th>
-  );
-}
-
-function Td({ data }) {
-  return (
-    <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-      {data}
-    </td>
-  );
-}
 
 // --- Main Content Component ---
 export default function ComplaintDetailsContent() {
-  const { colors } = useTheme();
-
   // Form State
   const [remarks, setRemarks] = useState("");
   const [file, setFile] = useState(null);
   const [documents, setDocuments] = useState([]);
+  const [complaintData, setComplaintData] = useState({});
+  const [isDataLoading, setIsDataLoading] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const router = useRouter();
 
-  const username = process.env.NEXT_PUBLIC_DOC_USERNAME;
-  const password = process.env.NEXT_PUBLIC_DOC_PASSWORD;
-  const accessCode = process.env.NEXT_PUBLIC_DOC_ACCESSCODE;
-  const BASE_URL = process.env.NEXT_PUBLIC_DOC_BASE_URL;
+  const params = useSearchParams();
+  const ticketNo = params.get("ticket_no");
+  const { colors } = useTheme();
 
   useEffect(() => {
-    async function fetchDocuments() {
-      const payload = {
-        Ticket_no: "123mm",
-        UserName: username,
-        Password: password,
-        AccessCode: accessCode,
-      };
+    const stored = localStorage.getItem("userData");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+
+      setUserId(parsed.userID);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!ticketNo || !userId) return;
+
+    let isMounted = true;
+
+    async function fetchAll() {
+      setIsDataLoading(true);
       try {
-        const res = await axios.post(
-          `${BASE_URL}/DocumentUpload/get-documents`,
-          payload,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*",
-            },
-          }
-        );
-        console.log("res: ", res);
-        setDocuments(res.data.documents);
-      } catch (error) {
-        console.error("Error fetching documents:", error);
-        logger.error(
-          `Error fetching documents: ${error.message}`,
-          "fetching documents | claim approve"
-        );
+        // Parallel calls for better performance
+        const [docRes, claimRes] = await Promise.all([
+          axios.post("/api/documents/list", { Ticket_no: ticketNo }),
+          axiosInstance.post("ClaimProcess/select", {
+            userId,
+            type: "Open1",
+            action: "Select",
+            RecId: ticketNo,
+          }),
+        ]);
+
+        if (!isMounted) return;
+
+        // Documents
+        setDocuments(docRes?.data?.documents || []);
+
+        // Claim data
+        setComplaintData(claimRes?.data?.table1?.[0] || {});
+      } catch (err) {
+        console.error("Error fetching details:", err);
+
+        logger.error(`Error fetching details: ${err?.message}`, "claim-approve/details");
+      } finally {
+        setIsDataLoading(false);
       }
     }
-    //
-    fetchDocuments();
-  }, [accessCode, password, username, BASE_URL]);
+
+    fetchAll();
+
+    return () => {
+      isMounted = false; // cleanup
+    };
+  }, [ticketNo, userId]);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -111,31 +117,65 @@ export default function ComplaintDetailsContent() {
   };
 
   const handleUpload = async () => {
-    if (!file) {
-      alert("Please select a file");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("Ticket_no", "123455674");
-    formData.append("DocumentType", "Claim Resubmit Document");
-    formData.append("accessCode", accessCode);
-    formData.append("username", username);
-    formData.append("password", password);
-
     try {
-      const res = await axios.post(`${BASE_URL}/DocumentUpload/upload`, formData, {
+      if (!file) {
+        alert("Please select a file");
+        return { success: false };
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("Ticket_no", ticketNo);
+      formData.append("DocumentType", "Claim Resubmit Document");
+
+      const res = await axios.post("/api/documents/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      console.log("Upload success", res.data);
-      alert("Uploaded successfully");
+      return { success: true, data: res.data };
     } catch (err) {
       console.error("Upload error", err);
-      logger.error(`Upload error: ${err.message}`, "uploading file claim approve");
-      alert("Upload failed");
+      logger.error(`Upload error ${err.message}`, "claim-approve/details");
+      return { success: false, error: err };
     }
+  };
+
+  const handleSave = async () => {
+    if (!remarks) {
+      alert("Please enter remarks");
+      return;
+    }
+    setIsDataLoading(true);
+
+    // 1) Upload file first
+    const uploadResult = await handleUpload();
+
+    if (!uploadResult.success) {
+      alert("File upload failed. Please try again.");
+      setIsDataLoading(false);
+      return;
+    }
+
+    // 2) After upload succeeds, call second API
+    try {
+      const res = await axiosInstance.post("ClaimProcess/update", {
+        UserId: userId,
+        Type: "Upload",
+        Action: "update",
+        RecId: ticketNo,
+        Remarks: remarks,
+      });
+
+      console.log("Save response:", res.data);
+
+      alert("Saved successfully");
+    } catch (err) {
+      console.error("Save error", err);
+      logger.error(`Save error ${err.message}`, "claim-approve/details");
+      alert("Save failed. Please try again.");
+    }
+
+    setIsDataLoading(false);
   };
 
   const handleDownload = async (url, filename) => {
@@ -161,6 +201,8 @@ export default function ComplaintDetailsContent() {
       window.URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error("Download failed:", error);
+      alert("Download failed");
+      logger.error(`Downloading image failed ${error.message}`, "claim-approve/details");
       // Fallback: Just open in new tab if the fetch fails (e.g. CORS error)
       window.open(url, "_blank");
     }
@@ -168,7 +210,7 @@ export default function ComplaintDetailsContent() {
 
   return (
     <>
-      <ProtectedRoute allowedRoles={["sf/ssd"]}>
+      <ProtectedRoute allowedRoles={["BR", "NSP"]}>
         <SideBar />
         <div className="flex min-h-screen w-full flex-col font-sans">
           <div className="mx-auto mt-10 w-full max-w-[1400px] p-4">
@@ -185,7 +227,7 @@ export default function ComplaintDetailsContent() {
                 </h2>
 
                 <div className="mt-4 overflow-x-auto rounded-md border border-slate-300">
-                  <table className="border-separate border-spacing-0">
+                  <table className="table-fixed border-separate border-spacing-0">
                     <thead className="bg-[#714b67]">
                       <tr>
                         {tableHeaders.map((header) => (
@@ -194,7 +236,16 @@ export default function ComplaintDetailsContent() {
                       </tr>
                     </thead>
                     <tbody>
-                      {tableRows.length === 0 ? (
+                      {isDataLoading ? (
+                        <tr>
+                          <td
+                            colSpan={tableHeaders.length}
+                            className="p-4 text-center text-slate-500"
+                          >
+                            Loading...
+                          </td>
+                        </tr>
+                      ) : Object.keys(complaintData).length === 0 ? (
                         <tr>
                           <td
                             colSpan={tableHeaders.length}
@@ -204,16 +255,11 @@ export default function ComplaintDetailsContent() {
                           </td>
                         </tr>
                       ) : (
-                        tableRows.map((row, rowIndex) => (
-                          <tr
-                            key={rowIndex}
-                            className="transition-colors duration-200 even:bg-[#f1faff] hover:bg-[#e3f2fd]"
-                          >
-                            {Object.values(row).map((item, colIndex) => (
-                              <Td key={`${rowIndex}-${colIndex}`} data={item} />
-                            ))}
-                          </tr>
-                        ))
+                        <tr>
+                          {columnOrder.map((key, colIndex) => (
+                            <Td key={`${colIndex}`} data={complaintData[key]} />
+                          ))}
+                        </tr>
                       )}
                     </tbody>
                   </table>
@@ -242,13 +288,25 @@ export default function ComplaintDetailsContent() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {documents.length === 0 ? (
+                      {isDataLoading ? (
+                        // Loading state
+                        <tr>
+                          <td
+                            colSpan={tableHeaders.length}
+                            className="p-4 text-center text-slate-500"
+                          >
+                            Loading...
+                          </td>
+                        </tr>
+                      ) : documents.length === 0 ? (
+                        // No documents found
                         <tr>
                           <td colSpan={4} className="p-4 text-center text-slate-500">
                             No data available
                           </td>
                         </tr>
                       ) : (
+                        // Actual document rows
                         documents.map((doc) => (
                           <tr
                             key={doc.rowNum}
@@ -275,7 +333,6 @@ export default function ComplaintDetailsContent() {
                                 }
                                 className="group flex cursor-pointer items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
                               >
-                                {/* <Download className="h-4 w-4 transition-transform group-hover:scale-110" /> */}
                                 Download
                               </button>
                             </td>
@@ -334,12 +391,15 @@ export default function ComplaintDetailsContent() {
 
                 {/* Section 4: Actions */}
                 <div className="flex flex-col gap-4 pt-4 sm:flex-row">
-                  <button className="inline-flex h-11 flex-1 items-center justify-center rounded-lg border border-slate-300 bg-white px-8 text-sm font-bold text-[#714b67] transition-colors hover:bg-[#714b67] hover:text-white focus:outline-none sm:flex-none">
+                  <button
+                    onClick={() => router.back()}
+                    className="inline-flex h-11 flex-1 items-center justify-center rounded-lg border border-slate-300 bg-white px-8 text-sm font-bold text-[#714b67] transition-colors hover:bg-[#714b67] hover:text-white focus:outline-none sm:flex-none"
+                  >
                     {/* <Save className="mr-2 h-4 w-4" /> */}
                     Back
                   </button>
                   <button
-                    onClick={handleUpload}
+                    onClick={handleSave}
                     className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-[#714b67] px-8 text-sm font-bold text-white transition-colors hover:bg-[#5a3c52] focus:outline-none sm:flex-none"
                   >
                     {/* <ArrowLeft className="mr-2 h-4 w-4" /> */}
@@ -352,5 +412,21 @@ export default function ComplaintDetailsContent() {
         </div>
       </ProtectedRoute>
     </>
+  );
+}
+
+function Th({ title }) {
+  return (
+    <th className="px-4 py-3.5 text-left text-[15px] font-semibold text-white">
+      {title}
+    </th>
+  );
+}
+
+function Td({ data }) {
+  return (
+    <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+      {data}
+    </td>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
-
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -8,6 +9,7 @@ import { useTheme } from "@/theme/ThemeContext";
 import SectionHeading from "@/components/common/SectionHeading";
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { getUserFromLocalStorage } from "../../../redux/slices/authSlice";
 
 export default function ComplaintTable() {
   const { colors } = useTheme();
@@ -15,8 +17,8 @@ export default function ComplaintTable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
-  const userData = localStorage.getItem("userData");
-  const userId = userData ? JSON.parse(userData).userID : null;
+  const userData = getUserFromLocalStorage();
+  const userId = userData?.userID;
 
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {

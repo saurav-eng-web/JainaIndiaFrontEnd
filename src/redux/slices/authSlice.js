@@ -1,24 +1,19 @@
 // src/redux/slices/authSlice.js
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 // const BASE_URL
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-
 export const loginUser = createAsyncThunk(
-  'auth/loginUser',
+  "auth/loginUser",
   async ({ userName, uPassword }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${BASE_URL}/users/login`,
-        {
-          userName: userName.trim(),
-          uPassword: uPassword.trim(),
-        }
-      );
+      const response = await axios.post(`${BASE_URL}/users/login`, {
+        userName: userName.trim(),
+        uPassword: uPassword.trim(),
+      });
 
       const data = response.data;
 
@@ -35,40 +30,40 @@ export const loginUser = createAsyncThunk(
           token: data.token,
         };
 
-        localStorage.setItem('userData', JSON.stringify(user));
+        localStorage.setItem("userData", JSON.stringify(user));
         return user;
       } else {
         // ❌ invalid credentials (handled by API)
-        return rejectWithValue(data.message || 'Login failed');
+        return rejectWithValue(data.message || "Login failed");
       }
     } catch (error) {
       // ✅ network/server error vs API error
       if (error.response && error.response.data) {
-        return rejectWithValue(error.response.data.message || 'Login failed');
+        return rejectWithValue(error.response.data.message || "Login failed");
       }
-      return rejectWithValue('Network Error');
+      return rejectWithValue("Network Error");
     }
   }
 );
 
 const getUserFromLocalStorage = () => {
-  if (typeof window !== 'undefined') {
-    const userData = localStorage.getItem('userData');
+  if (typeof window !== "undefined") {
+    const userData = localStorage.getItem("userData");
     return userData ? JSON.parse(userData) : null;
   }
   return null;
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState: {
-    user: getUserFromLocalStorage(), // ✅ hydrate from localStorage
+    user: getUserFromLocalStorage() || null, // ✅ hydrate from localStorage
     loading: false,
     error: null,
   },
   reducers: {
     logout: (state) => {
-      localStorage.removeItem('userData');
+      localStorage.removeItem("userData");
       state.user = null;
     },
   },
@@ -90,5 +85,6 @@ const authSlice = createSlice({
 });
 
 export const { logout } = authSlice.actions;
+export { getUserFromLocalStorage };
 
 export default authSlice.reducer;

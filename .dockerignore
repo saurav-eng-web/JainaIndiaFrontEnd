@@ -13,8 +13,8 @@ pnpm-debug.log*
 dist
 
 # Environment variables
-.env*.local
-.env
+# .env*.local
+# .env
 
 # Development
 .dockerignore

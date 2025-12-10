@@ -136,3 +136,6 @@
 - fix: claim-approve
 - integration: claim-approve/details
 - secured document upload and fetch
+- fix claim-approve/details
+- fix authSlice
+- fix Dockerfile

@@ -1,6 +1,8 @@
 "use client";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import axios from "axios";
 
 import { useTheme } from "@/theme/ThemeContext";
@@ -8,6 +10,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import { logger } from "@/utils/logger";
 import { useRouter } from "next/navigation";
+import { getUserFromLocalStorage } from "../../../../redux/slices/authSlice";
 
 import { useSearchParams } from "next/navigation";
 import axiosInstance from "@/api/axiosInstance";
@@ -45,28 +48,20 @@ const columnOrder = [
 // --- Sub-components for Table ---
 
 // --- Main Content Component ---
-export default function ComplaintDetailsContent() {
+function DetailsContent() {
   // Form State
   const [remarks, setRemarks] = useState("");
   const [file, setFile] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [complaintData, setComplaintData] = useState({});
   const [isDataLoading, setIsDataLoading] = useState(false);
-  const [userId, setUserId] = useState(null);
   const router = useRouter();
 
   const params = useSearchParams();
   const ticketNo = params.get("ticket_no");
   const { colors } = useTheme();
-
-  useEffect(() => {
-    const stored = localStorage.getItem("userData");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-
-      setUserId(parsed.userID);
-    }
-  }, []);
+  const userData = getUserFromLocalStorage();
+  const userId = userData?.userID;
 
   useEffect(() => {
     if (!ticketNo || !userId) return;
@@ -428,5 +423,13 @@ function Td({ data }) {
     <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
       {data}
     </td>
+  );
+}
+
+export default function DetailsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DetailsContent />
+    </Suspense>
   );
 }

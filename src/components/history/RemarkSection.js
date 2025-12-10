@@ -4,8 +4,8 @@ import { useState } from "react";
 
 import { useTheme } from "@/theme/ThemeContext";
 
-export default function RemarkSection({ onSubmit, onCancel }) {
-  const [remark, setRemark] = useState("");
+export default function RemarkSection({ onSubmit, onCancel, remark, setRemark }) {
+  // const [remark, setRemark] = useState("");
   const { colors } = useTheme();
 
   return (

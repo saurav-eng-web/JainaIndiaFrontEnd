@@ -11,6 +11,7 @@ import CustomerDetailsStep from "@/components/CallRegisterSteps/CustomerDetailsS
 import AddressDetailsStep from "@/components/CallRegisterSteps/AddressDetailsStep";
 import ProductDetailsStep from "@/components/CallRegisterSteps/ProductDetailsStep";
 import ServiceDetailsStep from "@/components/CallRegisterSteps/ServiceDetailsStep";
+import { logger } from "@/utils/logger";
 
 const steps = [
   "Customer Details",
@@ -194,52 +195,50 @@ function CallRegisterInner({ showSidebar = true }) {
   const submitCall = async () => {
     setLoading(true);
 
-    try {
-      const payload = {
-        SALUTATION: formData.title || "",
-        FIRSTNAME: formData.firstName || "",
-        LASTNAME: formData.lastName || "",
-        HMPH: formData.altPhone || "",
-        WKPH: formData.altPhone || "",
-        stdcode: formData.stdCode || "",
-        pincode: formData.pincode || "",
-        MOBILE: formData.phone || "",
-        ADDRESS1: formData.customerAddress || "",
-        ADDRESS2: formData.address2 || "",
-        City_ID: formData.cityId || 0,
-        Locality_ID: formData.localityId || 0,
-        landmark: formData.landmark || "",
-        Call_Category: formData.callType || "NA",
-        Call_TypeID: formData.callTypeId || 4,
-        CallBy_ID: formData.callById || 1,
-        WarrantyID: formData.warrantyId || 3,
-        CALL_TYPE: formData.callType || "NA",
-        CALL_BY: formData.callBy || "Customer",
-        Dealer: formData.dealer || "",
-        WARRANTY: formData.warranty || "",
-        PRODUCT: formData.product || "",
-        Product_ID: formData.productID || 0,
-        Model_ID: formData.modelID || 0,
-        PURCHASE_DATE: formData.pop || "",
-        SERIAL_NO: formData.serialNo || "",
-        PROMISE_DATE: formData.serviceDate || "",
-        PROMISE_TIME: formData.availableTime || "",
-        Category: formData.productCategory || "",
-        EnterBy: loggedInUser?.userName
-          ? `${loggedInUser.firstName}-web`
-          : "Unknown User",
-        COMPLAINT_STATUS: "OK",
-        Remarks: formData.faultVoc || "",
-        Email: formData.email || "",
-        Complaint_SubStatus: "",
-        Excalated: 0,
-        Legal: 0,
-        EnteredBy: loggedInUser?.userName || "Unknown User",
-        EnteredByID: loggedInUser?.userID || 0,
-        IPAddress: formData.userIP || "0.0.0.0",
-        Complaint: formData.callerNumber,
-      };
+    const payload = {
+      SALUTATION: formData.title || "",
+      FIRSTNAME: formData.firstName || "",
+      LASTNAME: formData.lastName || "",
+      HMPH: formData.altPhone || "",
+      WKPH: formData.altPhone || "",
+      stdcode: formData.stdCode || "",
+      pincode: formData.pincode || "",
+      MOBILE: formData.phone || "",
+      ADDRESS1: formData.customerAddress || "",
+      ADDRESS2: formData.address2 || "",
+      City_ID: formData.cityId || 0,
+      Locality_ID: formData.localityId || 0,
+      landmark: formData.landmark || "",
+      Call_Category: formData.callType || "NA",
+      Call_TypeID: formData.callTypeId || 4,
+      CallBy_ID: formData.callById || 1,
+      WarrantyID: formData.warrantyId || 3,
+      CALL_TYPE: formData.callType || "NA",
+      CALL_BY: formData.callBy || "Customer",
+      Dealer: formData.dealer || "",
+      WARRANTY: formData.warranty || "",
+      PRODUCT: formData.product || "",
+      Product_ID: formData.productID || 0,
+      Model_ID: formData.modelID || 0,
+      PURCHASE_DATE: formData.pop || "",
+      SERIAL_NO: formData.serialNo || "",
+      PROMISE_DATE: formData.serviceDate || "",
+      PROMISE_TIME: formData.availableTime || "",
+      Category: formData.productCategory || "",
+      EnterBy: loggedInUser?.userName ? `${loggedInUser.firstName}-web` : "Unknown User",
+      COMPLAINT_STATUS: "OK",
+      Remarks: formData.faultVoc || "",
+      Email: formData.email || "",
+      Complaint_SubStatus: "",
+      Excalated: 0,
+      Legal: 0,
+      EnteredBy: loggedInUser?.userName || "Unknown User",
+      EnteredByID: loggedInUser?.userID || 0,
+      IPAddress: formData.userIP || "0.0.0.0",
+      Complaint: formData.callerNumber,
+    };
 
+    try {
       const response = await axiosInstance.post(
         `${BASE_URL}/callregister/create-complaint`,
         payload
@@ -252,6 +251,9 @@ function CallRegisterInner({ showSidebar = true }) {
       setCurrentStep(0);
     } catch (err) {
       console.error("Call Register Error:", err);
+      logger.error(`Call Register Error: ${err.message}`, "call/register", {
+        payload,
+      });
       alert("Error creating call: " + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);

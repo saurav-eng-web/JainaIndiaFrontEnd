@@ -12,6 +12,7 @@ import CustomerDetailsStep from "./webCallRegisterSteps/CustomerDetailsStep";
 import AddressDetailsStep from "./webCallRegisterSteps/AddressDetailsStep";
 import ProductDetailsStep from "./webCallRegisterSteps/ProductDetailsStep";
 import ServiceDetailsStep from "./webCallRegisterSteps/ServiceDetailsStep";
+import { logger } from "@/utils/logger";
 
 const steps = [
   "Customer Details",
@@ -189,61 +190,58 @@ function CallRegisterInner({ showSidebar = true }) {
   };
 
   const nextStep = () => {
-    if (currentStep < steps.length - 1 && validateStep())
-      setCurrentStep((s) => s + 1);
+    if (currentStep < steps.length - 1 && validateStep()) setCurrentStep((s) => s + 1);
   };
   const prevStep = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
   const submitCall = async () => {
     setLoading(true);
-
+    const payload = {
+      SALUTATION: formData.title || "",
+      FIRSTNAME: formData.firstName || "",
+      LASTNAME: formData.lastName || "",
+      HMPH: formData.altPhone || "",
+      WKPH: formData.altPhone || "",
+      stdcode: formData.stdCode || "",
+      pincode: formData.pincode || "",
+      MOBILE: formData.phone || "",
+      ADDRESS1: formData.customerAddress || "",
+      ADDRESS2: formData.address2 || "",
+      City_ID: formData.cityId || 0,
+      Locality_ID: formData.localityId || 0,
+      landmark: formData.landmark || "",
+      Call_Category: formData.callType || "NA",
+      Call_TypeID: formData.callTypeId || 4,
+      CallBy_ID: formData.callById || 1,
+      WarrantyID: formData.warrantyId || 3,
+      CALL_TYPE: formData.callType || "NA",
+      CALL_BY: formData.callBy || "Customer",
+      Dealer: formData.dealer || "",
+      WARRANTY: formData.warranty || "",
+      PRODUCT: formData.product || "",
+      Product_ID: formData.productID || 0,
+      Model_ID: formData.modelID || 0,
+      PURCHASE_DATE: formData.pop || "",
+      SERIAL_NO: formData.serialNo || "",
+      PROMISE_DATE: formData.serviceDate || "",
+      PROMISE_TIME: formData.availableTime || "",
+      Category: formData.productCategory || "",
+      EnterBy: "web",
+      COMPLAINT_STATUS: "OK",
+      Remarks: formData.faultVoc || "",
+      Email: formData.email || "",
+      Complaint_SubStatus: "",
+      Excalated: 0,
+      Legal: 0,
+      EnteredBy: "",
+      EnteredByID: 0,
+      IPAddress: formData.userIP || "0.0.0.0",
+      Complaint: formData.callerNumber,
+    };
     try {
-      const payload = {
-        SALUTATION: formData.title || "",
-        FIRSTNAME: formData.firstName || "",
-        LASTNAME: formData.lastName || "",
-        HMPH: formData.altPhone || "",
-        WKPH: formData.altPhone || "",
-        stdcode: formData.stdCode || "",
-        pincode: formData.pincode || "",
-        MOBILE: formData.phone || "",
-        ADDRESS1: formData.customerAddress || "",
-        ADDRESS2: formData.address2 || "",
-        City_ID: formData.cityId || 0,
-        Locality_ID: formData.localityId || 0,
-        landmark: formData.landmark || "",
-        Call_Category: formData.callType || "NA",
-        Call_TypeID: formData.callTypeId || 4,
-        CallBy_ID: formData.callById || 1,
-        WarrantyID: formData.warrantyId || 3,
-        CALL_TYPE: formData.callType || "NA",
-        CALL_BY: formData.callBy || "Customer",
-        Dealer: formData.dealer || "",
-        WARRANTY: formData.warranty || "",
-        PRODUCT: formData.product || "",
-        Product_ID: formData.productID || 0,
-        Model_ID: formData.modelID || 0,
-        PURCHASE_DATE: formData.pop || "",
-        SERIAL_NO: formData.serialNo || "",
-        PROMISE_DATE: formData.serviceDate || "",
-        PROMISE_TIME: formData.availableTime || "",
-        Category: formData.productCategory || "",
-        EnterBy: "web",
-        COMPLAINT_STATUS: "OK",
-        Remarks: formData.faultVoc || "",
-        Email: formData.email || "",
-        Complaint_SubStatus: "",
-        Excalated: 0,
-        Legal: 0,
-        EnteredBy: "",
-        EnteredByID: 0,
-        IPAddress: formData.userIP || "0.0.0.0",
-        Complaint: formData.callerNumber,
-      };
-
       const response = await axiosInstance.post(
         `${BASE_URL}/callregister/create-complaint`,
-        payload,
+        payload
       );
 
       setCallNumber(response.data?.returnNo || "");
@@ -253,9 +251,10 @@ function CallRegisterInner({ showSidebar = true }) {
       setCurrentStep(0);
     } catch (err) {
       console.error("Call Register Error:", err);
-      alert(
-        "Error creating call: " + (err.response?.data?.message || err.message),
-      );
+      logger.error(`Call Register Error: ${err.message}`, "servicereg/WebCallRegister", {
+        payload,
+      });
+      alert("Error creating call: " + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -270,42 +269,6 @@ function CallRegisterInner({ showSidebar = true }) {
       nextStep();
     }
   };
-
-  // async function handleSendMessage(requestNo) {
-  //   const callType = formData.callType;
-  //   const phoneNumber = formData.phone;
-  //   let message = "";
-
-  //   if (
-  //     callType !== "Installation" &&
-  //     callType !== "Demo" &&
-  //     callType !== "Service"
-  //   ) {
-  //     return;
-  //   }
-
-  //   if (callType === "Installation" || callType === "Demo") {
-  //     message = `Dear Customer, Thank you for choosing our product. Your installation request has been registered with ${requestNo}, Our team will contact you shortly. Jaina India`;
-  //   } else {
-  //     message = `Dear Customer, Happy to serve you! Your request for service has been registered with ${requestNo}, Our team will contact you shortly. Jaina India`;
-  //   }
-
-  //   try {
-  //     const response = await axios.post(
-  //       `${BASE_URL}/SMS/send`,
-  //       `message=${message}&mobile=${phoneNumber}&ticketKey=${requestNo}&source=Welcome`,
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/x-www-form-urlencoded",
-  //         },
-  //       },
-  //     );
-
-  //   } catch (error) {
-  //     console.error("Error sending OTP:", error);
-  //   } finally {
-  //   }
-  // }
 
   async function handleSendMessage(requestNo) {
     if (!requestNo) return;
@@ -336,7 +299,7 @@ function CallRegisterInner({ showSidebar = true }) {
         }),
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        },
+        }
       );
     } catch (error) {
       // Optional: handle silently or report to monitoring service
@@ -419,9 +382,7 @@ function CallRegisterInner({ showSidebar = true }) {
               <div className="stepper">
                 {steps.map((label, idx) => (
                   <div className="step" key={idx}>
-                    <div
-                      className={`circle ${idx <= currentStep ? "active" : ""}`}
-                    >
+                    <div className={`circle ${idx <= currentStep ? "active" : ""}`}>
                       {idx <= currentStep ? "✔" : ""}
                     </div>
                     <div className="label">{label}</div>

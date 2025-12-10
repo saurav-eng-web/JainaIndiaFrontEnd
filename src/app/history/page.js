@@ -378,19 +378,6 @@ function HistoryPageContent() {
     // Action: action,
   });
 
-  const updateJob = async (status, subStatus, message, serialNumber) => {
-    const ticketNumber = formData.tickeT_NO;
-
-    await axiosInstance.post(`/CallRegister/UpdateComplaint/${ticketNumber}`, {
-      complaint_Status: status,
-      complaint_SubStatus: subStatus,
-      CallTransferBY: loggedInUser,
-      dlcity:
-        `${serialNumber ? `${message} - ${serialNumber}` : "Call moved to Assign from Re-Allot"}` ||
-        "",
-    });
-  };
-
   const handleApprove = async () => {
     const payload = buildActionPayload("Re-AllotASMApproved");
 
@@ -670,6 +657,97 @@ function HistoryPageContent() {
 
     return []; // anything earlier than required hour
   }
+
+  async function updateJob(status, subStatus, message, serialNumber) {
+    const ticketNumber = formData.tickeT_NO || custDetail.tickeT_NO;
+
+    await axiosInstance.post(`/CallRegister/UpdateComplaint/${ticketNumber}`, {
+      complaint_Status: status,
+      complaint_SubStatus: subStatus,
+      CallTransferBY: loggedInUser,
+      dlcity: serialNumber ? `${message} - ${serialNumber}` : message, // remark
+    });
+  }
+
+  async function handleSubmitRemark(requestType) {
+    if (!requestType || !user || !detail) {
+      setPopupMessage("Missing required data");
+      setPopupOpen(true);
+      return;
+    }
+
+    try {
+      const payload = {
+        // TICKET_NO: detail.tickeT_NO,
+        // remark: remark,
+        // type: "open",
+        // action: "Approved",
+        // uid: user?.userID || 0,
+        // --------------
+        transactionType: "Jobno",
+        transactionID: custDetail?.tickeT_KEY.toString() || "",
+        transactionNo: detail.tickeT_NO || ticketNo || "",
+        requestedBy: user?.userID.toString(),
+        createdBy: user?.userID.toString(),
+        approvalStatus: requestType,
+        approvalRemarks: remark,
+      };
+
+      const res = await axiosInstance.post("/RequestCancellation/update", payload);
+
+      const { statusMsg } = res.data;
+      const { status, subStatus, message } = parseStatusMessage(statusMsg);
+
+      console.log("msgs: ", {
+        status,
+        subStatus,
+        message,
+      });
+      await updateJob(status, subStatus, message);
+
+      const reqeust = requestType.split("|")[0];
+      setPopupMessage(`Call cancellation request ${reqeust} successfully!`);
+      setPopupOpen(true);
+    } catch (err) {
+      console.error("❌ API Failed:", err);
+      logger.error(
+        `Call cancellation request API Failed: ${err.message}, ${err.stack}`,
+        "submitting remark"
+      );
+      setPopupMessage("Failed to submit ❌");
+      setPopupOpen(true);
+    }
+  }
+
+  function parseStatusMessage(statusMsg = "") {
+    const [status, subStatus, message] = statusMsg.split("|");
+    return { status, subStatus, message };
+  }
+
+  // async function handleCancelRemark() {
+  //   try {
+  //     const payload = {
+  //       TICKET_NO: detail.tickeT_NO,
+  //       remark: "Cancellation rejected by ASM",
+  //       type: "open",
+  //       action: "Reject",
+  //       uid: user?.userID || 0,
+  //     };
+
+  //     console.log("📦 Sending reject payload:", payload);
+
+  //     const res = await axiosInstance.post("/Cancellation/request", payload);
+  //     console.log("✅ Rejection Success:", res.data);
+
+  //     // 🔹 show popup instead of toast
+  //     setPopupMessage("Cancellation rejected ❌");
+  //     setPopupOpen(true);
+  //   } catch (err) {
+  //     console.error("❌ Reject API Failed:", err);
+  //     setPopupMessage("Failed to reject request ❌");
+  //     setPopupOpen(true);
+  //   }
+  // }
 
   return (
     <div className="page-wrapper">
@@ -1103,60 +1181,25 @@ function HistoryPageContent() {
           detail.complainT_STATUS === "Open" &&
           detail.complaint_SubStatus === "Cancellation Request to ASM" && (
             <RemarkSection
-              onSubmit={async (remark) => {
-                try {
-                  const payload = {
-                    TICKET_NO: detail.tickeT_NO,
-                    remark: remark,
-                    type: "open",
-                    action: "Approved",
-                    uid: user?.userID || 0,
-                  };
-
-                  console.log("📦 Sending payload:", payload);
-
-                  const res = await axiosInstance.post("/Cancellation/request", payload);
-                  console.log("✅ API Success:", res.data);
-
-                  // 🔹 show popup instead of toast
-                  setPopupMessage("Call cancellation request Approved ✅");
-                  setPopupOpen(true);
-                } catch (err) {
-                  console.error("❌ API Failed:", err);
-                  logger.error(
-                    `Call cancellation request API Failed: ${err.message}, ${err.stack}`,
-                    "submitting remark"
-                  );
-                  setPopupMessage("Failed to submit remark ❌");
-                  setPopupOpen(true);
-                }
-              }}
-              onCancel={async () => {
-                try {
-                  const payload = {
-                    TICKET_NO: detail.tickeT_NO,
-                    remark: "Cancellation rejected by ASM",
-                    type: "open",
-                    action: "Reject",
-                    uid: user?.userID || 0,
-                  };
-
-                  console.log("📦 Sending reject payload:", payload);
-
-                  const res = await axiosInstance.post("/Cancellation/request", payload);
-                  console.log("✅ Rejection Success:", res.data);
-
-                  // 🔹 show popup instead of toast
-                  setPopupMessage("Cancellation rejected ❌");
-                  setPopupOpen(true);
-                } catch (err) {
-                  console.error("❌ Reject API Failed:", err);
-                  setPopupMessage("Failed to reject request ❌");
-                  setPopupOpen(true);
-                }
-              }}
+              onSubmit={() => handleSubmitRemark("approved-ASM")}
+              onCancel={() => handleSubmitRemark("rejected-ASM")}
+              remark={remark}
+              setRemark={setRemark}
             />
           )}
+
+        {fromPage === "dashboardcall" &&
+          user?.roleName === "ZONE" &&
+          detail.complainT_STATUS === "Open" &&
+          detail.complaint_SubStatus === "Cancellation Request moved to RSM" && (
+            <RemarkSection
+              onSubmit={() => handleSubmitRemark("approved-RSM")}
+              onCancel={() => handleSubmitRemark("rejected-RSM")}
+              remark={remark}
+              setRemark={setRemark}
+            />
+          )}
+
         {/* Popup modal */}
         <Popup
           isOpen={popupOpen}

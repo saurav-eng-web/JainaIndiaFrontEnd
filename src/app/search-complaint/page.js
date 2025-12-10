@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import SideBar from "@/components/SideBar";
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { logger } from "@/utils/logger";
 
 export default function SearchComplaintPage() {
   const router = useRouter();
@@ -54,6 +55,9 @@ export default function SearchComplaintPage() {
       setSearchAttempted(true);
     } catch (error) {
       console.error("Search error:", error);
+      logger.error(`Search error: ${error.message}`, "search-complaint", {
+        payload: { query: q },
+      });
       setSearchResults([]);
       setSearchAttempted(true);
     }

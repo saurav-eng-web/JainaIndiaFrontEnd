@@ -139,3 +139,5 @@
 - fix claim-approve/details
 - fix authSlice
 - fix Dockerfile
+- fix ASM cancellation request
+- feat: RSM cancellation request

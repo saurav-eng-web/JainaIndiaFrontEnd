@@ -1,4 +1,5 @@
 // src/redux/slices/authSlice.js
+import { logger } from "@/utils/logger";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -38,6 +39,9 @@ export const loginUser = createAsyncThunk(
       }
     } catch (error) {
       // ✅ network/server error vs API error
+      logger.error(`Login failed: ${error.message}`, "auth/loginUser", {
+        payload: { userName, uPassword },
+      });
       if (error.response && error.response.data) {
         return rejectWithValue(error.response.data.message || "Login failed");
       }

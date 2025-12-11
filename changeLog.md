@@ -141,3 +141,7 @@
 - fix Dockerfile
 - fix ASM cancellation request
 - feat: RSM cancellation request
+
+## 1.8.3
+
+- send happy code

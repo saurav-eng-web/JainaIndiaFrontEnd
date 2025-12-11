@@ -704,6 +704,7 @@ function HistoryPageContent() {
         message,
       });
       await updateJob(status, subStatus, message);
+      await refreshHistory();
 
       const reqeust = requestType.split("|")[0];
       setPopupMessage(`Call cancellation request ${reqeust} successfully!`);
@@ -722,6 +723,20 @@ function HistoryPageContent() {
   function parseStatusMessage(statusMsg = "") {
     const [status, subStatus, message] = statusMsg.split("|");
     return { status, subStatus, message };
+  }
+
+  async function refreshHistory() {
+    try {
+      const res = await axiosInstance.get(
+        `ComplaintHistory/history-by-ticket/${activeTicket}`
+      );
+
+      const data = res.data;
+      setLogData(Array.isArray(data) ? data : [data]);
+      await fetchCustomerDetails();
+    } catch (err) {
+      console.error("Failed to refresh history:", err);
+    }
   }
 
   // async function handleCancelRemark() {

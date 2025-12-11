@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import axiosInstance from "@/api/axiosInstance";
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
-const BASE_URL = "https://ncapi.jainaindia.com/api";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 function ComplaintTableInner() {
   const { colors } = useTheme();
@@ -106,7 +106,7 @@ function ComplaintTableInner() {
                       <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
                         <td className="px-4 py-3">
                           <button
-                            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                            className="cursor-pointer rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                             style={{ background: colors.primary }}
                             onClick={() => handleViewHistory(item.tickeT_NO)}
                           >

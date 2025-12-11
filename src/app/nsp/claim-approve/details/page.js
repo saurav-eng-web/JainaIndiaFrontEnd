@@ -208,7 +208,7 @@ function DetailsContent() {
       <ProtectedRoute allowedRoles={["BR", "NSP"]}>
         <SideBar />
         <div className="flex min-h-screen w-full flex-col font-sans">
-          <div className="mx-auto mt-10 w-full max-w-[1400px] p-4">
+          <div className="mx-auto w-full max-w-[1400px] p-4">
             {/* Main Card Container */}
             <div className="rounded-xl p-6 sm:p-10">
               {/* shadow-md */}

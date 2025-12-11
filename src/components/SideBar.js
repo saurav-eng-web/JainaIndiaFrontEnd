@@ -101,6 +101,12 @@ export default function SideBar() {
       text: "Receive PO",
       roles: ["SF/SSD"],
     },
+    {
+      href: "/happy-code",
+      icon: "fa fa-archive fa-2x",
+      text: "Send Happy Code",
+      roles: ["SF/SSD", "ASM"],
+    },
   ];
 
   const allowedBulkUsers = ["T284977"];

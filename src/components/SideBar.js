@@ -84,7 +84,7 @@ export default function SideBar() {
     },
     {
       href: "/nsp/reports",
-      icon: "fa fa-wrench fa-2x",
+      icon: "fa fa-file-text fa-2x",
       text: "Reports",
       roles: ["BR", "ZONE", "SF/SSD", "NSP", "ASM", "RSM", "HOuser"],
     },
@@ -103,9 +103,15 @@ export default function SideBar() {
     },
     {
       href: "/happy-code",
-      icon: "fa fa-archive fa-2x",
+      icon: "fa fa-paper-plane fa-2x",
       text: "Send Happy Code",
       roles: ["SF/SSD", "ASM"],
+    },
+    {
+      href: "/knowledge-portal",
+      icon: "fa fa-book fa-2x",
+      text: "Knowledge Portal",
+      roles: ["ASM"],
     },
   ];
 

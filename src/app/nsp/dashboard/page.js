@@ -74,19 +74,21 @@ export default function Dashboard() {
         else if (userInfo?.userID) firstID = userInfo.userID;
 
         const roleID = userInfo.roleID;
+        console.log("🔴firstID used →", firstID);
 
         const [roleRes, aggRes] = await Promise.all([
           axiosInstance.get(`/DashboardBucket/role/${roleID}`),
           axiosInstance.get(`/DashboardBucket/aggregation/${firstID}/${roleID}`),
         ]);
 
+        console.log("res: ", { roleRes, aggRes });
         const countMap = {};
         aggRes.data.forEach((item) => {
           countMap[item.complaintSubStatus] = item.count;
         });
-
         const formattedData = roleRes.data.map((item) => {
           const mapItem = iconMap[item.bucket] || { Icon: MdOutlineHelpOutline };
+          console.log("maptItem: ", mapItem);
           return {
             id: item.id,
             title: item.bucket,
@@ -96,6 +98,10 @@ export default function Dashboard() {
             Icon: mapItem.Icon,
             iconColor: mapItem.iconColor,
           };
+        });
+        console.log("data: ", {
+          countMap,
+          formattedData,
         });
 
         setDashboardData(formattedData);

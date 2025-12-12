@@ -6,6 +6,7 @@ import ReduxProvider from "@/redux/ReduxProvider"; // ✅ Import client provider
 import { ThemeProvider } from "@/theme/ThemeContext";
 import NavigationLoader from "@/components/NavigationLoader";
 import GlobalOverlayLoader from "@/components/Loader";
+import ToastProvider from "./ToastProvider";
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -35,7 +36,10 @@ export default function RootLayout({ children }) {
         <ReduxProvider>
           <GlobalOverlayLoader />
           <NavigationLoader />
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <ToastProvider />
+            {children}
+          </ThemeProvider>
         </ReduxProvider>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-7WZH054K22"

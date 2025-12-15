@@ -7,6 +7,7 @@ import ThemedButton from "../common/ThemedButton";
 
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
+import { formatIndianDate } from "@/utils/formatDate";
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -105,6 +106,7 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
 
     return []; // anything earlier than required hour
   }
+  console.log("formData", formData);
 
   return (
     <div className="mb-10 rounded-xl border bg-white p-6 shadow-md">
@@ -128,10 +130,11 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
                 {formData.tickeT_NO || "Not Available"}
               </td>
               <td className="border px-4 py-2">
-                {formData.prevAppointment || "Not Available"}
+                {formatIndianDate(formData?.promiseDate) || "Not Available"}
+                {` | ${formData.promiseTime}` || "Not Available"}
               </td>
               <td className="border px-4 py-2">
-                {formData.reallotDate || "Not Available"}
+                {formatIndianDate(formData.reallotDate) || "Not Available"}
               </td>
               <td className="border px-4 py-2">
                 {formData.ascReason || "Not Available"}

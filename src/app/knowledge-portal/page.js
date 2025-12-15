@@ -1,11 +1,16 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
-import React, { useState } from "react";
+import { logger } from "@/utils/logger";
 
 const KnowledgePortal = () => {
   const [isDataLoading, setIsDataLoading] = useState(true);
+  const [documents, setDocuments] = useState([]);
 
   const tableHeaders = [
     "Id",
@@ -22,49 +27,69 @@ const KnowledgePortal = () => {
     "Customer Mobile",
   ];
 
-  const columnOrder = [
-    "TicketKey",
-    "ticket_no",
-    "serialNo",
-    "callType",
-    "warranty",
-    "DOP",
-    "FinanceRemarks",
-    "Action",
-    "RejectionDate",
-    "OKDate",
-    "CustName",
-    "CustMobile",
-  ];
+  useEffect(() => {
+    let isMounted = true;
 
-  const handleDownload = async (url, filename) => {
-    try {
-      // 1. Fetch the file data
-      const response = await fetch(url);
+    async function fetchAll() {
+      setIsDataLoading(true);
+      try {
+        // Parallel calls for better performance
+        const res = await axios.post("/api/documents/knowledge-portal");
 
-      // 2. Convert to Blob (Binary Large Object)
-      const blob = await response.blob();
+        if (!isMounted) return;
 
-      // 3. Create a temporary URL for the Blob
-      const blobUrl = window.URL.createObjectURL(blob);
+        // Documents
+        setDocuments(res?.data?.documents || []);
 
-      // 4. Create a temporary anchor element
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = filename; // This forces the download name
+        // Claim data
+      } catch (err) {
+        console.error("Error fetching details:", err);
 
-      // 5. Append to body, click, and cleanup
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-    } catch (error) {
-      console.error("Download failed:", error);
-      alert("Download failed");
-      logger.error(`Downloading image failed ${error.message}`, "claim-approve/details");
-      // Fallback: Just open in new tab if the fetch fails (e.g. CORS error)
-      window.open(url, "_blank");
+        logger.error(`Error fetching details: ${err?.message}`, "claim-approve/details");
+      } finally {
+        setIsDataLoading(false);
+      }
     }
+
+    fetchAll();
+
+    return () => {
+      isMounted = false; // cleanup
+    };
+  }, []);
+
+  // const handleDownload = (url, filename) => {
+  //   try {
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = filename || "";
+  //     link.target = "_self"; // important
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     link.remove();
+  //   } catch (error) {
+  //     console.error("Download failed:", error);
+  //     throw new Error("File download failed. Please try again.");
+  //   }
+  // };
+
+  const handleDownload = (url, filename) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename || "";
+        link.target = "_self"; // important
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        resolve(true); // ✅ tell toast it succeeded
+      } catch (error) {
+        console.error("Download failed:", error);
+        reject(new Error("File download failed. Please try again."));
+      }
+    });
   };
 
   return (
@@ -76,7 +101,7 @@ const KnowledgePortal = () => {
             {/* Main Card Container */}
             <div className="rounded-xl p-6 sm:p-10">
               <div className="space-y-8">
-                <h2 className="mt-8 mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
+                <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
                   Knowledge Portal
                 </h2>
 
@@ -91,8 +116,9 @@ const KnowledgePortal = () => {
                           Document Name
                         </th>
                         <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
-                          Entered Date
+                          Enterd Date
                         </th>
+
                         <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
                           Action
                         </th>
@@ -118,16 +144,16 @@ const KnowledgePortal = () => {
                         </tr>
                       ) : (
                         // Actual document rows
-                        documents.map((doc) => (
+                        documents.map((doc, index) => (
                           <tr
                             key={doc.rowNum}
                             className="transition-colors duration-200 hover:bg-[#e3f2fd]"
                           >
                             <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                              {doc.rowNum}
+                              {index + 1}
                             </td>
                             <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm font-medium text-[#333]">
-                              {doc.documentType}
+                              {doc.fileName}
                             </td>
                             <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
                               {doc.enteredDate}
@@ -135,11 +161,18 @@ const KnowledgePortal = () => {
                             <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
                               <button
                                 onClick={() =>
-                                  handleDownload(
-                                    doc?.documentURL,
-                                    doc?.documentURL.split("/")[
-                                      doc?.documentURL?.split("/").length - 1
-                                    ]
+                                  toast.promise(
+                                    handleDownload(
+                                      doc.documentURL,
+                                      doc.documentURL?.split("/").pop() || "file"
+                                    ),
+                                    {
+                                      loading: "Downloading file...",
+                                      success: "File downloaded successfully!",
+                                      error: (err) =>
+                                        err.message || "Failed to download file.",
+                                    },
+                                    { style: { minWidth: "300px" } }
                                   )
                                 }
                                 className="group flex cursor-pointer items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"

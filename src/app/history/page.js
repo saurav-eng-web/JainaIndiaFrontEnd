@@ -2,10 +2,10 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState, Suspense, useCallback, act } from "react"; // ✅ import Suspense
+import { useEffect, useState, Suspense, useCallback } from "react"; // ✅ import Suspense
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { ToastContainer, toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 import CancelPopup from "./CancelPopup";
 import EditCustPopup from "./EditCustPopup";
@@ -135,6 +135,8 @@ function HistoryPageContent() {
       sf_ID: custDetail.sf_ID || 0,
       firstName: custDetail.firstname || "-",
       pinCode: custDetail.pincode || "-",
+      promiseDate: custDetail.promisE_DATE || "-",
+      promiseTime: custDetail.promisE_TIME || "-",
     }));
   }, [custDetail, loggedInUserId]);
 
@@ -669,55 +671,115 @@ function HistoryPageContent() {
     });
   }
 
-  async function handleSubmitRemark(requestType) {
-    if (!requestType || !user || !detail) {
-      setPopupMessage("Missing required data");
-      setPopupOpen(true);
-      return;
-    }
+  // async function handleSubmitRemark(requestType) {
+  //   if (!requestType || !user || !detail) {
+  //     setPopupMessage("Missing required data");
+  //     setPopupOpen(true);
+  //     return;
+  //   }
 
-    try {
+  //   try {
+  //     const payload = {
+  //       // TICKET_NO: detail.tickeT_NO,
+  //       // remark: remark,
+  //       // type: "open",
+  //       // action: "Approved",
+  //       // uid: user?.userID || 0,
+  //       // --------------
+  //       transactionType: "Jobno",
+  //       transactionID: custDetail?.tickeT_KEY.toString() || "",
+  //       transactionNo: detail.tickeT_NO || ticketNo || "",
+  //       requestedBy: user?.userID.toString(),
+  //       createdBy: user?.userID.toString(),
+  //       approvalStatus: requestType,
+  //       approvalRemarks: remark,
+  //     };
+
+  //     const res = await axiosInstance.post("/RequestCancellation/update", payload);
+
+  //     const { statusMsg } = res.data;
+  //     const { status, subStatus, message } = parseStatusMessage(statusMsg);
+
+  //     console.log("msgs: ", {
+  //       status,
+  //       subStatus,
+  //       message,
+  //     });
+  //     await updateJob(status, subStatus, message);
+  //     await refreshHistory();
+
+  //     const reqeust = requestType.split("|")[0];
+  //     setPopupMessage(`Call cancellation request ${reqeust} successfully!`);
+  //     setPopupOpen(true);
+  //   } catch (err) {
+  //     console.error("❌ API Failed:", err);
+  //     logger.error(
+  //       `Call cancellation request API Failed: ${err.message}, ${err.stack}`,
+  //       "submitting remark"
+  //     );
+  //     setPopupMessage("Failed to submit ❌");
+  //     setPopupOpen(true);
+  //   }
+  // }
+
+  async function handleSubmitRemark(requestType) {
+    const submitOperation = async () => {
       const payload = {
-        // TICKET_NO: detail.tickeT_NO,
-        // remark: remark,
-        // type: "open",
-        // action: "Approved",
-        // uid: user?.userID || 0,
-        // --------------
         transactionType: "Jobno",
-        transactionID: custDetail?.tickeT_KEY.toString() || "",
+        transactionID: custDetail?.tickeT_KEY?.toString() || "",
         transactionNo: detail.tickeT_NO || ticketNo || "",
-        requestedBy: user?.userID.toString(),
-        createdBy: user?.userID.toString(),
+        requestedBy: user.userID.toString(),
+        createdBy: user.userID.toString(),
         approvalStatus: requestType,
         approvalRemarks: remark,
       };
 
+      // ----------------------------
+      // API 1: Update cancellation
+      // ----------------------------
       const res = await axiosInstance.post("/RequestCancellation/update", payload);
 
       const { statusMsg } = res.data;
       const { status, subStatus, message } = parseStatusMessage(statusMsg);
 
-      console.log("msgs: ", {
-        status,
-        subStatus,
-        message,
-      });
+      // ----------------------------
+      // API 2: Update job status
+      // ----------------------------
       await updateJob(status, subStatus, message);
-      await refreshHistory();
 
-      const reqeust = requestType.split("|")[0];
-      setPopupMessage(`Call cancellation request ${reqeust} successfully!`);
-      setPopupOpen(true);
-    } catch (err) {
-      console.error("❌ API Failed:", err);
-      logger.error(
-        `Call cancellation request API Failed: ${err.message}, ${err.stack}`,
-        "submitting remark"
-      );
-      setPopupMessage("Failed to submit ❌");
-      setPopupOpen(true);
-    }
+      // ----------------------------
+      // Refresh local history
+      // ----------------------------
+      // await refreshHistory();
+
+      return statusMsg; // used by toast success
+    };
+
+    toast.promise(
+      submitOperation(),
+      {
+        loading: "Submitting request...",
+        success: (statusMsg) => {
+          // redirect AFTER toast success
+          setTimeout(() => {
+            router.back();
+          }, 800);
+
+          const action = requestType.split("|")[0];
+          return `Call cancellation request ${action} successfully!`;
+        },
+        error: (err) => {
+          const msg =
+            err?.response?.data?.statusMsg || err?.message || "Failed to submit request";
+          return msg;
+        },
+      },
+      {
+        style: {
+          minWidth: "320px",
+        },
+      }
+    );
   }
 
   function parseStatusMessage(statusMsg = "") {
@@ -1695,18 +1757,6 @@ function HistoryPageContent() {
 
             {user?.roleName === "CC" && (
               <div className="reminder-section">
-                <ToastContainer
-                  position="top-center"
-                  autoClose={3000}
-                  hideProgressBar={false}
-                  newestOnTop={false}
-                  closeOnClick
-                  rtl={false}
-                  pauseOnFocusLoss
-                  draggable
-                  pauseOnHover
-                  style={{ top: "50%", transform: "translateY(-50%)" }}
-                />
                 <h3 className="page-title">⏰ Add Reminder</h3>
                 <form
                   className="reminder-form"
@@ -1735,10 +1785,10 @@ function HistoryPageContent() {
                       setReminderReason("");
                       setReminderText("");
 
-                      toast.success("✅ Reminder added successfully!");
+                      toast.success("Reminder added successfully!");
                     } catch (err) {
                       console.error("Failed to add reminder:", err);
-                      toast.error("❌ Failed to add reminder");
+                      toast.error("Failed to add reminder");
                     }
                   }}
                 >

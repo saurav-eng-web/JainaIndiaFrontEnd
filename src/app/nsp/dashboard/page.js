@@ -28,6 +28,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useTheme } from "@/theme/ThemeContext";
 
 import "../../../components/Sidebar.css";
+import { encodeRouteData } from "@/utils/secureRoute";
 
 export default function Dashboard() {
   const { colors } = useTheme();
@@ -63,48 +64,61 @@ export default function Dashboard() {
       if (!userInfo?.roleID) return;
 
       try {
-        let firstID = 0;
-
-        if (userInfo?.sF_ID && userInfo.sF_ID !== 0) firstID = userInfo.sF_ID;
-        else if (userInfo?.cat_MapID && userInfo.cat_MapID !== 0)
-          firstID = userInfo.cat_MapID;
-        else if (userInfo?.asmid && userInfo.asmid !== 0) firstID = userInfo.asmid;
-        else if (userInfo?.branch_ID && userInfo.branch_ID !== 0)
-          firstID = userInfo.branch_ID;
-        else if (userInfo?.userID) firstID = userInfo.userID;
+        // ---------------------------
+        //  Resolve FirstID
+        // ---------------------------
+        const firstID =
+          userInfo.sF_ID ||
+          userInfo.cat_MapID ||
+          userInfo.asmid ||
+          userInfo.branch_ID ||
+          userInfo.userID;
 
         const roleID = userInfo.roleID;
-        console.log("🔴firstID used →", firstID);
+        console.log("🔴 firstID used →", firstID);
 
         const [roleRes, aggRes] = await Promise.all([
           axiosInstance.get(`/DashboardBucket/role/${roleID}`),
           axiosInstance.get(`/DashboardBucket/aggregation/${firstID}/${roleID}`),
         ]);
 
-        console.log("res: ", { roleRes, aggRes });
+        const roleBuckets = roleRes.data || [];
+        const aggregation = aggRes.data || [];
+
+        // ---------------------------
+        //  Build countMap (keyed by: status::substatus)
+        // ---------------------------
         const countMap = {};
-        aggRes.data.forEach((item) => {
-          countMap[item.complaintSubStatus] = item.count;
-        });
-        const formattedData = roleRes.data.map((item) => {
-          const mapItem = iconMap[item.bucket] || { Icon: MdOutlineHelpOutline };
-          console.log("maptItem: ", mapItem);
+        for (const item of aggregation) {
+          const key = `${item.complaintStatus}::${item.complaintSubStatus}`;
+          countMap[key] = item.count ?? 0;
+        }
+
+        // ---------------------------
+        //  Format dashboard cards
+        // ---------------------------
+        const formatted = roleBuckets.map((bucket) => {
+          const { id, bucket: title, complaintStatus, complaintSubStatus } = bucket;
+
+          const key = `${complaintStatus}::${complaintSubStatus}`;
+          const count = countMap[key] ?? 0;
+
+          const mapItem = iconMap[title] || { Icon: MdOutlineHelpOutline };
+
           return {
-            id: item.id,
-            title: item.bucket,
-            value: countMap[item.complaintSubStatus] ?? 0,
-            complaintStatus: item.complaintStatus,
-            complaintSubStatus: item.complaintSubStatus,
+            id,
+            title,
+            value: count,
+            complaintStatus,
+            complaintSubStatus,
             Icon: mapItem.Icon,
             iconColor: mapItem.iconColor,
           };
         });
-        console.log("data: ", {
-          countMap,
-          formattedData,
-        });
 
-        setDashboardData(formattedData);
+        console.log("Dashboard Mapping →", { countMap, formatted });
+
+        setDashboardData(formatted);
       } catch (error) {
         console.error(
           "Error fetching dashboard data:",
@@ -117,22 +131,88 @@ export default function Dashboard() {
     fetchDashboardData();
   }, [userInfo]);
 
+  // useEffect(() => {
+  //   const fetchDashboardData = async () => {
+  //     if (!userInfo?.roleID) return;
+
+  //     try {
+  //       let firstID = 0;
+
+  //       if (userInfo?.sF_ID && userInfo.sF_ID !== 0) firstID = userInfo.sF_ID;
+  //       else if (userInfo?.cat_MapID && userInfo.cat_MapID !== 0)
+  //         firstID = userInfo.cat_MapID;
+  //       else if (userInfo?.asmid && userInfo.asmid !== 0) firstID = userInfo.asmid;
+  //       else if (userInfo?.branch_ID && userInfo.branch_ID !== 0)
+  //         firstID = userInfo.branch_ID;
+  //       else if (userInfo?.userID) firstID = userInfo.userID;
+
+  //       const roleID = userInfo.roleID;
+  //       console.log("🔴firstID used →", firstID);
+
+  //       const [roleRes, aggRes] = await Promise.all([
+  //         axiosInstance.get(`/DashboardBucket/role/${roleID}`),
+  //         axiosInstance.get(`/DashboardBucket/aggregation/${firstID}/${roleID}`),
+  //       ]);
+
+  //       console.log("res: ", { roleRes, aggRes });
+  //       const countMap = {};
+  //       aggRes.data.forEach((item) => {
+  //         countMap[item.complaintSubStatus] = item.count;
+  //       });
+  //       console.log("countMap: ", countMap);
+  //       const formattedData = roleRes.data.map((item) => {
+  //         const mapItem = iconMap[item.bucket] || { Icon: MdOutlineHelpOutline };
+  //         // console.log("maptItem: ", mapItem);
+  //         return {
+  //           id: item.id,
+  //           title: item.bucket,
+  //           value: countMap[item.complaintSubStatus] ?? 0,
+  //           complaintStatus: item.complaintStatus,
+  //           complaintSubStatus: item.complaintSubStatus,
+  //           Icon: mapItem.Icon,
+  //           iconColor: mapItem.iconColor,
+  //         };
+  //       });
+  //       console.log("data: ", {
+  //         countMap,
+  //         formattedData,
+  //       });
+
+  //       setDashboardData(formattedData);
+  //     } catch (error) {
+  //       console.error(
+  //         "Error fetching dashboard data:",
+  //         error.response?.status,
+  //         error.response?.data
+  //       );
+  //     }
+  //   };
+
+  //   fetchDashboardData();
+  // }, [userInfo]);
+
   const handleCardClick = (item) => {
-    let firstID = 0;
+    const getFirstID = (userInfo) => {
+      return (
+        userInfo?.sF_ID ||
+        userInfo?.cat_MapID ||
+        userInfo?.asmid ||
+        userInfo?.branch_ID ||
+        userInfo?.userID ||
+        0
+      );
+    };
 
-    if (userInfo?.sF_ID && userInfo.sF_ID !== 0) firstID = userInfo.sF_ID;
-    else if (userInfo?.cat_MapID && userInfo.cat_MapID !== 0)
-      firstID = userInfo.cat_MapID;
-    else if (userInfo?.asmid && userInfo.asmid !== 0) firstID = userInfo.asmid;
-    else if (userInfo?.branch_ID && userInfo.branch_ID !== 0)
-      firstID = userInfo.branch_ID;
-    else if (userInfo?.userID) firstID = userInfo.userID;
+    const payload = {
+      status: item.complaintStatus,
+      subStatus: item.complaintSubStatus,
+      roleID: userInfo.roleID,
+      firstID: getFirstID(userInfo),
+    };
 
-    router.push(
-      `/nsp/dashboardcall?status=${encodeURIComponent(item.complaintStatus)}&subStatus=${encodeURIComponent(
-        item.complaintSubStatus
-      )}&roleID=${userInfo.roleID}&firstID=${firstID}`
-    );
+    const encoded = encodeRouteData(payload);
+
+    router.push(`/nsp/dashboardcall?d=${encoded}`);
   };
 
   return (

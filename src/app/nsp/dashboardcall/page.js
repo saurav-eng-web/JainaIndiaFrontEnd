@@ -1,27 +1,83 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 import axiosInstance from "@/api/axiosInstance";
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
+import { decodeRouteData } from "@/utils/secureRoute";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 function ComplaintTableInner() {
+  // const { colors } = useTheme();
+  // const searchParams = useSearchParams();
+  // const router = useRouter();
+
+  // const status = searchParams.get("status");
+  // const subStatus = searchParams.get("subStatus");
+  // const roleID = searchParams.get("roleID");
+  // const firstID = searchParams.get("firstID");
+
+  // const [complaints, setComplaints] = useState([]);
+  // const [loading, setLoading] = useState(false);
+
+  // useEffect(() => {
+  //   if (!status || !subStatus || !roleID || !firstID) return;
+
+  //   const fetchComplaints = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const url = `${BASE_URL}/CallRegister/getstatus/${encodeURIComponent(
+  //         status
+  //       )}/${encodeURIComponent(subStatus)}/${roleID}/${firstID}`;
+
+  //       const response = await axiosInstance.get(url);
+  //       setComplaints(response.data || []);
+  //     } catch (error) {
+  //       console.error("Error fetching complaints:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchComplaints();
+  // }, [status, subStatus, roleID, firstID]);
+
   const { colors } = useTheme();
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const status = searchParams.get("status");
-  const subStatus = searchParams.get("subStatus");
-  const roleID = searchParams.get("roleID");
-  const firstID = searchParams.get("firstID");
-
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("");
+  const [subStatus, setSubStatus] = useState("");
+  const [roleID, setRoleID] = useState("");
+  const [firstID, setFirstID] = useState("");
+
+  // 🔹 Decode once, memoized
+  const routeData = useMemo(() => {
+    const encoded = searchParams.get("d");
+    if (!encoded) return null;
+
+    try {
+      return decodeRouteData(encoded);
+    } catch (err) {
+      console.error("Invalid route data:", err);
+      return null;
+    }
+  }, [searchParams]);
 
   useEffect(() => {
+    if (!routeData) return;
+
+    const { status, subStatus, roleID, firstID } = routeData;
+
+    setStatus(status);
+    setSubStatus(subStatus);
+    setRoleID(roleID);
+    setFirstID(firstID);
+
     if (!status || !subStatus || !roleID || !firstID) return;
 
     const fetchComplaints = async () => {
@@ -41,7 +97,16 @@ function ComplaintTableInner() {
     };
 
     fetchComplaints();
-  }, [status, subStatus, roleID, firstID]);
+  }, [routeData]);
+
+  // Optional: guard invalid navigation
+  if (!routeData) {
+    return (
+      <div className="p-4 font-semibold text-red-600">
+        Invalid or missing navigation data.
+      </div>
+    );
+  }
 
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {

@@ -10,11 +10,17 @@ import { logger } from "@/utils/logger";
 
 export default function SearchComplaintPage() {
   const router = useRouter();
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
+    console.log("userData: ", userData);
     if (!userData) {
       router.replace("/");
+    } else {
+      const user = JSON.parse(userData);
+      const role = user.roleName?.toLowerCase();
+      setUserRole(role);
     }
   }, [router]);
 
@@ -111,11 +117,12 @@ export default function SearchComplaintPage() {
                         (result) =>
                           result.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
                           result.complainT_SUBSTATUS?.toLowerCase() === "cancel"
-                      ) && (
-                        <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
-                          Registration
-                        </th>
-                      )}
+                      ) &&
+                        userRole === "cc" && (
+                          <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                            Registration
+                          </th>
+                        )}
 
                       <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
                         Name
@@ -175,47 +182,48 @@ export default function SearchComplaintPage() {
                             (r) =>
                               r.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
                               r.complainT_SUBSTATUS?.toLowerCase() === "cancel"
-                          ) && (
-                            <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                              {showRegistration && (
-                                <button
-                                  className="cursor-pointer rounded-md bg-[#714b67] px-3.5 py-2 text-[13px] text-white transition-colors duration-300 hover:bg-[#5a3c52]"
-                                  onClick={() => {
-                                    const params = new URLSearchParams({
-                                      title: result.salutation || "",
-                                      firstName: result.firstname || "",
-                                      lastName: result.lastname || "",
-                                      phone: result.hmph || result.mobile || "",
-                                      altPhone: result.wkph || "",
-                                      customerAddress: result.addresS1 || "",
-                                      landmark: result.landmark || "",
-                                      pincode: result.pincode || "",
-                                      state: result.state || "",
-                                      city: result.city || "",
-                                      locality: result.locality || "",
-                                      localityId: result.localitY_ID?.toString() || "",
-                                      modelID: result.modeL_ID?.toString() || "",
-                                      cityId: result.citY_ID?.toString() || "",
-                                      serialNo: result.seriaL_NO || "",
-                                      productCategory: result.category || "",
-                                      brand: result.brand || "",
-                                      pop: result.purchasE_DATE || "",
-                                      product: result.product || "",
-                                      productID: result.producT_ID?.toString() || "",
-                                      model: result.model || "",
-                                      warranty: result.warranty || "",
-                                      callType: result.calL_TYPE || "",
-                                      faultVoc: result.remarks || "",
-                                      availableTime: result.promisE_TIME || "",
-                                    });
-                                    router.push(`/call?${params.toString()}`);
-                                  }}
-                                >
-                                  New Reg.
-                                </button>
-                              )}
-                            </td>
-                          )}
+                          ) &&
+                            userRole === "cc" && (
+                              <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                                {showRegistration && (
+                                  <button
+                                    className="cursor-pointer rounded-md bg-[#714b67] px-3.5 py-2 text-[13px] text-white transition-colors duration-300 hover:bg-[#5a3c52]"
+                                    onClick={() => {
+                                      const params = new URLSearchParams({
+                                        title: result.salutation || "",
+                                        firstName: result.firstname || "",
+                                        lastName: result.lastname || "",
+                                        phone: result.hmph || result.mobile || "",
+                                        altPhone: result.wkph || "",
+                                        customerAddress: result.addresS1 || "",
+                                        landmark: result.landmark || "",
+                                        pincode: result.pincode || "",
+                                        state: result.state || "",
+                                        city: result.city || "",
+                                        locality: result.locality || "",
+                                        localityId: result.localitY_ID?.toString() || "",
+                                        modelID: result.modeL_ID?.toString() || "",
+                                        cityId: result.citY_ID?.toString() || "",
+                                        serialNo: result.seriaL_NO || "",
+                                        productCategory: result.category || "",
+                                        brand: result.brand || "",
+                                        pop: result.purchasE_DATE || "",
+                                        product: result.product || "",
+                                        productID: result.producT_ID?.toString() || "",
+                                        model: result.model || "",
+                                        warranty: result.warranty || "",
+                                        callType: result.calL_TYPE || "",
+                                        faultVoc: result.remarks || "",
+                                        availableTime: result.promisE_TIME || "",
+                                      });
+                                      router.push(`/call?${params.toString()}`);
+                                    }}
+                                  >
+                                    New Reg.
+                                  </button>
+                                )}
+                              </td>
+                            )}
 
                           {/* Data Cells */}
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">

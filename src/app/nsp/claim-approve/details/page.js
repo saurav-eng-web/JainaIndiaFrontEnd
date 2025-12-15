@@ -4,15 +4,14 @@ export const fetchCache = "force-no-store";
 
 import React, { useEffect, useState, Suspense } from "react";
 import axios from "axios";
+import { useSearchParams, useRouter } from "next/navigation";
+
+import { getUserFromLocalStorage } from "../../../../redux/slices/authSlice";
 
 import { useTheme } from "@/theme/ThemeContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import { logger } from "@/utils/logger";
-import { useRouter } from "next/navigation";
-import { getUserFromLocalStorage } from "../../../../redux/slices/authSlice";
-
-import { useSearchParams } from "next/navigation";
 import axiosInstance from "@/api/axiosInstance";
 
 const tableHeaders = [

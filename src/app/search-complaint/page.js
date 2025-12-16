@@ -49,13 +49,15 @@ export default function SearchComplaintPage() {
     try {
       const response = await axiosInstance.get("CallSearch/search", {
         params: {
-          phone: /^[0-9]{10}$/.test(q) ? q : "",
-          callNumber: q,
-          serialNo: q,
+          searchText: q,
         },
       });
 
-      const results = Array.isArray(response.data) ? response.data : [response.data];
+      // const results = Array.isArray(response.data) ? response.data : [response.data];
+
+      const results = Array.isArray(response.data?.data)
+        ? response.data?.data
+        : [response.data?.data];
 
       setSearchResults(results);
       setSearchAttempted(true);
@@ -115,8 +117,8 @@ export default function SearchComplaintPage() {
                       </th>
                       {searchResults.some(
                         (result) =>
-                          result.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
-                          result.complainT_SUBSTATUS?.toLowerCase() === "cancel"
+                          result?.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
+                          result?.complainT_SUBSTATUS?.toLowerCase() === "cancel"
                       ) &&
                         userRole === "cc" && (
                           <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
@@ -159,8 +161,8 @@ export default function SearchComplaintPage() {
                   <tbody>
                     {searchResults.map((result, index) => {
                       const showRegistration =
-                        result.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
-                        result.complainT_SUBSTATUS?.toLowerCase() === "cancel";
+                        result?.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
+                        result?.complainT_SUBSTATUS?.toLowerCase() === "cancel";
 
                       return (
                         <tr
@@ -180,8 +182,8 @@ export default function SearchComplaintPage() {
                           {/* Registration Button */}
                           {searchResults.some(
                             (r) =>
-                              r.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
-                              r.complainT_SUBSTATUS?.toLowerCase() === "cancel"
+                              r?.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
+                              r?.complainT_SUBSTATUS?.toLowerCase() === "cancel"
                           ) &&
                             userRole === "cc" && (
                               <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
@@ -190,31 +192,31 @@ export default function SearchComplaintPage() {
                                     className="cursor-pointer rounded-md bg-[#714b67] px-3.5 py-2 text-[13px] text-white transition-colors duration-300 hover:bg-[#5a3c52]"
                                     onClick={() => {
                                       const params = new URLSearchParams({
-                                        title: result.salutation || "",
-                                        firstName: result.firstname || "",
-                                        lastName: result.lastname || "",
-                                        phone: result.hmph || result.mobile || "",
-                                        altPhone: result.wkph || "",
-                                        customerAddress: result.addresS1 || "",
-                                        landmark: result.landmark || "",
-                                        pincode: result.pincode || "",
-                                        state: result.state || "",
-                                        city: result.city || "",
-                                        locality: result.locality || "",
-                                        localityId: result.localitY_ID?.toString() || "",
-                                        modelID: result.modeL_ID?.toString() || "",
-                                        cityId: result.citY_ID?.toString() || "",
-                                        serialNo: result.seriaL_NO || "",
-                                        productCategory: result.category || "",
-                                        brand: result.brand || "",
-                                        pop: result.purchasE_DATE || "",
-                                        product: result.product || "",
-                                        productID: result.producT_ID?.toString() || "",
-                                        model: result.model || "",
-                                        warranty: result.warranty || "",
-                                        callType: result.calL_TYPE || "",
-                                        faultVoc: result.remarks || "",
-                                        availableTime: result.promisE_TIME || "",
+                                        title: result?.salutation || "",
+                                        firstName: result?.firstname || "",
+                                        lastName: result?.lastname || "",
+                                        phone: result?.hmph || result?.mobile || "",
+                                        altPhone: result?.wkph || "",
+                                        customerAddress: result?.addresS1 || "",
+                                        landmark: result?.landmark || "",
+                                        pincode: result?.pincode || "",
+                                        state: result?.state || "",
+                                        city: result?.city || "",
+                                        locality: result?.locality || "",
+                                        localityId: result?.localitY_ID?.toString() || "",
+                                        modelID: result?.modeL_ID?.toString() || "",
+                                        cityId: result?.citY_ID?.toString() || "",
+                                        serialNo: result?.seriaL_NO || "",
+                                        productCategory: result?.category || "",
+                                        brand: result?.brand || "",
+                                        pop: result?.purchasE_DATE || "",
+                                        product: result?.product || "",
+                                        productID: result?.producT_ID?.toString() || "",
+                                        model: result?.model || "",
+                                        warranty: result?.warranty || "",
+                                        callType: result?.calL_TYPE || "",
+                                        faultVoc: result?.remarks || "",
+                                        availableTime: result?.promisE_TIME || "",
                                       });
                                       router.push(`/call?${params.toString()}`);
                                     }}
@@ -227,34 +229,36 @@ export default function SearchComplaintPage() {
 
                           {/* Data Cells */}
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {`${result.salutation} ${result.firstname} ${result.lastname}`}
+                            {`${result?.salutation} ${result?.firstname} ${result?.lastname}`}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result.mobile}
+                            {result?.mobile}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result.category || "-"}
+                            {result?.category || "-"}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result.model || "-"}
+                            {result?.model || "-"}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result.tickeT_NO || "-"}
+                            {result?.tickeT_NO || "-"}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result.seriaL_NO || "-"}
+                            {result?.seriaL_NO || "-"}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result.calL_TYPE || "-"}
+                            {result?.calL_TYPE || "-"}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result.complainT_SUBSTATUS || "-"}
+                            {result?.complainT_SUBSTATUS || "-"}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result.asC_CODE || "-"}
+                            {result?.asC_CODE || "-"}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result.pop ? new Date(result.pop).toLocaleDateString() : "-"}
+                            {result?.pop
+                              ? new Date(result.pop).toLocaleDateString()
+                              : "-"}
                           </td>
                         </tr>
                       );

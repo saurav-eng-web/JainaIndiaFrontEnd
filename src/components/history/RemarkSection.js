@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function RemarkSection({ onSubmit, onCancel, remark, setRemark }) {
@@ -27,7 +25,7 @@ export default function RemarkSection({ onSubmit, onCancel, remark, setRemark })
             onSubmit?.(remark); // ✅ Approve flow
             setRemark("");
           }}
-          className="rounded px-4 py-2 text-white"
+          className="cursor-pointer rounded px-4 py-2 text-white"
           style={{ background: colors.primary }}
         >
           Approve
@@ -38,7 +36,7 @@ export default function RemarkSection({ onSubmit, onCancel, remark, setRemark })
             setRemark("");
             onCancel?.(); // ✅ Reject flow
           }}
-          className="rounded bg-gray-300 px-4 py-2 hover:bg-gray-400"
+          className="cursor-pointer rounded bg-gray-300 px-4 py-2 hover:bg-gray-400"
         >
           Reject
         </button>

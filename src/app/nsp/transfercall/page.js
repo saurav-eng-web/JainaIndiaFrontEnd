@@ -1,12 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux"; // Redux
+import toast from "react-hot-toast";
 
 import { useTheme } from "@/theme/ThemeContext";
 import SideBar from "@/components/SideBar";
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { updateJob } from "@/utils/commonApis";
 
 export default function TransferCallForm() {
   const { colors } = useTheme();
@@ -18,6 +20,7 @@ export default function TransferCallForm() {
   const sF_ID = user?.sF_ID || 0;
   const cat_MapID = user?.cat_MapID || 0;
   const asmid = user?.asmid || 0;
+  const userName = user?.userName || "";
 
   // Form state
   const [ticketNo, setTicketNo] = useState("");
@@ -26,6 +29,8 @@ export default function TransferCallForm() {
   const [message, setMessage] = useState(null);
   const [ascList, setAscList] = useState([]);
   const [ascOptions, setAscOptions] = useState([]);
+  const [status, setStatus] = useState("");
+  const [subStatus, setSubStatus] = useState("");
 
   // Fetch ASC list dynamically based on branchId and roleName
   // useEffect(() => {
@@ -81,15 +86,20 @@ export default function TransferCallForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!ticketNo || !transferTo) {
-      setMessage({ type: "error", text: "Please fill all fields." });
+    if (!ticketNo) {
+      toast.error("Please fill complaint number.");
+      return;
+    }
+
+    if (!transferTo) {
+      toast.error("Please select an ASC");
       return;
     }
 
     const selectedAsc = ascList.find((asc) => asc.ASC_NAME === transferTo);
 
     if (!selectedAsc) {
-      setMessage({ type: "error", text: "Please select a valid ASC." });
+      toast.error("Please select a valid ASC.");
       return;
     }
 
@@ -105,23 +115,51 @@ export default function TransferCallForm() {
       };
 
       const response = await axiosInstance.post("/CallTransfer/transfer", payload);
-
-      setMessage({
-        type: "success",
-        text: response.data.status || "Call transferred successfully.",
-      });
+      if (response.data.status === "Call Has Been Transfered Sucessfully") {
+        toast.success(response.data.status || "Call transferred successfully.");
+        updateJob({
+          ticketNumber: ticketNo,
+          status,
+          subStatus,
+          message: response.data.status || "Call transferred successfully.",
+          loggedInUser: userName,
+        });
+      } else {
+        toast.error(response.data.status);
+      }
       setTicketNo("");
       setTransferTo("");
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: error.response?.data?.message || "Something went wrong!",
-      });
+      toast.error(error.response?.data?.message || "Something went wrong!");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleBlur = async () => {
+    const ticketNumber = ticketNo.trim();
+
+    // Basic guard
+    if (!ticketNumber || ticketNumber.length < 10) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get(`ComplaintCustDetail/${ticketNumber}`);
+
+      setStatus(res.data?.complainT_STATUS);
+      setSubStatus(res.data?.complaint_SubStatus);
+      console.log("Customer detail:", res.data);
+    } catch (error) {
+      console.error("Failed to fetch complaint details:", error);
+      toast.error("Invalid ticket number");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // axiosInstance.get(`ComplaintCustDetail/${activeTicket}`);
   return (
     <ProtectedRoute allowedRoles={["br", "asm", "zone"]}>
       <div className="flex min-h-screen bg-gray-100">
@@ -144,18 +182,6 @@ export default function TransferCallForm() {
                 Transfer Call
               </h2>
 
-              {message && (
-                <div
-                  className={`mb-4 rounded px-4 py-2 ${
-                    message.type === "success"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {message.text}
-                </div>
-              )}
-
               <form className="grid grid-cols-3 gap-6" onSubmit={handleSubmit}>
                 {/* Complaint No */}
                 <div className="flex flex-col">
@@ -168,6 +194,7 @@ export default function TransferCallForm() {
                     className="rounded-lg border px-3 py-2 focus:outline-none"
                     value={ticketNo}
                     onChange={(e) => setTicketNo(e.target.value)}
+                    onBlur={handleBlur}
                   />
                 </div>
 

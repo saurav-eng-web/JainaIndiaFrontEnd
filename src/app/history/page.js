@@ -398,7 +398,7 @@ function HistoryPageContent() {
       }
 
       // 2) JOB UPDATE + HISTORY
-      await updateJobAndHistory(status, subStatus, message);
+      await updateJob(status, subStatus, message);
 
       // 3) CALL SCHEDULE (Approve only)
       const callSchedulePayload = {
@@ -416,11 +416,11 @@ function HistoryPageContent() {
       await axiosInstance.post("/CallSchedule/create", callSchedulePayload);
 
       // SUCCESS
-      setPopup({ isOpen: true, message: "Approved successfully!" });
+      toast.success("Approved successfully!");
 
       setTimeout(() => {
-        // router.push("/nsp/dashboard");
-      }, 1500);
+        router.push("/nsp/dashboard");
+      }, 500);
     } catch (err) {
       console.error("Approve Error:", {
         status: err?.response?.status,
@@ -428,7 +428,8 @@ function HistoryPageContent() {
         message: err?.message,
       });
 
-      setPopup({ isOpen: true, message: "Failed to approve" });
+      // setPopup({ isOpen: true, message: "Failed to approve" });
+      toast.error("Failed to approve");
     }
   };
 
@@ -446,12 +447,12 @@ function HistoryPageContent() {
       const [status, subStatus, message] = msg.split("|").map((x) => x.trim());
 
       // 2) Update Job + History (added now)
-      await updateJobAndHistory(status, subStatus, message);
+      await updateJob(status, subStatus, message);
 
       // 3) NO call schedule on reject
 
-      setPopup({ isOpen: true, message: "Rejected successfully!" });
-      // setTimeout(() => router.push("/nsp/dashboard"), 1500);
+      toast.success("Rejected successfully!");
+      setTimeout(() => router.push("/nsp/dashboard"), 500);
     } catch (err) {
       console.error("Reject Error:", err);
       setPopup({ isOpen: true, message: "Failed to reject" });
@@ -555,7 +556,7 @@ function HistoryPageContent() {
       const responseMessage = parts[2]?.trim() || "";
 
       // Everything valid => call updateHistory
-      await updateJobAndHistory(status, subStatus, responseMessage, serialNumber);
+      await updateJob(status, subStatus, responseMessage, serialNumber);
       logger.info(
         `Serial check: ${status}|${subStatus}|${message}`,
         "serial check WIP, history page",
@@ -728,8 +729,8 @@ function HistoryPageContent() {
         transactionType: "Jobno",
         transactionID: custDetail?.tickeT_KEY?.toString() || "",
         transactionNo: detail.tickeT_NO || ticketNo || "",
-        requestedBy: user.userID.toString(),
-        createdBy: user.userID.toString(),
+        requestedBy: loggedInUser,
+        createdBy: loggedInUser,
         approvalStatus: requestType,
         approvalRemarks: remark,
       };
@@ -1258,8 +1259,8 @@ function HistoryPageContent() {
           detail.complainT_STATUS === "Open" &&
           detail.complaint_SubStatus === "Cancellation Request to ASM" && (
             <RemarkSection
-              onSubmit={() => handleSubmitRemark("approved-ASM")}
-              onCancel={() => handleSubmitRemark("rejected-ASM")}
+              onSubmit={() => handleSubmitRemark("approved-asm")}
+              onCancel={() => handleSubmitRemark("rejected-asm")}
               remark={remark}
               setRemark={setRemark}
             />

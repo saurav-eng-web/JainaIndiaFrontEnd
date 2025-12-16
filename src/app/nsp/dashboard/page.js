@@ -75,7 +75,6 @@ export default function Dashboard() {
           userInfo.userID;
 
         const roleID = userInfo.roleID;
-        console.log("🔴 firstID used →", firstID);
 
         const [roleRes, aggRes] = await Promise.all([
           axiosInstance.get(`/DashboardBucket/role/${roleID}`),

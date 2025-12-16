@@ -12,6 +12,7 @@ import { logger } from "@/utils/logger";
 import axiosInstance from "@/api/axiosInstance";
 import { getUserFromLocalStorage } from "@/redux/slices/authSlice";
 import { exportToExcel } from "@/utils/exportToExcel";
+import Pagination from "@/components/Pagination";
 
 const sizeClassMap = {
   sm: "w-[60px]",
@@ -29,9 +30,9 @@ const columnSizes = {
   "Part code": "md",
   "Part Description": "md",
   Price: "sm1",
-  Date: "md",
-  Status: "md",
-  "Challan Type": "lg",
+  Date: "sm1",
+  Status: "lg",
+  "Challan Type": "md",
   "Line Status": "lg",
 };
 
@@ -82,6 +83,17 @@ function DetailsContent() {
   const [challanData, setChallanData] = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(false);
 
+  const [pageSize, setPageSize] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalItems = challanData.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  const visibleRows = challanData.slice(startIndex, endIndex);
+
   const userData = getUserFromLocalStorage();
   const userId = userData?.userID;
 
@@ -115,6 +127,10 @@ function DetailsContent() {
       isMounted = false;
     };
   }, [userId]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [challanData, pageSize]);
 
   const handleExcelDownload = async () => {
     toast.promise(
@@ -180,7 +196,7 @@ function DetailsContent() {
                           </td>
                         </tr>
                       ) : (
-                        challanData.map((row, rowIndex) => (
+                        visibleRows.map((row, rowIndex) => (
                           <tr key={rowIndex} className="hover:bg-[#f1faff]">
                             {columnOrder.map((key, colIndex) => (
                               <Td
@@ -195,6 +211,13 @@ function DetailsContent() {
                     </tbody>
                   </table>
                 </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  pageSize={pageSize}
+                  setPageSize={setPageSize}
+                  setCurrentPage={setCurrentPage}
+                />
                 {!isDataLoading && challanData.length > 0 && (
                   <button
                     onClick={handleExcelDownload}

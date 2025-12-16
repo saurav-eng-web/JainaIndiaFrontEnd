@@ -14,8 +14,6 @@ import { formatIndianDate } from "@/utils/formatDate";
 export default function AllotmentDetails({ formData, onChange, onApprove, onReject }) {
   const [engineerData, setEngineerData] = useState([]);
   const { colors } = useTheme();
-  // console.log("allotment details formData: ", formData);
-  // console.log(`🔴sf id: `, sf_Id);
 
   useEffect(() => {
     async function fetchEngineerData() {
@@ -131,7 +129,7 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
               </td>
               <td className="border px-4 py-2">
                 {formatIndianDate(formData?.promiseDate) || "Not Available"}
-                {` | ${formData.promiseTime}` || "Not Available"}
+                {` / ${formData.promiseTime}` || "Not Available"}
               </td>
               <td className="border px-4 py-2">
                 {formatIndianDate(formData.reallotDate) || "Not Available"}

@@ -2,8 +2,10 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import axiosInstance from "@/api/axiosInstance";
+
 import CustomDropdown from "./CustomDropdown";
+
+import axiosInstance from "@/api/axiosInstance";
 
 export default function ProductDetailsStep({
   formData,
@@ -18,6 +20,7 @@ export default function ProductDetailsStep({
   const [warranties, setWarranties] = useState([]);
   const [popup, setPopup] = useState({ visible: false, message: "", type: "" });
   const [isSerialValid, setIsSerialValid] = useState(false);
+
   useEffect(() => {
     axiosInstance
       .get("BrandMaster")
@@ -52,8 +55,7 @@ export default function ProductDetailsStep({
       });
   }, [formData.productID]);
 
-  const showPopup = (message, type) =>
-    setPopup({ visible: true, message, type });
+  const showPopup = (message, type) => setPopup({ visible: true, message, type });
 
   const checkSerialNumber = async (serial) => {
     try {
@@ -61,38 +63,28 @@ export default function ProductDetailsStep({
       const res = await axiosInstance.get(`SerialNoMaster/by-serial/${serial}`);
       const matched = res.data;
 
-      if (
-        matched.brand &&
-        !brands.find((b) => b.brand_Name === matched.brand)
-      ) {
+      if (matched.brand && !brands.find((b) => b.brand_Name === matched.brand)) {
         setBrands((prev) => [
           ...prev,
           { brand_ID: Date.now(), brand_Name: matched.brand },
         ]);
       }
-      if (
-        matched.product &&
-        !products.find((p) => p.product === matched.product)
-      ) {
+      if (matched.product && !products.find((p) => p.product === matched.product)) {
         setProducts((prev) => [
           ...prev,
           { productID: Date.now(), product: matched.product },
         ]);
       }
       if (matched.productID) {
-        const modelRes = await axiosInstance.get(
-          `Model/productid/${matched.productID}`,
-        );
+        const modelRes = await axiosInstance.get(`Model/productid/${matched.productID}`);
         setModels(modelRes.data);
       }
 
       const selectedWarranty = warranties.find(
-        (w) => w.warranty_Desc === matched.purchstatus,
+        (w) => w.warranty_Desc === matched.purchstatus
       );
 
-      const selectedProduct = products.find(
-        (p) => p.product === matched.product,
-      );
+      const selectedProduct = products.find((p) => p.product === matched.product);
       const selectedModel = models.find((m) => m.modelNo === matched.model);
 
       setFormData((prev) => ({
@@ -137,7 +129,7 @@ export default function ProductDetailsStep({
 
         showPopup(
           "Error! The serial number may not exist. Please try again or select the model manually.",
-          "error",
+          "error"
         );
       }
     }
@@ -155,8 +147,7 @@ export default function ProductDetailsStep({
       return products
         .filter(
           (p) =>
-            p.brandId === formData.brandId &&
-            p.prd_Category === formData.productCategory,
+            p.brandId === formData.brandId && p.prd_Category === formData.productCategory
         )
         .map((p) => ({ value: p.product, label: p.product }));
     }
@@ -190,9 +181,7 @@ export default function ProductDetailsStep({
           const label =
             id === "pop"
               ? "DOP"
-              : id
-                  .replace(/([A-Z])/g, " $1")
-                  .replace(/^./, (str) => str.toUpperCase());
+              : id.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
 
           return (
             <div className="form-group" key={id}>
@@ -206,16 +195,10 @@ export default function ProductDetailsStep({
                 placeholder={label}
                 onChange={handleChange}
                 onBlur={
-                  id === "serialNo"
-                    ? (e) => checkSerialNumber(e.target.value)
-                    : undefined
+                  id === "serialNo" ? (e) => checkSerialNumber(e.target.value) : undefined
                 }
                 value={formData[id] || ""}
-                max={
-                  type === "date"
-                    ? new Date().toISOString().split("T")[0]
-                    : undefined
-                }
+                max={type === "date" ? new Date().toISOString().split("T")[0] : undefined}
               />
 
               {errors[id] && (
@@ -238,9 +221,7 @@ export default function ProductDetailsStep({
         <div className="popup-overlay">
           <div className={`popup-box ${popup.type}`}>
             <p>{popup.message}</p>
-            <button onClick={() => setPopup({ ...popup, visible: false })}>
-              OK
-            </button>
+            <button onClick={() => setPopup({ ...popup, visible: false })}>OK</button>
           </div>
         </div>
       )}

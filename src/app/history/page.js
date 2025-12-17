@@ -17,10 +17,12 @@ import RemarkSection from "@/components/history/RemarkSection";
 import AllotmentDetails from "@/components/history/AllotmentDetails";
 import Popup from "@/components/common/Popup";
 import { logger } from "@/utils/logger";
+import { formatIndianDate } from "@/utils/formatDate";
 
 import "./history.css";
 
 import "react-toastify/dist/ReactToastify.css";
+import Loader from "@/components/common/LoaderComponent";
 
 const tabs = [
   "Job Details",
@@ -48,6 +50,8 @@ function HistoryPageContent() {
   const [reminders, setReminders] = useState([]);
   const [loadingReminders, setLoadingReminders] = useState(true);
   const [remark, setRemark] = useState("");
+  const [ticketKey, setTicketKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const searchParams = useSearchParams(); // ✅ now safe inside Suspense
   const fromPage = searchParams.get("fromPage");
@@ -95,6 +99,8 @@ function HistoryPageContent() {
 
   const firstEntry = logData[0] || {};
   const detail = custDetail || {};
+
+  console.log("visitDetails: ", visitDetails);
 
   // const role = user?.roleName;
 
@@ -204,7 +210,7 @@ function HistoryPageContent() {
           axiosInstance.get(`PartConsumption/ByTicket/${activeTicket}`), // 2
           axiosInstance.get(`DocumentUpload/ticket/${activeTicket}`), // 3
           axiosInstance.get(`LevelPendingHistory/ticket/${activeTicket}`), // 4
-          axiosInstance.get(`visit/ticket/${activeTicket}`), // 5
+          // axiosInstance.get(`visit/ticket/${activeTicket}`), // 5
           axiosInstance.get(`reminder/Ticket/${activeTicket}`), // 6
         ]);
 
@@ -221,6 +227,7 @@ function HistoryPageContent() {
         // 1. Customer Detail (Critical for Actions)
         const custData = unwrap(results[1], null);
         setCustDetail(custData);
+        setTicketKey((prev) => custData?.tickeT_KEY || prev);
 
         // 2. Part Consumption
         const partData = unwrap(results[2]);
@@ -235,11 +242,11 @@ function HistoryPageContent() {
         setPendingHistory(Array.isArray(pendingData) ? pendingData : []);
 
         // 5. Visits
-        const visitData = unwrap(results[5]);
-        setVisitDetails(Array.isArray(visitData) ? visitData : []);
+        // const visitData = unwrap(results[5]);
+        // setVisitDetails(Array.isArray(visitData) ? visitData : []);
 
         // 6. Reminders
-        const reminderData = unwrap(results[6]);
+        const reminderData = unwrap(results[5]);
         setReminders(Array.isArray(reminderData) ? reminderData : [reminderData]);
 
         // --- Dependent Logic: Fetch Actions ---
@@ -419,7 +426,7 @@ function HistoryPageContent() {
       toast.success("Approved successfully!");
 
       setTimeout(() => {
-        router.push("/nsp/dashboard");
+        router.back();
       }, 500);
     } catch (err) {
       console.error("Approve Error:", {
@@ -452,7 +459,7 @@ function HistoryPageContent() {
       // 3) NO call schedule on reject
 
       toast.success("Rejected successfully!");
-      setTimeout(() => router.push("/nsp/dashboard"), 500);
+      setTimeout(() => router.back(), 500);
     } catch (err) {
       console.error("Reject Error:", err);
       setPopup({ isOpen: true, message: "Failed to reject" });
@@ -751,7 +758,7 @@ function HistoryPageContent() {
       // ----------------------------
       // Refresh local history
       // ----------------------------
-      // await refreshHistory();
+      await refreshHistory();
 
       return statusMsg; // used by toast success
     };
@@ -826,6 +833,23 @@ function HistoryPageContent() {
   //     setPopupOpen(true);
   //   }
   // }
+
+  async function loadVisitData() {
+    setIsLoading(true);
+    try {
+      const res = await axiosInstance.get(`visit/ticket/${ticketKey}`);
+      const data = res.data;
+      // setVisitData(Array.isArray(data) ? data : [data]);
+      setVisitDetails(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch visit data:", err);
+      toast.error("Failed to fetch visit data");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  console.log("logData: ", logData);
 
   return (
     <div className="page-wrapper">
@@ -1294,6 +1318,7 @@ function HistoryPageContent() {
             <table className="complaint-table">
               <thead>
                 <tr>
+                  <th>S. No</th>
                   <th>Complaint No</th>
                   <th>Status</th>
                   <th>Remarks</th>
@@ -1305,6 +1330,7 @@ function HistoryPageContent() {
               <tbody>
                 {[...logData].reverse().map((row, index) => (
                   <tr key={index}>
+                    <td>{index + 1}</td>
                     <td>{row.ticketNo}</td>
                     <td> {row.complaintStatus}</td>
                     <td>{row.complaintSubStatus || "-"}</td>
@@ -1335,7 +1361,12 @@ function HistoryPageContent() {
                 <button
                   key={tab}
                   className={`tab-button m-0 p-0 ${tab === activeTab ? "active" : ""}`}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => {
+                    if (tab === "Visit Detail") {
+                      loadVisitData();
+                    }
+                    setActiveTab(tab);
+                  }}
                 >
                   {tab}
                 </button>
@@ -1400,23 +1431,16 @@ function HistoryPageContent() {
                       <strong>SF Mobile No.:</strong> {detail.stdCode || "-"}
                     </div>
                     <div>
-                      <strong>Appointment Date:</strong> {"-"}
+                      <strong>Appointment Date:</strong>{" "}
+                      {formatIndianDate(detail.apptDate) || "-"}
                     </div>
                     <div>
-                      <strong>Appointment Time:</strong> {"-"}
+                      <strong>Appointment Time:</strong> {detail.apptTime || "-"}
                     </div>
                     <div>
-                      <strong>Promise Date:</strong>{" "}
-                      {/* {detail.promisE_DATE
-                        ? new Date(detail.promisE_DATE).toLocaleDateString()
-                        : "-"} */}
-                      {detail.promisE_DATE
-                        ? new Date(detail.promisE_DATE).toLocaleDateString("en-IN", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                        : "-"}
+                      <strong>Promise Date:</strong>
+
+                      {detail.promisE_DATE ? formatIndianDate(detail.promisE_DATE) : "-"}
                     </div>
                     <div>
                       <strong>Promise Time:</strong> {detail.promisE_TIME || "-"}
@@ -1719,37 +1743,78 @@ function HistoryPageContent() {
               )}
               {activeTab === "Visit Detail" && (
                 <div className="tab-section">
+                  {isLoading && (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Loader />
+                    </div>
+                  )}
                   <h3 style={{ fontWeight: "bold" }}>🧪 Visit Details</h3>
                   {visitDetails.length > 0 ? (
-                    visitDetails.map((visit, index) => (
-                      <div key={index} className="row-content">
-                        <div>
-                          <strong>VISIT DETAIL:</strong> {visit.visitDetail || "N/A"}
-                        </div>
-                        <div>
-                          <strong>DATE:</strong>{" "}
-                          {visit.vDate
-                            ? new Date(visit.vDate).toLocaleDateString()
-                            : "N/A"}
-                        </div>
-                        <div>
-                          <strong>Eng Name:</strong> {visit.engName || "N/A"}
-                        </div>
-                        <div>
-                          <strong>IN TIME:</strong> {visit.vInTime || "N/A"}
-                        </div>
-                        <div>
-                          <strong>OUT TIME:</strong> {visit.vOutTime || "N/A"}
-                        </div>
-                        <div>
-                          <strong>STATUS:</strong> {visit.vStatus || "N/A"}
-                        </div>
-                        <div>
-                          <strong>REMARK:</strong> {visit.remark || "N/A"}
-                        </div>
-                      </div>
-                    ))
+                    // visitDetails.map((visit, index) => (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full border border-gray-300 text-sm">
+                        <thead className="bg-[#714b67] text-white">
+                          <tr>
+                            <th className="border border-gray-300 px-3 py-2">Sr. No</th>
+                            <th className="border border-gray-300 px-3 py-2">
+                              Visit Details
+                            </th>
+                            <th className="border border-gray-300 px-3 py-2">
+                              Visit Date
+                            </th>
+                            <th className="border border-gray-300 px-3 py-2">Eng Name</th>
+                            <th className="border border-gray-300 px-3 py-2">In time</th>
+                            <th className="border border-gray-300 px-3 py-2">Out time</th>
+                            <th className="border border-gray-300 px-3 py-2">Status</th>
+                            <th className="border border-gray-300 px-3 py-2">Remarks</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {visitDetails.map((item, index) => (
+                            <tr key={index} className="even:bg-gray-50">
+                              {/* S.No */}
+                              <td className="border border-gray-300 px-3 py-2">
+                                {index + 1}
+                              </td>
+                              {/* VISIT DETAIL */}
+                              <td className="border border-gray-300 px-3 py-2">
+                                {item.visitDetail || "-"}
+                              </td>
+                              {/* DATE (Formatted for India) */}
+                              <td className="border border-gray-300 px-3 py-2">
+                                {item.vDate ? formatIndianDate(item.vDate) : "-"}
+                              </td>
+                              {/* ENGINEER NAME */}
+                              <td className="border border-gray-300 px-3 py-2">
+                                {item.engName || "-"}
+                              </td>
+                              {/* IN / OUT TIME */}
+                              <td className="border border-gray-300 px-3 py-2">
+                                {item.vInTime || "-"}
+                              </td>{" "}
+                              <td className="border border-gray-300 px-3 py-2">
+                                {item.vOutTime || "-"}
+                              </td>
+                              {/* STATUS */}
+                              <td className="border border-gray-300 px-3 py-2">
+                                <span
+                                  className={`rounded px-2 py-1 text-xs ${item.vStatus === "OK" ? "bg-green-100 text-green-800" : "bg-gray-100"} ${item.vStatus === "Part Pending" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100"}`}
+                                >
+                                  {item.vStatus || "-"}
+                                </span>
+                              </td>
+                              {/* REMARK */}
+                              <td className="border border-gray-300 px-3 py-2">
+                                {item.remark || "-"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   ) : (
+                    // ))
                     <p>No visit details found.</p>
                   )}
                 </div>

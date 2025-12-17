@@ -19,23 +19,26 @@ import {
   MdOutlineChecklist,
   MdWarningAmber,
 } from "react-icons/md";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import axiosInstance from "@/api/axiosInstance";
 import SideBar from "@/components/SideBar";
 import DashboardCard from "@/components/DashboardCard";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useTheme } from "@/theme/ThemeContext";
-
-import "../../../components/Sidebar.css";
 import { encodeRouteData } from "@/utils/secureRoute";
+import { hideLoader, showLoader } from "@/redux/slices/loaderSlice";
+import Loader from "@/components/common/LoaderComponent";
+import "../../../components/Sidebar.css";
 
 export default function Dashboard() {
   const { colors } = useTheme();
   const userInfo = useSelector((state) => state.auth?.user);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const [dashboardData, setDashboardData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // 👇 Map bucket names → icons
   const iconMap = {
@@ -62,7 +65,8 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       if (!userInfo?.roleID) return;
-
+      // dispatch(showLoader());
+      setIsLoading(true);
       try {
         // ---------------------------
         //  Resolve FirstID
@@ -97,7 +101,14 @@ export default function Dashboard() {
         //  Format dashboard cards
         // ---------------------------
         const formatted = roleBuckets.map((bucket) => {
-          const { id, bucket: title, complaintStatus, complaintSubStatus } = bucket;
+          const {
+            id,
+            bucket: title,
+            complaintStatus,
+            complaintSubStatus,
+            cnt,
+            navigatingUrl,
+          } = bucket;
 
           const key = `${complaintStatus}::${complaintSubStatus}`;
           const count = countMap[key] ?? 0;
@@ -112,18 +123,24 @@ export default function Dashboard() {
             complaintSubStatus,
             Icon: mapItem.Icon,
             iconColor: mapItem.iconColor,
+            order: cnt,
+            url: navigatingUrl,
           };
         });
 
+        const sorted = formatted.sort((a, b) => a.order - b.order);
         console.log("Dashboard Mapping →", { countMap, formatted });
 
-        setDashboardData(formatted);
+        setDashboardData(sorted);
       } catch (error) {
         console.error(
           "Error fetching dashboard data:",
           error.response?.status,
           error.response?.data
         );
+      } finally {
+        // dispatch(hideLoader());
+        setIsLoading(false);
       }
     };
 
@@ -191,6 +208,11 @@ export default function Dashboard() {
   // }, [userInfo]);
 
   const handleCardClick = (item) => {
+    console.log("item: ", item);
+    if (item.url) {
+      router.push(`/${item.url}`);
+      return;
+    }
     const getFirstID = (userInfo) => {
       return (
         userInfo?.sF_ID ||
@@ -231,8 +253,13 @@ export default function Dashboard() {
             >
               Dashboard Overview
             </h2>
+            {isLoading && (
+              <div className="mt-20 flex h-full w-full items-center justify-center">
+                <Loader />
+              </div>
+            )}
 
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-8 2xl:grid-cols-8">
+            <div className="grid min-h-[300px] grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-8 2xl:grid-cols-8">
               {dashboardData.map((item) => (
                 <div
                   key={item.id}

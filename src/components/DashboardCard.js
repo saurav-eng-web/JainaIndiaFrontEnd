@@ -14,7 +14,7 @@ export default function DashboardCard({
   const percentage = typeof value === "number" ? Math.min((value / 2000) * 100, 100) : 0;
 
   return (
-    <div className="relative flex min-h-[140px] flex-col items-center justify-center rounded-xl bg-white p-4 shadow-md">
+    <div className="relative flex min-h-[170px] flex-col items-center justify-center rounded-xl bg-white p-4 shadow-md">
       <div className="absolute top-2 right-2 text-xl">
         <Icon className={`${iconColor}`} />
       </div>

@@ -1,9 +1,13 @@
 "use client";
 
+import toast from "react-hot-toast";
+import { useState } from "react";
+
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function RemarkSection({ onSubmit, onCancel, remark, setRemark }) {
   // const [remark, setRemark] = useState("");
+  const [disableButton, setDisableButton] = useState(false);
   const { colors } = useTheme();
 
   return (
@@ -20,8 +24,18 @@ export default function RemarkSection({ onSubmit, onCancel, remark, setRemark })
 
       <div className="flex gap-3">
         <button
+          disabled={disableButton}
           onClick={() => {
-            if (!remark.trim()) return alert("Please enter a remark");
+            if (!remark.trim()) {
+              toast.error("Please enter a remark");
+              return;
+            }
+
+            if (disableButton) {
+              toast.error("Request already raised!");
+              return;
+            }
+            setDisableButton(true);
             onSubmit?.(remark); // ✅ Approve flow
             setRemark("");
           }}
@@ -32,7 +46,18 @@ export default function RemarkSection({ onSubmit, onCancel, remark, setRemark })
         </button>
 
         <button
+          disabled={disableButton}
           onClick={() => {
+            if (!remark.trim()) {
+              toast.error("Please enter a remark");
+              return;
+            }
+            if (disableButton) {
+              toast.error("Request already raised!");
+              return;
+            }
+            setDisableButton(true);
+
             setRemark("");
             onCancel?.(); // ✅ Reject flow
           }}

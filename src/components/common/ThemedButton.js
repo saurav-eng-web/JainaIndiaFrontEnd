@@ -27,7 +27,7 @@ export default function ThemedButton({ children, onClick, type = "default" }) {
     <button
       onClick={onClick}
       style={{ backgroundColor: bgColor, color: textColor, borderColor }}
-      className={`rounded border px-4 py-2 transition hover:brightness-90`}
+      className={`cursor-pointer rounded border px-4 py-2 transition hover:brightness-90`}
     >
       {children}
     </button>

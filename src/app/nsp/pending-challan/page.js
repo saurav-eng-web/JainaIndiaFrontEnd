@@ -157,7 +157,7 @@ function DetailsContent() {
 
   return (
     <>
-      <ProtectedRoute allowedRoles={["NSP", "BR"]}>
+      <ProtectedRoute allowedRoles={["ASM"]}>
         <SideBar />
         <div className="flex min-h-screen w-full flex-col font-sans">
           <div className="mx-auto w-full max-w-[1400px] p-4">

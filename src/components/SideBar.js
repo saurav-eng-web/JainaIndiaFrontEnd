@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 
-import Loader from "./common/Loader";
+import Loader from "./common/LoaderComponent";
 
 import { logout } from "@/redux/slices/authSlice";
 export default function SideBar() {

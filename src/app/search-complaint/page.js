@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import SideBar from "@/components/SideBar";
 import axiosInstance from "@/api/axiosInstance";
@@ -27,6 +28,7 @@ export default function SearchComplaintPage() {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchAttempted, setSearchAttempted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleViewHistory = (ticketNo) => {
     sessionStorage.setItem("currentTicket", ticketNo);
@@ -37,15 +39,17 @@ export default function SearchComplaintPage() {
     const q = query.trim();
 
     if (!q) {
-      alert("Please enter a complaint number, mobile number, or serial number");
+      // alert("Please enter a complaint number, mobile number, or serial number");
+      toast.error("Please enter a complaint number, mobile number, or serial number");
       return;
     }
 
     if (q.length < 10) {
-      alert("Please enter at least 10 characters to search");
+      // alert("Please enter at least 10 characters to search");
+      toast.error("Please enter at least 10 characters to search");
       return;
     }
-
+    setIsLoading(true);
     try {
       const response = await axiosInstance.get("CallSearch/search", {
         params: {
@@ -53,7 +57,15 @@ export default function SearchComplaintPage() {
         },
       });
 
+      console.log("response: ", { response, status: response?.status });
+
       // const results = Array.isArray(response.data) ? response.data : [response.data];
+      if (response?.status === 204) {
+        setSearchResults([]);
+        setSearchAttempted(true);
+        // toast.error("No results found");
+        return;
+      }
 
       const results = Array.isArray(response.data?.data)
         ? response.data?.data
@@ -68,6 +80,8 @@ export default function SearchComplaintPage() {
       });
       setSearchResults([]);
       setSearchAttempted(true);
+    } finally {
+      setIsLoading(false);
     }
 
     setQuery("");
@@ -98,10 +112,11 @@ export default function SearchComplaintPage() {
               />
               <div className="mt-5 flex gap-2.5">
                 <button
+                  disabled={isLoading}
                   className="cursor-pointer rounded-lg bg-[#714b67] px-5 py-3 text-base font-bold text-white transition-colors duration-300 hover:bg-[#5a3c52]"
                   onClick={handleSearch}
                 >
-                  Search
+                  {isLoading ? "Searching..." : "Search"}
                 </button>
               </div>
             </div>

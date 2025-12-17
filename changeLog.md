@@ -145,3 +145,11 @@
 ## 1.8.3
 
 - send happy code
+- fix: handle asm cancellation request routing, disabled button if the user clicks on action buttons to avoid repeated actions
+- fix: search page, where no result found. improved UX
+- fix: update history after cancellation request approved/reject
+- feat: loader on dashboard screen, UI fix: card size fixed
+- fix: history page: Appointment time, date, promise date
+- fix: fetch visit details and improved api call on loading history page
+- feat: visit details table
+- feat: dashboard bucket render order based on the cnt, coming from DashboardBucket/role

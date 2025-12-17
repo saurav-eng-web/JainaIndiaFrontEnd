@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import SectionHeading from "../common/SectionHeading";
 import ThemedButton from "../common/ThemedButton";
@@ -13,9 +14,30 @@ import { formatIndianDate } from "@/utils/formatDate";
 
 export default function AllotmentDetails({ formData, onChange, onApprove, onReject }) {
   const [engineerData, setEngineerData] = useState([]);
+  const [callScheduleData, setCallScheduleData] = useState([]);
   const { colors } = useTheme();
 
   useEffect(() => {
+    async function fetchCallSchedule() {
+      try {
+        console.log("sf id: ", formData.sf_ID);
+        const res = await axiosInstance.get(
+          `CallSchedule/ticketno/${formData.tickeT_NO}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const resData = res.data;
+        console.log("resData: ", resData);
+        setCallScheduleData(res.data);
+      } catch (err) {
+        console.error("Error fetching engineer data:", err);
+      }
+    }
+
     async function fetchEngineerData() {
       try {
         console.log("sf id: ", formData.sf_ID);
@@ -38,9 +60,9 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
         console.error("Error fetching engineer data:", err);
       }
     }
-
+    fetchCallSchedule();
     fetchEngineerData();
-  }, [formData.sf_ID]);
+  }, [formData.sf_ID, formData.tickeT_NO]);
 
   function isToday(dateStr) {
     const today = new Date();
@@ -104,7 +126,39 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
 
     return []; // anything earlier than required hour
   }
-  console.log("formData", formData);
+  console.log("eng: ", formData.eng_ID);
+  function handleSubmit(type) {
+    const engId = formData?.eng_ID?.trim();
+    if (formData.eng_ID === "-" || formData.eng_ID === "" || !engId) {
+      toast.error("Please select engineer");
+      return;
+    }
+
+    if (!formData.appointmentDate) {
+      toast.error("Please enter appointment date");
+      return;
+    }
+
+    if (!formData.appointmentHour) {
+      toast.error("Please enter appointment hour");
+      return;
+    }
+
+    if (!formData.appointmentMinute) {
+      toast.error("Please enter appointment minute");
+      return;
+    }
+    if (!formData.asmRemark) {
+      toast.error("Please ASM remark");
+      return;
+    }
+
+    if (type === "approve") {
+      onApprove();
+    } else {
+      onReject();
+    }
+  }
 
   return (
     <div className="mb-10 rounded-xl border bg-white p-6 shadow-md">
@@ -117,9 +171,9 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
               style={{ background: colors.primary, color: colors.textColor }}
             >
               <th className="border px-4 py-2">Ticket No.</th>
-              <th className="border px-4 py-2">Previous Appointment Date/Time</th>
+              <th className="border px-4 py-2">Talked to</th>
               <th className="border px-4 py-2">Request Re-allot date/time</th>
-              <th className="border px-4 py-2">ASC reason</th>
+              {/* <th className="border px-4 py-2">ASC reason</th> */}
             </tr>
           </thead>
           <tbody>
@@ -128,15 +182,24 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
                 {formData.tickeT_NO || "Not Available"}
               </td>
               <td className="border px-4 py-2">
-                {formatIndianDate(formData?.promiseDate) || "Not Available"}
-                {` / ${formData.promiseTime}` || "Not Available"}
+                {callScheduleData?.talkToWhomeAllot || "Not Available"}
               </td>
               <td className="border px-4 py-2">
-                {formatIndianDate(formData.reallotDate) || "Not Available"}
+                {callScheduleData?.apptDateandTime
+                  ? new Date(callScheduleData.apptDateandTime).toLocaleString("en-IN", {
+                      timeZone: "Asia/Kolkata",
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })
+                  : "Not Available"}
               </td>
-              <td className="border px-4 py-2">
+              {/* <td className="border px-4 py-2">
                 {formData.ascReason || "Not Available"}
-              </td>
+              </td> */}
             </tr>
           </tbody>
         </table>
@@ -180,14 +243,15 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
             </select>
           </label>
 
-          <label className="mt-6 flex items-center gap-2">
+          {/*-------------------------------Re allot checkbox Date NO NOT REMOVE------------------------------ */}
+          {/* <label className="mt-6 flex items-center gap-2">
             <input
               type="checkbox"
               checked={formData.reAllot}
               onChange={(e) => onChange("reAllot", e.target.checked)}
             />
             <span className="font-semibold">Re Allot</span>
-          </label>
+          </label> */}
         </div>
 
         {/* Appointment Date + Time + Promise Date */}
@@ -242,8 +306,8 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
             </label>
           </div>
 
-          {/* Promise Date */}
-          <label className="flex flex-col">
+          {/*-------------------------------Promise Date NO NOT REMOVE------------------------------ */}
+          {/* <label className="flex flex-col">
             <span className="font-semibold">Promise Date:</span>
             <input
               type="date"
@@ -253,7 +317,7 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
               min={new Date().toISOString().split("T")[0]}
               max={new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]}
             />
-          </label>
+          </label> */}
         </div>
 
         {/* ASM & Customer Remark */}
@@ -280,12 +344,12 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
         {/* Buttons */}
         <div className="mt-4 flex justify-end gap-4">
           <button
-            className="rounded border border-gray-300 px-4 py-2 hover:bg-gray-100"
-            onClick={onReject}
+            className="cursor-pointer rounded border border-gray-300 px-4 py-2 hover:bg-gray-100"
+            onClick={() => handleSubmit("reject")}
           >
             Reject
           </button>
-          <ThemedButton type="primary" onClick={onApprove}>
+          <ThemedButton type="primary" onClick={() => handleSubmit("approve")}>
             Approve
           </ThemedButton>
         </div>

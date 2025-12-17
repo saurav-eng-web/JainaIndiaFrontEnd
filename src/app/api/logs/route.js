@@ -32,7 +32,7 @@ export async function POST(request) {
 
       return {
         stream: {
-          job: "crm-full",
+          job: "nra",
           level: level.toLowerCase(), // Loki likes lowercase levels
           // action_type: action || "unknown",
         },

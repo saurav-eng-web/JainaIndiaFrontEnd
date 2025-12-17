@@ -23,6 +23,7 @@ import "./history.css";
 
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "@/components/common/LoaderComponent";
+import Pagination from "@/components/Pagination";
 
 const tabs = [
   "Job Details",
@@ -36,6 +37,9 @@ const tabs = [
 ];
 
 function HistoryPageContent() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
   const [pendingHistory, setPendingHistory] = useState([]);
   const { ticketNo } = useParams();
   const [activeTab, setActiveTab] = useState("Job Details");
@@ -124,6 +128,18 @@ function HistoryPageContent() {
     reallotDate: "", // ✅ added
     ascReason: "",
   });
+
+  const totalItems = logData.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  const visibleRows = logData.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [logData, pageSize]);
 
   useEffect(() => {
     if (!custDetail) return;
@@ -1328,7 +1344,7 @@ function HistoryPageContent() {
               </thead>
 
               <tbody>
-                {[...logData].reverse().map((row, index) => (
+                {[...visibleRows].reverse().map((row, index) => (
                   <tr key={index}>
                     <td>{index + 1}</td>
                     <td>{row.ticketNo}</td>
@@ -1340,6 +1356,15 @@ function HistoryPageContent() {
                 ))}
               </tbody>
             </table>
+            <div className="mb-18">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                setPageSize={setPageSize}
+                setCurrentPage={setCurrentPage}
+              />
+            </div>
 
             {/* Tabs */}
             {/* <div className="tab-bar ">

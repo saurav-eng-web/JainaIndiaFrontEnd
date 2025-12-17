@@ -10,6 +10,7 @@ export default function Pagination({
   setCurrentPage,
 }) {
   const [jumpPage, setJumpPage] = useState("");
+  const totalRows = totalPages * pageSize;
 
   const handleJump = () => {
     let page = Number(jumpPage);
@@ -19,17 +20,35 @@ export default function Pagination({
     setJumpPage("");
   };
 
+  const allowedSizes = [5, 10, 15, 20, 30, 50, 100].filter((size) => size <= totalRows);
+
+  // Always include max if all sizes > totalRows
+  if (allowedSizes.length === 0) {
+    allowedSizes.push(totalRows);
+  }
+
   return (
     <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
       {/* Rows per page */}
       <div className="flex items-center gap-2">
         <span className="text-sm">Rows per page:</span>
-        <select
+        {/* <select
           value={pageSize}
           onChange={(e) => setPageSize(Number(e.target.value))}
           className="cursor-pointer rounded border px-2 py-1 text-sm"
         >
           {[5, 10, 15, 20, 30, 50, 100].map((size) => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </select> */}
+        <select
+          value={pageSize}
+          onChange={(e) => setPageSize(Number(e.target.value))}
+          className="cursor-pointer rounded border px-2 py-1 text-sm"
+        >
+          {allowedSizes.map((size) => (
             <option key={size} value={size}>
               {size}
             </option>

@@ -1263,7 +1263,7 @@ function HistoryPageContent() {
           message={popup.message}
           onClose={() => setPopup({ isOpen: false, message: "" })}
         />
-        {mounted && user?.roleName === "CC" && (
+        {mounted && user?.roleName === "CC" && custDetail && (
           <button
             onClick={() => setEditCustomerPopupOpen(true)}
             className="mb-6 h-12 w-32 rounded-lg bg-[#714b67] text-white"

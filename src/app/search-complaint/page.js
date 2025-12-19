@@ -165,12 +165,12 @@ export default function SearchComplaintPage() {
                       <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
                         Sub Status
                       </th>
-                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                      {/* <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
                         ASC Code
-                      </th>
-                      <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
+                      </th> */}
+                      {/* <th className="px-4 py-3.5 text-left text-[15px] font-semibold whitespace-nowrap text-white">
                         Date
-                      </th>
+                      </th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -247,10 +247,10 @@ export default function SearchComplaintPage() {
                             {`${result?.salutation} ${result?.firstname} ${result?.lastname}`}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result?.mobile}
+                            {result?.hmph}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                            {result?.category || "-"}
+                            {result?.product || "-"}
                           </td>
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
                             {result?.model || "-"}
@@ -267,14 +267,14 @@ export default function SearchComplaintPage() {
                           <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
                             {result?.complainT_SUBSTATUS || "-"}
                           </td>
-                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                          {/* <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
                             {result?.asC_CODE || "-"}
-                          </td>
-                          <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                          </td> */}
+                          {/* <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
                             {result?.pop
                               ? new Date(result.pop).toLocaleDateString()
                               : "-"}
-                          </td>
+                          </td> */}
                         </tr>
                       );
                     })}

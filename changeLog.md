@@ -142,7 +142,7 @@
 - fix ASM cancellation request
 - feat: RSM cancellation request
 
-## 1.8.3
+## 2.0.0
 
 - send happy code
 - fix: handle asm cancellation request routing, disabled button if the user clicks on action buttons to avoid repeated actions
@@ -153,3 +153,9 @@
 - fix: fetch visit details and improved api call on loading history page
 - feat: visit details table
 - feat: dashboard bucket render order based on the cnt, coming from DashboardBucket/role
+
+## 2.1.0
+
+- feat: create challan page
+- feat: fix pagination, when we have data less than the default list size, not rendering the pagination menu
+- fix: route to dashboard after login, changed to search

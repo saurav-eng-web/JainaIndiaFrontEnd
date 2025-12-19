@@ -259,7 +259,7 @@ export default function Dashboard() {
               </div>
             )}
 
-            <div className="grid min-h-[300px] grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-8 2xl:grid-cols-8">
+            <div className="grid min-h-[180px] grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-8 2xl:grid-cols-8">
               {dashboardData.map((item) => (
                 <div
                   key={item.id}

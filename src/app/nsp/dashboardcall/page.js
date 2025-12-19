@@ -7,6 +7,7 @@ import axiosInstance from "@/api/axiosInstance";
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
 import { decodeRouteData } from "@/utils/secureRoute";
+import Pagination from "@/components/Pagination";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 function ComplaintTableInner() {
@@ -54,6 +55,17 @@ function ComplaintTableInner() {
   const [subStatus, setSubStatus] = useState("");
   const [roleID, setRoleID] = useState("");
   const [firstID, setFirstID] = useState("");
+
+  const [pageSize, setPageSize] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalItems = complaints.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  const visibleRows = complaints.slice(startIndex, endIndex);
 
   // 🔹 Decode once, memoized
   const routeData = useMemo(() => {
@@ -167,7 +179,7 @@ function ComplaintTableInner() {
                       </td>
                     </tr>
                   ) : (
-                    complaints.map((item, idx) => (
+                    visibleRows.map((item, idx) => (
                       <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
                         <td className="px-4 py-3">
                           <button
@@ -200,6 +212,15 @@ function ComplaintTableInner() {
                     ))
                   )}
                 </tbody>
+                <div>
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    pageSize={pageSize}
+                    setPageSize={setPageSize}
+                    setCurrentPage={setCurrentPage}
+                  />
+                </div>
               </table>
             </div>
           )}

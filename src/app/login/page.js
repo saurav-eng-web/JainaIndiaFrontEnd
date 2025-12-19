@@ -29,9 +29,9 @@ export default function LoginPage() {
       } else if (role === "sf/ssd") {
         router.push("/search-complaint");
       } else if (role === "asm") {
-        router.push("/nsp/dashboard");
+        router.push("/search-complaint");
       } else if (role === "zone") {
-        router.push("/nsp/dashboard");
+        router.push("/search-complaint");
       } else {
         router.push("/unauthorized");
       }

@@ -18,12 +18,11 @@ import AllotmentDetails from "@/components/history/AllotmentDetails";
 import Popup from "@/components/common/Popup";
 import { logger } from "@/utils/logger";
 import { formatIndianDate } from "@/utils/formatDate";
-
-import "./history.css";
-
-import "react-toastify/dist/ReactToastify.css";
 import Loader from "@/components/common/LoaderComponent";
 import Pagination from "@/components/Pagination";
+
+import "./history.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const tabs = [
   "Job Details",
@@ -37,8 +36,9 @@ const tabs = [
 ];
 
 function HistoryPageContent() {
+  const INITALPAGESIZE = 5;
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(INITALPAGESIZE);
 
   const [pendingHistory, setPendingHistory] = useState([]);
   const { ticketNo } = useParams();
@@ -1356,15 +1356,17 @@ function HistoryPageContent() {
                 ))}
               </tbody>
             </table>
-            <div className="mb-18">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                setPageSize={setPageSize}
-                setCurrentPage={setCurrentPage}
-              />
-            </div>
+            {INITALPAGESIZE < logData.length && (
+              <div className="mb-18">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  pageSize={pageSize}
+                  setPageSize={setPageSize}
+                  setCurrentPage={setCurrentPage}
+                />
+              </div>
+            )}
 
             {/* Tabs */}
             {/* <div className="tab-bar ">
@@ -1381,7 +1383,7 @@ function HistoryPageContent() {
               ))}
             </div> */}
 
-            <div className="tab-bar m-0 flex gap-0 p-0">
+            <div className="tab-bar m-0 mt-6 flex gap-0 p-0">
               {tabs.map((tab) => (
                 <button
                   key={tab}

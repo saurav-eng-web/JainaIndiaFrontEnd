@@ -14,7 +14,7 @@ export default function DashboardCard({
   const percentage = typeof value === "number" ? Math.min((value / 2000) * 100, 100) : 0;
 
   return (
-    <div className="relative flex min-h-[170px] flex-col items-center justify-center rounded-xl bg-white p-4 shadow-md">
+    <div className="relative flex min-h-[190px] w-[150px] flex-col items-center justify-center rounded-xl bg-white p-4 shadow-md">
       <div className="absolute top-2 right-2 text-xl">
         <Icon className={`${iconColor}`} />
       </div>
@@ -30,7 +30,9 @@ export default function DashboardCard({
           <div className="text-xl font-bold text-gray-800">{value}</div>
         </CircularProgressbarWithChildren>
       </div>
-      <div className="mt-2 text-center text-sm font-semibold text-gray-700">{title}</div>
+      <div className="mt-2 text-center text-sm leading-tight font-semibold text-gray-700">
+        {title}
+      </div>
     </div>
   );
 }

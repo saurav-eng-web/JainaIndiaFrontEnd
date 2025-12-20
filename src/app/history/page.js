@@ -36,10 +36,6 @@ const tabs = [
 ];
 
 function HistoryPageContent() {
-  const INITALPAGESIZE = 5;
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(INITALPAGESIZE);
-
   const [pendingHistory, setPendingHistory] = useState([]);
   const { ticketNo } = useParams();
   const [activeTab, setActiveTab] = useState("Job Details");
@@ -128,6 +124,10 @@ function HistoryPageContent() {
     reallotDate: "", // ✅ added
     ascReason: "",
   });
+  // ------------------PAGINATION-------------
+  const INITALPAGESIZE = 25;
+  const [pageSize, setPageSize] = useState(INITALPAGESIZE);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const totalItems = logData.length;
   const totalPages = Math.ceil(totalItems / pageSize);
@@ -136,6 +136,9 @@ function HistoryPageContent() {
   const endIndex = startIndex + pageSize;
 
   const visibleRows = logData.slice(startIndex, endIndex);
+  console.log("rows", { visibleRows, logData });
+
+  // ------------------PAGINATION-------------
 
   useEffect(() => {
     setCurrentPage(1);
@@ -1346,7 +1349,7 @@ function HistoryPageContent() {
               <tbody>
                 {[...visibleRows].reverse().map((row, index) => (
                   <tr key={index}>
-                    <td>{index + 1}</td>
+                    <td>{pageSize * (currentPage - 1) + (index + 1)}</td>
                     <td>{row.ticketNo}</td>
                     <td> {row.complaintStatus}</td>
                     <td>{row.complaintSubStatus || "-"}</td>

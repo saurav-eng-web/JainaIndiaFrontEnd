@@ -2,10 +2,9 @@
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState, Suspense, useMemo } from "react";
 import toast from "react-hot-toast";
 
-import { useTheme } from "@/theme/ThemeContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import { logger } from "@/utils/logger";
@@ -13,6 +12,8 @@ import axiosInstance from "@/api/axiosInstance";
 import { getUserFromLocalStorage } from "@/redux/slices/authSlice";
 import { exportToExcel } from "@/utils/exportToExcel";
 import Pagination from "@/components/Pagination";
+
+/* ---------------- COLUMN WIDTH CONFIG ---------------- */
 
 const sizeClassMap = {
   sm: "w-[60px]",
@@ -28,7 +29,7 @@ const columnSizes = {
   "Complaint No": "md",
   "Challan Number": "md",
   "Part code": "md",
-  "Part Description": "md",
+  "Part Description": "xl",
   Price: "sm1",
   Date: "sm1",
   Status: "lg",
@@ -50,53 +51,31 @@ const tableHeaders = [
   "Line Status",
 ];
 
-const columnOrder = [
-  "S.No.",
-  "ASC Code",
-  "Complaint No",
-  "Challan Number",
-  "Part code",
-  "Part Description",
-  "Price",
-  "Date",
-  "Status",
-  "Challan Type",
-  "Line Status",
-];
+const columnOrder = [...tableHeaders];
 
-const excelColumns = [
-  { label: "S.No.", key: "S.No." },
-  { label: "ASC Code", key: "ASC Code" },
-  { label: "Complaint No", key: "Complaint No" },
-  { label: "Challan Number", key: "Challan Number" },
-  { label: "Part Code", key: "Part code" },
-  { label: "Part Description", key: "Part Description" },
-  { label: "Price", key: "Price" },
-  { label: "Date", key: "Date" },
-  { label: "Status", key: "Status" },
-  { label: "Challan Type", key: "Challan Type" },
-  { label: "Line Status", key: "Line Status" },
-];
+const excelColumns = tableHeaders.map((h) => ({
+  label: h,
+  key: h,
+}));
+
+/* ---------------- MAIN CONTENT ---------------- */
 
 function DetailsContent() {
-  // Form State
-  const [challanData, setChallanData] = useState([]);
-  const [isDataLoading, setIsDataLoading] = useState(false);
-
-  const [pageSize, setPageSize] = useState(5);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const totalItems = challanData.length;
-  const totalPages = Math.ceil(totalItems / pageSize);
-
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-
-  const visibleRows = challanData.slice(startIndex, endIndex);
-
   const userData = getUserFromLocalStorage();
   const userId = userData?.userID;
 
+  /* ---------------- DATA STATE ---------------- */
+  const [challanData, setChallanData] = useState([]);
+  const [isDataLoading, setIsDataLoading] = useState(false);
+
+  /* ---------------- SEARCH STATE ---------------- */
+  const [search, setSearch] = useState("");
+
+  /* ---------------- PAGINATION STATE ---------------- */
+  const [pageSize, setPageSize] = useState(15); // rows per page
+  const [currentPage, setCurrentPage] = useState(1); // active page
+
+  /* ---------------- FETCH DATA ---------------- */
   useEffect(() => {
     if (!userId) return;
 
@@ -111,7 +90,6 @@ function DetailsContent() {
         });
 
         if (!isMounted) return;
-
         setChallanData(res?.data?.data || []);
       } catch (err) {
         console.error("Error fetching challan:", err);
@@ -122,22 +100,51 @@ function DetailsContent() {
     }
 
     fetchChallan();
-
     return () => {
       isMounted = false;
     };
   }, [userId]);
 
+  /* ---------------- SEARCH FILTERING ---------------- */
+  // Filters full dataset based on search query
+  const filteredData = useMemo(() => {
+    if (!search.trim()) return challanData;
+
+    const query = search.toLowerCase();
+
+    return challanData.filter((row) =>
+      Object.values(row).some((value) =>
+        String(value ?? "")
+          .toLowerCase()
+          .includes(query)
+      )
+    );
+  }, [search, challanData]);
+
+  /* ---------------- PAGINATION CALCULATIONS ---------------- */
+  const totalItems = filteredData.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  // Rows that will actually be rendered
+  const paginatedRows = useMemo(() => {
+    return filteredData.slice(startIndex, endIndex);
+  }, [filteredData, startIndex, endIndex]);
+
+  /* ---------------- RESET PAGE ON SEARCH / PAGE SIZE ---------------- */
   useEffect(() => {
     setCurrentPage(1);
-  }, [challanData, pageSize]);
+  }, [search, pageSize]);
 
+  /* ---------------- EXCEL EXPORT ---------------- */
   const handleExcelDownload = async () => {
     toast.promise(
       new Promise((resolve, reject) => {
         try {
           exportToExcel({
-            data: challanData,
+            data: challanData, // full dataset
             headers: excelColumns,
             fileName: `pending-challans-${new Date().toISOString().slice(0, 10)}.xlsx`,
             sheetName: "Pending Challans",
@@ -156,92 +163,101 @@ function DetailsContent() {
   };
 
   return (
-    <>
-      <ProtectedRoute allowedRoles={["ASM"]}>
-        <SideBar />
-        <div className="flex min-h-screen w-full flex-col font-sans">
-          <div className="mx-auto w-full max-w-[1400px] p-4">
-            {/* Main Card Container */}
-            <div className="rounded-xl p-6 sm:p-10">
-              <div className="space-y-8">
-                <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
-                  Pending Challans at Warehouse
-                </h2>
-                <div className="mt-4 overflow-x-auto rounded-md border border-slate-300">
-                  <table className="w-full table-fixed border-separate border-spacing-0">
-                    <thead className="bg-[#714b67]">
-                      <tr>
-                        {tableHeaders.map((header) => (
-                          <Th key={header} title={header} />
+    <ProtectedRoute allowedRoles={["ASM"]}>
+      <SideBar />
+
+      <div className="flex min-h-screen w-full flex-col font-sans">
+        <div className="mx-auto w-full max-w-[1400px] p-4">
+          <div className="space-y-8 rounded-xl p-6 sm:p-10">
+            <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-2 text-lg font-bold text-[#714b67]">
+              Pending Challans at Warehouse
+            </h2>
+
+            {/* ---------------- SEARCH INPUT ---------------- */}
+            <input
+              type="text"
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1); // reset page on search
+              }}
+              className="h-11 w-72 rounded-lg border-2 border-[#714b67] px-3 py-2 text-sm focus:ring-1 focus:ring-[#714b67] focus:outline-none"
+            />
+
+            {/* ---------------- TABLE ---------------- */}
+            <div className="overflow-x-hidden rounded-md border border-slate-300">
+              <table className="w-full table-fixed border-separate border-spacing-0">
+                <thead className="bg-[#714b67]">
+                  <tr>
+                    {tableHeaders.map((header) => (
+                      <Th key={header} title={header} />
+                    ))}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {isDataLoading ? (
+                    <tr>
+                      <td
+                        colSpan={tableHeaders.length}
+                        className="p-4 text-center text-slate-500"
+                      >
+                        Loading...
+                      </td>
+                    </tr>
+                  ) : paginatedRows.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={tableHeaders.length}
+                        className="p-4 text-center text-slate-500"
+                      >
+                        No data available
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedRows.map((row, rowIndex) => (
+                      <tr key={rowIndex} className="hover:bg-[#f1faff]">
+                        {columnOrder.map((key, colIndex) => (
+                          <Td
+                            key={`${rowIndex}-${colIndex}`}
+                            data={row[key]}
+                            header={key}
+                          />
                         ))}
                       </tr>
-                    </thead>
-                    <tbody>
-                      {isDataLoading ? (
-                        <tr>
-                          <td
-                            colSpan={tableHeaders.length}
-                            className="p-4 text-center text-slate-500"
-                          >
-                            Loading...
-                          </td>
-                        </tr>
-                      ) : challanData.length === 0 ? (
-                        <tr>
-                          <td
-                            colSpan={tableHeaders.length}
-                            className="p-4 text-center text-slate-500"
-                          >
-                            No data available
-                          </td>
-                        </tr>
-                      ) : (
-                        visibleRows.map((row, rowIndex) => (
-                          <tr key={rowIndex} className="hover:bg-[#f1faff]">
-                            {columnOrder.map((key, colIndex) => (
-                              <Td
-                                key={`${rowIndex}-${colIndex}`}
-                                data={row[key]}
-                                header={key}
-                              />
-                            ))}
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  pageSize={pageSize}
-                  setPageSize={setPageSize}
-                  setCurrentPage={setCurrentPage}
-                />
-                {!isDataLoading && challanData.length > 0 && (
-                  <button
-                    onClick={handleExcelDownload}
-                    className="fixed right-6 bottom-6 z-50 cursor-pointer rounded-full bg-[#714b67] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-[#57324d]"
-                  >
-                    Export to Excel
-                  </button>
-                )}
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
+
+            {/* ---------------- PAGINATION ---------------- */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              setPageSize={setPageSize}
+              setCurrentPage={setCurrentPage}
+            />
+
+            {/* ---------------- EXCEL BUTTON ---------------- */}
+            {!isDataLoading && challanData.length > 0 && (
+              <button
+                onClick={handleExcelDownload}
+                className="fixed right-6 bottom-6 z-50 rounded-full bg-[#714b67] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-[#57324d]"
+              >
+                Export to Excel
+              </button>
+            )}
           </div>
         </div>
-      </ProtectedRoute>
-    </>
+      </div>
+    </ProtectedRoute>
   );
 }
 
-// function Th({ title }) {
-//   return (
-//     <th className="px-4 py-3.5 text-left text-[15px] font-semibold text-white">
-//       {title}
-//     </th>
-//   );
-// }
+/* ---------------- TABLE CELLS ---------------- */
 
 function Th({ title }) {
   const size = columnSizes[title] || "md";
@@ -261,7 +277,7 @@ function Td({ data, header }) {
 
   return (
     <td
-      className={`border-b border-[#e0e0e0] px-3 py-2 align-middle text-sm text-[#333] ${sizeClassMap[size]} wrap-break-word whitespace-normal`}
+      className={`border-b border-[#e0e0e0] px-3 py-2 text-sm text-[#333] ${sizeClassMap[size]} break-words whitespace-normal`}
       title={String(data ?? "")}
     >
       {data ?? "-"}
@@ -269,13 +285,7 @@ function Td({ data, header }) {
   );
 }
 
-// function Td({ data }) {
-//   return (
-//     <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-//       {data}
-//     </td>
-//   );
-// }
+/* ---------------- PAGE WRAPPER ---------------- */
 
 export default function PendingChallan() {
   return (

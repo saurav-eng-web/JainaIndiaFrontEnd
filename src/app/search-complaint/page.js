@@ -39,13 +39,11 @@ export default function SearchComplaintPage() {
     const q = query.trim();
 
     if (!q) {
-      // alert("Please enter a complaint number, mobile number, or serial number");
       toast.error("Please enter a complaint number, mobile number, or serial number");
       return;
     }
 
     if (q.length < 10) {
-      // alert("Please enter at least 10 characters to search");
       toast.error("Please enter at least 10 characters to search");
       return;
     }

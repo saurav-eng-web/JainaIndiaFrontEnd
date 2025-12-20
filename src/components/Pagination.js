@@ -9,18 +9,18 @@ export default function Pagination({
   setPageSize,
   setCurrentPage,
 }) {
-  const [jumpPage, setJumpPage] = useState("");
   const totalRows = totalPages * pageSize;
 
-  const handleJump = () => {
-    let page = Number(jumpPage);
-    if (!page || page < 1) page = 1;
-    if (page > totalPages) page = totalPages;
-    setCurrentPage(page);
-    setJumpPage("");
-  };
+  // const [jumpPage, setJumpPage] = useState("");
+  // const handleJump = () => {
+  //   let page = Number(jumpPage);
+  //   if (!page || page < 1) page = 1;
+  //   if (page > totalPages) page = totalPages;
+  //   setCurrentPage(page);
+  //   setJumpPage("");
+  // };
 
-  const allowedSizes = [5, 10, 15, 20, 30, 50, 100].filter((size) => size <= totalRows);
+  const allowedSizes = [15, 50, 100].filter((size) => size <= totalRows);
 
   // Always include max if all sizes > totalRows
   if (allowedSizes.length === 0) {
@@ -32,18 +32,18 @@ export default function Pagination({
       {/* Rows per page */}
       <div className="flex items-center gap-2">
         <span className="text-sm">Rows per page:</span>
-        {/* <select
+        <select
           value={pageSize}
           onChange={(e) => setPageSize(Number(e.target.value))}
           className="cursor-pointer rounded border px-2 py-1 text-sm"
         >
-          {[5, 10, 15, 20, 30, 50, 100].map((size) => (
+          {[15, 50, 100].map((size) => (
             <option key={size} value={size}>
               {size}
             </option>
           ))}
-        </select> */}
-        <select
+        </select>
+        {/* <select
           value={pageSize}
           onChange={(e) => setPageSize(Number(e.target.value))}
           className="cursor-pointer rounded border px-2 py-1 text-sm"
@@ -53,7 +53,7 @@ export default function Pagination({
               {size}
             </option>
           ))}
-        </select>
+        </select> */}
       </div>
 
       <div className="flex gap-12">
@@ -94,7 +94,7 @@ export default function Pagination({
         </div>
 
         {/* Jump to page */}
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <span className="text-sm">Go to:</span>
           <input
             type="number"
@@ -108,7 +108,7 @@ export default function Pagination({
           >
             Go
           </button>
-        </div>
+        </div> */}
       </div>
 
       <span className="text-sm text-gray-600">

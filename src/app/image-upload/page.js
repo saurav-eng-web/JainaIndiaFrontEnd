@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+
 import axiosInstance from "@/api/axiosInstance"; // adjust if your instance path differs
 import { useTheme } from "@/theme/ThemeContext";
 
@@ -33,7 +34,6 @@ export default function TestUploadPage() {
       });
 
       setResponseMsg("Upload Successful.");
-      console.log("Response:", res.data);
     } catch (error) {
       console.error("Upload failed:", error);
       setResponseMsg("Upload failed. Check console for details.");
@@ -43,10 +43,7 @@ export default function TestUploadPage() {
   };
 
   return (
-    <div
-      className="min-h-screen p-10"
-      style={{ backgroundColor: colors.background }}
-    >
+    <div className="min-h-screen p-10" style={{ backgroundColor: colors.background }}>
       <div
         className="mx-auto max-w-xl rounded-lg p-6 shadow-lg"
         style={{
@@ -90,9 +87,7 @@ export default function TestUploadPage() {
           </button>
 
           {responseMsg && (
-            <p className="mt-2 text-center text-sm font-medium">
-              {responseMsg}
-            </p>
+            <p className="mt-2 text-center text-sm font-medium">{responseMsg}</p>
           )}
         </div>
       </div>

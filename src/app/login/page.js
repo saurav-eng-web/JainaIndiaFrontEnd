@@ -80,7 +80,7 @@ export default function LoginPage() {
             {/* Sign In Button */}
             <button
               type="submit"
-              className="w-full rounded-lg py-3 text-white transition duration-200 hover:opacity-90"
+              className="w-full cursor-pointer rounded-lg py-3 text-white transition duration-200 hover:opacity-90"
               style={{ backgroundColor: "#714b67" }}
               disabled={loading}
             >

@@ -71,11 +71,8 @@ export default function ChallanSearch() {
         month: month,
         year: year,
       };
-      console.log("payload", payload);
 
       const res = await axiosInstance.post("PrintChallan/GetPrintChallanList", payload);
-
-      console.log("Full API Response:", res.data);
 
       // If backend returns array of results
       if (Array.isArray(res.data) && res.data.length > 0) {

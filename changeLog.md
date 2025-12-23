@@ -159,3 +159,11 @@
 - feat: create challan page
 - feat: fix pagination, when we have data less than the default list size, not rendering the pagination menu
 - fix: route to dashboard after login, changed to search
+
+## 2.1.1
+
+- feat: search on tables, where pagination was implemented
+- fix: current page size by default is 15, on history page, it is 25
+- fix: change the options for item per page to 15,50,100
+- feat: special approval NSP
+- feat: special approval RSM

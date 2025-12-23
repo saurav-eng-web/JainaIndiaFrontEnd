@@ -15,7 +15,6 @@ export default function SearchComplaintPage() {
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
-    console.log("userData: ", userData);
     if (!userData) {
       router.replace("/");
     } else {
@@ -54,8 +53,6 @@ export default function SearchComplaintPage() {
           searchText: q,
         },
       });
-
-      console.log("response: ", { response, status: response?.status });
 
       // const results = Array.isArray(response.data) ? response.data : [response.data];
       if (response?.status === 204) {

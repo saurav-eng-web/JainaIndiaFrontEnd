@@ -7,6 +7,9 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 
+import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
+import SpeicalAllowancePopup from "../rsm/special-allowance/allowancePopup";
+
 import CancelPopup from "./CancelPopup";
 import EditCustPopup from "./EditCustPopup";
 
@@ -23,6 +26,8 @@ import Pagination from "@/components/Pagination";
 
 import "./history.css";
 import "react-toastify/dist/ReactToastify.css";
+import { Button } from "@/components/ui/button";
+import Modal from "@/components/ui/Modal";
 
 const tabs = [
   "Job Details",
@@ -55,6 +60,8 @@ function HistoryPageContent() {
 
   const searchParams = useSearchParams(); // ✅ now safe inside Suspense
   const fromPage = searchParams.get("fromPage");
+  const prevPage = sessionStorage.getItem("fromPage");
+  const currentTicket = sessionStorage.getItem("currentTicket");
   const router = useRouter();
 
   const [popupOpen, setPopupOpen] = useState(false);
@@ -100,8 +107,6 @@ function HistoryPageContent() {
   const firstEntry = logData[0] || {};
   const detail = custDetail || {};
 
-  console.log("visitDetails: ", visitDetails);
-
   // const role = user?.roleName;
 
   const [formData, setFormData] = useState({
@@ -136,9 +141,11 @@ function HistoryPageContent() {
   const endIndex = startIndex + pageSize;
 
   const visibleRows = logData.slice(startIndex, endIndex);
-  console.log("rows", { visibleRows, logData });
 
-  // ------------------PAGINATION-------------
+  // -----------------POP UP SPECIAL ALLOWANCE----------------
+  const [allowancePopup, setAllowancePopup] = useState(false);
+  const onOpenAllowanceModal = () => setAllowancePopup(true);
+  const onCloseAllowanceModal = () => setAllowancePopup(false);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -360,8 +367,6 @@ function HistoryPageContent() {
       };
       const res = await axiosInstance.post("/RequestCancellation/create", payload);
 
-      console.log("API Response:", res.data);
-
       // ✔ Show the message coming from API response
       if (res?.data?.statusMsg) {
         alert(res.data.statusMsg);
@@ -496,7 +501,6 @@ function HistoryPageContent() {
       );
 
       // const msg = res?.data?.message || "";
-      console.log("res assigned: ", res);
       // const [status, subStatus, message] = msg.split("|").map((x) => x.trim());
 
       // // 2) Update Job + History (added now)
@@ -558,11 +562,8 @@ function HistoryPageContent() {
       type: "WIPProcess",
     };
     try {
-      console.log("serial check");
       const res = await axiosInstance.post("/CheckSerialNo/CheckSerial", payload);
-      console.log("res: ", res);
       const message = res?.data?.message?.trim() || "";
-      console.log("message: ", message);
 
       const parts = message.split("|");
 
@@ -1247,7 +1248,6 @@ function HistoryPageContent() {
             </div>
           </>
         )}
-
         {/* -------------------------- */}
         {fromPage === "dashboardcall" &&
           user?.roleName === "ASM" &&
@@ -1274,9 +1274,7 @@ function HistoryPageContent() {
             Edit Customer
           </button>
         )}
-
         {/* // TODO: */}
-
         <EditCustPopup
           isOpen={editCustomerPopupOpen}
           onClose={() => setEditCustomerPopupOpen(false)}
@@ -1297,6 +1295,26 @@ function HistoryPageContent() {
           setFormData={setFormData}
         />
         <h2 className="page-title">📋 Complaint History</h2>
+        {prevPage === "special-approval" && (
+          <>
+            <Button className="mb-4 w-42" onClick={onOpenAllowanceModal}>
+              Req Sp. Allowance
+            </Button>
+            <Modal open={allowancePopup} onClose={onCloseAllowanceModal} center>
+              <SpeicalApprovalPopup ticketNo={activeTicket} />
+            </Modal>
+          </>
+        )}
+        {prevPage === "special-allowance-request" && (
+          <>
+            <Button className="mb-4 w-42" onClick={onOpenAllowanceModal}>
+              Allowance Req
+            </Button>
+            <Modal open={allowancePopup} onClose={onCloseAllowanceModal} center>
+              <SpeicalAllowancePopup ticketNo={activeTicket} />
+            </Modal>
+          </>
+        )}
         {fromPage === "dashboardcall" &&
           user?.roleName === "ASM" &&
           detail.complainT_STATUS === "Open" &&
@@ -1308,7 +1326,6 @@ function HistoryPageContent() {
               setRemark={setRemark}
             />
           )}
-
         {fromPage === "dashboardcall" &&
           user?.roleName === "ZONE" &&
           detail.complainT_STATUS === "Open" &&
@@ -1320,7 +1337,6 @@ function HistoryPageContent() {
               setRemark={setRemark}
             />
           )}
-
         {/* Popup modal */}
         <Popup
           isOpen={popupOpen}

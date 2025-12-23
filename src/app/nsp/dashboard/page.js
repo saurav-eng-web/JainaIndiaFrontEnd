@@ -129,7 +129,6 @@ export default function Dashboard() {
         });
 
         const sorted = formatted.sort((a, b) => a.order - b.order);
-        console.log("Dashboard Mapping →", { countMap, formatted });
 
         setDashboardData(sorted);
       } catch (error) {
@@ -208,7 +207,6 @@ export default function Dashboard() {
   // }, [userInfo]);
 
   const handleCardClick = (item) => {
-    console.log("item: ", item);
     if (item.url) {
       router.push(`/${item.url}`);
       return;

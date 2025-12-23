@@ -20,7 +20,6 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
   useEffect(() => {
     async function fetchCallSchedule() {
       try {
-        console.log("sf id: ", formData.sf_ID);
         const res = await axiosInstance.get(
           `CallSchedule/ticketno/${formData.tickeT_NO}`,
           {
@@ -31,7 +30,6 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
         );
 
         const resData = res.data;
-        console.log("resData: ", resData);
         setCallScheduleData(res.data);
       } catch (err) {
         console.error("Error fetching engineer data:", err);
@@ -40,7 +38,6 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
 
     async function fetchEngineerData() {
       try {
-        console.log("sf id: ", formData.sf_ID);
         const res = await axiosInstance.post(
           `Engineer/Manage`,
           {
@@ -126,7 +123,6 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
 
     return []; // anything earlier than required hour
   }
-  console.log("eng: ", formData.eng_ID);
   function handleSubmit(type) {
     const engId = formData?.eng_ID?.trim();
     if (formData.eng_ID === "-" || formData.eng_ID === "" || !engId) {

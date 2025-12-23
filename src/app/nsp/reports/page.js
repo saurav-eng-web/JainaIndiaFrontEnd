@@ -34,7 +34,6 @@ export default function DashboardPage() {
             const roles = option.rolesAllowed.split(",").map((r) => r.trim());
             return roles.includes(role);
           });
-          console.log(`filtered: `, filtered);
           setOptions(filtered);
         }
       } catch (error) {

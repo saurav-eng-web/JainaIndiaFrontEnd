@@ -89,7 +89,6 @@ export default function ReceivePO() {
       }
     });
 
-    console.log(payload);
     alert("Payload generated successfully! Check console for details.");
   };
 

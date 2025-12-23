@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import CustomDropdown from "@/components/common/Dropdown";
 import { useTheme } from "@/theme/ThemeContext";
+import axiosInstance from "@/api/axiosInstance";
 
 // ---------------- MOCK TABLE DATA -------------------
 const mockTableData = [
@@ -36,10 +38,14 @@ export default function SendDefectivePage() {
   const { colors } = useTheme();
   const user = useSelector((state) => state.auth.user);
 
-  const [warehouse, setWarehouse] = useState("");
+  const [warehouseId, setWarehouseId] = useState("");
   const [challanType, setChallanType] = useState("");
   const [tableData, setTableData] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [challanTypeOptions, setChallanTypeOptions] = useState([]);
+  // const []
 
   const [showDispatchForm, setShowDispatchForm] = useState(false);
 
@@ -54,18 +60,92 @@ export default function SendDefectivePage() {
     box: "",
   });
 
-  const warehouseOptions = [
-    { label: "UP-GUDSP", value: "UP-GUDSP" },
-    { label: "DL-DWARKA", value: "DL-DWARKA" },
-  ];
+  // const warehouseOptions = [
+  //   { label: "UP-GUDSP", value: "UP-GUDSP" },
+  //   { label: "DL-DWARKA", value: "DL-DWARKA" },
+  // ];
 
-  const challanTypeOptions = [
-    { label: "Defective", value: "Defective" },
-    { label: "Replacement", value: "Replacement" },
-  ];
+  // const challanTypeOptions = [
+  //   { label: "Defective", value: "Defective" },
+  //   { label: "Replacement", value: "Replacement" },
+  // ];
 
-  const handleSearch = () => {
-    setTableData(mockTableData);
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchWarehouseAndChallanType() {
+      setIsLoading(true);
+
+      try {
+        // 🔹 Parallel API calls
+        const [warehouseRes, challanTypeRes] = await Promise.all([
+          axiosInstance.post("DropdownMaster/GetDropdown", {
+            type: "WarehouseSelect",
+          }),
+          axiosInstance.post("DropdownMaster/GetDropdown", {
+            type: "ChallantypeRev",
+          }),
+        ]);
+
+        if (!isMounted) return;
+
+        setWarehouseOptions(
+          warehouseRes?.data?.data.map((op) => {
+            return {
+              label: op.value,
+              value: op.key,
+            };
+          }) ?? []
+        );
+        setChallanTypeOptions(
+          challanTypeRes?.data?.data.map((op) => {
+            return {
+              label: op.value,
+              value: op.value,
+            };
+          }) ?? []
+        );
+      } catch (error) {
+        console.error("Error fetching warehouse and challan type:", error);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    fetchWarehouseAndChallanType();
+
+    return () => {
+      isMounted = false; // cleanup to avoid state update on unmounted component
+    };
+  }, []); // ✅ run once on mount
+
+  const handleSearch = async () => {
+    if (!warehouseId || !challanType) {
+      toast.error("Please select warehouse and challan type");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const res = await axiosInstance.post("dispatch-line/list", {
+        Sfid: user?.sF_ID.toString(), //
+        Whs: warehouseId, // warehouse key dropdownid
+        Type: challanType,
+      });
+      console.log("res: ", res);
+      if (res?.data?.statusCode === 200) {
+        const data = res?.data?.data;
+        console.log("data: ", data);
+        if (data.length === 0) {
+          toast.error("No data found!");
+        }
+
+        setTableData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching warehouse and challan type:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleSelection = (item) => {
@@ -99,7 +179,7 @@ export default function SendDefectivePage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={["br", "asm", "zone"]}>
+    <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}>
       <div className="flex min-h-screen bg-gray-100">
         <SideBar />
 
@@ -124,8 +204,8 @@ export default function SendDefectivePage() {
               <CustomDropdown
                 label="Warehouse"
                 placeholder="Select Warehouse"
-                value={warehouse}
-                onChange={setWarehouse}
+                value={warehouseId}
+                onChange={setWarehouseId}
                 options={warehouseOptions}
               />
 
@@ -140,7 +220,7 @@ export default function SendDefectivePage() {
               <div className="flex items-end">
                 <button
                   onClick={handleSearch}
-                  className="rounded-lg px-6 py-2 shadow-md"
+                  className="cursor-pointer rounded-lg px-6 py-2 shadow-md"
                   style={{ background: colors.primary, color: "#fff" }}
                 >
                   Search
@@ -157,13 +237,12 @@ export default function SendDefectivePage() {
                       className="text-left"
                       style={{ background: colors.primary, color: "white" }}
                     >
-                      <th className="border p-2">Sr No.</th>
                       <th className="border p-2">Ticket No</th>
                       <th className="border p-2">Part Code</th>
                       <th className="border p-2">Description</th>
-                      <th className="border p-2">Warranty</th>
-                      <th className="border p-2">Packing Slip</th>
-                      <th className="border p-2">Serial</th>
+                      <th className="border p-2">Quantity</th>
+                      <th className="border p-2">Price</th>
+                      <th className="border p-2">Aging</th>
                       <th className="border p-2 text-center">Select</th>
                     </tr>
                   </thead>
@@ -171,13 +250,12 @@ export default function SendDefectivePage() {
                   <tbody>
                     {tableData.map((item) => (
                       <tr key={item.srNo}>
-                        <td className="border p-2">{item.srNo}</td>
-                        <td className="border p-2">{item.ticketNo}</td>
-                        <td className="border p-2">{item.partCode}</td>
-                        <td className="border p-2">{item.description}</td>
-                        <td className="border p-2">{item.warranty}</td>
-                        <td className="border p-2">{item.packingSlipNo}</td>
-                        <td className="border p-2">{item.serialNo}</td>
+                        <td className="border p-2">{item.ticket_no}</td>
+                        <td className="border p-2">{item.Part}</td>
+                        <td className="border p-2">{item["Part desc"]}</td>
+                        <td className="border p-2">{item.QTY}</td>
+                        <td className="border p-2">{item.Price}</td>
+                        <td className="border p-2">{item.Ageing}</td>
 
                         <td className="border p-2 text-center">
                           <input

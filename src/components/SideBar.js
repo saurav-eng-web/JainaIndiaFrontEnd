@@ -113,6 +113,12 @@ export default function SideBar() {
       text: "Knowledge Portal",
       roles: ["ASM"],
     },
+    {
+      href: "/nsp/special-approval",
+      icon: "fa fa-book fa-2x",
+      text: "Special Allowance",
+      roles: ["NSP", "BR"],
+    },
   ];
 
   const allowedBulkUsers = ["T284977"];

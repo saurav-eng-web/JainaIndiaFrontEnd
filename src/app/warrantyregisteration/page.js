@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
@@ -80,10 +81,9 @@ export default function WarrantyForm() {
             "Content-Type": "multipart/form-data",
             Accept: "application/json",
           },
-        },
+        }
       );
 
-      console.log("✅ Invoice uploaded:", res.data);
       return res.data.fileName; // server returns { fileName: "xyz.png" }
     } catch (err) {
       console.error("❌ Invoice upload failed", err);
@@ -101,7 +101,7 @@ export default function WarrantyForm() {
 
     try {
       const regCheck = await axiosInstance.get(
-        `WarrantyRegistration/by-serial/${serialNo}`,
+        `WarrantyRegistration/by-serial/${serialNo}`
       );
       if (regCheck.data && regCheck.data.serialNumber) {
         setAlreadyRegistered(true);
@@ -115,9 +115,7 @@ export default function WarrantyForm() {
     }
 
     try {
-      const res = await axiosInstance.get(
-        `SerialNoMaster/by-serial/${serialNo}`,
-      );
+      const res = await axiosInstance.get(`SerialNoMaster/by-serial/${serialNo}`);
       setSerialData(res.data);
       setSerialError("");
     } catch (err) {
@@ -130,9 +128,7 @@ export default function WarrantyForm() {
   const handlePincodeCheck = async () => {
     if (!pincode.trim()) return;
     try {
-      const res = await axiosInstance.get(
-        `LocalityMaster/by-pincode/${pincode}`,
-      );
+      const res = await axiosInstance.get(`LocalityMaster/by-pincode/${pincode}`);
       const data = res.data;
       if (data.length === 0) {
         setPincodeError("❌ No serviceable area found for this pincode");
@@ -156,10 +152,7 @@ export default function WarrantyForm() {
       alert("❌ Please fill Date of Purchase and Retailer fields.");
       return false;
     }
-    if (
-      serialData === "manual" &&
-      (!manualBrand || !manualProduct || !manualModel)
-    ) {
+    if (serialData === "manual" && (!manualBrand || !manualProduct || !manualModel)) {
       alert("❌ Please select brand, product, and model.");
       return false;
     }
@@ -189,14 +182,12 @@ export default function WarrantyForm() {
     e.preventDefault();
     if (!validateStep2()) return;
 
-    const selectedCityObj = localities.find(
-      (l) => l.locality_Name === selectedLocality,
-    );
+    const selectedCityObj = localities.find((l) => l.locality_Name === selectedLocality);
     const finalSerial = serialData?.itemSerialNo1 || serialNo;
 
     try {
       const regCheck = await axiosInstance.get(
-        `WarrantyRegistration/by-serial/${finalSerial}`,
+        `WarrantyRegistration/by-serial/${finalSerial}`
       );
       if (regCheck.data && regCheck.data.serialNumber) {
         alert("❌ This serial number is already registered.");
@@ -294,9 +285,7 @@ export default function WarrantyForm() {
               >
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                    step >= 1
-                      ? "bg-[#714b67] text-white"
-                      : "bg-gray-400 text-white"
+                    step >= 1 ? "bg-[#714b67] text-white" : "bg-gray-400 text-white"
                   }`}
                 >
                   ✓
@@ -315,9 +304,7 @@ export default function WarrantyForm() {
               >
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                    step >= 2
-                      ? "bg-[#714b67] text-white"
-                      : "bg-gray-400 text-white"
+                    step >= 2 ? "bg-[#714b67] text-white" : "bg-gray-400 text-white"
                   }`}
                 ></div>
                 <span className="mt-1 text-sm">Personal Information</span>
@@ -358,8 +345,7 @@ export default function WarrantyForm() {
                     // </div>
                     <div
                       className={`col-span-2 rounded px-3 py-1 ${
-                        serialError ===
-                        "❌ Invalid or unrecognized serial number"
+                        serialError === "❌ Invalid or unrecognized serial number"
                           ? "bg-red-100 text-red-700"
                           : "bg-yellow-100 text-yellow-700"
                       }`}
@@ -369,8 +355,7 @@ export default function WarrantyForm() {
                   )}
                   {serialData && serialData !== "manual" && (
                     <div className="col-span-2 rounded bg-green-100 px-3 py-1 text-green-800">
-                      ✅ Valid serial:{" "}
-                      <strong>{serialData.itemSerialNo1}</strong> (
+                      ✅ Valid serial: <strong>{serialData.itemSerialNo1}</strong> (
                       {serialData.brand} - {serialData.model})
                     </div>
                   )}
@@ -483,8 +468,7 @@ export default function WarrantyForm() {
                   {/* Rest Fields */}
                   <div>
                     <label className="mb-1 block font-medium">
-                      Date of Purchase (D.O.P){" "}
-                      <span className="text-red-500">*</span>
+                      Date of Purchase (D.O.P) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
@@ -496,8 +480,7 @@ export default function WarrantyForm() {
                   </div>
                   <div>
                     <label className="mb-1 block font-medium">
-                      Purchased From (Retailer){" "}
-                      <span className="text-red-500">*</span>
+                      Purchased From (Retailer) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -601,9 +584,7 @@ export default function WarrantyForm() {
                             "application/pdf",
                           ];
                           if (!allowedTypes.includes(file.type)) {
-                            alert(
-                              "❌ Only JPG, PNG, and PDF files are allowed.",
-                            );
+                            alert("❌ Only JPG, PNG, and PDF files are allowed.");
                             e.target.value = "";
                             return;
                           }
@@ -629,13 +610,10 @@ export default function WarrantyForm() {
                                   "Content-Type": "multipart/form-data",
                                   Accept: "application/json",
                                 },
-                              },
+                              }
                             );
                             setUploadedInvoiceName(res.data.fileName);
-                            console.log(
-                              "✅ Invoice uploaded:",
-                              res.data.fileName,
-                            );
+                            console.log("✅ Invoice uploaded:", res.data.fileName);
                           } catch (err) {
                             console.error("❌ Upload failed", err);
                             alert("❌ Invoice upload failed");
@@ -671,9 +649,7 @@ export default function WarrantyForm() {
                     type="button"
                     onClick={() => {
                       if (!dop || !retailer) {
-                        alert(
-                          "❌ Please fill Date of Purchase and Retailer fields.",
-                        );
+                        alert("❌ Please fill Date of Purchase and Retailer fields.");
                         return;
                       }
                       if (
@@ -837,12 +813,8 @@ export default function WarrantyForm() {
         {showSuccessPopup && (
           <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
             <div className="w-11/12 max-w-sm rounded-lg bg-white p-8 text-center shadow-lg">
-              <h2 className="mb-4 text-green-600">
-                🎉 Registration Successful
-              </h2>
-              <p className="mb-4">
-                Your warranty has been registered successfully.
-              </p>
+              <h2 className="mb-4 text-green-600">🎉 Registration Successful</h2>
+              <p className="mb-4">Your warranty has been registered successfully.</p>
               <button
                 onClick={() => setShowSuccessPopup(false)}
                 className="rounded bg-blue-600 px-4 py-2 text-white"

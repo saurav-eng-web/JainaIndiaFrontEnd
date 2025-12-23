@@ -19,7 +19,7 @@ export default function Pagination({
   //   setCurrentPage(page);
   //   setJumpPage("");
   // };
-
+  // con
   const allowedSizes = [15, 50, 100].filter((size) => size <= totalRows);
 
   // Always include max if all sizes > totalRows
@@ -93,7 +93,7 @@ export default function Pagination({
           </button>
         </div>
 
-        {/* Jump to page */}
+        {/* // TODO:  ----------------------------INPUT FOR GOING TO SPEICIFIC PAGE----------------------- */}
         {/* <div className="flex items-center gap-2">
           <span className="text-sm">Go to:</span>
           <input

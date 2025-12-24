@@ -9,6 +9,7 @@ import SideBar from "@/components/SideBar";
 import CustomDropdown from "@/components/common/Dropdown";
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
+import ConfirmModal from "@/components/ui/ConfirmationModal";
 
 // ---------------- MOCK TABLE DATA -------------------
 const mockTableData = [
@@ -45,7 +46,8 @@ export default function SendDefectivePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [warehouseOptions, setWarehouseOptions] = useState([]);
   const [challanTypeOptions, setChallanTypeOptions] = useState([]);
-  // const []
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [serverMessage, setServerMessage] = useState("");
 
   const [showDispatchForm, setShowDispatchForm] = useState(false);
 
@@ -59,16 +61,6 @@ export default function SendDefectivePage() {
     remark: "",
     box: "",
   });
-
-  // const warehouseOptions = [
-  //   { label: "UP-GUDSP", value: "UP-GUDSP" },
-  //   { label: "DL-DWARKA", value: "DL-DWARKA" },
-  // ];
-
-  // const challanTypeOptions = [
-  //   { label: "Defective", value: "Defective" },
-  //   { label: "Replacement", value: "Replacement" },
-  // ];
 
   useEffect(() => {
     let isMounted = true;
@@ -149,23 +141,28 @@ export default function SendDefectivePage() {
   };
 
   const toggleSelection = (item) => {
-    if (selectedItems.some((x) => x.srNo === item.srNo)) {
-      setSelectedItems(selectedItems.filter((x) => x.srNo !== item.srNo));
+    if (selectedItems.some((x) => x.ID === item.ID)) {
+      setSelectedItems(selectedItems.filter((x) => x.ID !== item.ID));
     } else {
       setSelectedItems([...selectedItems, item]);
     }
   };
 
   const handleNext = () => {
-    if (selectedItems.length === 0) return;
+    if (selectedItems.length === 0) {
+      toast.error("Please select at least one item");
+      return;
+    }
 
-    setDispatchForm({
-      ...dispatchForm,
-      docketNo: "Dkt-" + Date.now(),
-      challanDate: new Date().toISOString().slice(0, 10),
-    });
+    setShowConfirm(true);
 
-    setShowDispatchForm(true);
+    // setDispatchForm({
+    //   ...dispatchForm,
+    //   docketNo: "Dkt-" + Date.now(),
+    //   challanDate: new Date().toISOString().slice(0, 10),
+    // });
+
+    // setShowDispatchForm(true);
   };
 
   const onDispatchChange = (e) => {
@@ -176,6 +173,23 @@ export default function SendDefectivePage() {
   const handleSubmitDispatch = () => {
     alert("Dispatch Submitted Successfully!");
     // Here you will call actual API later.
+  };
+
+  const handleConfirmYes = () => {
+    setShowConfirm(false);
+
+    setDispatchForm((prev) => ({
+      ...prev,
+      docketNo: "Dkt-" + Date.now(),
+      challanDate: new Date().toISOString().slice(0, 10),
+    }));
+
+    setShowDispatchForm(true);
+  };
+
+  const handleConfirmNo = () => {
+    setShowConfirm(false);
+    // user stays on same page and can change selection
   };
 
   return (
@@ -252,7 +266,7 @@ export default function SendDefectivePage() {
                       <tr key={item.srNo}>
                         <td className="border p-2">{item.ticket_no}</td>
                         <td className="border p-2">{item.Part}</td>
-                        <td className="border p-2">{item["Part desc"]}</td>
+                        <td className="border p-2">{item["Part desc."]}</td>
                         <td className="border p-2">{item.QTY}</td>
                         <td className="border p-2">{item.Price}</td>
                         <td className="border p-2">{item.Ageing}</td>
@@ -260,8 +274,9 @@ export default function SendDefectivePage() {
                         <td className="border p-2 text-center">
                           <input
                             type="checkbox"
-                            checked={selectedItems.some((x) => x.srNo === item.srNo)}
+                            checked={selectedItems.some((x) => x.ID === item.ID)}
                             onChange={() => toggleSelection(item)}
+                            className="size-4 cursor-pointer"
                           />
                         </td>
                       </tr>
@@ -274,7 +289,7 @@ export default function SendDefectivePage() {
                   <div className="mt-4 text-right">
                     <button
                       onClick={handleNext}
-                      className="rounded-lg px-6 py-2 shadow-md"
+                      className="cursor-pointer rounded-lg px-6 py-2 shadow-md"
                       style={{ background: colors.primary, color: "#fff" }}
                     >
                       Next →
@@ -405,6 +420,13 @@ export default function SendDefectivePage() {
             )}
           </div>
         </div>
+        <ConfirmModal
+          open={showConfirm}
+          title="Confirm Action"
+          message={serverMessage}
+          onConfirm={handleConfirmYes}
+          onCancel={handleConfirmNo}
+        />
       </div>
     </ProtectedRoute>
   );

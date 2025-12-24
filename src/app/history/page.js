@@ -60,7 +60,7 @@ function HistoryPageContent() {
 
   const searchParams = useSearchParams(); // ✅ now safe inside Suspense
   const fromPage = searchParams.get("fromPage");
-  const prevPage = sessionStorage.getItem("fromPage");
+  const [prevPage, setPrevPage] = useState("");
   const currentTicket = sessionStorage.getItem("currentTicket");
   const router = useRouter();
 
@@ -146,6 +146,24 @@ function HistoryPageContent() {
   const [allowancePopup, setAllowancePopup] = useState(false);
   const onOpenAllowanceModal = () => setAllowancePopup(true);
   const onCloseAllowanceModal = () => setAllowancePopup(false);
+
+  // useEffect(() => {
+  //   const value = sessionStorage.getItem("fromPage");
+  //   setPrevPage(value);
+
+  //   return () => {
+  //     sessionStorage.removeItem("fromPage");
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    const value = sessionStorage.getItem("fromPage");
+
+    if (value) {
+      setPrevPage(value);
+      sessionStorage.removeItem("fromPage"); // consume immediately
+    }
+  }, []);
 
   useEffect(() => {
     setCurrentPage(1);

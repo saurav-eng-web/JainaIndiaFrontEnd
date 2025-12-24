@@ -4,16 +4,19 @@ import { useEffect, useState } from "react";
 import "./Sidebar.css";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 
 import Loader from "./common/LoaderComponent";
 
 import { logout } from "@/redux/slices/authSlice";
+import { showLoader } from "@/redux/slices/loaderSlice";
+
 export default function SideBar() {
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const pathname = usePathname();
 
   const [mounted, setMounted] = useState(false);
 
@@ -119,6 +122,12 @@ export default function SideBar() {
       text: "Special Allowance",
       roles: ["NSP", "BR"],
     },
+    {
+      href: "/rsm/special-allowance",
+      icon: "fa fa-book fa-2x",
+      text: "Special Allowance Requests",
+      roles: ["ZONE", "RSM"],
+    },
   ];
 
   const allowedBulkUsers = ["T284977"];
@@ -152,11 +161,34 @@ export default function SideBar() {
             return true;
           })
           .map((item, idx) => (
+            // <li key={idx}>
+            //   <Link href={item.href}>
+            //     <i className={item.icon}></i>
+            //     <span className="navText">{item.text}</span>
+            //   </Link>
+            // </li>
             <li key={idx}>
-              <Link href={item.href}>
+              <a
+                href={item.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (pathname === item.href) {
+                    // dispatch(showLoader());
+                    // const timer = setTimeout(() => dispatch(hideLoader()), 400);
+
+                    // same route → force refresh
+                    // router.refresh(); // App Router friendly
+                    // return () => clearTimeout(timer);
+                    window.location.reload();
+                  } else {
+                    router.push(item.href);
+                  }
+                }}
+                className="menuLink"
+              >
                 <i className={item.icon}></i>
                 <span className="navText">{item.text}</span>
-              </Link>
+              </a>
             </li>
           ))}
       </ul>

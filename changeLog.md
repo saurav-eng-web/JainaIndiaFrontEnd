@@ -165,5 +165,9 @@
 - feat: search on tables, where pagination was implemented
 - fix: current page size by default is 15, on history page, it is 25
 - fix: change the options for item per page to 15,50,100
+- feat: generic components, button, input fields
 - feat: special approval NSP
 - feat: special approval RSM
+- fix: improve redux
+- fix: sidebar reload when clicked on same page
+- fix: history page, special approval was showing from anywhere, now restricted

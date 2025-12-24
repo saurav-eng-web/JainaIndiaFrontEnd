@@ -88,7 +88,7 @@ export default function SpeicalApprovalPopup({ ticketNo }) {
         console.error(res.data.statusMsg);
       }
     } catch (error) {
-      alert("Failed to submit. Please try again.");
+      toast.error("Failed to submit. Please try again.");
       console.error(error.message);
     } finally {
       setIsLoading(false);
@@ -97,7 +97,7 @@ export default function SpeicalApprovalPopup({ ticketNo }) {
 
   return (
     <ProtectedRoute allowedRoles={["br", "nsp"]}>
-      <div className="flex h-auto w-full max-w-2xl min-w-[1000px] overflow-y-auto rounded-xl bg-gray-900">
+      <div className="flex h-auto w-full max-w-2xl min-w-[1000px] overflow-y-auto rounded-xl">
         <div className="flex-1">
           {/* <div className="flex-1 pt-10 pr-20 pl-30"> */}
           <div className="w-full rounded-xl bg-white p-8 shadow-lg">

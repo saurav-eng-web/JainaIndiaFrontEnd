@@ -1,7 +1,8 @@
 "use client";
 
-import theme from "@/theme/theme";
 import { Toaster } from "react-hot-toast";
+
+import theme from "@/theme/theme";
 
 const ToastProvider = () => {
   return (
@@ -54,50 +55,3 @@ const ToastProvider = () => {
 };
 
 export default ToastProvider;
-
-// "use client"; // <--- THIS IS CRITICAL
-
-// import theme from "@/theme/theme";
-// import { Toaster } from "react-hot-toast";
-
-// const ToastProvider = () => {
-//   return (
-//     <Toaster
-//       position="top-center"
-//       toastOptions={{
-//         style: {
-//           border: `1px solid ${theme.colors.primary}`,
-//           background: theme.colors.background,
-//           padding: theme.spacing.md,
-//           color: theme.colors.light,
-//           borderRadius: theme.borderRadius,
-//           fontFamily: theme.fontFamily,
-//           fontSize: "14px",
-//           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-//         },
-//         success: {
-//           iconTheme: {
-//             primary: theme.colors.success,
-//             secondary: "white",
-//           },
-//           style: {
-//             border: `1px solid ${theme.colors.success}`,
-//           },
-//         },
-//         error: {
-//           iconTheme: {
-//             primary: theme.colors.danger,
-//             secondary: "white",
-//           },
-//           style: {
-//             border: `1px solid ${theme.colors.danger}`,
-//           },
-//         },
-//       }}
-//     />
-//   );
-// };
-
-// export default ToastProvider;
-
-// // {"StatusMsg":"Happy code for job: 4129","StatusCode":200,"happycode":"4129"}

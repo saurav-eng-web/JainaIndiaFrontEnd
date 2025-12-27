@@ -1,38 +1,86 @@
-function Th({ title }) {
-  return <th className="h-12 px-4 align-middle">{title}</th>;
+const sizeMap = {
+  xs: "w-20", // very small
+  sm: "w-28", // small
+  md: "w-36", // medium
+  lg: "w-48", // large
+  xl: "w-64", // extra large
+  xxl: "w-80", // very large
+  full: "",
+};
+
+function Td({ data, sizeClass, render, row }) {
+  return (
+    <td
+      className={`px-2 py-4 align-top wrap-break-word whitespace-normal text-slate-600 ${sizeClass || ""} `}
+    >
+      {render ? render(data, row) : data || "-"}
+    </td>
+  );
 }
 
-function Td({ data }) {
-  return <td className="p-4 text-slate-600">{data}</td>;
+function Th({ title, sizeClass }) {
+  return (
+    <th
+      className={`h-12 px-4 py-2 text-left font-semibold wrap-break-word whitespace-normal ${sizeClass || ""} `}
+    >
+      {title}
+    </th>
+  );
 }
 
-export default function Table({ header, rows }) {
+// function Th({ title, sizeClass }) {
+//   return (
+//     <th className={`m-1 h-12 px-4 align-middle font-semibold ${sizeClass}`}>{title}</th>
+//   );
+// }
+
+// function Td({ data, sizeClass, render, row }) {
+//   return (
+//     <td className={`p-4 text-slate-600 ${sizeClass}`}>
+//       {/* If render function exists, call it with current data and the whole row */}
+//       {render ? render(data, row) : data || "-"}
+//     </td>
+//   );
+// }
+
+export default function Table({ columns, rows }) {
   return (
     <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="text-md h-16 border-b border-slate-200 bg-[#714b67] font-medium text-slate-100">
+        {/* <table className="w-full table-fixed text-left text-sm"> */}
+        <table className="w-full table-auto text-left text-sm">
+          <thead className="h-12 truncate border-b border-slate-200 bg-[#714b67] text-slate-100">
             <tr>
-              {header.map((header) => (
-                <Th key={header} title={header} />
+              {columns.map((col) => (
+                <Th
+                  key={col.key}
+                  title={col.label}
+                  sizeClass={sizeMap[col.size] || sizeMap.md}
+                />
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-4 text-center text-slate-500">
-                  No data available
+                <td colSpan={columns.length} className="p-10 text-center text-slate-500">
+                  No data
                 </td>
               </tr>
             ) : (
-              <tr className="transition-colors hover:bg-slate-50/80 data-[state=selected]:bg-slate-100">
-                {rows.map((row, rowIndex) =>
-                  Object.values(row).map((item, colIndex) => (
-                    <Td key={`${rowIndex}-${colIndex}`} data={item} />
-                  ))
-                )}
-              </tr>
+              rows.map((row, rowIndex) => (
+                <tr key={rowIndex} className="transition-colors hover:bg-slate-50">
+                  {columns.map((col) => (
+                    <Td
+                      key={col.key}
+                      data={row[col.key]}
+                      row={row} // Pass the full row for complex renders (like Name)
+                      render={col.render}
+                      sizeClass={sizeMap[col.size] || sizeMap.md}
+                    />
+                  ))}
+                </tr>
+              ))
             )}
           </tbody>
         </table>
@@ -40,3 +88,30 @@ export default function Table({ header, rows }) {
     </div>
   );
 }
+
+/*
+const columnConfig = [
+  { label: "Username", key: "Name", size: "sm" }, // Label is "Username", but look for "Name" in data
+  { label: "Email", key: "Email", size: "xl" },
+  { label: "Phone", key: "Phone", size: "md" },
+  { label: "Category", key: "Test", size: "xs" },
+  { label: "Status", key: "New", size: "sm" },
+];
+
+const rows = [
+  {
+    Name: "test1",
+    Email: "test1@gmail.com",
+    Phone: "1234",
+    Test: "Admin",
+    New: "Active",
+  },
+  {
+    Name: "test2",
+    Email: "test2@gmail.com",
+    Phone: "5678",
+    Test: "User",
+    New: "Pending",
+  },
+];
+ */

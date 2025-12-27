@@ -23,7 +23,7 @@ export default function LoginPage() {
       if (role === "br") {
         router.push("/search-complaint");
       } else if (role === "cc") {
-        router.push("/test");
+        router.push("/cc/home");
       } else if (role === "technician") {
         router.push("/technician/jobs");
       } else if (role === "sf/ssd") {

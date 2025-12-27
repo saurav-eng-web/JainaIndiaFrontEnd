@@ -11,34 +11,10 @@ import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
 import ConfirmModal from "@/components/ui/ConfirmationModal";
 
-// ---------------- MOCK TABLE DATA -------------------
-const mockTableData = [
-  {
-    srNo: 1,
-    ticketNo: "PBSW2505271294805",
-    partCode: "SSNWMSAPSMOTWM002",
-    description: "Wash Motor 180 Watt ( Al. Winding )",
-    warranty: "In Warranty",
-    packingSlipNo: "JPS-2526-0005440",
-    serialNo: "NA",
-    qty: 1,
-  },
-  {
-    srNo: 2,
-    ticketNo: "PBSW2505291296442",
-    partCode: "SSNWMSASSBELSB001",
-    description: "RUBBER SEAL FOR DRAIN VALVE (JSPI40S-2024)",
-    warranty: "In Warranty",
-    packingSlipNo: "JPS-2526-0005765",
-    serialNo: "NA",
-    qty: 2,
-  },
-];
-
 export default function SendDefectivePage() {
   const { colors } = useTheme();
   const user = useSelector((state) => state.auth.user);
-
+  const { userName } = user;
   const [warehouseId, setWarehouseId] = useState("");
   const [challanType, setChallanType] = useState("");
   const [tableData, setTableData] = useState([]);
@@ -48,9 +24,12 @@ export default function SendDefectivePage() {
   const [challanTypeOptions, setChallanTypeOptions] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [serverMessage, setServerMessage] = useState("");
+  const [popupType, setPoptype] = useState("submit");
 
   const [showDispatchForm, setShowDispatchForm] = useState(false);
-
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalWeight, setTotalWeight] = useState(0);
+  const [pincode, setPincode] = useState(0);
   const [dispatchForm, setDispatchForm] = useState({
     courierType: "",
     courierCode: "",
@@ -111,6 +90,31 @@ export default function SendDefectivePage() {
     };
   }, []); // ✅ run once on mount
 
+  useEffect(() => {
+    async function fetchAscDetails() {
+      if (!userName) return;
+      //
+
+      try {
+        setIsLoading(true);
+        const res = await axiosInstance.get(`ASC_MASTER/asccode/${userName}`);
+        // if (res?.data?.statusCode === 200) {
+        //   const data = res?.data?.data;
+        //   console.log("data: ", data);
+        // }
+        if (res.status === 200) {
+          setPincode(res.data?.pincode);
+        }
+      } catch (error) {
+        console.error("Error fetching ASC details: ", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchAscDetails();
+  }, [userName]);
+
   const handleSearch = async () => {
     if (!warehouseId || !challanType) {
       toast.error("Please select warehouse and challan type");
@@ -143,18 +147,48 @@ export default function SendDefectivePage() {
   const toggleSelection = (item) => {
     if (selectedItems.some((x) => x.ID === item.ID)) {
       setSelectedItems(selectedItems.filter((x) => x.ID !== item.ID));
+      setTotalPrice((prev) => prev - item.Price);
+      setTotalWeight((prev) => prev - item.Weight);
     } else {
       setSelectedItems([...selectedItems, item]);
+      setTotalPrice((prev) => prev + item.Price);
+      setTotalWeight((prev) => prev + item.Weight);
+      // setTotalPrice(selectedItems.reduce((acc, curr) => acc + curr.TotalPrice, 0));
+      // setTotalWeight(selectedItems.reduce((acc, curr) => acc + curr.TotalWeight, 0));
     }
   };
+  console.log("details", { totalPrice, totalWeight });
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (selectedItems.length === 0) {
       toast.error("Please select at least one item");
       return;
     }
 
-    setShowConfirm(true);
+    try {
+      const res = await axiosInstance.post("/Cost/check", {
+        RecentPrice: totalPrice,
+      });
+
+      console.log("res: ", res);
+      if (res?.data?.statusCode === 200) {
+        const message = res?.data?.statusMsg;
+        setServerMessage(message);
+
+        if (message !== "Are you sure to process the items") {
+          setPoptype("info");
+        } else {
+          setPoptype("submit");
+        }
+
+        setShowConfirm(true);
+      }
+    } catch (error) {
+      toast.error("Something went wrong try again");
+      console.log("error: ", error);
+    }
+
+    // setShowConfirm(true);
 
     // setDispatchForm({
     //   ...dispatchForm,
@@ -175,8 +209,26 @@ export default function SendDefectivePage() {
     // Here you will call actual API later.
   };
 
-  const handleConfirmYes = () => {
+  const handleConfirmYes = async () => {
     setShowConfirm(false);
+
+    try {
+      const res = await axiosInstance.post("/Cost/check", {
+        Pincode: 421203,
+        Weight: totalWeight,
+      });
+      console.log("res: ", res);
+      if (res?.data?.statusCode === 200) {
+        const data = res?.data?.data;
+        setDispatchForm((prev) => ({
+          ...prev,
+          docketNo: data.DocketNo,
+          challanDate: new Date().toISOString().slice(0, 10),
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching docket get:", error);
+    }
 
     setDispatchForm((prev) => ({
       ...prev,
@@ -426,6 +478,7 @@ export default function SendDefectivePage() {
           message={serverMessage}
           onConfirm={handleConfirmYes}
           onCancel={handleConfirmNo}
+          type={popupType}
         />
       </div>
     </ProtectedRoute>

@@ -2,7 +2,9 @@
 import { useEffect, useRef, useState } from "react";
 import "./servicereg.css";
 import axios from "axios";
+
 import WebCallRegister from "./WebCallRegister";
+
 import axiosInstance from "@/api/axiosInstance";
 
 export default function ServiceRegistration() {
@@ -72,7 +74,7 @@ export default function ServiceRegistration() {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           },
-        },
+        }
       );
 
       setResendTimer(180); // start countdown
@@ -107,11 +109,7 @@ export default function ServiceRegistration() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="flex h-20 items-center border-b border-gray-100 bg-white px-4 md:px-8">
-        <img
-          src="/black-logo.webp"
-          className="w-28 md:w-36"
-          alt="sansui logo"
-        />
+        <img src="/black-logo.webp" className="w-28 md:w-36" alt="sansui logo" />
         <p className="flex-1 text-center text-sm font-semibold md:pr-32 md:text-lg">
           Job Registration
         </p>
@@ -124,10 +122,7 @@ export default function ServiceRegistration() {
         >
           {/* Phone Section */}
           <div className="flex-1">
-            <label
-              className="mb-2 block text-sm font-medium"
-              htmlFor="mobileNumber"
-            >
+            <label className="mb-2 block text-sm font-medium" htmlFor="mobileNumber">
               Phone Number
             </label>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -188,9 +183,7 @@ export default function ServiceRegistration() {
             </div>
 
             {otpError && (
-              <p className="mt-2 text-sm font-medium text-red-500">
-                {otpError}
-              </p>
+              <p className="mt-2 text-sm font-medium text-red-500">{otpError}</p>
             )}
           </div>
         </div>
@@ -207,11 +200,7 @@ export default function ServiceRegistration() {
                 stroke="currentColor"
                 strokeWidth={2}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <p className="mt-3 text-lg font-semibold text-green-600">

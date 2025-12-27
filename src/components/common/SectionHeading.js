@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useTheme } from '@/theme/ThemeContext';
+import { useTheme } from "@/theme/ThemeContext";
 
 export default function SectionHeading({ children }) {
   const { colors } = useTheme();
 
   return (
     <h2
-      className="text-left pl-[10px] mb-[30px] font-bold border-2 text-lg p-[5px] rounded-[5px]"
+      className="mb-[30px] rounded-[5px] border-2 p-[5px] pl-2.5 text-left text-lg font-bold"
       style={{
         color: colors.primary,
         borderColor: colors.primary,

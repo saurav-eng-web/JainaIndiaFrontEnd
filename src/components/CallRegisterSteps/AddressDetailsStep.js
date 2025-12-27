@@ -1,7 +1,8 @@
-'use client';
-export const dynamic = 'force-dynamic';
-import { useState, useRef } from 'react';
-import axiosInstance from '@/api/axiosInstance';
+"use client";
+export const dynamic = "force-dynamic";
+import { useState, useRef } from "react";
+
+import axiosInstance from "@/api/axiosInstance";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export default function AddressDetailsStep({
@@ -11,14 +12,13 @@ export default function AddressDetailsStep({
   errors,
   // NEW: lifted to parent so stepper can block Next
   pincodeStatus,
-  setPincodeStatus
+  setPincodeStatus,
 }) {
   const [localities, setLocalities] = useState([]);
   const debounceTimer = useRef(null);
 
-
   const handlePincodeChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ''); // digits only
+    let value = e.target.value.replace(/\D/g, ""); // digits only
     if (value.length > 6) value = value.slice(0, 6);
 
     setFormData((prev) => ({ ...prev, pincode: value }));
@@ -27,16 +27,18 @@ export default function AddressDetailsStep({
 
     if (value.length === 6) {
       // mark as checking to block Next during debounce/API
-      setPincodeStatus('checking');
+      setPincodeStatus("checking");
       debounceTimer.current = setTimeout(() => fetchPincodeDetails(value), 400);
     } else {
-      resetAddressFields('');
+      resetAddressFields("");
     }
   };
 
   const fetchPincodeDetails = async (pincode) => {
     try {
-      const res = await axiosInstance.get(`${BASE_URL}/LocalityMaster/by-pincode/${pincode}`);
+      const res = await axiosInstance.get(
+        `${BASE_URL}/LocalityMaster/by-pincode/${pincode}`
+      );
       const data = res.data;
 
       if (Array.isArray(data) && data.length > 0) {
@@ -45,32 +47,32 @@ export default function AddressDetailsStep({
         const first = data[0];
         setFormData((prev) => ({
           ...prev,
-          state: first.state_Name || '',
-          city: first.city_Name || '',
-          locality: first.locality_Name || '',
-          localityId: first.locality_Id || '',
-          cityId: first.locality_City || '',
+          state: first.state_Name || "",
+          city: first.city_Name || "",
+          locality: first.locality_Name || "",
+          localityId: first.locality_Id || "",
+          cityId: first.locality_City || "",
         }));
-        setPincodeStatus('valid');
+        setPincodeStatus("valid");
       } else {
-        resetAddressFields('invalid');
+        resetAddressFields("invalid");
       }
     } catch (err) {
-      console.error('API error:', err);
-      resetAddressFields('invalid');
+      console.error("API error:", err);
+      resetAddressFields("invalid");
     }
   };
 
-  const resetAddressFields = (status = '') => {
+  const resetAddressFields = (status = "") => {
     setLocalities([]);
     setPincodeStatus(status);
     setFormData((prev) => ({
       ...prev,
-      state: '',
-      city: '',
-      locality: '',
-      localityId: '',
-      cityId: '',
+      state: "",
+      city: "",
+      locality: "",
+      localityId: "",
+      cityId: "",
     }));
   };
 
@@ -78,16 +80,19 @@ export default function AddressDetailsStep({
     const selected = localities.find((loc) => loc.locality_Name === e.target.value);
     setFormData((prev) => ({
       ...prev,
-      locality: selected?.locality_Name || '',
-      localityId: selected?.locality_Id || '',
-      cityId: selected?.locality_City || '',
+      locality: selected?.locality_Name || "",
+      localityId: selected?.locality_Id || "",
+      cityId: selected?.locality_City || "",
     }));
   };
 
-  const fields = ['customerAddress', 'landmark', 'pincode', 'state', 'city'];
+  const fields = ["customerAddress", "landmark", "pincode", "state", "city"];
 
   const formatLabel = (field) =>
-    field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase()).trim();
+    field
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, (str) => str.toUpperCase())
+      .trim();
 
   return (
     <>
@@ -100,17 +105,17 @@ export default function AddressDetailsStep({
               id={field}
               name={field}
               placeholder={formatLabel(field)}
-              value={formData[field] || ''}
-              onChange={field === 'pincode' ? handlePincodeChange : handleChange}
-              readOnly={['state', 'city'].includes(field)}
-              maxLength={field === 'pincode' ? 6 : undefined}
+              value={formData[field] || ""}
+              onChange={field === "pincode" ? handlePincodeChange : handleChange}
+              readOnly={["state", "city"].includes(field)}
+              maxLength={field === "pincode" ? 6 : undefined}
             />
             {errors?.[field] && <p className="error-text">{errors[field]}</p>}
-            {field === 'pincode' && pincodeStatus === 'valid' && (
-              <small style={{ color: 'green' }}>✅ Valid Pincode</small>
+            {field === "pincode" && pincodeStatus === "valid" && (
+              <small style={{ color: "green" }}>✅ Valid Pincode</small>
             )}
-            {field === 'pincode' && pincodeStatus === 'invalid' && (
-              <small style={{ color: 'red' }}>❌ Invalid Pincode</small>
+            {field === "pincode" && pincodeStatus === "invalid" && (
+              <small style={{ color: "red" }}>❌ Invalid Pincode</small>
             )}
           </div>
         ))}
@@ -121,7 +126,7 @@ export default function AddressDetailsStep({
             <select
               id="locality"
               name="locality"
-              value={formData.locality || ''}
+              value={formData.locality || ""}
               onChange={handleLocalityChange}
             >
               {localities.map((loc, idx) => (
@@ -135,7 +140,7 @@ export default function AddressDetailsStep({
               id="locality"
               name="locality"
               placeholder="Locality"
-              value={formData.locality || ''}
+              value={formData.locality || ""}
               readOnly
             />
           )}

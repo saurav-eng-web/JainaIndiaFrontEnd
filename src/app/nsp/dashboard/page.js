@@ -29,7 +29,7 @@ import { useTheme } from "@/theme/ThemeContext";
 import { encodeRouteData } from "@/utils/secureRoute";
 import { hideLoader, showLoader } from "@/redux/slices/loaderSlice";
 import Loader from "@/components/common/LoaderComponent";
-import "../../../components/Sidebar.css";
+// import "../../../components/Sidebar.css";
 
 export default function Dashboard() {
   const { colors } = useTheme();
@@ -207,6 +207,7 @@ export default function Dashboard() {
   // }, [userInfo]);
 
   const handleCardClick = (item) => {
+    console.log("url: ", item.url);
     if (item.url) {
       router.push(`/${item.url}`);
       return;
@@ -257,19 +258,14 @@ export default function Dashboard() {
               </div>
             )}
 
-            <div className="grid min-h-[180px] grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-8 2xl:grid-cols-10">
+            <div className="grid min-h-[180px] grid-cols-[repeat(auto-fill,minmax(150px,1fr))] items-center gap-6 sm:gap-4">
               {dashboardData.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => handleCardClick(item)}
-                  className="cursor-pointer"
+                  className="flex cursor-pointer items-center justify-center"
                 >
-                  <DashboardCard
-                    title={item.title}
-                    value={item.value}
-                    Icon={item.Icon}
-                    iconColor={item.iconColor}
-                  />
+                  <DashboardCard {...item} />
                 </div>
               ))}
             </div>

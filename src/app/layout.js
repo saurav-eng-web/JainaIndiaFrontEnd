@@ -2,11 +2,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 
+import ToastProvider from "./ToastProvider";
+
 import ReduxProvider from "@/redux/ReduxProvider"; // ✅ Import client provider
 import { ThemeProvider } from "@/theme/ThemeContext";
 import NavigationLoader from "@/components/NavigationLoader";
-import GlobalOverlayLoader from "@/components/Loader";
-import ToastProvider from "./ToastProvider";
+import Loader from "@/components/Loader";
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -34,7 +35,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ReduxProvider>
-          <GlobalOverlayLoader />
+          <Loader />
           <NavigationLoader />
           <ThemeProvider>
             <ToastProvider />

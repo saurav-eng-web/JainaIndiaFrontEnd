@@ -15,7 +15,7 @@ export function Button({
 }) {
   return (
     <button
-      className={`h-11 min-w-[82px] cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold transition focus:ring-2 focus:ring-offset-2 focus:outline-none ${VARIANT_CLASSES[variant]} ${className} `}
+      className={`h-10 min-w-[82px] cursor-pointer rounded px-4 py-2 text-sm font-semibold transition focus:ring-2 focus:ring-offset-2 focus:outline-none ${VARIANT_CLASSES[variant]} ${className} `}
       {...props}
     >
       {children}

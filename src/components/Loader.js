@@ -3,7 +3,7 @@
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
-export default function GlobalOverlayLoader() {
+export default function Loader() {
   const loading = useSelector((state) => state.loader.loading);
   const [visible, setVisible] = useState(false);
 

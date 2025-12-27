@@ -195,7 +195,7 @@ export default function BulkUploader() {
     const isAuthorized = role === "cc" && userName === "T284977";
 
     if (!isAuthorized) {
-      router.replace("/test");
+      router.replace("/cc/home");
     }
   }, [router]);
 

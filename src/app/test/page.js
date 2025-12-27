@@ -31,7 +31,7 @@ export default function Test() {
         <SideBar />
         <div className="flex flex-1 items-start justify-center pt-[100px]">
           <div
-            className="w-full max-w-[600px] rounded-[12px] p-[40px] text-center shadow-[0_8px_24px_rgba(0,0,0,0.2)]"
+            className="w-full max-w-[600px] rounded-xl p-10 text-center shadow-[0_8px_24px_rgba(0,0,0,0.2)]"
             style={{
               background: `linear-gradient(to bottom right, ${colors.primary}, ${colors.secondary}, ${colors.accent})`,
             }}

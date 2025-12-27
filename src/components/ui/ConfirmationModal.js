@@ -1,27 +1,30 @@
 import { Button } from "./button";
 
-function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
+function ConfirmModal({ open, title, message, onConfirm, onCancel, type = "submit" }) {
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-96 rounded-lg bg-white p-6">
-        <h2 className="mb-2 text-lg font-semibold">{title}</h2>
-        <p className="mb-4 text-sm text-gray-600">{message}</p>
+      <div className="flex min-h-[200px] w-[35rem] flex-col justify-between rounded-lg bg-white p-6">
+        <div className="">
+          <h2 className="mb-2 text-lg font-semibold">{title}</h2>
+          <p className="text-md mb-4">{message}</p>
+        </div>
 
         <div className="flex justify-end gap-3">
-          {/* <button className="rounded bg-gray-200 px-4 py-2" onClick={onCancel}>
-            No
-          </button> */}
+          {type === "submit" ? (
+            <>
+              <Button className="h-9!" onClick={onCancel} variant="danger">
+                No
+              </Button>
 
-          {/* <button className="rounded bg-red-600 px-4 py-2 text-white" onClick={onConfirm}>
-            Yes
-          </button> */}
-          <Button onClick={onCancel} variant="danger">
-            No
-          </Button>
-
-          <Button onClick={onConfirm}>Yes</Button>
+              <Button className="h-9!" onClick={onConfirm}>
+                Yes
+              </Button>
+            </>
+          ) : (
+            <Button onClick={onCancel}>OK</Button>
+          )}
         </div>
       </div>
     </div>

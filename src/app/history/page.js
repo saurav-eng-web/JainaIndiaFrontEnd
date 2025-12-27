@@ -147,15 +147,6 @@ function HistoryPageContent() {
   const onOpenAllowanceModal = () => setAllowancePopup(true);
   const onCloseAllowanceModal = () => setAllowancePopup(false);
 
-  // useEffect(() => {
-  //   const value = sessionStorage.getItem("fromPage");
-  //   setPrevPage(value);
-
-  //   return () => {
-  //     sessionStorage.removeItem("fromPage");
-  //   };
-  // }, []);
-
   useEffect(() => {
     const value = sessionStorage.getItem("fromPage");
 
@@ -254,7 +245,6 @@ function HistoryPageContent() {
           axiosInstance.get(`PartConsumption/ByTicket/${activeTicket}`), // 2
           axiosInstance.get(`DocumentUpload/ticket/${activeTicket}`), // 3
           axiosInstance.get(`LevelPendingHistory/ticket/${activeTicket}`), // 4
-          // axiosInstance.get(`visit/ticket/${activeTicket}`), // 5
           axiosInstance.get(`reminder/Ticket/${activeTicket}`), // 6
         ]);
 
@@ -313,6 +303,9 @@ function HistoryPageContent() {
   // 3. Helper Function for Actions
   // (Moved outside effect to keep the main logic clean)
   const fetchActionsInternal = async (complaintDetail, userRole) => {
+    if (user?.roleName !== "SF/SSD") {
+      return;
+    }
     try {
       const payload = {
         type: "jobactions",

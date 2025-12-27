@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { FaDownload } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
@@ -124,7 +125,8 @@ export default function DashboardPage() {
 
   const handleDownload = async () => {
     if (!fromDate || !toDate || !reportType) {
-      alert("Please select dates and report type");
+      // alert("Please select dates and report type");
+      toast.error("Please select dates and report type");
       return;
     }
     setIsLoading(true);
@@ -186,12 +188,14 @@ export default function DashboardPage() {
           const json = JSON.parse(text);
           const serverMsg = json.error || "Unknown Server Error";
 
-          alert(serverMsg);
+          // alert(serverMsg);
+          toast.error(serverMsg);
 
           // ✅ LOG THE DECODED SERVER MESSAGE
           logger.error(`Download failed (Server): ${serverMsg}`, "Download Report", meta);
         } catch (parseError) {
-          alert("Failed to download");
+          // alert("Failed to download");
+          toast.error("Failed to download");
 
           // ✅ LOG IF JSON PARSING FAILED
           logger.error(
@@ -201,7 +205,8 @@ export default function DashboardPage() {
           );
         }
       } else {
-        alert("Failed to download");
+        // alert("Failed to download");
+        toast.error("Failed to download");
 
         // ✅ LOG STANDARD JS ERROR
         logger.error(
@@ -252,7 +257,7 @@ export default function DashboardPage() {
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                  className={`w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-[${colors.primary}] focus:outline-none`}
                 />
               </div>
 
@@ -265,39 +270,42 @@ export default function DashboardPage() {
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  className="w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                  className={`w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-[${colors.primary}] focus:outline-none`}
                 />
               </div>
             </div>
 
             {/* Report Dropdown */}
-            <div className="mb-4 md:w-1/3">
-              <label className="mb-1 block text-sm font-semibold text-gray-700">
-                Select Report Name:
-              </label>
-              <select
-                value={reportType}
-                onChange={(e) => setReportType(e.target.value)}
-                className="w-full rounded border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
-              >
-                <option value="">-----Select-----</option>
-                {/*
+            {/* <div className="mb-4 md:w-1/3"> */}
+            <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-gray-700">
+                  Select Report Name:
+                </label>
+                <select
+                  value={reportType}
+                  onChange={(e) => setReportType(e.target.value)}
+                  className={`w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-[${colors.primary}] focus:outline-none`}
+                >
+                  <option value="">-----Select-----</option>
+                  {/*
                 {options.map((option) => (
                   <option key={option.id} value={option.reportAct}>
                     {option.reportDis}
                   </option>
 
                 ))} */}
-                {options.length === 0 ? (
-                  <option disabled>No reports available</option>
-                ) : (
-                  options.map((option) => (
-                    <option key={option.id} value={option.reportAct}>
-                      {option.reportDis}
-                    </option>
-                  ))
-                )}
-              </select>
+                  {options.length === 0 ? (
+                    <option disabled>No reports available</option>
+                  ) : (
+                    options.map((option) => (
+                      <option key={option.id} value={option.reportAct}>
+                        {option.reportDis}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
             </div>
 
             <button

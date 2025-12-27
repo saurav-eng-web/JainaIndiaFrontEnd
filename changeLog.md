@@ -171,3 +171,13 @@
 - fix: improve redux
 - fix: sidebar reload when clicked on same page
 - fix: history page, special approval was showing from anywhere, now restricted
+- feat: confirmation modal
+
+## 2.2.0
+
+- fix: dashboard card spacing
+- fix: dashboard action master call only on sf/ssf role
+- UI fix: sidebar: remove vanilla css, improved animation, fix broke UI for user section,
+- fix: many components where they were using vanilla css.
+- fix: Table components now have option to set the column size as well
+- fix: use the Table component across multiple components

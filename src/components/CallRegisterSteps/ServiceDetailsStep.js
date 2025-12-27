@@ -2,8 +2,10 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
-import axiosInstance from "@/api/axiosInstance";
+
 import CustomDropdown from "../common/Dropdown";
+
+import axiosInstance from "@/api/axiosInstance";
 
 export default function ServiceDetailsStep({
   formData,
@@ -24,9 +26,7 @@ export default function ServiceDetailsStep({
           setCallTypes([]);
           return;
         }
-        const res = await axiosInstance.get(
-          `CallType/subcategory/${formData.product}`
-        );
+        const res = await axiosInstance.get(`CallType/subcategory/${formData.product}`);
         if (Array.isArray(res.data)) {
           setCallTypes(res.data);
         }
@@ -90,9 +90,7 @@ export default function ServiceDetailsStep({
   // ✅ Handle call type change (store ID + Name in formData)
   const handleCallTypeChange = (e) => {
     const selectedId = e.target.value;
-    const selectedObj = callTypes.find(
-      (c) => c.callType_ID.toString() === selectedId
-    );
+    const selectedObj = callTypes.find((c) => c.callType_ID.toString() === selectedId);
 
     setFormData((prev) => ({
       ...prev,
@@ -165,16 +163,12 @@ export default function ServiceDetailsStep({
             placeholder="Select Call Type"
           />
 
-          {errors.callType && (
-            <span className="error-text">{errors.callType}</span>
-          )}
+          {errors.callType && <span className="error-text">{errors.callType}</span>}
         </div>
 
         {/* ✅ Service Date & Time */}
         <div className="form-group">
-          <label htmlFor="serviceDateTime">
-            Customer Available Date & Time
-          </label>
+          <label htmlFor="serviceDateTime">Customer Available Date & Time</label>
           <div style={{ display: "flex", gap: "8px" }}>
             <input
               type="date"
@@ -236,14 +230,12 @@ export default function ServiceDetailsStep({
             placeholder="Select Fault"
           />
 
-          {errors.faultVoc && (
-            <span className="error-text">{errors.faultVoc}</span>
-          )}
+          {errors.faultVoc && <span className="error-text">{errors.faultVoc}</span>}
         </div>
 
-        <div className="flex text-sm w-full">
+        <div className="flex w-full text-sm">
           <div className="mr-6 w-full">
-            <p className="pl-3 pb-2">Remarks</p>
+            <p className="pb-2 pl-3">Remarks</p>
             <textarea
               onChange={(e) => hanldeRemarks(e)}
               className=""
@@ -264,7 +256,7 @@ export default function ServiceDetailsStep({
 
         <div className="text-sm">
           <div>
-            <p className="pl-3 pb-2">Caller Number</p>
+            <p className="pb-2 pl-3">Caller Number</p>
             <input
               type="tel"
               maxLength={10}
@@ -272,9 +264,9 @@ export default function ServiceDetailsStep({
               onChange={handleCaller}
               value={formData.callerNumber || ""}
               placeholder="Enter 10-digit mobile number"
-              className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
-            {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+            {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
           </div>
         </div>
       </div>

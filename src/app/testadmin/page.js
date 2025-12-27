@@ -1,30 +1,55 @@
 "use client";
+import React from "react";
 
-import "react-responsive-modal/styles.css";
-import { useState } from "react";
-
-import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
-
+import Popup from "@/components/common/Popup";
+import SectionHeading from "@/components/common/SectionHeading";
+import Table from "@/components/common/Table";
+import ThemedButton from "@/components/common/ThemedButton";
 import { Button } from "@/components/ui/button";
-import Modal from "@/components/ui/Modal";
 
-const Temp = () => {
-  const [open, setOpen] = useState(false);
+const ComponentName = () => {
+  // Define the mapping here
+  const columnConfig = [
+    { label: "Username", key: "Name", size: "sm" }, // Label is "Username", but look for "Name" in data
+    { label: "Email", key: "Email", size: "xl" },
+    { label: "Phone", key: "Phone", size: "md" },
+    { label: "Category", key: "Test", size: "xs" },
+    { label: "Status", key: "New", size: "sm" },
+  ];
 
-  const onOpenModal = () => setOpen(true);
-  const onCloseModal = () => setOpen(false);
+  const rows = [
+    // {
+    //   Name: "test1",
+    //   Email: "test1@gmail.com",
+    //   Phone: "1234",
+    //   Test: "Admin",
+    //   New: "Active",
+    // },
+    // {
+    //   Name: "test2",
+    //   Email: "test2@gmail.com",
+    //   Phone: "5678",
+    //   Test: "User",
+    //   New: "Pending",
+    // },
+  ];
+
+  // Usage
 
   return (
-    <div className="flex min-h-screen min-w-screen items-center justify-center">
-      {/* <div className="h-12 w-28 cursor-pointer rounded-xl bg-red-500! p-4">hi there</div> */}
-      <Button className="mb-4 w-32" onClick={onOpenModal}>
-        Open Modal
-      </Button>
-      <Modal open={open} onClose={onCloseModal} center>
-        <SpeicalApprovalPopup />
-      </Modal>
-    </div>
+    <>
+      <div className="bg-yellow-500">Admin</div>
+      <Popup />
+      <SectionHeading>
+        test
+        <div>test</div>
+        <p>new</p>
+      </SectionHeading>
+      <ThemedButton>test</ThemedButton>
+      <Button>test</Button>
+      <Table columns={columnConfig} rows={rows} />;
+    </>
   );
 };
 
-export default Temp;
+export default ComponentName;

@@ -2,7 +2,7 @@
 
 import { useTheme } from "@/theme/ThemeContext";
 
-export default function ThemedButton({ children, onClick, type = "default" }) {
+export default function ThemedButton({ children, onClick, type = "primary" }) {
   const { colors } = useTheme();
 
   // Define background and border based on type

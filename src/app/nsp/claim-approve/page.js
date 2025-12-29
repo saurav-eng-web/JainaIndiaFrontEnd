@@ -4,12 +4,13 @@ export const fetchCache = "force-no-store";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { getUserFromLocalStorage } from "../../../redux/slices/authSlice";
+
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
 import SectionHeading from "@/components/common/SectionHeading";
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { getUserFromLocalStorage } from "../../../redux/slices/authSlice";
 
 export default function ComplaintTable() {
   const { colors } = useTheme();
@@ -98,7 +99,7 @@ export default function ComplaintTable() {
                                 )
                               }
                               // onClick={() => router.push(`/nsp/claim-approve/details`)}
-                              className="rounded-md px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+                              className="cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
                               style={{ backgroundColor: colors.primary }}
                             >
                               Update

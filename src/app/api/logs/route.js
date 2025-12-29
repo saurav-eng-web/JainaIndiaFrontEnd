@@ -32,7 +32,7 @@ export async function POST(request) {
 
       return {
         stream: {
-          job: "nra",
+          job: process.env.MODULE_NAME || "CRM-FULL",
           level: level.toLowerCase(), // Loki likes lowercase levels
           // action_type: action || "unknown",
         },

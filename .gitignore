@@ -50,3 +50,4 @@ temp.js
 .vscode/
 
 docker-compose.yml
+.vscode/settings.json

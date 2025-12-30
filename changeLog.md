@@ -182,3 +182,4 @@
 - fix: Table components now have option to set the column size as well
 - fix: use the Table component across multiple components
 - getting lokin project name through .env
+- fix: load action master only on sf

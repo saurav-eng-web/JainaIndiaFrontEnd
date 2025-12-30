@@ -99,6 +99,7 @@ function HistoryPageContent() {
   const { user } = useSelector((state) => state.auth);
   const loggedInUser = user?.userName || "Unknown";
   const loggedInUserId = user?.userID || 0;
+  const loggedInUserRole = user?.roleName || "Unknown";
   const [popup, setPopup] = useState({
     isOpen: false,
     message: "",
@@ -285,7 +286,7 @@ function HistoryPageContent() {
 
         // --- Dependent Logic: Fetch Actions ---
         // We do this here because we already have 'custData' and don't want to fetch it again.
-        if (custData && user) {
+        if (custData && user && user.roleName === "SF/SSD") {
           fetchActionsInternal(custData, user.roleName);
         }
       } catch (err) {
@@ -1360,7 +1361,6 @@ function HistoryPageContent() {
           <p className="empty">No data found.</p>
         ) : (
           <>
-            {/* history table still from ComplaintHistory */}
             <table className="complaint-table">
               <thead>
                 <tr>

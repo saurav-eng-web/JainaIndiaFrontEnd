@@ -23,11 +23,11 @@ import { logger } from "@/utils/logger";
 import { formatIndianDate } from "@/utils/formatDate";
 import Loader from "@/components/common/LoaderComponent";
 import Pagination from "@/components/Pagination";
+import { Button } from "@/components/ui/button";
+import Modal from "@/components/ui/Modal";
 
 import "./history.css";
 import "react-toastify/dist/ReactToastify.css";
-import { Button } from "@/components/ui/button";
-import Modal from "@/components/ui/Modal";
 
 const tabs = [
   "Job Details",

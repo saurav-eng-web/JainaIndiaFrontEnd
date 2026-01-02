@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+export const dynamic = "force-dynamic";
+
+import React, { Suspense, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 
@@ -11,10 +13,10 @@ import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
 import ConfirmModal from "@/components/ui/ConfirmationModal";
 
-export default function SendDefectivePage() {
+function SendDefectivePageContent() {
   const { colors } = useTheme();
   const user = useSelector((state) => state.auth.user);
-  const { userName } = user;
+  console.log("user: ", user);
   const [warehouseId, setWarehouseId] = useState("");
   const [challanType, setChallanType] = useState("");
   const [tableData, setTableData] = useState([]);
@@ -92,16 +94,13 @@ export default function SendDefectivePage() {
 
   useEffect(() => {
     async function fetchAscDetails() {
-      if (!userName) return;
+      if (!user || !user.userName) return;
       //
 
       try {
         setIsLoading(true);
-        const res = await axiosInstance.get(`ASC_MASTER/asccode/${userName}`);
-        // if (res?.data?.statusCode === 200) {
-        //   const data = res?.data?.data;
-        //   console.log("data: ", data);
-        // }
+        const res = await axiosInstance.get(`ASC_MASTER/asccode/${user?.userName}`);
+
         if (res.status === 200) {
           setPincode(res.data?.pincode);
         }
@@ -113,7 +112,7 @@ export default function SendDefectivePage() {
     }
 
     fetchAscDetails();
-  }, [userName]);
+  }, [user]);
 
   const handleSearch = async () => {
     if (!warehouseId || !challanType) {
@@ -482,5 +481,19 @@ export default function SendDefectivePage() {
         />
       </div>
     </ProtectedRoute>
+  );
+}
+
+export default function CreateChallan() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen w-screen items-center justify-center text-center text-2xl">
+          Loading page...
+        </div>
+      }
+    >
+      <SendDefectivePageContent />
+    </Suspense>
   );
 }

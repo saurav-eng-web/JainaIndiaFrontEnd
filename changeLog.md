@@ -181,5 +181,10 @@
 - fix: many components where they were using vanilla css.
 - fix: Table components now have option to set the column size as well
 - fix: use the Table component across multiple components
-- getting lokin project name through .env
+- getting loki project name through .env
 - fix: load action master only on sf
+
+## 2.2.1
+
+- fix: create challan page, causing error while building
+- improved docker image

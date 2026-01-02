@@ -188,3 +188,5 @@
 
 - fix: create challan page, causing error while building
 - improved docker image
+- fix sidebar icon not rendering after build
+- fix: import fa icons and font

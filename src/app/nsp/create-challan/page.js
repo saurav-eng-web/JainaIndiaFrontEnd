@@ -16,7 +16,6 @@ import ConfirmModal from "@/components/ui/ConfirmationModal";
 function SendDefectivePageContent() {
   const { colors } = useTheme();
   const user = useSelector((state) => state.auth.user);
-  console.log("user: ", user);
   const [warehouseId, setWarehouseId] = useState("");
   const [challanType, setChallanType] = useState("");
   const [tableData, setTableData] = useState([]);
@@ -156,7 +155,6 @@ function SendDefectivePageContent() {
       // setTotalWeight(selectedItems.reduce((acc, curr) => acc + curr.TotalWeight, 0));
     }
   };
-  console.log("details", { totalPrice, totalWeight });
 
   const handleNext = async () => {
     if (selectedItems.length === 0) {

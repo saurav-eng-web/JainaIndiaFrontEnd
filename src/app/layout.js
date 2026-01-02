@@ -11,6 +11,8 @@ import Loader from "@/components/Loader";
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
+/* eslint-disable @next/next/no-page-custom-font */
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -33,6 +35,20 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        {/* Google Font */}
+
+        <link
+          href="https://fonts.googleapis.com/css?family=Titillium+Web:300&display=swap"
+          rel="stylesheet"
+        />
+
+        {/* Font Awesome (REQUIRED for sidebar icons) */}
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ReduxProvider>
           <Loader />

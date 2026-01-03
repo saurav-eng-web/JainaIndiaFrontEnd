@@ -207,7 +207,6 @@ export default function Dashboard() {
   // }, [userInfo]);
 
   const handleCardClick = (item) => {
-    console.log("url: ", item.url);
     if (item.url) {
       router.push(`/${item.url}`);
       return;

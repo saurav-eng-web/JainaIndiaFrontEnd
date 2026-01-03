@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState, Suspense, useCallback } from "react"; // ✅ import Suspense
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 
 import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
@@ -28,6 +28,7 @@ import Modal from "@/components/ui/Modal";
 
 import "./history.css";
 import "react-toastify/dist/ReactToastify.css";
+import { setRouteData } from "@/redux/slices/routeDataSlice";
 
 const tabs = [
   "Job Details",
@@ -84,6 +85,7 @@ function HistoryPageContent() {
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [serialNumber, setSerialNumber] = useState("");
   const [engineerData, setEngineerData] = useState([]);
+  const [allowanceLocationDetails, setAllowanceLocationDetails] = useState([]);
 
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
@@ -108,6 +110,7 @@ function HistoryPageContent() {
   const firstEntry = logData[0] || {};
   const detail = custDetail || {};
 
+  //asC_Pincode,pincode, distance
   // const role = user?.roleName;
 
   const [formData, setFormData] = useState({
@@ -142,10 +145,14 @@ function HistoryPageContent() {
   const endIndex = startIndex + pageSize;
 
   const visibleRows = logData.slice(startIndex, endIndex);
+  const dispatch = useDispatch();
 
   // -----------------POP UP SPECIAL ALLOWANCE----------------
   const [allowancePopup, setAllowancePopup] = useState(false);
-  const onOpenAllowanceModal = () => setAllowancePopup(true);
+  const onOpenAllowanceModal = () => {
+    dispatch(setRouteData({ key: "allowanceData", data: allowanceLocationDetails }));
+    setAllowancePopup(true);
+  };
   const onCloseAllowanceModal = () => setAllowancePopup(false);
 
   useEffect(() => {
@@ -261,6 +268,13 @@ function HistoryPageContent() {
 
         // 1. Customer Detail (Critical for Actions)
         const custData = unwrap(results[1], null);
+        const { asC_Pincode, pincode, distance } = custData || {};
+        setAllowanceLocationDetails({
+          asC_Pincode,
+          pincode,
+          distance,
+        });
+
         setCustDetail(custData);
         setTicketKey((prev) => custData?.tickeT_KEY || prev);
 
@@ -407,20 +421,17 @@ function HistoryPageContent() {
 
   const buildActionPayload = (type) => ({
     ticketNo: formData.tickeT_NO,
-    usrName: loggedInUser,
     type,
+    customerRemark: formData.customerRemark,
+    CallType: formData.calL_TYPE,
+    callTypeID: formData.call_TypeID.toString(),
+    usrName: loggedInUser,
+    usrId: loggedInUserId.toString(),
+    contactPersion: formData.contactPersion || formData.firstName || "",
     apptdate: formData.appointmentDate,
     appttime: `${formData.appointmentHour || "00"}:${formData.appointmentMinute || "00"}`,
     dop: formData.DOP,
-    contactPersion: formData.contactPersion || formData.firstName || "",
-    customerRemark: formData.customerRemark,
-    usrId: loggedInUserId.toString(),
     eng_id: formData.eng_ID,
-    callTypeID: formData.call_TypeID.toString(),
-    CallType: formData.calL_TYPE,
-    // Reallot: formData.reAllot ? 1 : 0,
-    // Type1: "ASM",
-    // Action: action,
   });
 
   const handleApprove = async () => {
@@ -477,7 +488,29 @@ function HistoryPageContent() {
   };
 
   const handleReject = async () => {
-    const payload = buildActionPayload("Re-AllotASMReject");
+    const {
+      promiseDate,
+      asmRemark,
+      tickeT_NO,
+      loggedInUserId,
+      calL_TYPE,
+      call_TypeID,
+      promiseTime,
+      contactPerson,
+    } = formData;
+    //
+    const payload = {
+      ticketNo: tickeT_NO,
+      type: "Re-AllotASMReject",
+      customerRemark: asmRemark,
+      CALLTYPE: calL_TYPE,
+      CallTypeID: call_TypeID.toString(),
+      ContactPersion: contactPerson || "",
+      usrName: loggedInUser,
+      usrId: loggedInUserId.toString(),
+      Apptdate: promiseDate,
+      Appttime: promiseTime,
+    };
 
     try {
       // 1) LEVEL 1
@@ -585,7 +618,6 @@ function HistoryPageContent() {
       // If response does not contain status => show message only
       if (!hasStatus) {
         alert(message);
-        console.log("Info message:", message);
         return;
       }
 
@@ -880,8 +912,6 @@ function HistoryPageContent() {
       setIsLoading(false);
     }
   }
-
-  console.log("logData: ", logData);
 
   return (
     <div className="page-wrapper">
@@ -1319,6 +1349,7 @@ function HistoryPageContent() {
         )}
         {prevPage === "special-allowance-request" && (
           <>
+            {/* todo */}
             <Button className="mb-4 w-42" onClick={onOpenAllowanceModal}>
               Allowance Req
             </Button>

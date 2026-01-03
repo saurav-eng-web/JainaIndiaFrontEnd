@@ -86,78 +86,157 @@ export default function TransferCallForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!ticketNo) {
-      toast.error("Please fill complaint number.");
-      return;
-    }
-
-    if (!transferTo) {
-      toast.error("Please select an ASC");
-      return;
-    }
+    // 1. Validations
+    if (!ticketNo?.trim()) return toast.error("Please fill in the complaint number.");
+    if (!transferTo) return toast.error("Please select an ASC");
 
     const selectedAsc = ascList.find((asc) => asc.ASC_NAME === transferTo);
-
-    if (!selectedAsc) {
-      toast.error("Please select a valid ASC.");
-      return;
-    }
+    if (!selectedAsc) return toast.error("Please select a valid ASC.");
 
     setLoading(true);
     setMessage(null);
 
     try {
-      const payload = {
+      // 2. Transfer Call
+      const transferPayload = {
         ticketNo,
-        toSfId: selectedAsc.ASCINTCODE, // Use ASCINTCODE as ID
-        transferBy: user?.userID || 0, // Logged-in user ID from Redux
+        toSfId: selectedAsc.ASCINTCODE,
+        transferBy: user?.userID || 0,
         transferTo: selectedAsc.ASC_NAME,
       };
 
-      const response = await axiosInstance.post("/CallTransfer/transfer", payload);
-      if (response.data.status === "Call Has Been Transfered Sucessfully") {
-        toast.success(response.data.status || "Call transferred successfully.");
-        updateJob({
+      const transferRes = await axiosInstance.post(
+        "/CallTransfer/transfer",
+        transferPayload
+      );
+      const transferMsg = transferRes.data.status;
+
+      // Check for success (flexible match for "Successfully" or "Sucessfully")
+      if (transferMsg && transferMsg === "Call Has Been Transfered Sucessfully") {
+        toast.success(transferMsg);
+
+        let currentStatus = "";
+        let currentSubStatus = "";
+
+        try {
+          const statusRes = await axiosInstance.post(`JobnOtherDetailNew/get`, {
+            ticket_No: ticketNo,
+            type: "Job",
+          });
+
+          if (statusRes.data?.statusMsg === "Success" && statusRes.data?.data?.[0]) {
+            const data = statusRes.data.data[0];
+            currentStatus = data.COMPLAINT_STATUS;
+            currentSubStatus = data.Complaint_SubStatus;
+          }
+        } catch (fetchErr) {
+          console.warn("Could not fetch latest status for logging", fetchErr);
+        }
+
+        // 4. Update Job Log (Using the local variables)
+        await updateJob({
           ticketNumber: ticketNo,
-          status,
-          subStatus,
-          message: response.data.status || "Call transferred successfully.",
+          status: currentStatus,
+          subStatus: currentSubStatus,
+          message: transferMsg,
           loggedInUser: userName,
         });
+
+        // 5. Reset Form
+        setTicketNo("");
+        setTransferTo("");
       } else {
-        toast.error(response.data.status);
+        toast.error(transferMsg || "Transfer failed.");
       }
-      setTicketNo("");
-      setTransferTo("");
     } catch (error) {
+      console.error(error);
       toast.error(error.response?.data?.message || "Something went wrong!");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBlur = async () => {
-    const ticketNumber = ticketNo.trim();
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
 
-    // Basic guard
-    if (!ticketNumber || ticketNumber.length < 10) {
-      return;
-    }
+  //   if (!ticketNo) {
+  //     toast.error("Please fill complaint number.");
+  //     return;
+  //   }
 
-    try {
-      setLoading(true);
-      const res = await axiosInstance.get(`ComplaintCustDetail/${ticketNumber}`);
+  //   if (!transferTo) {
+  //     toast.error("Please select an ASC");
+  //     return;
+  //   }
 
-      setStatus(res.data?.complainT_STATUS);
-      setSubStatus(res.data?.complaint_SubStatus);
-      console.log("Customer detail:", res.data);
-    } catch (error) {
-      console.error("Failed to fetch complaint details:", error);
-      toast.error("Invalid ticket number");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   const selectedAsc = ascList.find((asc) => asc.ASC_NAME === transferTo);
+
+  //   if (!selectedAsc) {
+  //     toast.error("Please select a valid ASC.");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   setMessage(null);
+
+  //   try {
+  //     const payload = {
+  //       ticketNo,
+  //       toSfId: selectedAsc.ASCINTCODE, // Use ASCINTCODE as ID
+  //       transferBy: user?.userID || 0, // Logged-in user ID from Redux
+  //       transferTo: selectedAsc.ASC_NAME,
+  //     };
+
+  //     const response = await axiosInstance.post("/CallTransfer/transfer", payload);
+  //     if (response.data.status === "Call Has Been Transfered Sucessfully") {
+  //       toast.success(response.data.status || "Call transferred successfully.");
+  //       await handleFetchStatuses();
+  //       await updateJob({
+  //         ticketNumber: ticketNo,
+  //         status,
+  //         subStatus,
+  //         message: response.data.status || "Call transferred successfully.",
+  //         loggedInUser: userName,
+  //       });
+  //     } else {
+  //       toast.error(response.data.status);
+  //     }
+  //     setTicketNo("");
+  //     setTransferTo("");
+  //   } catch (error) {
+  //     toast.error(error.response?.data?.message || "Something went wrong!");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // async function handleFetchStatuses() {
+  //   const ticketNumber = ticketNo.trim();
+
+  //   // Basic guard
+  //   if (!ticketNumber || ticketNumber.length < 10) {
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+  //     const res = await axiosInstance.post(`JobnOtherDetailNew/get`, {
+  //       ticket_No: ticketNumber,
+  //       type: "Job",
+  //     });
+
+  //     if (res.data.statusCode === 200) {
+  //       const data = res.data?.data[0];
+  //       setStatus(data.COMPLAINT_STATUS);
+  //       setSubStatus(data.Complaint_SubStatus);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch complaint details:", error);
+  //     toast.error("Invalid ticket number");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   // axiosInstance.get(`ComplaintCustDetail/${activeTicket}`);
   return (
@@ -194,7 +273,7 @@ export default function TransferCallForm() {
                     className="rounded-lg border px-3 py-2 focus:outline-none"
                     value={ticketNo}
                     onChange={(e) => setTicketNo(e.target.value)}
-                    onBlur={handleBlur}
+                    // onBlur={handleBlur}
                   />
                 </div>
 

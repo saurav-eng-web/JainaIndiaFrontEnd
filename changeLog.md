@@ -190,3 +190,11 @@
 - improved docker image
 - fix sidebar icon not rendering after build
 - fix: import fa icons and font
+
+## 2.2.2
+
+- fix: call page -> migrate from css to tailwind
+- fix: sidebar hovering issue, it gets expanded even without getting onto it, it gets hover when the cursor is near to that
+- fix: re-allot asm reject request, removed validation, added the asm remark to customer remark
+- fix: RSM allowance approve request update with pincode, sc pincode and distance, fix the list
+- fix: remove unneccessary console logs

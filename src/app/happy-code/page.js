@@ -105,8 +105,6 @@ export default function SendHappyCode() {
       // Step 3: Send SMS to one/both numbers
       const smsResults = await sendSMS({ primaryno, altNo, happycode });
 
-      console.log("SMS results:", smsResults);
-
       // Step 4: Optional: check failures and show message
       const allFailed = smsResults.every((r) => !r.success);
       if (allFailed) {

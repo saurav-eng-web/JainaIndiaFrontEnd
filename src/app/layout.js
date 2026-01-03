@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         {/* Google Font */}
-
+        {/* <title>{metadata.title}</title> */}
         <link
           href="https://fonts.googleapis.com/css?family=Titillium+Web:300&display=swap"
           rel="stylesheet"

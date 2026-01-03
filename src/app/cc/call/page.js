@@ -2,15 +2,15 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import "./stepper.css";
 import axios from "axios";
 
-import axiosInstance from "@/api/axiosInstance";
+import CustomerDetailsStep from "./CallRegisterSteps/CustomerDetailsStep";
+import AddressDetailsStep from "./CallRegisterSteps/AddressDetailsStep";
+import ProductDetailsStep from "./CallRegisterSteps/ProductDetailsStep";
+import ServiceDetailsStep from "./CallRegisterSteps/ServiceDetailsStep";
+
 import SideBar from "@/components/SideBar";
-import CustomerDetailsStep from "@/components/CallRegisterSteps/CustomerDetailsStep";
-import AddressDetailsStep from "@/components/CallRegisterSteps/AddressDetailsStep";
-import ProductDetailsStep from "@/components/CallRegisterSteps/ProductDetailsStep";
-import ServiceDetailsStep from "@/components/CallRegisterSteps/ServiceDetailsStep";
+import axiosInstance from "@/api/axiosInstance";
 import { logger } from "@/utils/logger";
 
 const steps = [
@@ -353,55 +353,90 @@ function CallRegisterInner({ showSidebar = true }) {
 
   return (
     <>
-      {/* <SideBar /> */}
       {showSidebar && <SideBar />}
-      <div className="main-content">
-        <div className="registration-container">
-          <h2>Call Registration</h2>
+
+      <div className="ml-[60px] min-h-screen bg-gray-100 p-5 transition-all">
+        <div className="mx-auto mt-10 max-w-[1100px] rounded-xl bg-white p-8 shadow-md">
+          <h2 className="mb-8 rounded-lg border-2 border-[#714b67] px-3 py-2 text-left text-lg font-bold text-[#714b67]">
+            Call Registration
+          </h2>
+
           {callNumber ? (
-            <div className="success-message">
-              <h3 style={{ marginBottom: "30px" }}>
+            <div className="text-center">
+              <h3 className="mb-8 text-xl font-semibold text-gray-800">
                 Service Request Created Successfully!
               </h3>
-              <p style={{ marginBottom: "25px" }}>
+
+              <p className="mb-6 text-base text-gray-700">
                 Your Service Request Number is: <strong>{callNumber}</strong>
               </p>
+
               <button
                 onClick={() => {
                   setCallNumber("");
                   setFormData({});
                 }}
+                className="cursor-pointer rounded-md bg-[#714b67] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#9b7f94]"
               >
                 Register Another
               </button>
             </div>
           ) : (
             <>
-              <div className="stepper">
+              {/* Stepper */}
+              <div className="relative mb-12 flex justify-between">
                 {steps.map((label, idx) => (
-                  <div className="step" key={idx}>
-                    <div className={`circle ${idx <= currentStep ? "active" : ""}`}>
-                      {idx <= currentStep ? "✔" : ""}
+                  <div
+                    key={idx}
+                    className="relative flex flex-1 flex-col items-center text-center"
+                  >
+                    <div
+                      className={`z-10 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white ${
+                        idx <= currentStep ? "bg-[#714b67]" : "bg-gray-300"
+                      }`}
+                    >
+                      {idx <= currentStep ? "\u2714\uFE0E" : ""}
                     </div>
-                    <div className="label">{label}</div>
-                    {idx < steps.length - 1 && <div className="line"></div>}
+
+                    <span className="mt-2 text-sm text-gray-700">{label}</span>
+
+                    {idx < steps.length - 1 && (
+                      <div className="absolute top-[18px] left-1/2 h-[3px] w-full bg-gray-300">
+                        <div
+                          className={`h-full ${idx < currentStep ? "bg-[#714b67]" : ""}`}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
-              <form onSubmit={handleSubmit} className="registration-form">
+
+              {/* Form */}
+              <form onSubmit={handleSubmit}>
                 {renderStep()}
-                <div className="button-wrapper">
+
+                <div className="mt-6 flex justify-between gap-3">
                   {currentStep > 0 && (
-                    <button type="button" onClick={prevStep} disabled={loading}>
+                    <button
+                      type="button"
+                      onClick={prevStep}
+                      disabled={loading}
+                      className="cursor-pointer rounded-md bg-[#714b67] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#9b7f94] disabled:opacity-50"
+                    >
                       ← Back
                     </button>
                   )}
-                  <button type="submit" disabled={loading}>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="cursor-pointer rounded-md bg-[#714b67] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#9b7f94] disabled:opacity-50"
+                  >
                     {currentStep < steps.length - 1
                       ? "Next →"
                       : loading
                         ? "Submitting…"
-                        : "Submit ✔"}
+                        : "Submit \u2714\uFE0E"}
                   </button>
                 </div>
               </form>

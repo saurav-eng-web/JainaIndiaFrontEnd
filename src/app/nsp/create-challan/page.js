@@ -125,10 +125,8 @@ function SendDefectivePageContent() {
         Whs: warehouseId, // warehouse key dropdownid
         Type: challanType,
       });
-      console.log("res: ", res);
       if (res?.data?.statusCode === 200) {
         const data = res?.data?.data;
-        console.log("data: ", data);
         if (data.length === 0) {
           toast.error("No data found!");
         }
@@ -167,7 +165,6 @@ function SendDefectivePageContent() {
         RecentPrice: totalPrice,
       });
 
-      console.log("res: ", res);
       if (res?.data?.statusCode === 200) {
         const message = res?.data?.statusMsg;
         setServerMessage(message);
@@ -182,7 +179,6 @@ function SendDefectivePageContent() {
       }
     } catch (error) {
       toast.error("Something went wrong try again");
-      console.log("error: ", error);
     }
 
     // setShowConfirm(true);
@@ -214,7 +210,6 @@ function SendDefectivePageContent() {
         Pincode: 421203,
         Weight: totalWeight,
       });
-      console.log("res: ", res);
       if (res?.data?.statusCode === 200) {
         const data = res?.data?.data;
         setDispatchForm((prev) => ({

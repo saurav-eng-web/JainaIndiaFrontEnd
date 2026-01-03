@@ -3,8 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
 
-import CustomDropdown from "../common/Dropdown";
-
+import CustomDropdown from "@/components/common/Dropdown";
 import axiosInstance from "@/api/axiosInstance";
 
 export default function ServiceDetailsStep({
@@ -142,9 +141,11 @@ export default function ServiceDetailsStep({
 
   return (
     <>
-      <h3>Service Details</h3>
-      <div className="form-grid">
-        <div className="form-group">
+      <h3 className="mb-5 text-lg font-semibold text-gray-800">Service Details</h3>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Call Type */}
+        <div className="flex flex-col">
           <CustomDropdown
             label="Call Type"
             options={callTypes.map((type) => ({
@@ -156,20 +157,28 @@ export default function ServiceDetailsStep({
               const selected = callTypes.find((t) => t.callType_ID === val);
               setFormData((prev) => ({
                 ...prev,
-                callTypeId: val, // numeric ID
-                callType: selected?.callType_Name || "", // text for validation + payload
+                callTypeId: val,
+                callType: selected?.callType_Name || "",
               }));
             }}
             placeholder="Select Call Type"
           />
 
-          {errors.callType && <span className="error-text">{errors.callType}</span>}
+          {errors.callType && (
+            <span className="mt-1 text-sm text-red-600">{errors.callType}</span>
+          )}
         </div>
 
-        {/* ✅ Service Date & Time */}
-        <div className="form-group">
-          <label htmlFor="serviceDateTime">Customer Available Date & Time</label>
-          <div style={{ display: "flex", gap: "8px" }}>
+        {/* Service Date & Time */}
+        <div className="flex flex-col">
+          <label
+            htmlFor="serviceDate"
+            className="mb-2 pl-2 text-sm font-medium text-gray-800"
+          >
+            Customer Available Date & Time
+          </label>
+
+          <div className="flex gap-2">
             <input
               type="date"
               id="serviceDate"
@@ -181,7 +190,7 @@ export default function ServiceDetailsStep({
                 handleChange(e);
                 setSelectedDate(e.target.value);
               }}
-              style={{ flex: 1 }}
+              className="w-full flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm transition outline-none focus:border-[#714b67] focus:ring-2 focus:ring-[#714b67]/30"
             />
 
             <select
@@ -190,9 +199,14 @@ export default function ServiceDetailsStep({
               onChange={handleChange}
               value={formData.availableTime}
               disabled={!selectedDate}
-              style={{ flex: 1 }}
+              className={`w-full flex-1 rounded-md border px-3 py-2 text-sm transition outline-none ${
+                selectedDate
+                  ? "border-gray-300 focus:border-[#714b67] focus:ring-2 focus:ring-[#714b67]/30"
+                  : "bg-gray-100 text-gray-500"
+              }`}
             >
               <option value="">Select Time</option>
+
               {timeSlots.length > 0 ? (
                 timeSlots.map((slot, index) => (
                   <option key={index} value={slot.label}>
@@ -206,14 +220,16 @@ export default function ServiceDetailsStep({
               )}
             </select>
           </div>
+
           {errors.availableTime && (
-            <span className="error-text">{errors.availableTime}</span>
+            <span className="mt-1 text-sm text-red-600">{errors.availableTime}</span>
           )}
         </div>
 
-        <div className="form-group">
+        {/* Fault / VOC */}
+        <div className="flex flex-col">
           <CustomDropdown
-            label="Fault/VOC"
+            label="Fault / VOC"
             options={faults.map((f) => ({
               value: f.syid,
               label: f.symptom,
@@ -223,51 +239,43 @@ export default function ServiceDetailsStep({
               const selected = faults.find((f) => f.syid === val);
               setFormData((prev) => ({
                 ...prev,
-                faultVocId: val, // 👈 ID for backend
-                faultVoc: selected?.symptom || "", // 👈 text for validation + remarks
+                faultVocId: val,
+                faultVoc: selected?.symptom || "",
               }));
             }}
             placeholder="Select Fault"
           />
 
-          {errors.faultVoc && <span className="error-text">{errors.faultVoc}</span>}
+          {errors.faultVoc && (
+            <span className="mt-1 text-sm text-red-600">{errors.faultVoc}</span>
+          )}
         </div>
 
-        <div className="flex w-full text-sm">
-          <div className="mr-6 w-full">
-            <p className="pb-2 pl-3">Remarks</p>
-            <textarea
-              onChange={(e) => hanldeRemarks(e)}
-              className=""
-              maxLength={150}
-              placeholder="Enter remarks"
-            />
-          </div>
+        {/* Remarks */}
+        <div className="flex w-full flex-col text-sm lg:col-span-2">
+          <p className="pb-2 pl-2 font-medium text-gray-800">Remarks</p>
+          <textarea
+            onChange={(e) => hanldeRemarks(e)}
+            maxLength={150}
+            placeholder="Enter remarks"
+            className="w-full resize-y rounded-md border border-gray-300 px-3 py-3 text-sm transition outline-none focus:border-[#714b67] focus:ring-2 focus:ring-[#714b67]/30"
+          />
         </div>
-        {/* <div className="text-sm">
-          <div className="">
-            <p className="pl-3 pb-2">Caller Number</p>
-            <input
-              onChange={(e) => handleCaller(e)}
-              placeholder="Caller Number"
-            />
-          </div>
-        </div> */}
 
-        <div className="text-sm">
-          <div>
-            <p className="pb-2 pl-3">Caller Number</p>
-            <input
-              type="tel"
-              maxLength={10}
-              pattern="[0-9]{10}"
-              onChange={handleCaller}
-              value={formData.callerNumber || ""}
-              placeholder="Enter 10-digit mobile number"
-              className="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-          </div>
+        {/* Caller Number */}
+        <div className="flex flex-col text-sm">
+          <p className="pb-2 pl-2 font-medium text-gray-800">Caller Number</p>
+          <input
+            type="tel"
+            maxLength={10}
+            pattern="[0-9]{10}"
+            onChange={handleCaller}
+            value={formData.callerNumber || ""}
+            placeholder="Enter 10-digit mobile number"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm transition outline-none focus:border-[#714b67] focus:ring-2 focus:ring-[#714b67]/30"
+          />
+
+          {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
         </div>
       </div>
     </>

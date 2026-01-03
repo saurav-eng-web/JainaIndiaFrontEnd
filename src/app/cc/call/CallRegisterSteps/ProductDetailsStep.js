@@ -3,8 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 
-import CustomDropdown from "../common/Dropdown";
-
+import CustomDropdown from "@/components/common/Dropdown";
 import axiosInstance from "@/api/axiosInstance";
 
 export default function ProductDetailsStep({
@@ -42,13 +41,6 @@ export default function ProductDetailsStep({
       setModels([]);
       return;
     }
-    // axiosInstance
-    //   .get(`Model/productid/${formData.productID}`)
-    //   .then((res) => setModels(res.data))
-    //   .catch((err) => {
-    //     setModels([]);
-    //     console.error("Model fetch error", err);
-    //   });
 
     axiosInstance
       .get(`Model/productid/${formData.productID}`)
@@ -186,8 +178,9 @@ export default function ProductDetailsStep({
 
   return (
     <>
-      <h3>Product Details</h3>
-      <div className="form-grid">
+      <h3 className="mb-5 text-lg font-semibold text-gray-800">Product Details</h3>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {fields.map(({ id, type, disabled }) => {
           const label =
             id === "pop"
@@ -195,15 +188,16 @@ export default function ProductDetailsStep({
               : id.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
 
           return (
-            <div className="form-group" key={id}>
-              <label htmlFor={id}>{label}</label>
+            <div key={id} className="flex flex-col">
+              <label htmlFor={id} className="mb-2 pl-2 text-sm font-medium text-gray-800">
+                {label}
+              </label>
 
               {type === "select" ? (
                 <CustomDropdown
                   options={getFieldOptions(id)}
                   value={formData[id] || ""}
                   onChange={(val) => {
-                    // Preserve exact same logic as original <select>
                     if (id === "brand") {
                       const selected = brands.find((b) => b.brand_Name === val);
                       setFormData((prev) => ({
@@ -231,7 +225,6 @@ export default function ProductDetailsStep({
                       const selected = products.find(
                         (p) => p.product === val && formData.brandId === p.brandId
                       );
-
                       setFormData((prev) => ({
                         ...prev,
                         product: val,
@@ -266,81 +259,51 @@ export default function ProductDetailsStep({
                   type={type}
                   disabled={disabled}
                   placeholder={label}
+                  value={formData[id] || ""}
                   onChange={handleChange}
                   onBlur={
                     id === "serialNo"
                       ? (e) => checkSerialNumber(e.target.value)
                       : undefined
                   }
-                  value={formData[id] || ""}
                   max={
                     type === "date" ? new Date().toISOString().split("T")[0] : undefined
                   }
+                  className={`w-full rounded-md border px-3 py-3 text-sm transition outline-none ${
+                    disabled
+                      ? "bg-gray-100 text-gray-600"
+                      : "border-gray-300 focus:border-[#714b67] focus:ring-2 focus:ring-[#714b67]/30"
+                  }`}
                 />
               )}
 
-              {errors[id] && (
-                <div
-                  style={{
-                    color: "red",
-                    fontSize: "0.85rem",
-                    marginTop: "4px",
-                  }}
-                >
-                  {errors[id]}
-                </div>
-              )}
+              {errors[id] && <p className="mt-1 text-sm text-red-600">{errors[id]}</p>}
             </div>
           );
         })}
       </div>
 
+      {/* Popup */}
       {popup.visible && (
-        <div className="popup-overlay">
-          <div className={`popup-box ${popup.type}`}>
-            <p>{popup.message}</p>
-            <button onClick={() => setPopup({ ...popup, visible: false })}>OK</button>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
+          <div
+            className={`min-w-[250px] rounded-lg bg-white px-24 py-20 text-center shadow-xl ${
+              popup.type === "success"
+                ? "border-2 border-green-600"
+                : "border-2 border-red-600"
+            }`}
+          >
+            <p className="mb-4 text-sm text-gray-800">{popup.message}</p>
+
+            <button
+              onClick={() => setPopup({ ...popup, visible: false })}
+              className="rounded-md bg-[#714b67] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#9b7f94]"
+            >
+              OK
+            </button>
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .popup-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.4);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 9999;
-        }
-        .popup-box {
-          background: #fff;
-          padding: 80px 100px;
-          border-radius: 8px;
-          min-width: 250px;
-          text-align: center;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        .popup-box.success {
-          border: 2px solid green;
-        }
-        .popup-box.error {
-          border: 2px solid red;
-        }
-        .popup-box button {
-          margin-top: 10px;
-          padding: 6px 12px;
-          background: #714b67;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-      `}</style>
     </>
   );
 }

@@ -269,7 +269,7 @@ export default function WarrantyForm() {
     <ProtectedRoute allowedRoles={["cc"]}>
       <div className="flex min-h-screen">
         <SideBar />
-        <div className="ml-[60px] flex-1 transition-all">
+        <div className="ml-[60px] min-h-screen w-full bg-[#f4f6f8] p-8 transition-all">
           <div className="mx-auto my-8 max-w-4xl rounded-lg bg-white p-8 shadow">
             <div className="mb-8 rounded-md border-2 border-[#714b67] py-1 pl-2 text-left text-lg font-bold text-[#714b67]">
               Warranty Registration
@@ -613,7 +613,6 @@ export default function WarrantyForm() {
                               }
                             );
                             setUploadedInvoiceName(res.data.fileName);
-                            console.log("✅ Invoice uploaded:", res.data.fileName);
                           } catch (err) {
                             console.error("❌ Upload failed", err);
                             alert("❌ Invoice upload failed");

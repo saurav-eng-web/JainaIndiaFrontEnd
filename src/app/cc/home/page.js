@@ -53,9 +53,9 @@ export default function HomeCC() {
             >
               Welcome to Jaina CRM
             </h2>
-            <div className="flex flex-col items-center gap-[20px]">
+            <div className="flex flex-col items-center gap-5">
               <button
-                className="flex w-[400px] items-center justify-center rounded-[8px] px-[24px] py-[16px] text-[18px] font-bold transition-colors"
+                className="flex w-[400px] cursor-pointer items-center justify-center rounded-lg px-6 py-4 text-[18px] font-bold transition-colors"
                 style={{ backgroundColor: colors.primary, color: colors.warning }}
                 onClick={() => handleNavigate("call")}
                 disabled={loading}
@@ -63,7 +63,7 @@ export default function HomeCC() {
                 {loading ? <Loader /> : "New Registration"}
               </button>
               <button
-                className="flex w-[400px] items-center justify-center rounded-[8px] px-[24px] py-[16px] text-[18px] font-bold transition-colors"
+                className="flex w-[400px] cursor-pointer items-center justify-center rounded-lg px-6 py-4 text-[18px] font-bold transition-colors"
                 style={{ backgroundColor: colors.primary, color: colors.warning }}
                 onClick={() => handleNavigate("/search-complaint")}
                 disabled={loading}

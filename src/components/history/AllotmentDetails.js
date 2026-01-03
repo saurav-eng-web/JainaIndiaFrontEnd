@@ -18,23 +18,30 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
   const { colors } = useTheme();
 
   useEffect(() => {
+    if (!formData?.tickeT_NO) return;
+
     async function fetchCallSchedule() {
       try {
         const res = await axiosInstance.get(
           `CallSchedule/ticketno/${formData.tickeT_NO}`,
           {
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
           }
         );
 
         const resData = res.data;
-        setCallScheduleData(res.data);
+        onChange("contactPerson", resData?.talkToWhomeAllot);
+        setCallScheduleData(resData);
       } catch (err) {
-        console.error("Error fetching engineer data:", err);
+        console.error("Error fetching call schedule:", err);
       }
     }
+
+    fetchCallSchedule();
+  }, [formData?.tickeT_NO]);
+
+  useEffect(() => {
+    if (!formData?.sf_ID) return;
 
     async function fetchEngineerData() {
       try {
@@ -42,24 +49,21 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
           `Engineer/Manage`,
           {
             Action: "SELECT_ACTIVE_BY_SFID",
-            Eng_SFID: formData.sf_ID || 0,
+            Eng_SFID: formData.sf_ID,
           },
           {
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
           }
         );
 
-        const resData = res.data;
-        setEngineerData(resData.data);
+        setEngineerData(res.data?.data || []);
       } catch (err) {
         console.error("Error fetching engineer data:", err);
       }
     }
-    fetchCallSchedule();
+
     fetchEngineerData();
-  }, [formData.sf_ID, formData.tickeT_NO]);
+  }, [formData?.sf_ID]);
 
   function isToday(dateStr) {
     const today = new Date();
@@ -123,29 +127,33 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
 
     return []; // anything earlier than required hour
   }
+
   function handleSubmit(type) {
-    const engId = formData?.eng_ID?.trim();
-    if (formData.eng_ID === "-" || formData.eng_ID === "" || !engId) {
-      toast.error("Please select engineer");
-      return;
+    const engId = formData?.eng_ID;
+    if (type === "approve") {
+      if (formData.eng_ID === "-" || formData.eng_ID === "" || !engId) {
+        toast.error("Please select engineer");
+        return;
+      }
+
+      if (!formData.appointmentDate) {
+        toast.error("Please select appointment date");
+        return;
+      }
+
+      if (!formData.appointmentHour) {
+        toast.error("Please select appointment hour");
+        return;
+      }
+
+      if (!formData.appointmentMinute) {
+        toast.error("Please select appointment minute");
+        return;
+      }
     }
 
-    if (!formData.appointmentDate) {
-      toast.error("Please enter appointment date");
-      return;
-    }
-
-    if (!formData.appointmentHour) {
-      toast.error("Please enter appointment hour");
-      return;
-    }
-
-    if (!formData.appointmentMinute) {
-      toast.error("Please enter appointment minute");
-      return;
-    }
     if (!formData.asmRemark) {
-      toast.error("Please ASM remark");
+      toast.error("Please enter ASM remark!");
       return;
     }
 
@@ -157,13 +165,13 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
   }
 
   return (
-    <div className="mb-10 rounded-xl border bg-white p-6 shadow-md">
-      <div className="mb-10 overflow-hidden rounded-lg border">
+    <div className="mb-10 rounded-xl bg-white p-6 shadow-md">
+      <div className="mb-10 overflow-hidden">
         <SectionHeading>Previous Appointment Date/Time</SectionHeading>
-        <table className="w-full border-collapse">
+        <table className="w-full rounded-xl">
           <thead>
             <tr
-              className="text-left"
+              className="border text-left"
               style={{ background: colors.primary, color: colors.textColor }}
             >
               <th className="border px-4 py-2">Ticket No.</th>
@@ -239,6 +247,15 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
             </select>
           </label>
 
+          <label className="flex flex-col">
+            <span className="font-semibold">ASM Remark:</span>
+            <textarea
+              className="h-9 rounded border p-2"
+              value={formData.asmRemark}
+              onChange={(e) => onChange("asmRemark", e.target.value)}
+            />
+          </label>
+
           {/*-------------------------------Re allot checkbox Date NO NOT REMOVE------------------------------ */}
           {/* <label className="mt-6 flex items-center gap-2">
             <input
@@ -301,6 +318,14 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
               </select>
             </label>
           </div>
+          <label className="flex flex-col">
+            <span className="font-semibold">Customer Remark (If Any):</span>
+            <textarea
+              className="h-11 rounded border p-2"
+              value={formData.customerRemark}
+              onChange={(e) => onChange("customerRemark", e.target.value)}
+            />
+          </label>
 
           {/*-------------------------------Promise Date NO NOT REMOVE------------------------------ */}
           {/* <label className="flex flex-col">
@@ -317,7 +342,7 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
         </div>
 
         {/* ASM & Customer Remark */}
-        <div className="grid grid-cols-3 gap-4">
+        {/* <div className="grid grid-cols-2 gap-4">
           <label className="flex flex-col">
             <span className="font-semibold">ASM Remark:</span>
             <textarea
@@ -326,16 +351,7 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
               onChange={(e) => onChange("asmRemark", e.target.value)}
             />
           </label>
-
-          <label className="flex flex-col">
-            <span className="font-semibold">Customer Remark (If Any):</span>
-            <textarea
-              className="rounded border p-2"
-              value={formData.customerRemark}
-              onChange={(e) => onChange("customerRemark", e.target.value)}
-            />
-          </label>
-        </div>
+        </div> */}
 
         {/* Buttons */}
         <div className="mt-4 flex justify-end gap-4">

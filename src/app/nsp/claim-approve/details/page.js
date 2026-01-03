@@ -160,8 +160,6 @@ function DetailsContent() {
         Remarks: remarks,
       });
 
-      console.log("Save response:", res.data);
-
       alert("Saved successfully");
     } catch (err) {
       console.error("Save error", err);

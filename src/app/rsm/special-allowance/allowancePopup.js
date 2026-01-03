@@ -29,7 +29,8 @@ export default function SpeicalAllowancePopup({ ticketNo }) {
   const router = useRouter();
 
   const nspData = useSelector((state) => state.routeData.store.nspData);
-  console.log("nspData: ", nspData);
+  const locationData = useSelector((state) => state.routeData.store.allowanceData);
+
   useEffect(() => {
     if (!nspData) {
       router.replace("/rsm/special-allowance");
@@ -38,39 +39,39 @@ export default function SpeicalAllowancePopup({ ticketNo }) {
 
   const { nspAmount, nspRemarks, nspAllowanceType } = nspData;
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchAllowanceTypes = async () => {
-      if (!ticketNo) return;
-      try {
-        setIsLoading(true);
-        const res = await axiosInstance.post("DropdownMaster/GetDropdown", {
-          type: "specialallowance",
-          dispatchtype: ticketNo,
-        });
-        console.log("data: ", res);
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   const fetchAllowanceTypes = async () => {
+  //     if (!ticketNo) return;
+  //     try {
+  //       setIsLoading(true);
+  //       const res = await axiosInstance.post("DropdownMaster/GetDropdown", {
+  //         type: "specialallowance",
+  //         dispatchtype: ticketNo,
+  //       });
+  //       console.log("data: ", res);
 
-        if (!isMounted) return;
-        setAllowanceTypeOptions(
-          res.data?.statusCode === 200
-            ? res.data?.data.map((el) => {
-                return { label: el.value, value: el.value };
-              })
-            : []
-        );
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  //       if (!isMounted) return;
+  //       setAllowanceTypeOptions(
+  //         res.data?.statusCode === 200
+  //           ? res.data?.data.map((el) => {
+  //               return { label: el.value, value: el.value };
+  //             })
+  //           : []
+  //       );
+  //     } catch (error) {
+  //       console.error(error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    fetchAllowanceTypes();
+  //   fetchAllowanceTypes();
 
-    return () => {
-      isMounted = false;
-    };
-  }, [ticketNo]);
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, [ticketNo]);
 
   if (!nspData) {
     return null; // or loader
@@ -169,27 +170,37 @@ export default function SpeicalAllowancePopup({ ticketNo }) {
 
             <div className="mb-6 rounded-xl border border-[#D9D9D9] px-4 pt-2 pb-4">
               <h2 className="mb-2 text-lg font-bold text-[#734d69]">Requested Data</h2>
-              <div className="grid grid-cols-2">
-                <div>
-                  <div className="flex gap-2">
-                    <p className="font-semibold">Amount: </p>
-                    <p>{nspAmount || "-"}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <p className="font-semibold">Type: </p>
-                    <p>{nspAllowanceType || "-"}</p>
-                  </div>
+              <div className="grid grid-cols-3">
+                <div className="flex gap-2">
+                  <p className="font-semibold">Amount: </p>
+                  <p>{nspAmount || "-"}</p>
+                </div>
+                <div className="flex gap-2">
+                  <p className="font-semibold">Type: </p>
+                  <p>{nspAllowanceType || "-"}</p>
                 </div>
                 <div className="flex gap-2">
                   <p className="font-semibold">Remarks: </p>
                   <p>{nspRemarks || "-"}</p>
+                </div>
+                <div className="flex gap-2">
+                  <p className="font-semibold">Cust. Pincode: </p>
+                  <p>{locationData.pincode || "-"}</p>
+                </div>{" "}
+                <div className="flex gap-2">
+                  <p className="font-semibold">SC Pincode: </p>
+                  <p>{locationData.asC_Pincode || "-"}</p>
+                </div>{" "}
+                <div className="flex gap-2">
+                  <p className="font-semibold">Distance: </p>
+                  <p>{locationData.distance || "-"}</p>
                 </div>
               </div>
             </div>
 
             {/* ---------------- FILTER SECTION ---------------- */}
 
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 gap-6">
               {/* <CustomDropdown
                 label="Special Allowance Type"
                 placeholder="Select Allowance Type"
@@ -218,7 +229,6 @@ export default function SpeicalAllowancePopup({ ticketNo }) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 type="number"
-                // className={"ml-8"}
                 required={true}
               />
               <TextArea
@@ -226,19 +236,18 @@ export default function SpeicalAllowancePopup({ ticketNo }) {
                 placeholder="Enter remarks"
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
-                // className={"mt-4"}
                 required={true}
               />
             </div>
 
-            {/* <div className="flex gap-2"> */}
-            <Button variant="danger" onClick={handleReject} className="mt-6 mr-4 w-24">
-              Reject
-            </Button>
-            <Button onClick={handleApprove} className="mt-6 w-24">
-              Approve
-            </Button>
-            {/* </div> */}
+            <div className="flex justify-end">
+              <Button variant="danger" onClick={handleReject} className="mt-6 mr-4 w-24">
+                Reject
+              </Button>
+              <Button onClick={handleApprove} className="mt-6 w-24">
+                Approve
+              </Button>
+            </div>
           </div>
         </div>
       </div>

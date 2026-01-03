@@ -34,7 +34,6 @@ export default function SpeicalApprovalPopup({ ticketNo }) {
           type: "specialallowance",
           dispatchtype: ticketNo,
         });
-        console.log("data: ", res);
 
         if (!isMounted) return;
         setAllowanceTypeOptions(
@@ -125,29 +124,22 @@ export default function SpeicalApprovalPopup({ ticketNo }) {
                   options={allowanceTypeOptions}
                 />
 
-                {/* <div className="flex items-end">
-                <button
-                  onClick={handleSearch}
-                  className="rounded-lg px-6 py-2 shadow-md"
-                  style={{ background: colors.primary, color: "#fff" }}
-                >
-                  Search
-                </button>
-              </div> */}
-
-                {/* <div className="flex items-end">
-                <label className="mr-2 block font-medium">Amount</label>
-                <input type="number" placeholder="Enter amount" />
-              </div> */}
                 <InputField
                   label="Amount"
                   placeholder="Enter Amount"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   type="number"
-                  className={"ml-8"}
+                  // className={"ml-8"}
                   required={true}
                 />
+                {/* <TextArea
+                  label="Remarks"
+                  placeholder="Enter remarks"
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                  // className={"h-11"}
+                /> */}
               </div>
               <TextArea
                 label="Remarks"

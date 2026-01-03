@@ -92,8 +92,7 @@ export default function ChallanSearch() {
         setMessage({ type: "error", text: "Something went wrong" });
       }
     } catch (error) {
-      console.log("API Error:", error);
-      console.log("API Response:", error.response);
+      console.error("API Response:", error.response);
 
       setMessage({
         type: "error",
@@ -122,15 +121,7 @@ export default function ChallanSearch() {
         <div className="flex-1 pt-10 pr-20 pl-30">
           <div className="w-full">
             <div className="rounded-2xl bg-white p-8 shadow-lg transition hover:shadow-xl">
-              <h2
-                className="mb-8 text-left text-2xl font-bold"
-                style={{
-                  color: colors.primary,
-                  padding: 5,
-                  border: `2px solid ${colors.primary}`,
-                  borderRadius: 5,
-                }}
-              >
+              <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
                 Challan Search
               </h2>
 
@@ -174,7 +165,7 @@ export default function ChallanSearch() {
                 <div className="col-span-3 mt-6 flex gap-4">
                   <button
                     type="button"
-                    className="rounded-lg px-6 py-2 text-sm font-medium shadow-md"
+                    className="cursor-pointer rounded-lg px-6 py-2 text-sm font-medium shadow-md"
                     style={{ background: colors.primary, color: "#fff" }}
                     onClick={() => window.history.back()}
                   >
@@ -182,7 +173,7 @@ export default function ChallanSearch() {
                   </button>
                   <button
                     type="submit"
-                    className="rounded-lg px-6 py-2 text-sm font-medium shadow-md"
+                    className="cursor-pointer rounded-lg px-6 py-2 text-sm font-medium shadow-md"
                     style={{ background: colors.primary, color: "#fff" }}
                     disabled={loading}
                   >

@@ -46,7 +46,7 @@ export default function SideBar() {
       text: "Dashboard",
       roles: ["BR", "ASM", "ZONE", "SF/SSD"],
     },
-    { href: "/call", icon: "fa fa-phone", text: "Call Registration", roles: ["CC"] },
+    { href: "/cc/call", icon: "fa fa-phone", text: "Call Registration", roles: ["CC"] },
     {
       href: "/search-complaint",
       icon: "fa fa-search",
@@ -125,7 +125,7 @@ export default function SideBar() {
   const allowedBulkUsers = ["T284977"];
 
   return (
-    <nav className="group fixed top-0 left-0 z-50 flex h-screen w-[60px] flex-col justify-between border-r border-neutral-800 bg-neutral-900 transition-all duration-150 ease-linear hover:w-[250px]">
+    <nav className="group fixed top-0 left-0 z-50 flex h-screen w-[60px] flex-col justify-between border-r border-neutral-800 bg-neutral-900 transition-all duration-100 ease-linear hover:w-[250px]">
       {/* TOP SECTION */}
       <ul className="mt-2 flex flex-col">
         {/* LOGO */}
@@ -165,7 +165,7 @@ export default function SideBar() {
                 >
                   <i className={`${item.icon} fa-lg text-center`} />
 
-                  <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <span className="pointer-events-none whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:pointer-events-auto group-hover:opacity-100">
                     {item.text}
                   </span>
                 </button>
@@ -183,6 +183,7 @@ export default function SideBar() {
             width={40}
             height={40}
             className="shrink-0 rounded-full"
+            loading="lazy"
           />
 
           <div className="pointer-events-none flex flex-col justify-center opacity-0 transition-opacity duration-300 group-hover:pointer-events-auto group-hover:opacity-100">

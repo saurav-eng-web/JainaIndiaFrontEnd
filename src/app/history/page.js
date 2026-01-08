@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
 import SpeicalAllowancePopup from "../rsm/special-allowance/allowancePopup";
 import AddPartPending from "../sf/action/AddPartPending";
+import AddPartPending from "../sf/action/AddPartPending";
 
 import CancelPopup from "./CancelPopup";
 import EditCustPopup from "./EditCustPopup";

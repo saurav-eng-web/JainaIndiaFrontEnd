@@ -207,6 +207,14 @@
 - fix: multiple pages UI
 - add part pending converted to popup
 - feat: integrate api part pending
+# 2.2.3
+
+- feat: page skeleton add,
+- fix: multiple pages UI
+- fix: warranty registration page fix
+- fix: multiple pages UI
+- add part pending converted to popup
+- feat: integrate api part pending
 
 # 2.3.0
 - fix: revamp history page, highly improve the performance of histrory

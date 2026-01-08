@@ -95,8 +95,6 @@ export default axiosInstance;
 //   baseURL: BASE_URL,
 // });
 
-// console.log("inside axiosInstance");
-
 // // Attach token in requests
 // axiosInstance.interceptors.request.use((config) => {
 //   const userData = localStorage.getItem("userData");

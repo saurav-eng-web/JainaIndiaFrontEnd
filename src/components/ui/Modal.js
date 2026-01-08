@@ -35,21 +35,21 @@ export default function Modal({
 
       {/* Modal shell (NO SCROLL HERE) */}
       <div
-        className="relative z-10 inline-block max-h-[90vh] max-w-[90vw] rounded-xl bg-white shadow-xl"
+        className="relative z-10 inline-block max-h-[95vh] max-w-[95vw] rounded-xl bg-white shadow-xl"
         style={{ border: "2px solid #714b67" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 z-20 text-xl font-bold text-[#714b67] hover:opacity-70"
+          className="absolute top-3 right-4 z-20 cursor-pointer text-xl font-bold text-[#714b67] hover:opacity-70"
           aria-label="Close modal"
         >
           ×
         </button>
 
         {/* 🔹 Scroll wrapper (scroll lives here) */}
-        <div className="modal-scroll max-h-[90vh] p-6">{children}</div>
+        <div className="modal-scroll max-h-[95vh]">{children}</div>
       </div>
     </div>,
     document.body

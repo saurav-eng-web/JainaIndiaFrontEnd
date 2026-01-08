@@ -41,10 +41,10 @@ export default function SideBar() {
   const menuItems = [
     { href: "/cc/home", icon: "fa fa-home", text: "Dashboard", roles: ["CC"] },
     {
-      href: "/nsp/dashboard",
-      icon: "fa fa-home",
-      text: "Dashboard",
-      roles: ["BR", "ASM", "ZONE", "SF/SSD"],
+      href: "/nsp/dashboard", // Naviation_Url
+      icon: "fa fa-home", // Icon
+      text: "Dashboard", // Menu_Name
+      roles: ["BR", "ASM", "ZONE", "SF/SSD"], // Menu_Role
     },
     { href: "/cc/call", icon: "fa fa-phone", text: "Call Registration", roles: ["CC"] },
     {

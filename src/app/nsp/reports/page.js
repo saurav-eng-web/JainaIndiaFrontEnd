@@ -10,6 +10,7 @@ import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
 import { logger } from "@/utils/logger";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 export default function DashboardPage() {
   const { colors } = useTheme();
@@ -220,110 +221,87 @@ export default function DashboardPage() {
     }
   };
 
+  // allowedRoles={["BR", "ZONE", "SF/SSD", "NSP", "ASM", "RSM", "HOuser"]}
   return (
-    <ProtectedRoute
-      allowedRoles={["BR", "ZONE", "SF/SSD", "NSP", "ASM", "RSM", "HOuser"]}
+    <PageSkeleton
+      title="Download Report"
+      rolesAllowed={["BR", "ZONE", "SF/SSD", "NSP", "ASM", "RSM", "HOuser"]}
     >
-      <div className="flex">
-        {/* Sidebar */}
-        <SideBar />
+      {/* Inputs */}
+      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* From Date */}
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">
+            From Date
+          </label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            className={`w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-[${colors.primary}] focus:outline-none`}
+          />
+        </div>
 
-        {/* Main content */}
-        <div className="min-h-screen flex-1 bg-gray-50 p-25 pt-10">
-          <div className="rounded bg-white p-6">
-            {/* Heading */}
-            <h2
-              className="mb-4"
-              style={{
-                color: colors.primary,
-                padding: 5,
-                fontWeight: 700,
-                fontSize: 18,
-                border: `2px solid ${colors.primary}`,
-                borderRadius: 5,
-              }}
-            >
-              All Reports
-            </h2>
+        {/* To Date */}
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">
+            To Date
+          </label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            className={`w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-[${colors.primary}] focus:outline-none`}
+          />
+        </div>
+      </div>
 
-            {/* Inputs */}
-            <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-              {/* From Date */}
-              <div>
-                <label className="mb-1 block text-sm font-semibold text-gray-700">
-                  From Date
-                </label>
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                  className={`w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-[${colors.primary}] focus:outline-none`}
-                />
-              </div>
-
-              {/* To Date */}
-              <div>
-                <label className="mb-1 block text-sm font-semibold text-gray-700">
-                  To Date
-                </label>
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                  className={`w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-[${colors.primary}] focus:outline-none`}
-                />
-              </div>
-            </div>
-
-            {/* Report Dropdown */}
-            {/* <div className="mb-4 md:w-1/3"> */}
-            <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div>
-                <label className="mb-1 block text-sm font-semibold text-gray-700">
-                  Select Report Name:
-                </label>
-                <select
-                  value={reportType}
-                  onChange={(e) => setReportType(e.target.value)}
-                  className={`w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-[${colors.primary}] focus:outline-none`}
-                >
-                  <option value="">-----Select-----</option>
-                  {/*
+      {/* Report Dropdown */}
+      {/* <div className="mb-4 md:w-1/3"> */}
+      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">
+            Select Report Name:
+          </label>
+          <select
+            value={reportType}
+            onChange={(e) => setReportType(e.target.value)}
+            className={`w-full rounded border border-gray-300 px-2 py-2 focus:ring-2 focus:ring-[${colors.primary}] focus:outline-none`}
+          >
+            <option value="">-----Select-----</option>
+            {/*
                 {options.map((option) => (
                   <option key={option.id} value={option.reportAct}>
                     {option.reportDis}
                   </option>
 
                 ))} */}
-                  {options.length === 0 ? (
-                    <option disabled>No reports available</option>
-                  ) : (
-                    options.map((option) => (
-                      <option key={option.id} value={option.reportAct}>
-                        {option.reportDis}
-                      </option>
-                    ))
-                  )}
-                </select>
-              </div>
-            </div>
-
-            <button
-              onClick={handleDownload}
-              disabled={isLoading}
-              className={`flex items-center gap-2 rounded px-6 py-3 font-semibold text-white shadow-sm transition-all ${
-                isLoading
-                  ? "cursor-not-allowed opacity-50"
-                  : "hover:opacity-90 hover:shadow active:scale-95"
-              }`}
-              style={{ background: colors.primary }}
-            >
-              <FaDownload />
-              {isLoading ? "Downloading..." : "Download Report"}
-            </button>
-          </div>
+            {options.length === 0 ? (
+              <option disabled>No reports available</option>
+            ) : (
+              options.map((option) => (
+                <option key={option.id} value={option.reportAct}>
+                  {option.reportDis}
+                </option>
+              ))
+            )}
+          </select>
         </div>
       </div>
-    </ProtectedRoute>
+
+      <button
+        onClick={handleDownload}
+        disabled={isLoading}
+        className={`flex items-center gap-2 rounded px-6 py-3 font-semibold text-white shadow-sm transition-all ${
+          isLoading
+            ? "cursor-not-allowed opacity-50"
+            : "hover:opacity-90 hover:shadow active:scale-95"
+        }`}
+        style={{ background: colors.primary }}
+      >
+        <FaDownload />
+        {isLoading ? "Downloading..." : "Download Report"}
+      </button>
+    </PageSkeleton>
   );
 }

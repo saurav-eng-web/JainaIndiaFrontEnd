@@ -17,6 +17,7 @@ import { getUserFromLocalStorage } from "@/redux/slices/authSlice";
 // import { exportToExcel } from "@/utils/exportToExcel";
 import Pagination from "@/components/Pagination";
 import InputField from "@/components/ui/InputWithLabel";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 const sizeClassMap = {
   sm: "w-[60px]",
@@ -127,92 +128,74 @@ function DetailsContent() {
     router.push("/history");
   };
 
+  // <ProtectedRoute allowedRoles={["BR", "NSP"]}>
   return (
-    <>
-      <ProtectedRoute allowedRoles={["BR", "NSP"]}>
-        <SideBar />
-        <div className="flex min-h-screen w-full flex-col font-sans">
-          <div className="mx-auto w-full max-w-[1400px] p-4">
-            {/* Main Card Container */}
-            <div className="rounded-xl p-6 sm:p-10">
-              <div className="space-y-8">
-                <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
-                  Request Special Allowance
-                </h2>
-                <input
-                  type="text"
-                  placeholder="Search"
-                  value={search}
-                  // className="mb-3 w-72 rounded border px-3 py-2 text-sm focus:outline-none"
-                  className="h-11 w-72 rounded-lg border-2 border-[#714b67] bg-white px-3 py-2 transition-all outline-none focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]"
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+    <PageSkeleton title="Special Approval" rolesAllowed={["BR", "NSP"]}>
+      <input
+        type="text"
+        placeholder="Search"
+        value={search}
+        // className="mb-3 w-72 rounded border px-3 py-2 text-sm focus:outline-none"
+        className="mb-6 h-11 w-72 rounded-lg border-2 border-[#714b67] bg-white px-3 py-2 transition-all outline-none focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]"
+        onChange={(e) => setSearch(e.target.value)}
+      />
 
-                <div className="mt-1 overflow-x-auto rounded-md border border-slate-300">
-                  <table className="w-full table-fixed border-separate border-spacing-0">
-                    <thead className="bg-[#714b67]">
-                      <tr>
-                        {tableHeaders.map((header) => (
-                          <Th key={header} title={header} />
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {isDataLoading ? (
-                        <tr>
-                          <td
-                            colSpan={tableHeaders.length}
-                            className="p-4 text-center text-slate-500"
-                          >
-                            Loading...
-                          </td>
-                        </tr>
-                      ) : approvalData.length === 0 ? (
-                        <tr>
-                          <td
-                            colSpan={tableHeaders.length}
-                            className="p-4 text-center text-slate-500"
-                          >
-                            No data available
-                          </td>
-                        </tr>
-                      ) : (
-                        visibleRows.map((row, rowIndex) => (
-                          <tr key={rowIndex} className="hover:bg-[#f1faff]">
-                            <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
-                              <button
-                                className="cursor-pointer rounded-md bg-[#714b67] px-3.5 py-2 text-[13px] text-white transition-colors duration-300 hover:bg-[#5a3c52]"
-                                onClick={() => handleViewHistory(row["TICKET_NO"])}
-                              >
-                                History
-                              </button>
-                            </td>
-                            {columnOrder.map((key, colIndex) => (
-                              <Td
-                                key={`${rowIndex}-${colIndex}`}
-                                data={row[key]}
-                                header={key}
-                              />
-                            ))}
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  pageSize={pageSize}
-                  setPageSize={setPageSize}
-                  setCurrentPage={setCurrentPage}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </ProtectedRoute>
-    </>
+      <div className="mt-1 overflow-x-auto rounded-md border border-slate-300">
+        <table className="w-full table-fixed border-separate border-spacing-0">
+          <thead className="bg-[#714b67]">
+            <tr>
+              {tableHeaders.map((header) => (
+                <Th key={header} title={header} />
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {isDataLoading ? (
+              <tr>
+                <td
+                  colSpan={tableHeaders.length}
+                  className="p-4 text-center text-slate-500"
+                >
+                  Loading...
+                </td>
+              </tr>
+            ) : approvalData.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={tableHeaders.length}
+                  className="p-4 text-center text-slate-500"
+                >
+                  No data available
+                </td>
+              </tr>
+            ) : (
+              visibleRows.map((row, rowIndex) => (
+                <tr key={rowIndex} className="hover:bg-[#f1faff]">
+                  <td className="border-b border-[#e0e0e0] px-4 py-3.5 align-middle text-sm text-[#333]">
+                    <button
+                      className="cursor-pointer rounded-md bg-[#714b67] px-3.5 py-2 text-[13px] text-white transition-colors duration-300 hover:bg-[#5a3c52]"
+                      onClick={() => handleViewHistory(row["TICKET_NO"])}
+                    >
+                      History
+                    </button>
+                  </td>
+                  {columnOrder.map((key, colIndex) => (
+                    <Td key={`${rowIndex}-${colIndex}`} data={row[key]} header={key} />
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+        setCurrentPage={setCurrentPage}
+      />
+    </PageSkeleton>
   );
 }
 

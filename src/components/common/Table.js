@@ -28,21 +28,6 @@ function Th({ title, sizeClass }) {
   );
 }
 
-// function Th({ title, sizeClass }) {
-//   return (
-//     <th className={`m-1 h-12 px-4 align-middle font-semibold ${sizeClass}`}>{title}</th>
-//   );
-// }
-
-// function Td({ data, sizeClass, render, row }) {
-//   return (
-//     <td className={`p-4 text-slate-600 ${sizeClass}`}>
-//       {/* If render function exists, call it with current data and the whole row */}
-//       {render ? render(data, row) : data || "-"}
-//     </td>
-//   );
-// }
-
 export default function Table({ columns, rows }) {
   return (
     <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">

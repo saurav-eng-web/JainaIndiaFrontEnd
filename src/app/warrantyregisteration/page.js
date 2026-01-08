@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
@@ -56,16 +57,6 @@ export default function WarrantyForm() {
     }
   };
 
-  const fetchModelsByProduct = async (productId) => {
-    try {
-      const res = await axiosInstance.get(`Model/productid/${productId}`);
-      setModelList(res.data || []);
-    } catch (err) {
-      console.error("❌ Failed to fetch models by product", err);
-      setModelList([]);
-    }
-  };
-
   const handleInvoiceUpload = async (file) => {
     if (!file) return null;
 
@@ -87,14 +78,14 @@ export default function WarrantyForm() {
       return res.data.fileName; // server returns { fileName: "xyz.png" }
     } catch (err) {
       console.error("❌ Invoice upload failed", err);
-      alert("❌ Failed to upload invoice");
+      toast.error("Failed to upload invoice");
       return null;
     }
   };
 
   const handleSerialCheck = async () => {
     if (!serialNo.trim()) {
-      setSerialError("Please enter a serial number");
+      toast.error("Please enter a serial number");
       setSerialData(null);
       return;
     }
@@ -105,7 +96,7 @@ export default function WarrantyForm() {
       );
       if (regCheck.data && regCheck.data.serialNumber) {
         setAlreadyRegistered(true);
-        setSerialError("⚠︎ This serial number is already registered.");
+        toast.error("This serial number is already registered.");
         setSerialNo("");
         setSerialData(null);
         return;
@@ -119,8 +110,8 @@ export default function WarrantyForm() {
       setSerialData(res.data);
       setSerialError("");
     } catch (err) {
-      setSerialError("❌ Invalid or unrecognized serial number");
-      // setSerialData("manual");
+      toast.error("Invalid or unrecognized serial number");
+      console.error("❌ Invalid or unrecognized serial number", err);
       fetchFallbackProductData();
     }
   };
@@ -149,11 +140,11 @@ export default function WarrantyForm() {
 
   const validateStep1 = () => {
     if (!dop || !retailer) {
-      alert("❌ Please fill Date of Purchase and Retailer fields.");
+      toast.error("Please fill Date of Purchase and Retailer fields.");
       return false;
     }
     if (serialData === "manual" && (!manualBrand || !manualProduct || !manualModel)) {
-      alert("❌ Please select brand, product, and model.");
+      toast.error("Please select brand, product, and model.");
       return false;
     }
     return true;
@@ -169,15 +160,16 @@ export default function WarrantyForm() {
       !selectedLocality ||
       !cityName
     ) {
-      alert("❌ Please fill all required personal fields.");
+      toast.error("Please fill all required personal fields.");
       return false;
     }
     if (!/^[0-9]{10}$/.test(phone)) {
-      alert("❌ Enter a valid 10-digit phone number.");
+      toast.error("Enter a valid 10-digit phone number.");
       return false;
     }
     return true;
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep2()) return;
@@ -190,7 +182,7 @@ export default function WarrantyForm() {
         `WarrantyRegistration/by-serial/${finalSerial}`
       );
       if (regCheck.data && regCheck.data.serialNumber) {
-        alert("❌ This serial number is already registered.");
+        toast.error("This serial number is already registered.");
         return;
       }
     } catch {}
@@ -200,7 +192,7 @@ export default function WarrantyForm() {
     if (invoice) {
       uploadedFileName = await handleInvoiceUpload(invoice);
       if (!uploadedFileName) {
-        alert("❌ Invoice upload failed, please try again.");
+        toast.error("Invoice upload failed, please try again.");
         return;
       }
     }
@@ -236,7 +228,8 @@ export default function WarrantyForm() {
         headers: { "Content-Type": "application/json" },
       });
 
-      setShowSuccessPopup(true);
+      // setShowSuccessPopup(true);
+      toast.success("Registration successful!");
       setStep(1);
 
       // Reset all fields
@@ -262,7 +255,7 @@ export default function WarrantyForm() {
       setManualModel("");
     } catch (err) {
       console.error("❌ Save failed", err);
-      alert("❌ Failed to register warranty");
+      toast.error("Failed to register warranty");
     }
   };
   return (
@@ -270,10 +263,16 @@ export default function WarrantyForm() {
       <div className="flex min-h-screen">
         <SideBar />
         <div className="ml-[60px] min-h-screen w-full bg-[#f4f6f8] p-8 transition-all">
-          <div className="mx-auto my-8 max-w-4xl rounded-lg bg-white p-8 shadow">
-            <div className="mb-8 rounded-md border-2 border-[#714b67] py-1 pl-2 text-left text-lg font-bold text-[#714b67]">
+          <div className="mx-auto my-8 max-w-[1100px] rounded-lg bg-white p-8 shadow">
+            <h2
+              className="mb-6 rounded-lg p-2 text-[18px] font-semibold"
+              style={{
+                color: colors.primary,
+                border: `2px solid ${colors.primary}`,
+              }}
+            >
               Warranty Registration
-            </div>
+            </h2>
 
             {/* Step Tracker */}
             <div className="relative mb-8 flex w-full items-center justify-center space-x-16">
@@ -294,7 +293,7 @@ export default function WarrantyForm() {
               </div>
 
               {/* Step line */}
-              <div className="absolute top-4 z-0 mx-auto h-0.5 w-[23%] bg-gray-300"></div>
+              <div className="absolute top-4 z-0 mx-auto h-0.5 w-[18%] bg-gray-300"></div>
 
               {/* Step 2 */}
               <div
@@ -314,156 +313,71 @@ export default function WarrantyForm() {
             {/* Step 1 → Product Details */}
             {step === 1 && (
               <form>
-                <div className="grid grid-cols-2 gap-5">
-                  {/* Serial Number */}
-                  <div className="col-span-1 flex items-end gap-3">
-                    <div className="w-72">
-                      <label className="mb-1 block font-medium">
-                        Serial Number <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={serialNo}
-                        onChange={(e) => setSerialNo(e.target.value)}
-                        placeholder="Enter serial number"
-                        className="h-10 w-full rounded border border-gray-300 px-2 py-1"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleSerialCheck}
-                      style={{ backgroundColor: colors.primary }}
-                      className="rounded px-4 py-2 text-white"
-                    >
-                      Check
-                    </button>
+                <div className="mb-5 flex items-end gap-5">
+                  <div className="w-82">
+                    <label className="mb-1 block font-medium">
+                      Serial Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={serialNo}
+                      onChange={(e) => setSerialNo(e.target.value)}
+                      placeholder="Enter serial number"
+                      className="h-10 w-full rounded border border-gray-300 px-2 py-1"
+                    />
                   </div>
-
-                  {serialError && (
-                    // <div className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded col-span-2">
-                    //   {serialError}
-                    // </div>
-                    <div
-                      className={`col-span-2 rounded px-3 py-1 ${
-                        serialError === "❌ Invalid or unrecognized serial number"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {serialError}
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    onClick={handleSerialCheck}
+                    style={{ backgroundColor: colors.primary }}
+                    className="w-24 cursor-pointer rounded px-4 py-2 text-white"
+                  >
+                    Check
+                  </button>
                   {serialData && serialData !== "manual" && (
-                    <div className="col-span-2 rounded bg-green-100 px-3 py-1 text-green-800">
+                    <div className="col-span-2 h-10 rounded bg-green-100 px-3 py-1 text-green-800">
                       ✅ Valid serial: <strong>{serialData.itemSerialNo1}</strong> (
                       {serialData.brand} - {serialData.model})
                     </div>
                   )}
+                </div>
 
+                <div className="grid grid-cols-3 gap-5">
                   {/* Brand/Product/Model Section */}
-                  {/* -------- 🔴🔴have to remove this ---------- */}
-                  {serialData === "manual" ? (
-                    <>
-                      <div>
-                        <label className="mb-1 block font-medium">
-                          Brand <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          value={manualBrand}
-                          onChange={(e) => setManualBrand(e.target.value)}
-                          className="w-full rounded border border-gray-300 px-2 py-1"
-                        >
-                          <option value="">-- Select Brand --</option>
-                          {brandList.map((b, i) => (
-                            <option key={i} value={b.brand_ID}>
-                              {b.brand_Name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="mb-1 block font-medium">
-                          Product <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          value={manualProduct}
-                          onChange={(e) => {
-                            const selectedProductId = e.target.value;
-                            setManualProduct(selectedProductId); // now manualProduct = productID
-                            if (selectedProductId) {
-                              fetchModelsByProduct(selectedProductId); // fetch models correctly
-                            } else {
-                              setModelList([]);
-                            }
-                          }}
-                          className="w-full rounded border border-gray-300 px-2 py-1"
-                        >
-                          <option value="">-- Select Product --</option>
-                          {productList
-                            .filter((p) => p.brandId === Number(manualBrand)) // still filter by brand
-                            .map((p) => (
-                              <option key={p.productID} value={p.productID}>
-                                {p.product}
-                              </option>
-                            ))}
-                        </select>
-                      </div>
 
-                      <div>
-                        <label className="mb-1 block font-medium">
-                          Model <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          value={manualModel}
-                          onChange={(e) => setManualModel(e.target.value)}
-                          className="w-full rounded border border-gray-300 px-2 py-1"
-                        >
-                          <option value="">-- Select Model --</option>
-                          {modelList.map((m) => (
-                            <option key={m.modelID} value={m.modelID}>
-                              {m.modelNo}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div>
-                        <label className="mb-1 block font-medium text-gray-400">
-                          Brand <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={serialData?.brand || ""}
-                          readOnly
-                          className="h-10 w-full rounded border border-gray-300 px-2 py-1"
-                        />
-                      </div>
-                      <div>
-                        <label className="mb-1 block font-medium text-gray-400">
-                          Product <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={serialData?.product || ""}
-                          readOnly
-                          className="h-10 w-full rounded border border-gray-300 px-2 py-1"
-                        />
-                      </div>
-                      <div>
-                        <label className="mb-1 block font-medium text-gray-400">
-                          Model <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={serialData?.model || ""}
-                          readOnly
-                          className="h-10 w-full rounded border border-gray-300 px-2 py-1"
-                        />
-                      </div>
-                    </>
-                  )}
+                  <div>
+                    <label className="mb-1 block font-medium text-gray-400">
+                      Brand <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={serialData?.brand || ""}
+                      readOnly
+                      className="h-10 w-full rounded border border-gray-300 px-2 py-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block font-medium text-gray-400">
+                      Product <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={serialData?.product || ""}
+                      readOnly
+                      className="h-10 w-full rounded border border-gray-300 px-2 py-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block font-medium text-gray-400">
+                      Model <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={serialData?.model || ""}
+                      readOnly
+                      className="h-10 w-full rounded border border-gray-300 px-2 py-1"
+                    />
+                  </div>
 
                   {/* Rest Fields */}
                   <div>
@@ -489,71 +403,7 @@ export default function WarrantyForm() {
                       className="h-10 w-full rounded border border-gray-300 px-2 py-1"
                     />
                   </div>
-                  {/* ------------Invoice Old------------ */}
-                  {/* <div>
-                    <label className="mb-1 block font-medium">
-                      Upload Invoice <span className="text-red-500">*</span>
-                    </label>
 
-                    <input
-                      type="file"
-                      accept=".jpg,.jpeg,.png,.pdf"
-                      onChange={async (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-
-                        // 🔹 File type check
-                        const allowedTypes = [
-                          "image/jpeg",
-                          "image/png",
-                          "application/pdf",
-                        ];
-                        if (!allowedTypes.includes(file.type)) {
-                          alert("❌ Only JPG, PNG, and PDF files are allowed.");
-                          e.target.value = "";
-                          return;
-                        }
-                        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                        console.log(`File size: ${sizeMB} MB`);
-                        // 🔹 File size check (1 MB = 1024 * 1024 bytes)
-                        if (file.size > 2 * 1024 * 1024) {
-                          alert("❌ File size must be less than 2 MB.");
-                          e.target.value = "";
-                          return;
-                        }
-
-                        setInvoice(file);
-
-                        const formData = new FormData();
-                        formData.append("file", file);
-
-                        try {
-                          const res = await axiosInstance.post(
-                            "WarrantyRegistration/upload-invoice",
-                            formData,
-                            {
-                              headers: {
-                                "Content-Type": "multipart/form-data",
-                                Accept: "application/json",
-                              },
-                            },
-                          );
-                          setUploadedInvoiceName(res.data.fileName);
-                          console.log(
-                            "✅ Invoice uploaded:",
-                            res.data.fileName,
-                          );
-                        } catch (err) {
-                          console.error("❌ Upload failed", err);
-                          alert("❌ Invoice upload failed");
-                        }
-                      }}
-                      className="w-full"
-                    />
-                    <small className="text-gray-500">
-                      Allowed formats: JPG, PNG, PDF | Max size: 2 MB
-                    </small>
-                  </div> */}
                   {/* ------------Invoice New------------ */}
                   <div className="">
                     <label className="mb-1 block font-medium">
@@ -584,14 +434,14 @@ export default function WarrantyForm() {
                             "application/pdf",
                           ];
                           if (!allowedTypes.includes(file.type)) {
-                            alert("❌ Only JPG, PNG, and PDF files are allowed.");
+                            toast.error("Only JPG, PNG, and PDF files are allowed.");
                             e.target.value = "";
                             return;
                           }
 
                           const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
                           if (file.size > 2 * 1024 * 1024) {
-                            alert("❌ File size must be less than 2 MB.");
+                            toast.error("File size must be less than 2 MB.");
                             e.target.value = "";
                             return;
                           }
@@ -615,7 +465,7 @@ export default function WarrantyForm() {
                             setUploadedInvoiceName(res.data.fileName);
                           } catch (err) {
                             console.error("❌ Upload failed", err);
-                            alert("❌ Invoice upload failed");
+                            toast.error("Invoice upload failed");
                           }
                         }}
                         className="hidden"
@@ -642,30 +492,31 @@ export default function WarrantyForm() {
                   </div>
                 </div>
 
-                <div className="mt-8 flex justify-between">
-                  {/* <button type="button" onClick={() => validateStep1() && setStep(2)} style={{ backgroundColor: colors.primary }} className="px-4 py-2 text-white rounded">Next</button> */}
+                <div className="mt-8 flex justify-end">
                   <button
                     type="button"
                     onClick={() => {
                       if (!dop || !retailer) {
-                        alert("❌ Please fill Date of Purchase and Retailer fields.");
+                        toast.error(
+                          "❌ Please fill Date of Purchase and Retailer fields."
+                        );
                         return;
                       }
                       if (
                         serialData === "manual" &&
                         (!manualBrand || !manualProduct || !manualModel)
                       ) {
-                        alert("❌ Please select brand, product, and model.");
+                        toast.error("Please select brand, product, and model.");
                         return;
                       }
                       if (!invoice && !uploadedInvoiceName) {
-                        alert("❌ Please upload the invoice.");
+                        toast.error("Please upload the invoice.");
                         return;
                       }
                       setStep(2);
                     }}
                     style={{ backgroundColor: colors.primary }}
-                    className="rounded px-4 py-2 text-white"
+                    className="w-24 cursor-pointer rounded px-4 py-2 text-white"
                   >
                     Next
                   </button>
@@ -676,7 +527,7 @@ export default function WarrantyForm() {
             {/* Step 2 → Personal Information */}
             {step === 2 && (
               <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-2 gap-5">
+                <div className="grid grid-cols-3 gap-5">
                   <div>
                     <label className="mb-1 block font-medium">
                       First Name <span className="text-red-500">*</span>
@@ -703,7 +554,7 @@ export default function WarrantyForm() {
                     <label className="mb-1 block font-medium">
                       Phone Number <span className="text-red-500">*</span>
                     </label>
-                    {/* <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Enter phone number" className="w-full border border-gray-300 rounded px-2 py-1"/> */}
+
                     <input
                       type="tel"
                       value={phone}
@@ -727,7 +578,7 @@ export default function WarrantyForm() {
                       onChange={(e) => setAddress(e.target.value)}
                       rows={3}
                       placeholder="Enter your address"
-                      className="w-full rounded border border-gray-300 px-2 py-1"
+                      className="h-10 w-full rounded border border-gray-300 px-2 py-1"
                     />
                   </div>
                   <div>
@@ -764,7 +615,8 @@ export default function WarrantyForm() {
                       type="text"
                       value={cityName}
                       readOnly
-                      placeholder="City auto-fills"
+                      disabled
+                      placeholder="City"
                       className="h-10 w-full rounded border border-gray-300 px-2 py-1"
                     />
                   </div>
@@ -775,7 +627,7 @@ export default function WarrantyForm() {
                     <select
                       value={selectedLocality}
                       onChange={(e) => setSelectedLocality(e.target.value)}
-                      className="w-full rounded border border-gray-300 px-2 py-1"
+                      className="h-10 w-full rounded border border-gray-300 px-2 py-1"
                     >
                       <option value="">----Select----</option>
                       {localities.map((loc, i) => (
@@ -791,13 +643,13 @@ export default function WarrantyForm() {
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="rounded bg-gray-500 px-4 py-2 text-white"
+                    className="w-24 cursor-pointer rounded bg-gray-500 px-4 py-2 text-white"
                   >
                     Back
                   </button>
                   <button
                     type="submit"
-                    className="rounded px-4 py-2 text-white"
+                    className="w-24 cursor-pointer rounded px-4 py-2 text-white"
                     style={{ backgroundColor: colors.primary }}
                   >
                     Save
@@ -807,22 +659,6 @@ export default function WarrantyForm() {
             )}
           </div>
         </div>
-
-        {/* Success Popup */}
-        {showSuccessPopup && (
-          <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
-            <div className="w-11/12 max-w-sm rounded-lg bg-white p-8 text-center shadow-lg">
-              <h2 className="mb-4 text-green-600">🎉 Registration Successful</h2>
-              <p className="mb-4">Your warranty has been registered successfully.</p>
-              <button
-                onClick={() => setShowSuccessPopup(false)}
-                className="rounded bg-blue-600 px-4 py-2 text-white"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </ProtectedRoute>
   );

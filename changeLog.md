@@ -198,3 +198,18 @@
 - fix: re-allot asm reject request, removed validation, added the asm remark to customer remark
 - fix: RSM allowance approve request update with pincode, sc pincode and distance, fix the list
 - fix: remove unneccessary console logs
+
+# 2.2.3
+
+- feat: page skeleton add,
+- fix: multiple pages UI
+- fix: warranty registration page fix
+- fix: multiple pages UI
+- add part pending converted to popup
+- feat: integrate api part pending
+
+# 2.3.0
+- fix: revamp history page, highly improve the performance of histrory
+  - separted multiple components for better perfomance
+  - separated multiple api calls
+  - implement caching of api, so that the api did not hit again and again on tab change

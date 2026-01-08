@@ -8,6 +8,7 @@ import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 export default function ComplaintTable() {
   const { colors } = useTheme();
@@ -119,23 +120,15 @@ export default function ComplaintTable() {
     },
   ];
 
+  // Technical Approval Listing
   return (
-    <div className="font-inter flex min-h-screen">
-      <SideBar />
-      <div className="ml-[60px] min-h-screen w-full bg-[#f4f6f8] p-8 transition-all">
-        <div className="rounded-xl bg-white p-8 shadow-lg">
-          <h2 className="mb-8 rounded-md border-2 border-[#714b67] px-3 py-2 text-left text-lg font-bold text-[#714b67]">
-            Technical Approval Listing
-          </h2>
-
-          {loading ? (
-            <p className="text-sm text-gray-600">Loading complaints...</p>
-          ) : (
-            <Table columns={columns} rows={complaints} />
-          )}
-        </div>
-      </div>
-    </div>
+    <PageSkeleton title="Technical Approval Listing" rolesAllowed={["cc"]}>
+      {loading ? (
+        <p className="text-sm text-gray-600">Loading complaints...</p>
+      ) : (
+        <Table columns={columns} rows={complaints} />
+      )}
+    </PageSkeleton>
   );
 }
 

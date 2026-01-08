@@ -1,4 +1,5 @@
 {
   "postman.settings.dotenv-detection-notification-visibility": false,
-  "workbench.iconTheme": "material-icon-theme"
+  "workbench.iconTheme": "material-icon-theme",
+  "FSharp.suggestGitignore": false
 }

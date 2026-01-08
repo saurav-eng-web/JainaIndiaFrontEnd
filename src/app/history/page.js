@@ -10,7 +10,6 @@ import toast from "react-hot-toast";
 import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
 import SpeicalAllowancePopup from "../rsm/special-allowance/allowancePopup";
 import AddPartPending from "../sf/action/AddPartPending";
-import AddPartPending from "../sf/action/AddPartPending";
 
 import CancelPopup from "./CancelPopup";
 import EditCustPopup from "./EditCustPopup";
@@ -69,7 +68,7 @@ function HistoryPageContent() {
   const {
     logData,
     custDetail,
-    partConsumption, 
+    partConsumption,
     documents,
     pendingHistory,
     // reminders,
@@ -84,7 +83,7 @@ function HistoryPageContent() {
     fetchConsumption,
     fetchPendingHistory,
     fetchVisitDetails,
-    visitDetails
+    visitDetails,
   } = useHistoryData(activeTicket, user, user?.roleName);
 
   // --- Local UI State ---
@@ -221,7 +220,7 @@ function HistoryPageContent() {
   // --- Tab Switch Handler ---
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    
+
     switch (tab) {
       case "Documents":
         fetchDocuments();
@@ -247,9 +246,7 @@ function HistoryPageContent() {
   };
 
   const onOpenAllowanceModal = () => {
-    dispatch(
-      setRouteData({ key: "allowanceData", data: allowanceLocationDetails })
-    );
+    dispatch(setRouteData({ key: "allowanceData", data: allowanceLocationDetails }));
     setAllowancePopup(true);
   };
   const onCloseAllowanceModal = () => setAllowancePopup(false);
@@ -331,10 +328,7 @@ function HistoryPageContent() {
         alert("Cancellation Request Submitted Successfully!");
       }
 
-      if (
-        res?.data?.statusCode === 200 &&
-        res.data.statusMsg.includes("success")
-      ) {
+      if (res?.data?.statusCode === 200 && res.data.statusMsg.includes("success")) {
         setShowActionPopup(false);
       }
     } catch (error) {
@@ -521,10 +515,7 @@ function HistoryPageContent() {
         approvalRemarks: remark,
       };
 
-      const res = await axiosInstance.post(
-        "/RequestCancellation/update",
-        payload
-      );
+      const res = await axiosInstance.post("/RequestCancellation/update", payload);
       const { statusMsg } = res.data;
       const { status, subStatus, message } = parseStatusMessage(statusMsg);
       await updateJob(status, subStatus, message);
@@ -552,10 +543,7 @@ function HistoryPageContent() {
         {user?.roleName === "SF/SSD" && (
           <>
             <h2 className="page-title">👉 Action</h2>
-            <ActionButtons
-              actions={actions}
-              onActionClick={handleActionClick}
-            />
+            <ActionButtons actions={actions} onActionClick={handleActionClick} />
 
             <ActionPopup
               isOpen={showActionPopup}
@@ -582,10 +570,7 @@ function HistoryPageContent() {
               handleAssigned={handleAssigned}
             />
 
-            <Modal
-              open={partPendingPopup}
-              onClose={() => setPartPendingPopup(false)}
-            >
+            <Modal open={partPendingPopup} onClose={() => setPartPendingPopup(false)}>
               <AddPartPending ticketNumber={activeTicket} />
             </Modal>
           </>
@@ -648,9 +633,7 @@ function HistoryPageContent() {
           prevPage === "special-allowance-request") && (
           <>
             <Button className="mb-4 w-42" onClick={onOpenAllowanceModal}>
-              {prevPage === "special-approval"
-                ? "Req Sp. Allowance"
-                : "Allowance Req"}
+              {prevPage === "special-approval" ? "Req Sp. Allowance" : "Allowance Req"}
             </Button>
             <Modal open={allowancePopup} onClose={onCloseAllowanceModal} center>
               {prevPage === "special-approval" ? (
@@ -678,8 +661,7 @@ function HistoryPageContent() {
         {fromPage === "dashboardcall" &&
           user?.roleName === "ZONE" &&
           detail.complainT_STATUS === "Open" &&
-          detail.complaint_SubStatus ===
-            "Cancellation Request moved to RSM" && (
+          detail.complaint_SubStatus === "Cancellation Request moved to RSM" && (
             <RemarkSection
               onSubmit={() => handleSubmitRemark("approved-RSM")}
               onCancel={() => handleSubmitRemark("rejected-RSM")}
@@ -720,9 +702,7 @@ function HistoryPageContent() {
                     <td>{row.ticketNo}</td>
                     <td> {row.complaintStatus}</td>
                     <td>{row.complaintSubStatus || "-"}</td>
-                    <td>
-                      {row.tdate ? new Date(row.tdate).toLocaleString() : "-"}
-                    </td>
+                    <td>{row.tdate ? new Date(row.tdate).toLocaleString() : "-"}</td>
                     <td>{row.enteredBy}</td>
                   </tr>
                 ))}
@@ -759,17 +739,13 @@ function HistoryPageContent() {
               {activeTab === "Job Details" && (
                 <JobDetailsTab detail={detail} firstEntry={firstEntry} />
               )}
-              {activeTab === "Customer Detail" && (
-                <CustomerDetailTab detail={detail} />
-              )}
-              {activeTab === "Product Details" && (
-                <ProductDetailsTab detail={detail} />
-              )}
+              {activeTab === "Customer Detail" && <CustomerDetailTab detail={detail} />}
+              {activeTab === "Product Details" && <ProductDetailsTab detail={detail} />}
               {activeTab === "Pending Level" && (
                 <div className="tab-section">
                   <h3 style={{ fontWeight: "bold" }}>🛠️ Pending Level</h3>
                   {loadingTabs.pending ? (
-                     <p>Loading...</p>
+                    <p>Loading...</p>
                   ) : !pendingHistory || pendingHistory.length === 0 ? (
                     <p>No pending history found.</p>
                   ) : (
@@ -820,9 +796,7 @@ function HistoryPageContent() {
                             <td>{doc.docType}</td>
                             <td>{doc.fileName}</td>
                             <td>{doc.createdby}</td>
-                            <td>
-                              {new Date(doc.createddate).toLocaleDateString()}
-                            </td>
+                            <td>{new Date(doc.createddate).toLocaleDateString()}</td>
                             <td>
                               <a
                                 href={doc.path}
@@ -856,8 +830,8 @@ function HistoryPageContent() {
                   ) : (
                     // Logic for consumption table if exists, else text
                     <p>
-                        {/* If partConsumption has data, map it here. Assuming just text for now as per previous code */}
-                        {JSON.stringify(partConsumption)} 
+                      {/* If partConsumption has data, map it here. Assuming just text for now as per previous code */}
+                      {JSON.stringify(partConsumption)}
                     </p>
                   )}
                 </div>
@@ -871,7 +845,7 @@ function HistoryPageContent() {
                     <p>No visit details available.</p>
                   ) : (
                     <table className="complaint-table">
-                       <thead>
+                      <thead>
                         <tr>
                           <th>Start Time</th>
                           <th>End Time</th>

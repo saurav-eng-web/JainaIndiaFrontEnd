@@ -9,6 +9,7 @@ import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { logger } from "@/utils/logger";
 import Table from "@/components/common/Table";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 export default function SearchComplaintPage() {
   const router = useRouter();
@@ -227,48 +228,40 @@ export default function SearchComplaintPage() {
   ];
 
   return (
-    <ProtectedRoute allowedRoles={["cc", "br", "asm", "zone", "sf/ssd"]}>
-      <div className="flex w-full">
-        <SideBar />
-        <div className="ml-[60px] min-h-screen w-full bg-[#f4f6f8] transition-all duration-300 ease-in-out">
-          <div className="mt-10 ml-10 max-w-[1300px] rounded-xl bg-white p-10 shadow-lg">
-            <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
-              Search Complaint
-            </h2>
-
-            {/* Search Box Section */}
-            <div className="mt-5 flex flex-col items-start gap-2.5">
-              <input
-                type="text"
-                placeholder="Complaint No / Mobile No / Serial No"
-                className="w-[350px] rounded-md border border-[#714b67] bg-white px-4 py-3 text-base outline-none focus:ring-2 focus:ring-[#714b67]"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <div className="mt-5 flex gap-2.5">
-                <button
-                  disabled={isLoading}
-                  className="cursor-pointer rounded-lg bg-[#714b67] px-5 py-3 text-base font-bold text-white transition-colors duration-300 hover:bg-[#5a3c52]"
-                  onClick={handleSearch}
-                >
-                  {isLoading ? "Searching..." : "Search"}
-                </button>
-              </div>
-            </div>
-
-            {/* Results Table */}
-            {searchResults.length > 0 && (
-              <div className="mt-8">
-                <Table columns={columns} rows={searchResults} />
-              </div>
-            )}
-
-            {searchAttempted && searchResults.length === 0 && (
-              <p className="mt-5 text-red-600">No results found.</p>
-            )}
-          </div>
+    <PageSkeleton
+      title="Search Complaint"
+      rolesAllowed={["cc", "br", "asm", "zone", "sf/ssd"]}
+    >
+      {/* Search Box Section */}
+      <div className="mt-5 flex flex-col items-start gap-2.5">
+        <input
+          type="text"
+          placeholder="Complaint No / Mobile No / Serial No"
+          className="w-[350px] rounded-md border border-[#714b67] bg-white px-4 py-3 text-base outline-none focus:ring-2 focus:ring-[#714b67]"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <div className="mt-5 flex gap-2.5">
+          <button
+            disabled={isLoading}
+            className="cursor-pointer rounded-lg bg-[#714b67] px-5 py-3 text-base font-bold text-white transition-colors duration-300 hover:bg-[#5a3c52]"
+            onClick={handleSearch}
+          >
+            {isLoading ? "Searching..." : "Search"}
+          </button>
         </div>
       </div>
-    </ProtectedRoute>
+
+      {/* Results Table */}
+      {searchResults.length > 0 && (
+        <div className="mt-8">
+          <Table columns={columns} rows={searchResults} />
+        </div>
+      )}
+
+      {searchAttempted && searchResults.length === 0 && (
+        <p className="mt-5 text-red-600">No results found.</p>
+      )}
+    </PageSkeleton>
   );
 }

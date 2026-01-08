@@ -15,17 +15,11 @@ import axiosInstance from "@/api/axiosInstance";
 
 export default function SpeicalAllowancePopup({ ticketNo }) {
   const { colors } = useTheme();
-  // const user = useSelector((state) => state.auth.user);
 
-  //   const [allowanceType, setAllowanceType] = useState("");
-  //   const [allowanceTypeOptions, setAllowanceTypeOptions] = useState([]);
   const [amount, setAmount] = useState("");
   const [remarks, setRemarks] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  //   const nspRemarks =
-  //     "Please allow this request as we can hjgjkl lkjh kh lkj hkjhlkjhlkjh kjh klhkj hkl jhk ljh lkjh kjlhkjhjhkjl";
-  //   const nspAmount = 1500;
-  //   const nspType = "Transport";
+
   const router = useRouter();
 
   const nspData = useSelector((state) => state.routeData.store.nspData);

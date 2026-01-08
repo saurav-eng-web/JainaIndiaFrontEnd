@@ -9,6 +9,7 @@ import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { updateJob } from "@/utils/commonApis";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 export default function TransferCallForm() {
   const { colors } = useTheme();
@@ -240,76 +241,50 @@ export default function TransferCallForm() {
 
   // axiosInstance.get(`ComplaintCustDetail/${activeTicket}`);
   return (
-    <ProtectedRoute allowedRoles={["br", "asm", "zone"]}>
-      <div className="flex min-h-screen bg-gray-100">
-        <SideBar />
-
-        <div className="flex-1 pt-10 pr-20 pl-30">
-          <div className="w-full">
-            <div className="rounded-2xl bg-white p-8 shadow-lg transition-shadow duration-300 hover:shadow-xl">
-              <h2
-                className="mb-8 text-left text-2xl font-bold"
-                style={{
-                  color: colors.primary,
-                  padding: 5,
-                  fontWeight: 700,
-                  fontSize: 18,
-                  border: `2px solid ${colors.primary}`,
-                  borderRadius: 5,
-                }}
-              >
-                Transfer Call
-              </h2>
-
-              <form className="grid grid-cols-3 gap-6" onSubmit={handleSubmit}>
-                {/* Complaint No */}
-                <div className="flex flex-col">
-                  <label className="mb-2 text-sm font-medium text-gray-700">
-                    Complaint No
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter Complaint No"
-                    className="rounded-lg border px-3 py-2 focus:outline-none"
-                    value={ticketNo}
-                    onChange={(e) => setTicketNo(e.target.value)}
-                    // onBlur={handleBlur}
-                  />
-                </div>
-
-                {/* ASC Dropdown */}
-                <CustomDropdown
-                  label="Asc Name"
-                  placeholder="Select ASC"
-                  value={transferTo}
-                  onChange={setTransferTo}
-                  options={ascOptions}
-                />
-
-                {/* Buttons */}
-                <div className="col-span-2 mt-6 flex gap-4">
-                  <button
-                    type="button"
-                    className="rounded-lg px-6 py-2 text-sm font-medium shadow-md transition hover:shadow-lg"
-                    style={{ background: colors.primary, color: "#fff" }}
-                    onClick={() => window.history.back()}
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    className="rounded-lg px-6 py-2 text-sm font-medium shadow-md transition hover:shadow-lg"
-                    style={{ background: colors.primary, color: "#fff" }}
-                    disabled={loading}
-                  >
-                    {loading ? "Transferring..." : "Submit"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+    <PageSkeleton title="Transfer Call" rolesAllowed={["br", "asm", "zone"]}>
+      <form className="grid grid-cols-3 gap-6" onSubmit={handleSubmit}>
+        {/* Complaint No */}
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700">Complaint No</label>
+          <input
+            type="text"
+            placeholder="Enter Complaint No"
+            className="rounded-lg border px-3 py-2 focus:outline-none"
+            value={ticketNo}
+            onChange={(e) => setTicketNo(e.target.value)}
+            // onBlur={handleBlur}
+          />
         </div>
-      </div>
-    </ProtectedRoute>
+
+        {/* ASC Dropdown */}
+        <CustomDropdown
+          label="Asc Name"
+          placeholder="Select ASC"
+          value={transferTo}
+          onChange={setTransferTo}
+          options={ascOptions}
+        />
+
+        {/* Buttons */}
+        <div className="col-span-2 mt-6 flex gap-4">
+          <button
+            type="button"
+            className="rounded-lg px-6 py-2 text-sm font-medium shadow-md transition hover:shadow-lg"
+            style={{ background: colors.primary, color: "#fff" }}
+            onClick={() => window.history.back()}
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            className="rounded-lg px-6 py-2 text-sm font-medium shadow-md transition hover:shadow-lg"
+            style={{ background: colors.primary, color: "#fff" }}
+            disabled={loading}
+          >
+            {loading ? "Transferring..." : "Submit"}
+          </button>
+        </div>
+      </form>
+    </PageSkeleton>
   );
 }

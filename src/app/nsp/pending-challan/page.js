@@ -163,7 +163,7 @@ function DetailsContent() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={["ASM", "ZONE", "BR"]}>
+    <ProtectedRoute allowedRoles={["ASM", "ZONE", "BR", "SF/SSD"]}>
       <SideBar />
 
       <div className="flex min-h-screen w-full flex-col font-sans">

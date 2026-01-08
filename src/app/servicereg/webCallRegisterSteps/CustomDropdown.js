@@ -1,15 +1,10 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
+
 import { useTheme } from "@/theme/ThemeContext";
 
-export default function CustomDropdown({
-  label,
-  options,
-  value,
-  onChange,
-  placeholder,
-}) {
+export default function CustomDropdown({ label, options, value, onChange, placeholder }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1); // For keyboard focus
@@ -31,7 +26,7 @@ export default function CustomDropdown({
 
   // Filtered options
   const filteredOptions = options.filter((opt) =>
-    opt.label.toLowerCase().includes(search.toLowerCase()),
+    opt.label.toLowerCase().includes(search.toLowerCase())
   );
 
   // Handle keyboard events
@@ -47,15 +42,11 @@ export default function CustomDropdown({
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setHighlightedIndex((prev) =>
-          prev < filteredOptions.length - 1 ? prev + 1 : 0,
-        );
+        setHighlightedIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : 0));
         break;
       case "ArrowUp":
         e.preventDefault();
-        setHighlightedIndex((prev) =>
-          prev > 0 ? prev - 1 : filteredOptions.length - 1,
-        );
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : filteredOptions.length - 1));
         break;
       case "Enter":
         e.preventDefault();
@@ -80,8 +71,7 @@ export default function CustomDropdown({
   useEffect(() => {
     if (listRef.current && highlightedIndex >= 0) {
       const activeItem = listRef.current.children[highlightedIndex];
-      if (activeItem)
-        activeItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      if (activeItem) activeItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
   }, [highlightedIndex]);
 
@@ -93,20 +83,14 @@ export default function CustomDropdown({
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
-      {label && (
-        <label className="mb-2 text-sm font-medium text-gray-700">
-          {label}
-        </label>
-      )}
+      {label && <label className="mb-2 text-sm font-medium text-gray-700">{label}</label>}
 
       {/* Dropdown button */}
       <div
         className="flex cursor-pointer items-center justify-between rounded-lg border bg-white px-3 py-2"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span>
-          {options.find((opt) => opt.value === value)?.label || placeholder}
-        </span>
+        <span>{options.find((opt) => opt.value === value)?.label || placeholder}</span>
         <MdKeyboardArrowDown size={20} />
       </div>
 

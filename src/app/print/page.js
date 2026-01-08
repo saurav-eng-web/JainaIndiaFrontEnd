@@ -2,12 +2,12 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 import { useTheme } from "@/theme/ThemeContext";
-import SideBar from "@/components/SideBar";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import CustomDropdown from "@/components/common/Dropdown";
 import axiosInstance from "@/api/axiosInstance";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 export default function ChallanSearch() {
   const { colors } = useTheme();
@@ -57,7 +57,7 @@ export default function ChallanSearch() {
     e.preventDefault();
 
     if (!month || !year || !challanType) {
-      setMessage({ type: "error", text: "Please select all fields." });
+      toast.error("Please select all fields.");
       return;
     }
 
@@ -77,27 +77,23 @@ export default function ChallanSearch() {
       // If backend returns array of results
       if (Array.isArray(res.data) && res.data.length > 0) {
         setResults(res.data);
-        setMessage({ type: "success", text: "Data fetched successfully" });
       }
 
       // If backend returns empty array
       else if (Array.isArray(res.data) && res.data.length === 0) {
         setResults([]);
-        setMessage({ type: "error", text: "No records found" });
+        toast.error("No records found");
       }
 
       // Any other unexpected format
       else {
         setResults([]);
-        setMessage({ type: "error", text: "Something went wrong" });
+        toast.error("Something went wrong");
       }
     } catch (error) {
       console.error("API Response:", error.response);
 
-      setMessage({
-        type: "error",
-        text: error.response?.data?.message || "Something went wrong",
-      });
+      toast.error("Something went wrong, Please try again.");
 
       setResults([]);
     }
@@ -114,138 +110,114 @@ export default function ChallanSearch() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}>
-      <div className="flex min-h-screen bg-gray-100">
-        <SideBar />
-
-        <div className="flex-1 pt-10 pr-20 pl-30">
-          <div className="w-full">
-            <div className="rounded-2xl bg-white p-8 shadow-lg transition hover:shadow-xl">
-              <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
-                Challan Search
-              </h2>
-
-              {message && (
-                <div
-                  className={`mb-4 rounded px-4 py-2 ${
-                    message.type === "success"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {message.text}
-                </div>
-              )}
-
-              <form className="grid grid-cols-3 gap-6" onSubmit={handleSearch}>
-                <CustomDropdown
-                  label="Month"
-                  placeholder="Select Month"
-                  value={month}
-                  onChange={setMonth}
-                  options={monthOptions}
-                />
-
-                <CustomDropdown
-                  label="Year"
-                  placeholder="Select Year"
-                  value={year}
-                  onChange={setYear}
-                  options={yearOptions}
-                />
-
-                <CustomDropdown
-                  label="Challan Type"
-                  placeholder="Select Challan Type"
-                  value={challanType}
-                  onChange={setChallanType}
-                  options={challanTypeOptions}
-                />
-
-                <div className="col-span-3 mt-6 flex gap-4">
-                  <button
-                    type="button"
-                    className="cursor-pointer rounded-lg px-6 py-2 text-sm font-medium shadow-md"
-                    style={{ background: colors.primary, color: "#fff" }}
-                    onClick={() => window.history.back()}
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    className="cursor-pointer rounded-lg px-6 py-2 text-sm font-medium shadow-md"
-                    style={{ background: colors.primary, color: "#fff" }}
-                    disabled={loading}
-                  >
-                    {loading ? "Searching..." : "Search"}
-                  </button>
-                </div>
-              </form>
-
-              {results.length > 0 && (
-                <div className="mt-10 overflow-x-auto">
-                  <table className="min-w-full rounded-lg border border-gray-300">
-                    <thead style={{ backgroundColor: colors.primary, color: "white" }}>
-                      <tr>
-                        <th className="px-4 py-3 text-left text-sm font-semibold">
-                          Challan No.
-                        </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold">
-                          SF Name
-                        </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold">
-                          Date
-                        </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold">
-                          Docket
-                        </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold">
-                          Print
-                        </th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {results.map((item, index) => (
-                        <tr
-                          key={index}
-                          className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100`}
-                        >
-                          <td className="px-4 py-3 text-sm text-blue-600 underline">
-                            {item.poNumber}
-                          </td>
-
-                          <td className="px-4 py-3 text-sm">{item.sfName}</td>
-                          <td className="px-4 py-3 text-sm">{item.date}</td>
-                          <td className="px-4 py-3 text-sm">{item.docket}</td>
-
-                          <td className="flex gap-2 px-4 py-3 text-sm">
-                            <button
-                              onClick={() => handleAscPrint(item.poNumber)}
-                              className="rounded-md px-3 py-1 text-xs font-medium shadow-sm"
-                              style={{ backgroundColor: colors.primary, color: "#fff" }}
-                            >
-                              ASC Print
-                            </button>
-
-                            <button
-                              onClick={() => handleNspPrint(item.poNumber)}
-                              className="rounded-md px-3 py-1 text-xs font-medium shadow-sm"
-                              style={{ backgroundColor: "#6B7280", color: "#fff" }}
-                            >
-                              NSP Print
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
+    <PageSkeleton title="Print Challan" rolesAllowed={["br", "asm", "zone", "sf/ssd"]}>
+      {message && (
+        <div
+          className={`mb-4 rounded px-4 py-2 ${
+            message.type === "success"
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
+          {message.text}
         </div>
-      </div>
-    </ProtectedRoute>
+      )}
+
+      <form className="grid grid-cols-3 gap-6" onSubmit={handleSearch}>
+        <CustomDropdown
+          label="Month"
+          placeholder="Select Month"
+          value={month}
+          onChange={setMonth}
+          options={monthOptions}
+        />
+
+        <CustomDropdown
+          label="Year"
+          placeholder="Select Year"
+          value={year}
+          onChange={setYear}
+          options={yearOptions}
+        />
+
+        <CustomDropdown
+          label="Challan Type"
+          placeholder="Select Challan Type"
+          value={challanType}
+          onChange={setChallanType}
+          options={challanTypeOptions}
+        />
+
+        <div className="col-span-3 mt-6 flex gap-4">
+          <button
+            type="button"
+            className="cursor-pointer rounded-lg px-6 py-2 text-sm font-medium shadow-md"
+            style={{ background: colors.primary, color: "#fff" }}
+            onClick={() => window.history.back()}
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            className="cursor-pointer rounded-lg px-6 py-2 text-sm font-medium shadow-md"
+            style={{ background: colors.primary, color: "#fff" }}
+            disabled={loading}
+          >
+            {loading ? "Searching..." : "Search"}
+          </button>
+        </div>
+      </form>
+
+      {results.length > 0 && (
+        <div className="mt-10 overflow-x-auto">
+          <table className="min-w-full rounded-lg border border-gray-300">
+            <thead style={{ backgroundColor: colors.primary, color: "white" }}>
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Challan No.</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">SF Name</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Docket</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Print</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {results.map((item, index) => (
+                <tr
+                  key={index}
+                  className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100`}
+                >
+                  <td className="px-4 py-3 text-sm text-blue-600 underline">
+                    {item.poNumber}
+                  </td>
+
+                  <td className="px-4 py-3 text-sm">{item.sfName}</td>
+                  <td className="px-4 py-3 text-sm">{item.date}</td>
+                  <td className="px-4 py-3 text-sm">{item.docket}</td>
+
+                  <td className="flex gap-2 px-4 py-3 text-sm">
+                    <button
+                      onClick={() => handleAscPrint(item.poNumber)}
+                      className="rounded-md px-3 py-1 text-xs font-medium shadow-sm"
+                      style={{ backgroundColor: colors.primary, color: "#fff" }}
+                    >
+                      ASC Print
+                    </button>
+
+                    <button
+                      onClick={() => handleNspPrint(item.poNumber)}
+                      className="rounded-md px-3 py-1 text-xs font-medium shadow-sm"
+                      style={{ backgroundColor: "#6B7280", color: "#fff" }}
+                    >
+                      NSP Print
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </PageSkeleton>
   );
 }

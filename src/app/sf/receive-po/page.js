@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import SideBar from "@/components/SideBar";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useTheme } from "@/theme/ThemeContext";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 // import { Search, Send } from "lucide-react";
 // unit 1 of 3 dispatched qty
 const rawData = [
@@ -93,157 +94,132 @@ export default function ReceivePO() {
   };
 
   return (
-    <>
-      <ProtectedRoute allowedRoles={["sf/ssd"]}>
-        <SideBar />
-        <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900">
-          <main className="container mx-auto flex-1 px-4 py-8">
-            <h2
-              className="mb-6 rounded-lg py-3 text-left text-xl font-bold"
-              style={{
-                color: colors.primary,
-                fontWeight: 700,
-                padding: 10,
-                border: `2px solid ${colors.primary}`,
-              }}
-            >
-              Dashboard Overview
-            </h2>
-            {/* Top Controls */}
-            <div className="mb-8 flex items-start gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
-              <div className="relative w-full sm:max-w-sm">
-                <input
-                  type="text"
-                  placeholder="Search Challan or Part Code..."
-                  className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 pr-4 pl-9 text-sm ring-offset-white focus-visible:ring-2 focus-visible:ring-[#714b67] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <button
-                onClick={handleSubmit}
-                className="inline-flex h-10 cursor-pointer items-center justify-center rounded-md px-8 py-2 text-sm font-medium whitespace-nowrap text-white shadow ring-offset-white transition-colors hover:bg-[#4c3947] focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-                style={{ backgroundColor: "#714b67" }}
-              >
-                Search
-                {/* <Search className="ml-2 h-4 w-4" /> */}
-              </button>
-            </div>
+    <PageSkeleton title="Receive PO" rolesAllowed={["sf/ssd"]}>
+      <div className="mb-8 flex items-start gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+        {/* <div className="relative w-full sm:max-w-sm"> */}
+        <input
+          type="text"
+          placeholder="Search Challan or Part Code..."
+          className="h-10 w-72 rounded-md border border-slate-300 bg-white px-3 py-2 pr-4 pl-9 text-sm ring-offset-white focus-visible:ring-2 focus-visible:ring-[#714b67] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {/* </div> */}
+        <button
+          onClick={handleSubmit}
+          className="inline-flex h-10 cursor-pointer items-center justify-center rounded-md px-8 py-2 text-sm font-medium whitespace-nowrap text-white shadow ring-offset-white transition-colors hover:bg-[#4c3947] focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+          style={{ backgroundColor: "#714b67" }}
+        >
+          Search
+          {/* <Search className="ml-2 h-4 w-4" /> */}
+        </button>
+      </div>
 
-            {/* Table Section */}
-            <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="text-md h-16 border-b border-slate-200 bg-[#714b67] font-medium text-slate-100">
-                    <tr>
-                      <th className="h-12 px-4 text-center align-middle">S. No</th>
-                      <th className="h-12 px-4 align-middle">Challan No</th>
-                      <th className="h-12 px-4 align-middle">Complaint No</th>
-                      <th className="h-12 px-4 align-middle">Part Code</th>
-                      <th className="h-12 px-4 align-middle">Part Description</th>
-                      <th className="h-12 px-4 text-center align-middle">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {expandedData.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="p-4 text-center text-slate-500">
-                          No data available
-                        </td>
-                      </tr>
-                    ) : (
-                      expandedData.map((row, idx) => (
-                        <tr
-                          key={row.uniqueKey}
-                          className="transition-colors hover:bg-slate-50/80 data-[state=selected]:bg-slate-100"
-                        >
-                          <td className="p-4 text-center">
-                            <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800">
-                              {idx + 1}
-                            </span>
-                          </td>
-                          <td className="p-4 font-medium text-slate-700">
-                            {row.challanNumber}
-                          </td>
-                          <td className="p-4 font-medium text-slate-700">
-                            {row.complaintNumber}
-                          </td>
-                          <td className="p-4 text-slate-600">
-                            <div className="flex flex-col">
-                              <span className="font-semibold">{row.partCode}</span>
-                              {/* Show which item number this is (e.g., 1 of 5) */}
-                              <span className="text-[10px] text-slate-400">
-                                Unit {row.subIndex} of {row.totalQty} dispatched qty
-                              </span>
-                            </div>
-                          </td>
-                          <td className="p-4 text-slate-600">{row.partDesc}</td>
+      {/* Table Section */}
+      <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-md h-16 border-b border-slate-200 bg-[#714b67] font-medium text-slate-100">
+              <tr>
+                <th className="h-12 px-4 text-center align-middle">S. No</th>
+                <th className="h-12 px-4 align-middle">Challan No</th>
+                <th className="h-12 px-4 align-middle">Complaint No</th>
+                <th className="h-12 px-4 align-middle">Part Code</th>
+                <th className="h-12 px-4 align-middle">Part Description</th>
+                <th className="h-12 px-4 text-center align-middle">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {expandedData.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-4 text-center text-slate-500">
+                    No data available
+                  </td>
+                </tr>
+              ) : (
+                expandedData.map((row, idx) => (
+                  <tr
+                    key={row.uniqueKey}
+                    className="transition-colors hover:bg-slate-50/80 data-[state=selected]:bg-slate-100"
+                  >
+                    <td className="p-4 text-center">
+                      <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800">
+                        {idx + 1}
+                      </span>
+                    </td>
+                    <td className="p-4 font-medium text-slate-700">
+                      {row.challanNumber}
+                    </td>
+                    <td className="p-4 font-medium text-slate-700">
+                      {row.complaintNumber}
+                    </td>
+                    <td className="p-4 text-slate-600">
+                      <div className="flex flex-col">
+                        <span className="font-semibold">{row.partCode}</span>
+                        {/* Show which item number this is (e.g., 1 of 5) */}
+                        <span className="text-[10px] text-slate-400">
+                          Unit {row.subIndex} of {row.totalQty} dispatched qty
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-4 text-slate-600">{row.partDesc}</td>
 
-                          <td className="py-4">
-                            <div className="flex flex-wrap items-center justify-center gap-4">
-                              <RadioOption
-                                name={row.uniqueKey}
-                                value="ok"
-                                label="Ok"
-                                color="text-green-600"
-                                checked={selections[row.uniqueKey] === "ok"}
-                                onChange={() => handleStatusChange(row.uniqueKey, "ok")}
-                              />
-                              <RadioOption
-                                name={row.uniqueKey}
-                                value="damaged"
-                                label="Damaged"
-                                color="text-red-600"
-                                checked={selections[row.uniqueKey] === "damaged"}
-                                onChange={() =>
-                                  handleStatusChange(row.uniqueKey, "damaged")
-                                }
-                              />
-                              <RadioOption
-                                name={row.uniqueKey}
-                                value="short"
-                                label="Short"
-                                color="text-amber-600"
-                                checked={selections[row.uniqueKey] === "short"}
-                                onChange={() =>
-                                  handleStatusChange(row.uniqueKey, "short")
-                                }
-                              />
-                              <RadioOption
-                                name={row.uniqueKey}
-                                value="wrong"
-                                label="Wrong"
-                                color="text-blue-600"
-                                checked={selections[row.uniqueKey] === "wrong"}
-                                onChange={() =>
-                                  handleStatusChange(row.uniqueKey, "wrong")
-                                }
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Footer Actions */}
-            <div className="mt-8 flex justify-end">
-              <button
-                onClick={handleSubmit}
-                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-md px-8 py-2 text-sm font-medium whitespace-nowrap text-white shadow ring-offset-white transition-colors hover:bg-[#5a3b52] focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-                style={{ backgroundColor: "#714b67" }}
-              >
-                Submit
-                {/* <Send className="ml-2 h-4 w-4" /> */}
-              </button>
-            </div>
-          </main>
+                    <td className="py-4">
+                      <div className="flex flex-wrap items-center justify-center gap-4">
+                        <RadioOption
+                          name={row.uniqueKey}
+                          value="ok"
+                          label="Ok"
+                          color="text-green-600"
+                          checked={selections[row.uniqueKey] === "ok"}
+                          onChange={() => handleStatusChange(row.uniqueKey, "ok")}
+                        />
+                        <RadioOption
+                          name={row.uniqueKey}
+                          value="damaged"
+                          label="Damaged"
+                          color="text-red-600"
+                          checked={selections[row.uniqueKey] === "damaged"}
+                          onChange={() => handleStatusChange(row.uniqueKey, "damaged")}
+                        />
+                        <RadioOption
+                          name={row.uniqueKey}
+                          value="short"
+                          label="Short"
+                          color="text-amber-600"
+                          checked={selections[row.uniqueKey] === "short"}
+                          onChange={() => handleStatusChange(row.uniqueKey, "short")}
+                        />
+                        <RadioOption
+                          name={row.uniqueKey}
+                          value="wrong"
+                          label="Wrong"
+                          color="text-blue-600"
+                          checked={selections[row.uniqueKey] === "wrong"}
+                          onChange={() => handleStatusChange(row.uniqueKey, "wrong")}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      </ProtectedRoute>
-    </>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="mt-8 flex justify-end">
+        <button
+          onClick={handleSubmit}
+          className="inline-flex h-11 cursor-pointer items-center justify-center rounded-md px-8 py-2 text-sm font-medium whitespace-nowrap text-white shadow ring-offset-white transition-colors hover:bg-[#5a3b52] focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+          style={{ backgroundColor: "#714b67" }}
+        >
+          Submit
+          {/* <Send className="ml-2 h-4 w-4" /> */}
+        </button>
+      </div>
+    </PageSkeleton>
   );
 }
 

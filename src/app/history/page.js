@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 
 import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
 import SpeicalAllowancePopup from "../rsm/special-allowance/allowancePopup";
+import AddPartPending from "../sf/action/AddPartPending";
 
 import CancelPopup from "./CancelPopup";
 import EditCustPopup from "./EditCustPopup";
@@ -89,8 +90,6 @@ function HistoryPageContent() {
 
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
-  const currentHour = today.getHours();
-  const currentMinute = today.getMinutes();
 
   const reminderOptions = [
     { value: "call", label: "📞 Not Attended" },
@@ -154,6 +153,13 @@ function HistoryPageContent() {
     setAllowancePopup(true);
   };
   const onCloseAllowanceModal = () => setAllowancePopup(false);
+
+  // ------------ POPUP PART PEDNING ----------
+  const [partPendingPopup, setPartPendingPopup] = useState(false);
+  // const onOpenPartPendingModal = () => setPartPendingPopup(true);
+  // const onClosePartPendingModal = () => setPartPendingPopup(false);
+
+  // -------------------------------------------
 
   useEffect(() => {
     const value = sessionStorage.getItem("fromPage");
@@ -337,6 +343,7 @@ function HistoryPageContent() {
       if (Array.isArray(data) && data.length > 0) {
         // Assuming structure is [{ actions: [...] }]
         const actionsString = data[0].actions.map((a) => a.action) || "";
+
         setActions(actionsString);
       } else {
         setActions([]);
@@ -345,6 +352,7 @@ function HistoryPageContent() {
       console.error("Failed to fetch actions:", error);
     }
   };
+
   // fetch cancel reasons
   useEffect(() => {
     fetchCancelReasons();
@@ -413,6 +421,12 @@ function HistoryPageContent() {
 
   const handleActionClick = (action) => {
     setSelectedAction(action);
+
+    if (action === "Part Pending") {
+      // TODO:
+      setPartPendingPopup(true);
+      return;
+    }
     setShowPopup(true); // 👉 open popup on button click
     if (action === "Assigned") {
       fetchEngineerData();
@@ -743,57 +757,6 @@ function HistoryPageContent() {
     });
   }
 
-  // async function handleSubmitRemark(requestType) {
-  //   if (!requestType || !user || !detail) {
-  //     setPopupMessage("Missing required data");
-  //     setPopupOpen(true);
-  //     return;
-  //   }
-
-  //   try {
-  //     const payload = {
-  //       // TICKET_NO: detail.tickeT_NO,
-  //       // remark: remark,
-  //       // type: "open",
-  //       // action: "Approved",
-  //       // uid: user?.userID || 0,
-  //       // --------------
-  //       transactionType: "Jobno",
-  //       transactionID: custDetail?.tickeT_KEY.toString() || "",
-  //       transactionNo: detail.tickeT_NO || ticketNo || "",
-  //       requestedBy: user?.userID.toString(),
-  //       createdBy: user?.userID.toString(),
-  //       approvalStatus: requestType,
-  //       approvalRemarks: remark,
-  //     };
-
-  //     const res = await axiosInstance.post("/RequestCancellation/update", payload);
-
-  //     const { statusMsg } = res.data;
-  //     const { status, subStatus, message } = parseStatusMessage(statusMsg);
-
-  //     console.log("msgs: ", {
-  //       status,
-  //       subStatus,
-  //       message,
-  //     });
-  //     await updateJob(status, subStatus, message);
-  //     await refreshHistory();
-
-  //     const reqeust = requestType.split("|")[0];
-  //     setPopupMessage(`Call cancellation request ${reqeust} successfully!`);
-  //     setPopupOpen(true);
-  //   } catch (err) {
-  //     console.error("❌ API Failed:", err);
-  //     logger.error(
-  //       `Call cancellation request API Failed: ${err.message}, ${err.stack}`,
-  //       "submitting remark"
-  //     );
-  //     setPopupMessage("Failed to submit ❌");
-  //     setPopupOpen(true);
-  //   }
-  // }
-
   async function handleSubmitRemark(requestType) {
     const submitOperation = async () => {
       const payload = {
@@ -872,31 +835,6 @@ function HistoryPageContent() {
       console.error("Failed to refresh history:", err);
     }
   }
-
-  // async function handleCancelRemark() {
-  //   try {
-  //     const payload = {
-  //       TICKET_NO: detail.tickeT_NO,
-  //       remark: "Cancellation rejected by ASM",
-  //       type: "open",
-  //       action: "Reject",
-  //       uid: user?.userID || 0,
-  //     };
-
-  //     console.log("📦 Sending reject payload:", payload);
-
-  //     const res = await axiosInstance.post("/Cancellation/request", payload);
-  //     console.log("✅ Rejection Success:", res.data);
-
-  //     // 🔹 show popup instead of toast
-  //     setPopupMessage("Cancellation rejected ❌");
-  //     setPopupOpen(true);
-  //   } catch (err) {
-  //     console.error("❌ Reject API Failed:", err);
-  //     setPopupMessage("Failed to reject request ❌");
-  //     setPopupOpen(true);
-  //   }
-  // }
 
   async function loadVisitData() {
     setIsLoading(true);
@@ -1083,9 +1021,6 @@ function HistoryPageContent() {
                       </div>
                     </div>
                   ) : (
-                    /* ========================= */
-                    /* BIG POPUP: Re-allot, Assigned, etc. */
-                    /* ========================= */
                     <div className="animate-fadeIn w-[85%] max-w-5xl rounded-xl bg-white p-6 shadow-2xl">
                       {/* Header */}
                       <div className="mb-5 flex items-center justify-between border-b pb-3">
@@ -1288,6 +1223,9 @@ function HistoryPageContent() {
                 </div>
               )}
             </div>
+            <Modal open={partPendingPopup} onClose={() => setPartPendingPopup(false)}>
+              <AddPartPending ticketNumber={activeTicket} />
+            </Modal>
           </>
         )}
         {/* -------------------------- */}
@@ -1929,7 +1867,6 @@ function HistoryPageContent() {
                         Remind_Bid: detail.bid || 0,
                         Remind_Status: "1",
                       };
-                      // console.log("📦 Sending Reminder Payload:", payload);
                       await axiosInstance.post("/reminder/create", payload);
 
                       const res = await axiosInstance.get(`/reminder/Ticket/${ticket}`);

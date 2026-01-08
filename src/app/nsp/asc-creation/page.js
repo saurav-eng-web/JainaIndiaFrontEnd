@@ -9,11 +9,13 @@ import {
   MdOutlineAcUnit,
 } from "react-icons/md";
 import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
 import SideBar from "@/components/SideBar";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 export default function AscCreationForm() {
   const { colors } = useTheme();
@@ -169,10 +171,11 @@ export default function AscCreationForm() {
       };
 
       await axiosInstance.post("ASCCreation/create", payload);
-      setShowSuccessPopup(true);
+      // setShowSuccessPopup(true);
+      toast.success("Your ASC request has been submitted successfully.");
     } catch (error) {
       console.error(error);
-      alert("Failed to create ASC. Please try again.");
+      toast.error("Failed to create ASC. Please try again.");
     }
   };
 
@@ -185,148 +188,108 @@ export default function AscCreationForm() {
     { key: "cooler", label: "Cooler", Icon: MdOutlineAcUnit },
   ];
 
+  // <ProtectedRoute allowedRoles={["br"]}>  ASC Creation Request
   return (
-    <ProtectedRoute allowedRoles={["br"]}>
-      <div className="mx-auto max-w-6xl rounded-lg bg-white p-8 shadow">
-        <div className="w-64 bg-white shadow-lg">
-          <SideBar />
-        </div>
-
-        {/* --- SUCCESS POPUP --- */}
-        {showSuccessPopup && (
-          <div className="bg-opacity-40 fixed inset-0 z-50 flex items-center justify-center bg-black">
-            <div className="w-96 rounded-lg bg-white p-6 text-center shadow-lg">
-              <h2 className="mb-4 text-xl font-bold text-green-600">
-                ✅ ASC Created Successfully!
-              </h2>
-              <p className="mb-6 text-gray-700">
-                Your ASC request has been submitted successfully.
-              </p>
-              <button
-                onClick={() => setShowSuccessPopup(false)}
-                className="rounded px-6 py-2 text-white"
-                style={{ background: colors.primary }}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-
-        <h2
-          className="mb-8 text-left text-2xl font-bold"
-          style={{
-            color: colors.primary,
-            padding: 5,
-            fontWeight: 700,
-            fontSize: 18,
-            border: `2px solid ${colors.primary}`,
-            borderRadius: 5,
-          }}
-        >
-          ASC Creation Request
-        </h2>
-
-        {/* Form Fields */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {Object.entries({
-            ASC_Name: "ASC Name",
-            ASC_Owner_Name: "Owner Name",
-            ASC_EMail: "Email ID",
-            ASC_Contact_No: "Contact Number",
-            ASC_PinCode: "Pincode",
-            State: "State",
-            City: "City",
-            GSTNo: "GST Number",
-            PanCardNo: "PAN Number",
-            AadharCardNo: "Aadhar Number",
-            ASC_Address: "Address",
-          }).map(([key, label]) => (
-            <div key={key}>
-              <label className="mb-1 block text-sm font-medium">{label}</label>
-              <input
-                type={key === "ASC_EMail" ? "email" : "text"}
-                name={key}
-                value={formData[key]}
-                onChange={handleInputChange}
-                placeholder={`Enter ${label}`}
-                maxLength={
-                  key === "ASC_Contact_No" ? 10 : key === "ASC_PinCode" ? 6 : undefined
-                }
-                className={`w-full rounded-md border px-4 py-2 outline-none ${
-                  key === "State" || key === "City" ? "bg-gray-100" : ""
-                }`}
-                readOnly={key === "State" || key === "City"}
-                onInput={
-                  key === "ASC_Contact_No"
-                    ? (e) => (e.target.value = e.target.value.replace(/\D/g, ""))
-                    : undefined
-                }
-              />
-              {errors[key] && <small className="text-red-600">{errors[key]}</small>}
-              {key === "ASC_PinCode" && pincodeStatus === "valid" && (
-                <small className="text-green-600">✅ Valid Pincode</small>
-              )}
-              {key === "ASC_PinCode" && pincodeStatus === "invalid" && (
-                <small className="text-red-600">❌ Invalid Pincode</small>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Category Selection */}
-        <h3 className="mt-10 mb-4 text-lg font-semibold">Select Category</h3>
-        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-          {categoryItems.map(({ key, label, Icon }) => (
-            <div
-              key={key}
-              onClick={() => toggleCategory(key)}
-              className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border p-4 transition ${
-                categories[key] ? "border-blue-500 bg-blue-100" : "hover:bg-gray-100"
+    <PageSkeleton title="ASC Creation Request" rolesAllowed={["br"]}>
+      {/* Form Fields */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        {Object.entries({
+          ASC_Name: "ASC Name",
+          ASC_Owner_Name: "Owner Name",
+          ASC_EMail: "Email ID",
+          ASC_Contact_No: "Contact Number",
+          ASC_PinCode: "Pincode",
+          State: "State",
+          City: "City",
+          GSTNo: "GST Number",
+          PanCardNo: "PAN Number",
+          AadharCardNo: "Aadhar Number",
+          ASC_Address: "Address",
+        }).map(([key, label]) => (
+          <div key={key}>
+            <label className="mb-1 block text-sm font-medium">{label}</label>
+            <input
+              type={key === "ASC_EMail" ? "email" : "text"}
+              name={key}
+              value={formData[key]}
+              onChange={handleInputChange}
+              placeholder={`Enter ${label}`}
+              maxLength={
+                key === "ASC_Contact_No" ? 10 : key === "ASC_PinCode" ? 6 : undefined
+              }
+              className={`w-full rounded-md border px-4 py-2 outline-none ${
+                key === "State" || key === "City" ? "bg-gray-100" : ""
               }`}
-            >
-              <Icon
-                size={32}
-                style={{ color: categories[key] ? colors.primary : "#4B5563" }}
-              />
-              <div className="font-medium">{label}</div>
-              <input
-                type="checkbox"
-                checked={categories[key]}
-                readOnly
-                className="form-checkbox h-5 w-5 text-blue-600"
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Confirmation */}
-        <div className="mb-6 flex items-start gap-2">
-          <input
-            type="checkbox"
-            id="confirm"
-            checked={isChecked}
-            onChange={(e) => setIsChecked(e.target.checked)}
-            className="mt-1"
-          />
-          <label htmlFor="confirm" className="text-sm text-gray-700">
-            I hereby confirm that the above details for new ASC creation request are
-            correct and aligned with the Jaina agreement.
-          </label>
-        </div>
-
-        {/* Submit */}
-        <div className="flex justify-end">
-          <button
-            onClick={handleSubmit}
-            className="rounded px-6 py-2 text-white"
-            disabled={!isChecked}
-            style={{ background: colors.primary }}
-          >
-            Create ASC
-          </button>
-        </div>
+              readOnly={key === "State" || key === "City"}
+              onInput={
+                key === "ASC_Contact_No"
+                  ? (e) => (e.target.value = e.target.value.replace(/\D/g, ""))
+                  : undefined
+              }
+            />
+            {errors[key] && <small className="text-red-600">{errors[key]}</small>}
+            {key === "ASC_PinCode" && pincodeStatus === "valid" && (
+              <small className="text-green-600">✅ Valid Pincode</small>
+            )}
+            {key === "ASC_PinCode" && pincodeStatus === "invalid" && (
+              <small className="text-red-600">❌ Invalid Pincode</small>
+            )}
+          </div>
+        ))}
       </div>
-    </ProtectedRoute>
+
+      {/* Category Selection */}
+      <h3 className="mt-10 mb-4 text-lg font-semibold">Select Category</h3>
+      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        {categoryItems.map(({ key, label, Icon }) => (
+          <div
+            key={key}
+            onClick={() => toggleCategory(key)}
+            className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border p-4 transition ${
+              categories[key] ? "border-blue-500 bg-blue-100" : "hover:bg-gray-100"
+            }`}
+          >
+            <Icon
+              size={32}
+              style={{ color: categories[key] ? colors.primary : "#4B5563" }}
+            />
+            <div className="font-medium">{label}</div>
+            <input
+              type="checkbox"
+              checked={categories[key]}
+              readOnly
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Confirmation */}
+      <div className="mb-6 flex items-start gap-2">
+        <input
+          type="checkbox"
+          id="confirm"
+          checked={isChecked}
+          onChange={(e) => setIsChecked(e.target.checked)}
+          className="mt-1"
+        />
+        <label htmlFor="confirm" className="text-sm text-gray-700">
+          I hereby confirm that the above details for new ASC creation request are correct
+          and aligned with the Jaina agreement.
+        </label>
+      </div>
+
+      {/* Submit */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleSubmit}
+          className="cursor-pointer rounded px-6 py-2 text-white"
+          disabled={!isChecked}
+          style={{ background: colors.primary }}
+        >
+          Create ASC
+        </button>
+      </div>
+    </PageSkeleton>
   );
 }

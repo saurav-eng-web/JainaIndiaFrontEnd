@@ -221,3 +221,6 @@
   - separted multiple components for better perfomance
   - separated multiple api calls
   - implement caching of api, so that the api did not hit again and again on tab change
+
+# 2.3.1
+- fix, feat: part pending, multiple fixes, UI enhancements

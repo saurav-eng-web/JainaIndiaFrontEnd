@@ -12,6 +12,8 @@ import CustomDropdown from "@/components/common/Dropdown";
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
 import ConfirmModal from "@/components/ui/ConfirmationModal";
+import Table from "@/components/common/Table";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 function SendDefectivePageContent() {
   const { colors } = useTheme();
@@ -179,6 +181,7 @@ function SendDefectivePageContent() {
       }
     } catch (error) {
       toast.error("Something went wrong try again");
+      console.error(error);
     }
 
     // setShowConfirm(true);
@@ -233,247 +236,237 @@ function SendDefectivePageContent() {
 
   const handleConfirmNo = () => {
     setShowConfirm(false);
-    // user stays on same page and can change selection
   };
 
+  const columns = [
+    {
+      label: "Ticket No",
+      key: "ticket_no",
+      size: "lg",
+    },
+    {
+      label: "Part Code",
+      key: "Part",
+      size: "lg",
+    },
+    {
+      label: "Description",
+      key: "Part desc.",
+      size: "xl",
+    },
+    {
+      label: "Quantity",
+      key: "QTY",
+      size: "xs",
+    },
+    {
+      label: "Price",
+      key: "Price",
+      size: "sm",
+    },
+    {
+      label: "Aging",
+      key: "Ageing",
+      size: "sm",
+    },
+    {
+      label: "Select",
+      key: "select",
+      size: "xs",
+      render: (_value, row) => (
+        <div className="flex justify-center">
+          <input
+            type="checkbox"
+            checked={selectedItems.some((x) => x.ID === row.ID)}
+            onChange={() => toggleSelection(row)}
+            className="size-4 cursor-pointer"
+          />
+        </div>
+      ),
+    },
+  ];
+
+  // <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}> --- Send Defective To NWH
   return (
-    <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}>
-      <div className="flex min-h-screen bg-gray-100">
-        <SideBar />
+    <PageSkeleton
+      title="Send Defective To NWH"
+      rolesAllowed={["br", "asm", "zone", "sf/ssd"]}
+    >
+      {/* ---------------- FILTER SECTION ---------------- */}
+      <div className="mb-6 grid grid-cols-3 gap-6">
+        <CustomDropdown
+          label="Warehouse"
+          placeholder="Select Warehouse"
+          value={warehouseId}
+          onChange={setWarehouseId}
+          options={warehouseOptions}
+        />
 
-        <div className="flex-1 pt-10 pr-20 pl-30">
-          <div className="w-full rounded-2xl bg-white p-8 shadow-lg">
-            {/* ---------------- PAGE TITLE ---------------- */}
-            <h2
-              className="mb-8 text-2xl font-bold"
-              style={{
-                color: colors.primary,
-                border: `2px solid ${colors.primary}`,
-                padding: 5,
-                borderRadius: 6,
-                fontSize: 18,
-              }}
-            >
-              Send Defective To NWH
-            </h2>
+        <CustomDropdown
+          label="Challan Type"
+          placeholder="Select Challan Type"
+          value={challanType}
+          onChange={setChallanType}
+          options={challanTypeOptions}
+        />
 
-            {/* ---------------- FILTER SECTION ---------------- */}
-            <div className="grid grid-cols-3 gap-6">
-              <CustomDropdown
-                label="Warehouse"
-                placeholder="Select Warehouse"
-                value={warehouseId}
-                onChange={setWarehouseId}
-                options={warehouseOptions}
+        <div className="flex items-end">
+          <button
+            onClick={handleSearch}
+            className="cursor-pointer rounded-lg px-6 py-2 shadow-md"
+            style={{ background: colors.primary, color: "#fff" }}
+          >
+            Search
+          </button>
+        </div>
+      </div>
+
+      {/* ---------------- TABLE SECTION ---------------- */}
+
+      {tableData.length > 0 && (
+        <>
+          {/* <div className="mt-6 rounded-lg border p-4"> */}
+          <Table columns={columns} rows={tableData} />
+
+          {/* NEXT BUTTON */}
+          {selectedItems.length > 0 && (
+            <div className="mt-4 text-right">
+              <button
+                onClick={handleNext}
+                className="cursor-pointer rounded-lg px-6 py-2 shadow-md"
+                style={{ background: colors.primary, color: "#fff" }}
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
+        // </div>
+      )}
+
+      {/* ---------------- DISPATCH FORM ---------------- */}
+      {showDispatchForm && (
+        <div className="mt-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-2xl font-semibold" style={{ color: colors.primary }}>
+            Dispatch Detail
+          </h3>
+
+          <div className="grid grid-cols-3 gap-6">
+            {/* Type of Courier */}
+            <div>
+              <label className="mb-1 block font-medium">Type of Courier</label>
+              <input
+                name="courierType"
+                value={dispatchForm.courierType}
+                onChange={onDispatchChange}
+                readOnly
+                placeholder="Local Service Provider"
+                className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
               />
-
-              <CustomDropdown
-                label="Challan Type"
-                placeholder="Select Challan Type"
-                value={challanType}
-                onChange={setChallanType}
-                options={challanTypeOptions}
-              />
-
-              <div className="flex items-end">
-                <button
-                  onClick={handleSearch}
-                  className="cursor-pointer rounded-lg px-6 py-2 shadow-md"
-                  style={{ background: colors.primary, color: "#fff" }}
-                >
-                  Search
-                </button>
-              </div>
             </div>
 
-            {/* ---------------- TABLE SECTION ---------------- */}
-            {tableData.length > 0 && (
-              <div className="mt-6 rounded-lg border p-4">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr
-                      className="text-left"
-                      style={{ background: colors.primary, color: "white" }}
-                    >
-                      <th className="border p-2">Ticket No</th>
-                      <th className="border p-2">Part Code</th>
-                      <th className="border p-2">Description</th>
-                      <th className="border p-2">Quantity</th>
-                      <th className="border p-2">Price</th>
-                      <th className="border p-2">Aging</th>
-                      <th className="border p-2 text-center">Select</th>
-                    </tr>
-                  </thead>
+            {/* Courier Code */}
+            <div>
+              <label className="mb-1 block font-medium">Courier Code</label>
+              <input
+                name="courierCode"
+                value={dispatchForm.courierCode}
+                onChange={onDispatchChange}
+                placeholder="Trackon001"
+                readOnly
+                className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
+              />
+            </div>
 
-                  <tbody>
-                    {tableData.map((item) => (
-                      <tr key={item.srNo}>
-                        <td className="border p-2">{item.ticket_no}</td>
-                        <td className="border p-2">{item.Part}</td>
-                        <td className="border p-2">{item["Part desc."]}</td>
-                        <td className="border p-2">{item.QTY}</td>
-                        <td className="border p-2">{item.Price}</td>
-                        <td className="border p-2">{item.Ageing}</td>
+            {/* Docket No */}
+            <div>
+              <label className="mb-1 block font-medium">Docket No.</label>
+              <input
+                name="docketNo"
+                value={dispatchForm.docketNo}
+                readOnly
+                className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
+              />
+            </div>
 
-                        <td className="border p-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedItems.some((x) => x.ID === item.ID)}
-                            onChange={() => toggleSelection(item)}
-                            className="size-4 cursor-pointer"
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {/* Challan Date */}
+            <div>
+              <label className="mb-1 block font-medium">Challan Date</label>
+              <input
+                type="date"
+                name="challanDate"
+                value={dispatchForm.challanDate}
+                readOnly
+                className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
+              />
+            </div>
 
-                {/* NEXT BUTTON */}
-                {selectedItems.length > 0 && (
-                  <div className="mt-4 text-right">
-                    <button
-                      onClick={handleNext}
-                      className="cursor-pointer rounded-lg px-6 py-2 shadow-md"
-                      style={{ background: colors.primary, color: "#fff" }}
-                    >
-                      Next →
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Weight */}
+            <div>
+              <label className="mb-1 block font-medium">Weight (In grams)</label>
+              <input
+                name="weight"
+                value={dispatchForm.weight}
+                onChange={onDispatchChange}
+                className="w-full rounded border p-2"
+              />
+            </div>
 
-            {/* ---------------- DISPATCH FORM ---------------- */}
-            {showDispatchForm && (
-              <div className="mt-6 rounded-xl border bg-white p-6 shadow-lg">
-                <h3
-                  className="mb-4 text-2xl font-semibold"
-                  style={{ color: colors.primary }}
-                >
-                  Dispatch Detail
-                </h3>
+            {/* Dimensions */}
+            <div>
+              <label className="mb-1 block font-medium">Dimensions (L*B*H in cm)</label>
+              <input
+                name="dimensions"
+                value={dispatchForm.dimensions}
+                onChange={onDispatchChange}
+                className="w-full rounded border p-2"
+              />
+            </div>
 
-                <div className="grid grid-cols-3 gap-6">
-                  {/* Type of Courier */}
-                  <div>
-                    <label className="mb-1 block font-medium">Type of Courier</label>
-                    <input
-                      name="courierType"
-                      value={dispatchForm.courierType}
-                      onChange={onDispatchChange}
-                      readOnly
-                      placeholder="Local Service Provider"
-                      className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
-                    />
-                  </div>
+            {/* Remark */}
+            <div className="col-span-3">
+              <label className="mb-1 block font-medium">Remark</label>
+              <textarea
+                name="remark"
+                value={dispatchForm.remark}
+                onChange={onDispatchChange}
+                className="h-24 w-full rounded border p-2"
+              />
+            </div>
 
-                  {/* Courier Code */}
-                  <div>
-                    <label className="mb-1 block font-medium">Courier Code</label>
-                    <input
-                      name="courierCode"
-                      value={dispatchForm.courierCode}
-                      onChange={onDispatchChange}
-                      placeholder="Trackon001"
-                      readOnly
-                      className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
-                    />
-                  </div>
+            {/* Box */}
+            <div>
+              <label className="mb-1 block font-medium">Box</label>
+              <input
+                name="box"
+                value={dispatchForm.box}
+                onChange={onDispatchChange}
+                className="w-full rounded border p-2"
+              />
+            </div>
+          </div>
 
-                  {/* Docket No */}
-                  <div>
-                    <label className="mb-1 block font-medium">Docket No.</label>
-                    <input
-                      name="docketNo"
-                      value={dispatchForm.docketNo}
-                      readOnly
-                      className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
-                    />
-                  </div>
-
-                  {/* Challan Date */}
-                  <div>
-                    <label className="mb-1 block font-medium">Challan Date</label>
-                    <input
-                      type="date"
-                      name="challanDate"
-                      value={dispatchForm.challanDate}
-                      readOnly
-                      className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
-                    />
-                  </div>
-
-                  {/* Weight */}
-                  <div>
-                    <label className="mb-1 block font-medium">Weight (In grams)</label>
-                    <input
-                      name="weight"
-                      value={dispatchForm.weight}
-                      onChange={onDispatchChange}
-                      className="w-full rounded border p-2"
-                    />
-                  </div>
-
-                  {/* Dimensions */}
-                  <div>
-                    <label className="mb-1 block font-medium">
-                      Dimensions (L*B*H in cm)
-                    </label>
-                    <input
-                      name="dimensions"
-                      value={dispatchForm.dimensions}
-                      onChange={onDispatchChange}
-                      className="w-full rounded border p-2"
-                    />
-                  </div>
-
-                  {/* Remark */}
-                  <div className="col-span-3">
-                    <label className="mb-1 block font-medium">Remark</label>
-                    <textarea
-                      name="remark"
-                      value={dispatchForm.remark}
-                      onChange={onDispatchChange}
-                      className="h-24 w-full rounded border p-2"
-                    />
-                  </div>
-
-                  {/* Box */}
-                  <div>
-                    <label className="mb-1 block font-medium">Box</label>
-                    <input
-                      name="box"
-                      value={dispatchForm.box}
-                      onChange={onDispatchChange}
-                      className="w-full rounded border p-2"
-                    />
-                  </div>
-                </div>
-
-                {/* >>>>>>>>>>> SUBMIT BUTTON ADDED HERE <<<<<<<<<<< */}
-                <div className="mt-6 text-right">
-                  <button
-                    onClick={handleSubmitDispatch}
-                    className="rounded-lg px-8 py-3 font-semibold text-white shadow-md"
-                    style={{ background: colors.primary }}
-                  >
-                    Dispatch
-                  </button>
-                </div>
-              </div>
-            )}
+          {/* >>>>>>>>>>> SUBMIT BUTTON ADDED HERE <<<<<<<<<<< */}
+          <div className="mt-6 text-right">
+            <button
+              onClick={handleSubmitDispatch}
+              className="rounded-lg px-8 py-3 font-semibold text-white shadow-md"
+              style={{ background: colors.primary }}
+            >
+              Dispatch
+            </button>
           </div>
         </div>
-        <ConfirmModal
-          open={showConfirm}
-          title="Confirm Action"
-          message={serverMessage}
-          onConfirm={handleConfirmYes}
-          onCancel={handleConfirmNo}
-          type={popupType}
-        />
-      </div>
-    </ProtectedRoute>
+      )}
+      <ConfirmModal
+        open={showConfirm}
+        title="Confirm Action"
+        message={serverMessage}
+        onConfirm={handleConfirmYes}
+        onCancel={handleConfirmNo}
+        type={popupType}
+      />
+    </PageSkeleton>
   );
 }
 

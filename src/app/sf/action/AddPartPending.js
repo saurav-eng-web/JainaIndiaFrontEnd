@@ -13,7 +13,6 @@ import axiosInstance from "@/api/axiosInstance";
 
 // ---- MOCK TICKET TABLE ----
 
-
 export default function AddPartPending({ ticketNumber }) {
   const { colors } = useTheme();
 
@@ -33,14 +32,14 @@ export default function AddPartPending({ ticketNumber }) {
     let cleaned = str.trim();
     if (cleaned.startsWith("{")) cleaned = cleaned.slice(1);
     if (cleaned.endsWith("}")) cleaned = cleaned.slice(0, -1);
-    
+
     const pairs = cleaned.split(",");
     const result = {};
 
     pairs.forEach((pair) => {
       const parts = pair.split(":");
       if (parts.length < 2) return;
-      
+
       const key = parts[0].trim();
       const valueStr = parts.slice(1).join(":").trim(); // Re-join in case value contains :
 
@@ -65,10 +64,10 @@ export default function AddPartPending({ ticketNumber }) {
         });
 
         // Ensure we filter out parts already in the grid if any (though grid starts empty usually)
-        const gridPartCodes = new Set(grid.map(g => g.partCode));
-        
+        const gridPartCodes = new Set(grid.map((g) => g.partCode));
+
         const dropdownData = res.data.data
-          .filter(item => !gridPartCodes.has(item.key))
+          .filter((item) => !gridPartCodes.has(item.key))
           .map((item) => ({
             label: item.value,
             value: item.key,
@@ -82,7 +81,7 @@ export default function AddPartPending({ ticketNumber }) {
     }
 
     getDropdown();
-    // We only want to run this once on mount/ticket change, not when grid changes 
+    // We only want to run this once on mount/ticket change, not when grid changes
     // to avoid re-fetching and overriding our local filtering logic.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticketNumber]);
@@ -122,10 +121,10 @@ export default function AddPartPending({ ticketNumber }) {
       if (message.includes("Inventory Type") || message.includes("Price")) {
         const parts = message.split("|");
         // Assume the data object is after the first pipe
-        const msgData = parts.length > 1 ? parts[1] : parts[0]; 
-        
+        const msgData = parts.length > 1 ? parts[1] : parts[0];
+
         const data = parseKeyValueString(msgData);
-        
+
         setGrid((prev) => [
           ...prev,
           {
@@ -153,11 +152,11 @@ export default function AddPartPending({ ticketNumber }) {
         const parts = message.includes("|") ? message.split("|") : [message];
         const msg = parts[0];
         const qty = parts[1] ? parts[1].trim() : null;
-        
+
         toast.error(
           <div>
             <p>{msg}</p>
-            {qty && <p className="text-sm mt-1">Available Qty: {qty}</p>}
+            {qty && <p className="mt-1 text-sm">Available Qty: {qty}</p>}
           </div>
         );
       }
@@ -220,16 +219,20 @@ export default function AddPartPending({ ticketNumber }) {
   }
 
   function onConfirmSave() {
+    console.log("grid: ", grid);
     const payload = {
       TicketNo: ticketNumber,
+      type: "sfpnapo",
       data: grid.map((item) => ({
         partCode: item.partCode,
         inventoryType: item.inventoryType,
-        price: item.price,
+        price: Number(item.price) || 0,
         serialNo: item.serialNo || "",
-      }))
+        partDesc: item.desc,
+        availableQty: Number(item.availableQty) || 0,
+      })),
     };
-    console.log('payload: ', payload);
+    console.log("payload: ", payload);
     setSaveConfirmationOpen(false);
   }
 
@@ -240,15 +243,13 @@ export default function AddPartPending({ ticketNumber }) {
       label: "Part Code",
       key: "partCode",
       size: "md",
-      render: (value) => (
-        <div className="font-semibold text-gray-700">{value}</div>
-      ),
+      render: (value) => <div className="font-semibold text-gray-700">{value}</div>,
     },
     {
-      label: "Desc.",
+      label: "Part Description",
       key: "desc",
-      size: "xl",
-      render: (value) => <span className="text-gray-600 text-sm">{value}</span>,
+      size: "xxl",
+      render: (value) => <span className="text-gray-600">{value}</span>,
     },
     {
       label: "Inventory Type",
@@ -257,9 +258,7 @@ export default function AddPartPending({ ticketNumber }) {
       render: (value) => (
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            value === "Free"
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
+            value === "Free" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
           }`}
         >
           {value}
@@ -277,8 +276,8 @@ export default function AddPartPending({ ticketNumber }) {
       key: "availableQty",
       size: "xs",
       render: (value) => (
-        <div className="w-16 rounded bg-white py-1 text-center text-sm  text-gray-700 border border-gray-300 shadow-sm">
-            {value}
+        <div className="w-16 rounded border border-gray-300 bg-white py-1 text-center text-sm text-gray-700 shadow-sm">
+          {value}
         </div>
       ),
     },
@@ -287,7 +286,7 @@ export default function AddPartPending({ ticketNumber }) {
       key: "poQty",
       size: "xs",
       render: (value) => (
-        <div className="w-16 rounded bg-white py-1 text-center text-sm  text-gray-900 ">
+        <div className="w-16 rounded bg-white py-1 text-center text-sm text-gray-900">
           {value}
         </div>
       ),
@@ -296,7 +295,12 @@ export default function AddPartPending({ ticketNumber }) {
       label: "Serial Number",
       key: "serialNo",
       size: "md",
-      render: (value) => value ? <span className="text-sm font-mono bg-gray-100 px-1 rounded">{value}</span> : <span className="text-gray-400">-</span>,
+      render: (value) =>
+        value ? (
+          <span className="rounded bg-gray-100 px-1 font-mono text-sm">{value}</span>
+        ) : (
+          <span className="text-gray-400">-</span>
+        ),
     },
     {
       label: "",
@@ -305,7 +309,7 @@ export default function AddPartPending({ ticketNumber }) {
       render: (_value, _row, index) => (
         <button
           onClick={() => handleDelete(_row)}
-          className="p-1.5 text-red-500 hover:bg-red-50 cursor-pointer hover:text-red-700 rounded transition-colors"
+          className="cursor-pointer rounded p-1.5 text-red-500 transition-colors hover:bg-red-50 hover:text-red-700"
           title="Delete"
         >
           <Trash2 size={18} />
@@ -314,13 +318,11 @@ export default function AddPartPending({ ticketNumber }) {
     },
   ];
 
-
-
   return (
     <ModalSkeleton title="Add PO" rolesAllowed={["sf/ssd"]} size="xl">
       {/* PART SELECTION */}
       <div className="mb-6 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-        <h3 className="mb-4 text-sm font-semibold text-gray-900 uppercase tracking-wide">
+        <h3 className="mb-4 text-sm font-semibold tracking-wide text-gray-900 uppercase">
           Select Part to Add
         </h3>
         <div className="flex items-end gap-4">
@@ -336,7 +338,7 @@ export default function AddPartPending({ ticketNumber }) {
 
           {showSerial && (
             <>
-              <div className="flex-1 min-w-[200px]">
+              <div className="min-w-[200px] flex-1">
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Serial Number <span className="text-red-500">*</span>
                 </label>
@@ -347,12 +349,14 @@ export default function AddPartPending({ ticketNumber }) {
                       setSerialNo(e.target.value);
                       setIsValidSerialNumber(false); // Reset validation on change
                     }}
-                    className="w-full rounded-lg h-11 p-2 pr-10 border shadow-sm focus:border-[#714b67] focus:ring-[#714b67]"
+                    className="h-11 w-full rounded-lg border p-2 pr-10 shadow-sm focus:border-[#714b67] focus:ring-[#714b67]"
                     placeholder="Enter Serial Number"
-                    style={{ borderColor: isValidSerialNumber ? "green" : colors.primary }}
+                    style={{
+                      borderColor: isValidSerialNumber ? "green" : colors.primary,
+                    }}
                   />
                   {isValidSerialNumber && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500 pointer-events-none">
+                    <div className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-green-500">
                       <CheckCircle2 size={20} />
                     </div>
                   )}
@@ -361,7 +365,7 @@ export default function AddPartPending({ ticketNumber }) {
               <div className="w-24 flex-none">
                 <button
                   onClick={checkSerialNumber}
-                  className="h-10 rounded-lg w-full text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                  className="h-10 w-full cursor-pointer rounded-lg text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95"
                   style={{ background: colors.primary }}
                 >
                   Check
@@ -373,58 +377,62 @@ export default function AddPartPending({ ticketNumber }) {
           {selectedPart &&
             (!selectedPart.isSerialised ||
               (selectedPart.isSerialised && isValidSerialNumber)) && (
-              <div className="  flex-none">
+              <div className="flex-none">
                 <button
                   onClick={handleAddToGrid}
-                  className="h-10 w-24 rounded-lg px-6 font-medium text-white shadow-md transition-transform cursor-pointer hover:scale-105 active:scale-95"
+                  className="h-10 w-24 cursor-pointer rounded-lg px-6 font-medium text-white shadow-md transition-transform hover:scale-105 active:scale-95"
                   style={{ background: colors.primary }}
                 >
-                  Add 
+                  Add
                 </button>
-               </div>
+              </div>
             )}
         </div>
       </div>
 
       {/* GRID TABLE */}
       {grid.length > 0 && (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 mb-8">
-            <h4 className="mb-2 text-sm font-semibold text-gray-700">Added Parts</h4>
-            <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
-                <Table columns={gridColumns} rows={grid} />
-            </div>
+        <div className="animate-in fade-in slide-in-from-bottom-2 mb-8 duration-300">
+          <h4 className="mb-2 text-sm font-semibold text-gray-700">Added Parts</h4>
+          <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+            <Table columns={gridColumns} rows={grid} />
+          </div>
 
-            <div className="mt-4 flex justify-end">
-                <button
-                onClick={handleSaveClick}
-                className="rounded-lg border px-8 py-2.5 text-sm font-semibold cursor-pointer text-white transition-transform hover:scale-105 active:scale-95"
-                style={{
-                    background: colors.primary,
-                    borderColor: colors.primary,
-                }}
-                >
-                Save Changes
-                </button>
-            </div>
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={handleSaveClick}
+              className="cursor-pointer rounded-lg border px-8 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-105 active:scale-95"
+              style={{
+                background: colors.primary,
+                borderColor: colors.primary,
+              }}
+            >
+              Save Changes
+            </button>
+          </div>
         </div>
       )}
 
- 
-
-      <Modal open={saveConfirmationOpen} onClose={() => setSaveConfirmationOpen(false)} center>
+      <Modal
+        open={saveConfirmationOpen}
+        onClose={() => setSaveConfirmationOpen(false)}
+        center
+      >
         <div className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm Save</h3>
-          <p className="text-gray-600 mb-8">Are you sure you want to save these changes? This action cannot be undone.</p>
+          <h3 className="mb-4 text-lg font-semibold text-gray-900">Confirm Save</h3>
+          <p className="mb-8 text-gray-600">
+            Are you sure you want to save these changes? This action cannot be undone.
+          </p>
           <div className="flex justify-end gap-3">
             <button
               onClick={() => setSaveConfirmationOpen(false)}
-              className="px-4 py-2 cursor-pointer border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               onClick={onConfirmSave}
-              className="px-4 py-2 cursor-pointer rounded-lg text-white transition-transform hover:scale-105 active:scale-95"
+              className="cursor-pointer rounded-lg px-4 py-2 text-white transition-transform hover:scale-105 active:scale-95"
               style={{ background: colors.primary }}
             >
               Confirm
@@ -432,7 +440,6 @@ export default function AddPartPending({ ticketNumber }) {
           </div>
         </div>
       </Modal>
-
     </ModalSkeleton>
   );
 }

@@ -207,6 +207,7 @@
 - fix: multiple pages UI
 - add part pending converted to popup
 - feat: integrate api part pending
+
 # 2.2.3
 
 - feat: page skeleton add,
@@ -217,10 +218,14 @@
 - feat: integrate api part pending
 
 # 2.3.0
+
 - fix: revamp history page, highly improve the performance of histrory
   - separted multiple components for better perfomance
   - separated multiple api calls
   - implement caching of api, so that the api did not hit again and again on tab change
 
 # 2.3.1
+
 - fix, feat: part pending, multiple fixes, UI enhancements
+- update: payload: part pending,
+- UI fix: create challan: update table to maintain consistent UI

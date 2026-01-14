@@ -233,3 +233,4 @@
 - feat: integrate PO request
 - feat: integrate PO receive
 - feat: PO recieve
+- fix: part consumption, it was not rendering earlier, just showing the json direclyt

@@ -19,6 +19,7 @@ import axiosInstance from "@/api/axiosInstance";
 import RemarkSection from "@/components/history/RemarkSection";
 import AllotmentDetails from "@/components/history/AllotmentDetails";
 import Popup from "@/components/common/Popup";
+import Table from "@/components/common/Table";
 import { logger } from "@/utils/logger";
 import Loader from "@/components/common/LoaderComponent";
 import Pagination from "@/components/Pagination";
@@ -829,10 +830,53 @@ function HistoryPageContent() {
                     <p>No consumption data available.</p>
                   ) : (
                     // Logic for consumption table if exists, else text
-                    <p>
-                      {/* If partConsumption has data, map it here. Assuming just text for now as per previous code */}
-                      {JSON.stringify(partConsumption)}
-                    </p>
+                    <Table
+                      columns={[
+                        { label: "Sr. No", key: "pC_ID", size: "xs" },
+                        { label: "Part Code", key: "pC_PartCode", size: "md" },
+                        { label: "Description", key: "pC_PartDesc", size: "lg" },
+                        {
+                          label: "Date",
+                          key: "pC_Date",
+                          size: "sm",
+                          render: (val) => {
+                            if (!val) return "-";
+                            const d = new Date(val);
+                            const day = String(d.getDate()).padStart(2, "0");
+                            const month = String(d.getMonth() + 1).padStart(2, "0");
+                            const year = d.getFullYear();
+                            return `${day}-${month}-${year}`;
+                          },
+                        },
+                        { label: "Rate", key: "pC_Rate", size: "sm" },
+                        { label: "Quantity", key: "pC_Quantity", size: "xs" },
+                        { label: "Amount", key: "pC_Amount", size: "sm" },
+                        {
+                          label: "Fresh Faulty",
+                          key: "isFreshFaulty",
+                          size: "sm",
+                          render: (val) => (
+                            <span
+                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                val
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {val ? "Yes" : "No"}
+                            </span>
+                          ),
+                        },
+
+                        // {
+                        //   label: "Fresh Faulty",
+                        //   key: "isFreshFaulty",
+                        //   size: "sm",
+                        //   render: (val) => (val ? "Yes" : "No"),
+                        // },
+                      ]}
+                      rows={partConsumption}
+                    />
                   )}
                 </div>
               )}

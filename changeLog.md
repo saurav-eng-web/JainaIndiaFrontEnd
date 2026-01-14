@@ -223,9 +223,13 @@
   - separted multiple components for better perfomance
   - separated multiple api calls
   - implement caching of api, so that the api did not hit again and again on tab change
-
-# 2.3.1
-
 - fix, feat: part pending, multiple fixes, UI enhancements
 - update: payload: part pending,
 - UI fix: create challan: update table to maintain consistent UI
+- fix: create challan: sorted the data by ageing
+- feat: PO request
+- fix: image upload
+- fix: flow of submission, based on the message that we get
+- feat: integrate PO request
+- feat: integrate PO receive
+- feat: PO recieve

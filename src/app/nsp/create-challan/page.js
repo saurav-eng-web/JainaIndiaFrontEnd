@@ -6,14 +6,13 @@ import React, { Suspense, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import SideBar from "@/components/SideBar";
 import CustomDropdown from "@/components/common/Dropdown";
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
 import ConfirmModal from "@/components/ui/ConfirmationModal";
 import Table from "@/components/common/Table";
 import PageSkeleton from "@/components/ui/PageSkeleton";
+import FormInput from "@/components/ui/FormInput";
 
 function SendDefectivePageContent() {
   const { colors } = useTheme();
@@ -28,20 +27,24 @@ function SendDefectivePageContent() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [serverMessage, setServerMessage] = useState("");
   const [popupType, setPoptype] = useState("submit");
+  const [popupTitle, setPopupTitle] = useState("Confirm Action");
 
   const [showDispatchForm, setShowDispatchForm] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalWeight, setTotalWeight] = useState(0);
   const [pincode, setPincode] = useState(0);
   const [dispatchForm, setDispatchForm] = useState({
-    courierType: "",
+    // courierType: "",
+    type: "",
+    warehouse: warehouseId,
     courierCode: "",
-    docketNo: "",
-    challanDate: "",
-    weight: "",
-    dimensions: "",
+    doc: "",
     remark: "",
+    dimensions: "",
+    weight: "",
     box: "",
+    challanDate: "",
+    ipAddress: "",
   });
 
   useEffect(() => {
@@ -94,26 +97,42 @@ function SendDefectivePageContent() {
   }, []); // ✅ run once on mount
 
   useEffect(() => {
-    async function fetchAscDetails() {
-      if (!user || !user.userName) return;
-      //
-
-      try {
-        setIsLoading(true);
-        const res = await axiosInstance.get(`ASC_MASTER/asccode/${user?.userName}`);
-
-        if (res.status === 200) {
-          setPincode(res.data?.pincode);
-        }
-      } catch (error) {
-        console.error("Error fetching ASC details: ", error);
-      } finally {
-        setIsLoading(false);
-      }
+    const existing = localStorage.getItem("clientIP");
+    if (existing) {
+      setDispatchForm((prev) => ({ ...prev, ipAddress: existing }));
+      return;
     }
+    (async () => {
+      try {
+        const res = await axios.get("https://api.ipify.org?format=json");
+        const ip = res?.data?.ip || "";
+        if (ip) {
+          localStorage.setItem("clientIP", ip);
+          setDispatchForm((prev) => ({ ...prev, ipAddress: ip }));
+        }
+      } catch (e) {
+        console.error("Failed to fetch IP:", e);
+      }
+    })();
+  }, []);
 
-    fetchAscDetails();
-  }, [user]);
+  async function fetchAscDetails() {
+    if (!user || !user.userName) return;
+    //
+
+    try {
+      setIsLoading(true);
+      const res = await axiosInstance.get(`ASC_MASTER/asccode/${user?.userName}`);
+
+      if (res.status === 200) {
+        setPincode(res.data?.pincode);
+      }
+    } catch (error) {
+      console.error("Error fetching ASC details: ", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const handleSearch = async () => {
     if (!warehouseId || !challanType) {
@@ -132,8 +151,14 @@ function SendDefectivePageContent() {
         if (data.length === 0) {
           toast.error("No data found!");
         }
+        const sortedData = data.sort((a, b) => b.Ageing - a.Ageing);
+        setTableData(sortedData);
 
-        setTableData(data);
+        setDispatchForm((prev) => ({
+          ...prev,
+          type: challanType,
+          warehouse: warehouseId,
+        }));
       }
     } catch (error) {
       console.error("Error fetching warehouse and challan type:", error);
@@ -178,6 +203,8 @@ function SendDefectivePageContent() {
         }
 
         setShowConfirm(true);
+
+        await fetchAscDetails();
       }
     } catch (error) {
       toast.error("Something went wrong try again");
@@ -200,38 +227,73 @@ function SendDefectivePageContent() {
   };
 
   // >>>>>>>>>>>>>>> ADD THIS NEW FUNCTION <<<<<<<<<<<<<<<
-  const handleSubmitDispatch = () => {
-    alert("Dispatch Submitted Successfully!");
-    // Here you will call actual API later.
+  const handleSubmitDispatch = async () => {
+    // alert("Dispatch Submitted Successfully!");
+    if (!dispatchForm.box || !dispatchForm.dimensions || !dispatchForm.remark) {
+      toast.error("Please fill all the fields");
+      return;
+    }
+    const idArray = selectedItems.map((x) => x.ID);
+    const ids = idArray.join(",");
+    const payload = {
+      ...dispatchForm,
+      ids,
+      ipAddress: "",
+      userName: user.userName,
+    };
+
+    try {
+      const res = await axiosInstance.post("challan/process", payload);
+
+      if (res?.data?.statusCode === 200 && res?.data?.data.length > 0) {
+        const challanNo = res?.data?.data[0]["challan no"];
+        // toast.success(`Generated Defective No: ${challanNo}`);
+        setServerMessage(`Generated Defective No: ${challanNo}`);
+        setPopupTitle("Success");
+        setShowConfirm(true);
+        setPoptype("success");
+        setSelectedItems([]);
+        setTotalPrice(0);
+        setTotalWeight(0);
+        // setServerMessage("");
+        // setShowDispatchForm(false);
+        // setShowConfirm(false);
+        // handleSearch();
+        setChallanType("");
+        setWarehouseId("");
+        setTableData([]);
+      }
+    } catch (error) {
+      toast.error("Something went wrong try again");
+      console.error(error?.message);
+    }
   };
 
   const handleConfirmYes = async () => {
     setShowConfirm(false);
 
     try {
-      const res = await axiosInstance.post("/Cost/check", {
-        Pincode: 421203,
+      const res = await axiosInstance.post("/docket/get", {
+        Pincode: pincode,
         Weight: totalWeight,
       });
+      console.log("res: ", res);
       if (res?.data?.statusCode === 200) {
-        const data = res?.data?.data;
+        console.log("inside if");
+        const data = res?.data?.data[0];
         setDispatchForm((prev) => ({
           ...prev,
-          docketNo: data.DocketNo,
+          doc: data.DocketNo,
           challanDate: new Date().toISOString().slice(0, 10),
+          courierCode: data.CourierName,
+          weight: data.Weightt.toString(),
         }));
+
+        setShowDispatchForm(true);
       }
     } catch (error) {
       console.error("Error fetching docket get:", error);
     }
-
-    setDispatchForm((prev) => ({
-      ...prev,
-      docketNo: "Dkt-" + Date.now(),
-      challanDate: new Date().toISOString().slice(0, 10),
-    }));
-
-    setShowDispatchForm(true);
   };
 
   const handleConfirmNo = () => {
@@ -286,10 +348,14 @@ function SendDefectivePageContent() {
     },
   ];
 
+  console.log("dispatchForm: ", dispatchForm);
+  console.log("selectedItems: ", selectedItems);
+  console.log("user: ", user);
+
   // <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}> --- Send Defective To NWH
   return (
     <PageSkeleton
-      title="Send Defective To NWH"
+      title="Send Inventory to Warehouse"
       rolesAllowed={["br", "asm", "zone", "sf/ssd"]}
     >
       {/* ---------------- FILTER SECTION ---------------- */}
@@ -316,7 +382,7 @@ function SendDefectivePageContent() {
             className="cursor-pointer rounded-lg px-6 py-2 shadow-md"
             style={{ background: colors.primary, color: "#fff" }}
           >
-            Search
+            {isLoading ? "Loading..." : "Search"}
           </button>
         </div>
       </div>
@@ -353,104 +419,85 @@ function SendDefectivePageContent() {
 
           <div className="grid grid-cols-3 gap-6">
             {/* Type of Courier */}
-            <div>
-              <label className="mb-1 block font-medium">Type of Courier</label>
-              <input
-                name="courierType"
-                value={dispatchForm.courierType}
-                onChange={onDispatchChange}
-                readOnly
-                placeholder="Local Service Provider"
-                className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
-              />
-            </div>
+            {/* Type of Challan */}
+            <FormInput
+              label="Type of Challan"
+              name="courierType"
+              value={dispatchForm.type}
+              onChange={onDispatchChange}
+              readOnly
+              placeholder="Local Service Provider"
+            />
 
             {/* Courier Code */}
-            <div>
-              <label className="mb-1 block font-medium">Courier Code</label>
-              <input
-                name="courierCode"
-                value={dispatchForm.courierCode}
-                onChange={onDispatchChange}
-                placeholder="Trackon001"
-                readOnly
-                className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
-              />
-            </div>
+            <FormInput
+              label="Courier Code"
+              name="courierCode"
+              value={dispatchForm.courierCode}
+              onChange={onDispatchChange}
+              placeholder="Courier Code"
+              readOnly
+            />
 
             {/* Docket No */}
-            <div>
-              <label className="mb-1 block font-medium">Docket No.</label>
-              <input
-                name="docketNo"
-                value={dispatchForm.docketNo}
-                readOnly
-                className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
-              />
-            </div>
+            <FormInput
+              label="Docket No."
+              name="docketNo"
+              value={dispatchForm.doc}
+              readOnly
+            />
 
             {/* Challan Date */}
-            <div>
-              <label className="mb-1 block font-medium">Challan Date</label>
-              <input
-                type="date"
-                name="challanDate"
-                value={dispatchForm.challanDate}
-                readOnly
-                className="w-full cursor-not-allowed rounded border bg-gray-100 p-2"
-              />
-            </div>
+            <FormInput
+              label="Challan Date"
+              type="date"
+              name="challanDate"
+              value={dispatchForm.challanDate}
+              readOnly
+            />
 
             {/* Weight */}
-            <div>
-              <label className="mb-1 block font-medium">Weight (In grams)</label>
-              <input
-                name="weight"
-                value={dispatchForm.weight}
-                onChange={onDispatchChange}
-                className="w-full rounded border p-2"
-              />
-            </div>
+            <FormInput
+              label="Weight (In grams)"
+              name="weight"
+              value={dispatchForm.weight}
+              readOnly
+              onChange={onDispatchChange}
+            />
 
             {/* Dimensions */}
-            <div>
-              <label className="mb-1 block font-medium">Dimensions (L*B*H in cm)</label>
-              <input
-                name="dimensions"
-                value={dispatchForm.dimensions}
-                onChange={onDispatchChange}
-                className="w-full rounded border p-2"
-              />
-            </div>
-
-            {/* Remark */}
-            <div className="col-span-3">
-              <label className="mb-1 block font-medium">Remark</label>
-              <textarea
-                name="remark"
-                value={dispatchForm.remark}
-                onChange={onDispatchChange}
-                className="h-24 w-full rounded border p-2"
-              />
-            </div>
+            <FormInput
+              label="Dimensions (L*B*H in cm)"
+              name="dimensions"
+              value={dispatchForm.dimensions}
+              onChange={onDispatchChange}
+            />
 
             {/* Box */}
-            <div>
-              <label className="mb-1 block font-medium">Box</label>
-              <input
-                name="box"
-                value={dispatchForm.box}
-                onChange={onDispatchChange}
-                className="w-full rounded border p-2"
-              />
-            </div>
+            <FormInput
+              label="Box"
+              name="box"
+              value={dispatchForm.box}
+              onChange={onDispatchChange}
+            />
+
+            {/* Remark */}
+            <FormInput
+              label="Remark"
+              name="remark"
+              value={dispatchForm.remark}
+              onChange={onDispatchChange}
+              type="textarea"
+              className="col-span-2"
+              inputClassName="h-14" // slightly taller than h-10 for better UX, or keep h-10 if strict. I'll use h-14 for textarea.
+            />
           </div>
 
           {/* >>>>>>>>>>> SUBMIT BUTTON ADDED HERE <<<<<<<<<<< */}
           <div className="mt-6 text-right">
             <button
               onClick={handleSubmitDispatch}
-              className="rounded-lg px-8 py-3 font-semibold text-white shadow-md"
+              className="h-10 cursor-pointer rounded-lg px-8 py-3 text-center font-semibold text-white shadow-md"
               style={{ background: colors.primary }}
             >
               Dispatch
@@ -460,7 +507,7 @@ function SendDefectivePageContent() {
       )}
       <ConfirmModal
         open={showConfirm}
-        title="Confirm Action"
+        title={popupTitle}
         message={serverMessage}
         onConfirm={handleConfirmYes}
         onCancel={handleConfirmNo}
@@ -483,3 +530,5 @@ export default function CreateChallan() {
     </Suspense>
   );
 }
+
+// clear memory, if the drop down changes, for price

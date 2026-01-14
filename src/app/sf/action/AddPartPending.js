@@ -3,6 +3,9 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Trash2, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
+import { useSelector } from "react-redux";
+import axios from "axios";
 
 import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
@@ -10,11 +13,13 @@ import { useTheme } from "@/theme/ThemeContext";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import Modal from "@/components/ui/Modal";
 import axiosInstance from "@/api/axiosInstance";
+import { updateJob } from "@/utils/commonApis";
 
 // ---- MOCK TICKET TABLE ----
 
 export default function AddPartPending({ ticketNumber }) {
   const { colors } = useTheme();
+  const user = useSelector((state) => state.auth.user); // Adjust slice name if needed
 
   const [selectedPart, setSelectedPart] = useState(null);
   const [showSerial, setShowSerial] = useState(false);
@@ -23,6 +28,8 @@ export default function AddPartPending({ ticketNumber }) {
   const [dropdownOptions, setDropdownOptions] = useState([]);
   const [isValidSerialNumber, setIsValidSerialNumber] = useState(false);
   const [saveConfirmationOpen, setSaveConfirmationOpen] = useState(false);
+  const [images, setImages] = useState([]);
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const normalizeBoolean = (value) => String(value).toLowerCase() === "true";
 
@@ -68,11 +75,18 @@ export default function AddPartPending({ ticketNumber }) {
 
         const dropdownData = res.data.data
           .filter((item) => !gridPartCodes.has(item.key))
-          .map((item) => ({
-            label: item.value,
-            value: item.key,
-            message: normalizeBoolean(item.message),
-          }));
+          .map((item) => {
+            // Parse message: "serialcheck|partCode|partDescription|imageUploadFlag"
+            const messageParts = item.message.split("|");
+            return {
+              label: item.value,
+              value: item.key,
+              serialCheck: messageParts[0] === "1",
+              extraPartCode: messageParts[1] || "",
+              extraPartDescription: messageParts[2] || "",
+              imageUploadRequired: messageParts[3] === "1",
+            };
+          });
 
         setDropdownOptions(dropdownData);
       } catch (error) {
@@ -81,24 +95,51 @@ export default function AddPartPending({ ticketNumber }) {
     }
 
     getDropdown();
-    // We only want to run this once on mount/ticket change, not when grid changes
-    // to avoid re-fetching and overriding our local filtering logic.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticketNumber]);
 
   const handlePartSelect = (selectedValue) => {
     const part = dropdownOptions.find((item) => item.value === selectedValue);
     if (!part) return;
-    const isSerialised = normalizeBoolean(part.message);
     setSelectedPart({
       label: part.label,
       value: part.value,
-      isSerialised,
+      serialCheck: part.serialCheck,
+      extraPartCode: part.extraPartCode,
+      extraPartDescription: part.extraPartDescription,
+      imageUploadRequired: part.imageUploadRequired,
     });
 
     setSerialNo("");
-    setShowSerial(isSerialised);
+    setShowSerial(part.serialCheck);
+    setShowImageUpload(part.imageUploadRequired);
     setIsValidSerialNumber(false);
+    setImages([]);
+  };
+
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+
+    // Validate total count
+    if (images.length + files.length > 5) {
+      toast.error("Maximum 5 images allowed");
+      return;
+    }
+
+    // Validate each file size (5MB = 5 * 1024 * 1024 bytes)
+    const maxSize = 5 * 1024 * 1024;
+    const invalidFiles = files.filter((file) => file.size > maxSize);
+
+    if (invalidFiles.length > 0) {
+      toast.error("Each image must be less than 5MB");
+      return;
+    }
+
+    setImages((prev) => [...prev, ...files]);
+  };
+
+  const handleRemoveImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleAddToGrid = async () => {
@@ -106,6 +147,12 @@ export default function AddPartPending({ ticketNumber }) {
 
     if (showSerial && !isValidSerialNumber) {
       toast.error("Valid serial number is required!");
+      return;
+    }
+
+    // Check if images are required but not uploaded
+    if (showImageUpload && images.length === 0) {
+      toast.error("Please upload at least one image!");
       return;
     }
 
@@ -135,7 +182,11 @@ export default function AddPartPending({ ticketNumber }) {
             availableQty: data["Qty"] || 0,
             poQty: 1,
             serialNo: showSerial ? serialNo : "",
-            isSerialised: selectedPart.isSerialised,
+            isSerialised: selectedPart.serialCheck,
+            images: [...images], // Store images in memory
+            extraPartCode: selectedPart.extraPartCode,
+            extraPartDescription: selectedPart.extraPartDescription,
+            imageUploadRequired: selectedPart.imageUploadRequired,
           },
         ]);
 
@@ -146,7 +197,9 @@ export default function AddPartPending({ ticketNumber }) {
         setSelectedPart(null);
         setSerialNo("");
         setShowSerial(false);
+        setShowImageUpload(false);
         setIsValidSerialNumber(false);
+        setImages([]);
       } else {
         // Handle rejection or simple message cases
         const parts = message.includes("|") ? message.split("|") : [message];
@@ -177,7 +230,10 @@ export default function AddPartPending({ ticketNumber }) {
           {
             label: itemToDelete.desc,
             value: itemToDelete.partCode,
-            message: itemToDelete.isSerialised,
+            serialCheck: itemToDelete.isSerialised,
+            extraPartCode: itemToDelete.extraPartCode,
+            extraPartDescription: itemToDelete.extraPartDescription,
+            imageUploadRequired: itemToDelete.imageUploadRequired,
           },
         ];
         // Optional: Sort options alphabetically by label so the restored item is in place
@@ -218,20 +274,110 @@ export default function AddPartPending({ ticketNumber }) {
     setSaveConfirmationOpen(true);
   }
 
-  function onConfirmSave() {
-    console.log("grid: ", grid);
-    const payload = {
-      TicketNo: ticketNumber,
-      type: "sfpnapo",
-      data: grid.map((item) => ({
+  // >>>>>>>>>>>>>>> UPLOAD FUNCTION <<<<<<<<<<<<<<<
+  const handleUpload = async () => {
+    try {
+      let allSuccess = true;
+
+      for (const item of grid) {
+        if (item.images && item.images.length > 0) {
+          for (const file of item.images) {
+            if (!file) continue;
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("Ticket_no", ticketNumber);
+            formData.append("DocumentType", "highValuePORequest"); // Updated type
+
+            // Using axiosInstance or axios?
+            // The file uses axiosInstance generally.
+            // However, the user snippet used a specific path.
+            // I'll use axiosInstance and the path provided.
+            try {
+              await axios.post("/api/documents/upload", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+              });
+            } catch (err) {
+              console.error("Upload error for file", file.name, err);
+              allSuccess = false;
+            }
+          }
+        }
+      }
+      return allSuccess;
+    } catch (err) {
+      console.error("Global Upload error", err);
+      return false;
+    }
+  };
+
+  async function onConfirmSave() {
+    // 1. Upload Images First
+
+    const data = grid.flatMap((item) => {
+      // 1. Create the main part object
+      const mainPart = {
         partCode: item.partCode,
         inventoryType: item.inventoryType,
-        price: Number(item.price) || 0,
-        serialNo: item.serialNo || "",
+        price: item.price,
+        serialNo: item.serialNo,
         partDesc: item.desc,
-        availableQty: Number(item.availableQty) || 0,
-      })),
+        availableQty: item.availableQty,
+        POQty: item.poQty,
+        imageupload: item.images.length > 0 ? "Uploaded" : null,
+      };
+
+      // 2. Check for extra part
+      if (item.extraPartCode && item.extraPartDescription) {
+        const extraPart = {
+          partCode: item.extraPartCode,
+          inventoryType: item.inventoryType,
+          price: 0,
+          serialNo: "",
+          partDesc: item.extraPartDescription,
+          availableQty: 1,
+          POQty: 1,
+          imageupload: null,
+        };
+        return [mainPart, extraPart];
+      }
+
+      return [mainPart];
+    });
+    const payload = {
+      TicketNo: ticketNumber,
+      type: "SFPNAPO",
+      data,
     };
+
+    try {
+      const res = await axiosInstance.post("po/request", payload);
+      const message = res.data?.statusMsg || "";
+      if (message.includes("PO Created")) {
+        const parts = message.split("|");
+        const status = parts[0]?.trim();
+        const subStatus = parts[1]?.trim();
+        const responseMessage = parts[2]?.trim() || "";
+        await updateJob({
+          status,
+          subStatus,
+          message: responseMessage,
+          ticketNumber,
+          loggedInUser: user.userName,
+        });
+
+        const uploadSuccess = await handleUpload();
+        if (!uploadSuccess) {
+          toast.error("Failed to upload some images. Please try again.");
+          return;
+        }
+        toast.success("Request submitted successfully!");
+      }
+    } catch (error) {
+      console.error("Error submitting request:", error);
+      toast.error("Failed to submit request. Please try again.");
+    }
+
     console.log("payload: ", payload);
     setSaveConfirmationOpen(false);
   }
@@ -318,8 +464,10 @@ export default function AddPartPending({ ticketNumber }) {
     },
   ];
 
+  console.log("images: ", images);
+
   return (
-    <ModalSkeleton title="Add PO" rolesAllowed={["sf/ssd"]} size="xl">
+    <ModalSkeleton title="PO Request" rolesAllowed={["sf/ssd"]} size="xl">
       {/* PART SELECTION */}
       <div className="mb-6 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 className="mb-4 text-sm font-semibold tracking-wide text-gray-900 uppercase">
@@ -347,7 +495,7 @@ export default function AddPartPending({ ticketNumber }) {
                     value={serialNo}
                     onChange={(e) => {
                       setSerialNo(e.target.value);
-                      setIsValidSerialNumber(false); // Reset validation on change
+                      setIsValidSerialNumber(false);
                     }}
                     className="h-11 w-full rounded-lg border p-2 pr-10 shadow-sm focus:border-[#714b67] focus:ring-[#714b67]"
                     placeholder="Enter Serial Number"
@@ -362,32 +510,104 @@ export default function AddPartPending({ ticketNumber }) {
                   )}
                 </div>
               </div>
-              <div className="w-24 flex-none">
-                <button
-                  onClick={checkSerialNumber}
-                  className="h-10 w-full cursor-pointer rounded-lg text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95"
-                  style={{ background: colors.primary }}
-                >
-                  Check
-                </button>
-              </div>
             </>
           )}
 
-          {selectedPart &&
-            (!selectedPart.isSerialised ||
-              (selectedPart.isSerialised && isValidSerialNumber)) && (
-              <div className="flex-none">
+          {/* Unified Action Button Container */}
+          <div className="w-24 flex-none">
+            {showSerial && !isValidSerialNumber && (
+              <button
+                onClick={checkSerialNumber}
+                className="h-10 w-full cursor-pointer rounded-lg text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95"
+                style={{ background: colors.primary }}
+              >
+                Check
+              </button>
+            )}
+
+            {selectedPart &&
+              (!selectedPart.serialCheck ||
+                (selectedPart.serialCheck && isValidSerialNumber)) &&
+              (!selectedPart.imageUploadRequired ||
+                (selectedPart.imageUploadRequired && images.length > 0)) && (
                 <button
                   onClick={handleAddToGrid}
-                  className="h-10 w-24 cursor-pointer rounded-lg px-6 font-medium text-white shadow-md transition-transform hover:scale-105 active:scale-95"
+                  className="h-10 w-full cursor-pointer rounded-lg text-sm font-medium text-white shadow-md transition-transform hover:scale-105 active:scale-95"
                   style={{ background: colors.primary }}
                 >
                   Add
                 </button>
-              </div>
-            )}
+              )}
+          </div>
         </div>
+
+        {/* Image Upload Section */}
+        {showImageUpload && (!showSerial || (showSerial && isValidSerialNumber)) && (
+          <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Upload Images <span className="text-red-500">*</span>
+              <p className="mt-1 text-xs font-normal text-gray-500">
+                Max 5 images allowed (upto 5MB each). At least one image is required.
+              </p>
+            </label>
+
+            <div className="flex items-start gap-4">
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageSelect}
+                  className="hidden"
+                  disabled={images.length >= 5}
+                />
+                <div
+                  className="flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95"
+                  style={{
+                    background: images.length >= 5 ? "#ccc" : colors.primary,
+                    cursor: images.length >= 5 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Choose Files ({images.length}/5)
+                </div>
+              </label>
+
+              {images.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {images.map((file, index) => (
+                    <div
+                      key={index}
+                      className="group relative h-16 w-16 overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm"
+                    >
+                      {/* <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Preview ${index + 1}`}
+                        className="h-full w-full object-cover"
+                      /> */}
+                      <Image
+                        src={URL.createObjectURL(file)}
+                        alt={`Preview ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                      <button
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-0 right-0 hidden h-5 w-5 items-center justify-center rounded-bl-lg bg-red-500 text-xs text-white transition-all group-hover:flex hover:bg-red-600"
+                        title="Remove"
+                      >
+                        ×
+                      </button>
+                      <div className="bg-opacity-50 absolute right-0 bottom-0 left-0 bg-black px-1 py-0.5 text-center text-[10px] text-white">
+                        {(file.size / 1024).toFixed(0)}KB
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* GRID TABLE */}
@@ -443,3 +663,8 @@ export default function AddPartPending({ ticketNumber }) {
     </ModalSkeleton>
   );
 }
+
+// message:
+// max 5 images, upto 5mb
+
+// new feature, after verifying the serial number, we have to upload

@@ -3,14 +3,18 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 
 import { getUserFromLocalStorage } from "../../../redux/slices/authSlice";
+import { setRouteData } from "../../../redux/slices/routeDataSlice";
 
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
 import SectionHeading from "@/components/common/SectionHeading";
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import PageSkeleton from "@/components/ui/PageSkeleton";
+import Table from "@/components/common/Table";
 
 export default function ComplaintTable() {
   const { colors } = useTheme();
@@ -18,6 +22,7 @@ export default function ComplaintTable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
+  const dispatch = useDispatch();
   const userData = getUserFromLocalStorage();
   const userId = userData?.userID;
 
@@ -61,68 +66,65 @@ export default function ComplaintTable() {
     fetchClaimData();
   }, []);
 
+  const columns = [
+    {
+      label: "Action",
+      key: "action",
+      size: "sm",
+      render: (_value, row) => (
+        <button
+          onClick={() => {
+            // Store ticket number in Redux before navigation
+            dispatch(setRouteData({ key: "claimApproveTicket", data: row.ticket_no }));
+            router.push(`/nsp/claim-approve/details`);
+          }}
+          className="cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+          style={{ backgroundColor: colors.primary }}
+        >
+          Update
+        </button>
+      ),
+    },
+    {
+      label: "Ticket No",
+      key: "ticket_no",
+      size: "md",
+    },
+    {
+      label: "ASC Name",
+      key: "ASC_NAME",
+      size: "xl",
+    },
+    {
+      label: "Call Type",
+      key: "callType",
+      size: "sm",
+    },
+    {
+      label: "Serial No",
+      key: "serialNo",
+      size: "md",
+    },
+    {
+      label: "Finance Remarks",
+      key: "FinanceRemarks",
+      size: "xl",
+      render: (value) => value || "-",
+    },
+  ];
+
+  // <ProtectedRoute allowedRoles={["BR", "NSP"]}> Reject Claims call
   return (
-    <>
-      <ProtectedRoute allowedRoles={["BR", "NSP"]}>
-        <div className="flex min-h-screen bg-gray-100">
-          <SideBar />
-          <div className="flex-1 p-20 pt-10 pr-10">
-            <div className="rounded-xl bg-white p-6 shadow-md">
-              <SectionHeading>Reject Claims call</SectionHeading>
-
-              {loading ? (
-                <p className="text-gray-500">Loading complaints...</p>
-              ) : error ? (
-                <p className="text-red-500">{error}</p>
-              ) : (
-                <div className="overflow-x-auto rounded-md">
-                  <table className="min-w-full text-left text-sm">
-                    <thead>
-                      <tr className="bg-gray-200 text-xs text-gray-700 uppercase">
-                        <th className="px-4 py-3">Action</th>
-                        <th className="px-4 py-3">Ticket No</th>
-                        <th className="px-4 py-3">ASC Name</th>
-                        <th className="px-4 py-3">Call Type</th>
-                        <th className="px-4 py-3">Serial No</th>
-                        <th className="px-4 py-3">Finance Remarks</th>
-                      </tr>
-                    </thead>
-
-                    <tbody className="divide-y divide-gray-200 bg-white">
-                      {complaints.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-gray-50">
-                          <td className="px-4 py-3">
-                            <button
-                              onClick={() =>
-                                router.push(
-                                  `/nsp/claim-approve/details?ticket_no=${item.ticket_no}`
-                                )
-                              }
-                              // onClick={() => router.push(`/nsp/claim-approve/details`)}
-                              className="cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
-                              style={{ backgroundColor: colors.primary }}
-                            >
-                              Update
-                            </button>
-                          </td>
-
-                          <td className="px-4 py-3">{item.ticket_no}</td>
-                          <td className="px-4 py-3">{item.ASC_NAME}</td>
-                          <td className="px-4 py-3">{item.callType}</td>
-                          <td className="px-4 py-3">{item.serialNo}</td>
-                          <td className="px-4 py-3 text-gray-700">
-                            {item.FinanceRemarks || "-"}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
+    <PageSkeleton title="Reject Claims Calls" rolesAllowed={["BR", "NSP"]}>
+      {loading ? (
+        <p className="text-gray-500">Loading complaints...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <div className="overflow-x-auto rounded-md">
+          <Table columns={columns} rows={complaints} />
         </div>
-      </ProtectedRoute>
-    </>
+      )}
+    </PageSkeleton>
   );
 }

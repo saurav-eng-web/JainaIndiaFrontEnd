@@ -1,3 +1,5 @@
+import Loading from "../ui/Loading";
+
 const sizeMap = {
   xs: "w-20", // very small
   sm: "w-28", // small
@@ -8,31 +10,10 @@ const sizeMap = {
   full: "",
 };
 
-function Td({ data, sizeClass, render, row }) {
-  return (
-    <td
-      className={`px-2 py-4 align-top wrap-break-word whitespace-normal text-slate-600 ${sizeClass || ""} `}
-    >
-      {render ? render(data, row) : data || "-"}
-    </td>
-  );
-}
-
-function Th({ title, sizeClass }) {
-  return (
-    <th
-      className={`h-12 px-4 py-2 text-left font-semibold wrap-break-word whitespace-normal ${sizeClass || ""} `}
-    >
-      {title}
-    </th>
-  );
-}
-
-export default function Table({ columns, rows }) {
+export default function Table({ columns, rows, isLoading = false }) {
   return (
     <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
-        {/* <table className="w-full table-fixed text-left text-sm"> */}
         <table className="w-full table-auto text-left text-sm">
           <thead className="h-12 truncate border-b border-slate-200 bg-[#714b67] text-slate-100">
             <tr>
@@ -46,7 +27,15 @@ export default function Table({ columns, rows }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {rows.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan={columns.length} className="p-10">
+                  <div className="flex h-full w-full items-center justify-center">
+                    <Loading />
+                  </div>
+                </td>
+              </tr>
+            ) : rows.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="p-10 text-center text-slate-500">
                   No data
@@ -60,6 +49,7 @@ export default function Table({ columns, rows }) {
                       key={col.key}
                       data={row[col.key]}
                       row={row} // Pass the full row for complex renders (like Name)
+                      rowIndex={rowIndex}
                       render={col.render}
                       sizeClass={sizeMap[col.size] || sizeMap.md}
                     />
@@ -71,6 +61,26 @@ export default function Table({ columns, rows }) {
         </table>
       </div>
     </div>
+  );
+}
+
+function Td({ data, sizeClass, render, row, rowIndex }) {
+  return (
+    <td
+      className={`px-2 py-4 align-top wrap-break-word whitespace-normal text-slate-600 ${sizeClass || ""} `}
+    >
+      {render ? render(data, row, rowIndex) : data || "-"}
+    </td>
+  );
+}
+
+function Th({ title, sizeClass }) {
+  return (
+    <th
+      className={`h-12 px-4 py-2 text-left text-[14px] font-semibold wrap-break-word whitespace-normal ${sizeClass || ""} `}
+    >
+      {title}
+    </th>
   );
 }
 

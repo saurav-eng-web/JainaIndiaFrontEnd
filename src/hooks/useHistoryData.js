@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
+
 import axiosInstance from "@/api/axiosInstance";
 import { logger } from "@/utils/logger";
 
 export function useHistoryData(activeTicket, user, roleName) {
   const [logData, setLogData] = useState([]);
   const [custDetail, setCustDetail] = useState(null);
-  
+
   // Initialize lazy-loaded data as null to distinguish "not fetched" vs "empty"
   const [partConsumption, setPartConsumption] = useState(null);
   const [documents, setDocuments] = useState(null);
@@ -73,7 +74,10 @@ export function useHistoryData(activeTicket, user, roleName) {
 
         // 0. History
         const historyData = unwrap(results[0]);
-        setLogData(Array.isArray(historyData) ? historyData : [historyData]);
+        const dataArray = Array.isArray(historyData) ? historyData : [historyData];
+
+        // Create a copy and then reverse it
+        setLogData([...dataArray].reverse());
 
         // 1. Customer Detail
         const custData = unwrap(results[1], null);
@@ -121,7 +125,7 @@ export function useHistoryData(activeTicket, user, roleName) {
   const fetchDocuments = useCallback(async () => {
     if (documents !== null) return; // Already loaded
 
-    setLoadingTabs(prev => ({ ...prev, documents: true }));
+    setLoadingTabs((prev) => ({ ...prev, documents: true }));
     try {
       const res = await axiosInstance.get(`DocumentUpload/ticket/${activeTicket}`);
       const data = res.data;
@@ -129,14 +133,14 @@ export function useHistoryData(activeTicket, user, roleName) {
     } catch (err) {
       console.error("Failed to fetch documents:", err);
     } finally {
-      setLoadingTabs(prev => ({ ...prev, documents: false }));
+      setLoadingTabs((prev) => ({ ...prev, documents: false }));
     }
   }, [activeTicket, documents]);
 
   const fetchConsumption = useCallback(async () => {
     if (partConsumption !== null) return;
 
-    setLoadingTabs(prev => ({ ...prev, consumption: true }));
+    setLoadingTabs((prev) => ({ ...prev, consumption: true }));
     try {
       const res = await axiosInstance.get(`PartConsumption/ByTicket/${activeTicket}`);
       const data = res.data;
@@ -144,14 +148,14 @@ export function useHistoryData(activeTicket, user, roleName) {
     } catch (err) {
       console.error("Failed to fetch consumption:", err);
     } finally {
-      setLoadingTabs(prev => ({ ...prev, consumption: false }));
+      setLoadingTabs((prev) => ({ ...prev, consumption: false }));
     }
   }, [activeTicket, partConsumption]);
 
   const fetchPendingHistory = useCallback(async () => {
     if (pendingHistory !== null) return;
 
-    setLoadingTabs(prev => ({ ...prev, pending: true }));
+    setLoadingTabs((prev) => ({ ...prev, pending: true }));
     try {
       const res = await axiosInstance.get(`LevelPendingHistory/ticket/${activeTicket}`);
       const data = res.data;
@@ -159,7 +163,7 @@ export function useHistoryData(activeTicket, user, roleName) {
     } catch (err) {
       console.error("Failed to fetch pending history:", err);
     } finally {
-      setLoadingTabs(prev => ({ ...prev, pending: false }));
+      setLoadingTabs((prev) => ({ ...prev, pending: false }));
     }
   }, [activeTicket, pendingHistory]);
 
@@ -167,7 +171,7 @@ export function useHistoryData(activeTicket, user, roleName) {
     if (visitDetails !== null) return;
     if (!ticketKey) return; // Need ticketKey first
 
-    setLoadingTabs(prev => ({ ...prev, visit: true }));
+    setLoadingTabs((prev) => ({ ...prev, visit: true }));
     try {
       const res = await axiosInstance.get(`visit/ticket/${ticketKey}`);
       const data = res.data;
@@ -175,7 +179,7 @@ export function useHistoryData(activeTicket, user, roleName) {
     } catch (err) {
       console.error("Failed to fetch visit data:", err);
     } finally {
-      setLoadingTabs(prev => ({ ...prev, visit: false }));
+      setLoadingTabs((prev) => ({ ...prev, visit: false }));
     }
   }, [ticketKey, visitDetails]);
 
@@ -204,6 +208,6 @@ export function useHistoryData(activeTicket, user, roleName) {
     fetchDocuments,
     fetchConsumption,
     fetchPendingHistory,
-    fetchVisitDetails
+    fetchVisitDetails,
   };
 }

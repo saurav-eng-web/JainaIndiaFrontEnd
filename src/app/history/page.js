@@ -32,7 +32,6 @@ import { setRouteData } from "@/redux/slices/routeDataSlice";
 // Custom Hooks & Components
 import { useHistoryData } from "@/hooks/useHistoryData";
 import { parseStatusMessage } from "@/utils/historyUtils";
-
 import JobDetailsTab from "@/components/history/tabs/JobDetailsTab";
 import CustomerDetailTab from "@/components/history/tabs/CustomerDetailTab";
 import ProductDetailsTab from "@/components/history/tabs/ProductDetailsTab";
@@ -137,7 +136,7 @@ function HistoryPageContent() {
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const visibleRows = logData.slice(startIndex, endIndex);
-
+  console.log("visible rows: ", visibleRows);
   // --- Derived ---
   const detail = custDetail || {};
   const firstEntry = logData[0] || {};
@@ -696,7 +695,8 @@ function HistoryPageContent() {
                 </tr>
               </thead>
               <tbody>
-                {[...visibleRows].reverse().map((row, index) => (
+                {[...visibleRows].map((row, index) => (
+                  // {[...visibleRows].reverse().map((row, index) => (
                   <tr key={index}>
                     <td>{pageSize * (currentPage - 1) + (index + 1)}</td>
                     <td>{row.ticketNo}</td>

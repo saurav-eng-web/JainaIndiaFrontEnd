@@ -4,7 +4,6 @@ const VARIANT_CLASSES = {
   primary: "bg-[#714b67] text-white hover:bg-[#5e3f56] focus:ring-[#714b67]",
   danger:
     "border-1 border-[#714b67] text-[#714b67] hover:text-[#5e3f56] focus:border-[#dc3545]",
-  // danger: "bg-[#dc3545] text-white hover:bg-[#b02a37] focus:ring-[#dc3545]",
 };
 
 export function Button({

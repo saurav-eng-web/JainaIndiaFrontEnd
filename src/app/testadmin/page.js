@@ -1,11 +1,18 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
+import axios from "axios";
+import { CloseButton } from "react-toastify";
 
 import Table from "@/components/common/Table"; // adjust path if needed
+import axiosInstance from "@/api/axiosInstance";
+import PageSkeleton from "@/components/ui/PageSkeleton";
+import { Button } from "@/components/ui/button";
+import ThemedButton from "@/components/common/ThemedButton";
 
 export default function DemoTablePage() {
+  const [search, setSearch] = useState("");
   const handleView = useCallback((row) => {
     toast.success(`Viewing user: ${row.Name}`);
     console.log("Row clicked:", row);
@@ -88,14 +95,46 @@ export default function DemoTablePage() {
     },
   ];
 
-  return (
-    <div className="p-10">
-      <h2 className="mb-6 text-xl font-bold text-[#714b67]">
-        Demo – Generic Table with Custom Cells
-      </h2>
+  async function fetchData() {
+    try {
+      const res = await axiosInstance.post("po-receive/list", {
+        type: "PendingSearch",
+        search: "JPS-2021-0006177",
+      });
+      console.log("res: ", res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
-      <Table columns={columns} rows={rows} />
-    </div>
+  async function fetchData1() {
+    try {
+      const res = await axios.post("https://ncapi.jainaindia.com/api/po-receive/list", {
+        type: "PendingSearch",
+        search: "JPS-2021-0006177",
+      });
+      console.log("res: ", res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return (
+    <PageSkeleton title="Test Admin" rolesAllowed={["cc", "zone", "sf/ssd", "br"]}>
+      <div className="flex gap-10">
+        <button
+          onClick={fetchData}
+          className="h-10 rounded-2xl bg-blue-900 px-4 py-2 text-white"
+        >
+          Fetch Data
+        </button>
+        <Button>Fetch Data</Button>
+        <Button variant="danger">Fetch Data</Button>
+        <ThemedButton>Fetch Data</ThemedButton>
+        <ThemedButton type="secondary">Fetch Data</ThemedButton>
+      </div>
+      {/* <CloseButton /> */}
+    </PageSkeleton>
   );
 }
 

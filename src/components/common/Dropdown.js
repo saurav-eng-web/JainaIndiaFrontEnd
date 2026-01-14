@@ -86,7 +86,7 @@ export default function CustomDropdown({ label, options, value, onChange, placeh
 
       {/* Dropdown button */}
       <div
-        className="flex cursor-pointer items-center justify-between rounded-lg border bg-white px-3 py-2"
+        className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-400 bg-white px-3 py-2"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span>{options.find((opt) => opt.value === value)?.label || placeholder}</span>

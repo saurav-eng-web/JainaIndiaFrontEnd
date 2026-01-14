@@ -6,11 +6,11 @@ export default function ActionButtons({ actions, onActionClick }) {
   }
 
   return (
-    <div className="action-buttons mt-4 flex gap-4">
+    <div className="action-buttons mt-4 flex flex-wrap gap-4">
       {actions.map((action, index) => (
         <button
           key={index}
-          className={`rounded-md px-4 py-2 font-medium text-white transition-colors duration-200 ${
+          className={`w-52 rounded-md px-2 py-2 font-medium text-white transition-colors duration-200 ${
             index === 0
               ? "bg-blue-600 hover:bg-blue-700"
               : index === 1
@@ -25,3 +25,5 @@ export default function ActionButtons({ actions, onActionClick }) {
     </div>
   );
 }
+
+//

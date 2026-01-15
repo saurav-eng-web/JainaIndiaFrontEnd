@@ -94,7 +94,7 @@ const KnowledgePortal = () => {
 
   return (
     <>
-      <ProtectedRoute allowedRoles={["ASM", "NSP"]}>
+      <ProtectedRoute allowedRoles={["ASM", "BR"]}>
         <SideBar />
         <div className="flex min-h-screen w-full flex-col font-sans">
           <div className="mx-auto w-full max-w-[1400px] p-4">

@@ -256,9 +256,9 @@ function SendDefectivePageContent() {
         setTotalPrice(0);
         setTotalWeight(0);
         // setServerMessage("");
-        // setShowDispatchForm(false);
         // setShowConfirm(false);
         // handleSearch();
+        setShowDispatchForm(false);
         setChallanType("");
         setWarehouseId("");
         setTableData([]);
@@ -354,10 +354,7 @@ function SendDefectivePageContent() {
 
   // <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}> --- Send Defective To NWH
   return (
-    <PageSkeleton
-      title="Send Inventory to Warehouse"
-      rolesAllowed={["br", "asm", "zone", "sf/ssd"]}
-    >
+    <PageSkeleton title="Send Inventory to Warehouse" rolesAllowed={["sf/ssd"]}>
       {/* ---------------- FILTER SECTION ---------------- */}
       <div className="mb-6 grid grid-cols-3 gap-6">
         <CustomDropdown

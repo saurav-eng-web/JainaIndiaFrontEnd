@@ -188,7 +188,7 @@ function HistoryPageContent() {
     }
     (async () => {
       try {
-        const res = await axiosInstance.get("https://api.ipify.org?format=json");
+        const res = await axios.get("https://api.ipify.org?format=json");
         const ip = res?.data?.ip || "";
         if (ip) {
           localStorage.setItem("clientIP", ip);

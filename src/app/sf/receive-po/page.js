@@ -92,14 +92,24 @@ export default function ReceivePO() {
     try {
       setIsLoaing(true);
       const res = await axiosInstance.post("po-receive/list", payload);
+      if (
+        res.data?.statusCode === 200 &&
+        res.data.statusMsg.includes("PO Received Successfully")
+      ) {
+        toast.success(res.data.message);
+      } else {
+        toast.error(res.data.message);
+        setSearchQuery("");
+        setTableData([]);
+        setSelectedItem([]);
+        setSelections({});
+      }
     } catch (error) {
       toast.error("Something went wrong while submitting, please try again");
       console.error(error);
     } finally {
       setIsLoaing(false);
     }
-
-    toast.success("Payload generated successfully! Check console for details.");
   };
 
   const handleSearch = async () => {

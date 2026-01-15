@@ -112,7 +112,6 @@ export default axiosInstance;
 // axiosInstance.interceptors.response.use(
 //   (response) => response,
 //   (error) => {
-//     console.log("error:", error);
 
 //     const isNetworkError = error.code === "ERR_NETWORK";
 

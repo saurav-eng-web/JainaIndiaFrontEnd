@@ -85,7 +85,7 @@ export default function SideBar() {
     },
     {
       href: "/nsp/transfercall",
-      icon: "fa fa-phone",
+      icon: "fa fa-exchange",
       text: "Call Transfer",
       roles: ["BR", "ASM", "ZONE"],
     },
@@ -111,9 +111,9 @@ export default function SideBar() {
     },
     {
       href: "/knowledge-portal",
-      icon: "fa fa-book",
+      icon: "fa fa-files-o",
       text: "Knowledge Portal",
-      roles: ["ASM"],
+      roles: ["ASM", "BR"],
     },
     {
       href: "/nsp/special-approval",

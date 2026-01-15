@@ -92,7 +92,6 @@ export default function ReceivePO() {
     try {
       setIsLoaing(true);
       const res = await axiosInstance.post("po-receive/list", payload);
-      console.log("res: ", res.data);
     } catch (error) {
       toast.error("Something went wrong while submitting, please try again");
       console.error(error);
@@ -100,12 +99,8 @@ export default function ReceivePO() {
       setIsLoaing(false);
     }
 
-    console.log("payload: ", payload);
-
     toast.success("Payload generated successfully! Check console for details.");
   };
-
-  console.log("tableData: ", tableData);
 
   const handleSearch = async () => {
     setTableData([]);

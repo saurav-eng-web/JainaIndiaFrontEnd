@@ -358,3 +358,35 @@
 .action-buttons button:hover {
   opacity: 0.9;
 }
+
+.doc-view-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #714b67;
+  color: white;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: fit-content;
+}
+
+.doc-view-btn:hover {
+  background-color: #fff;
+  color: #714b67;
+  border-color: #714b67;
+  box-shadow: 0 2px 4px rgba(113, 75, 103, 0.2);
+}
+
+.doc-view-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.doc-view-btn:hover svg {
+  transform: scale(1.1);
+}

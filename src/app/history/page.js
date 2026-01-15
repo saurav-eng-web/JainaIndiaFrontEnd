@@ -6,6 +6,7 @@ import { useEffect, useState, Suspense, useCallback } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
+import { Eye } from "lucide-react";
 
 import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
 import SpeicalAllowancePopup from "../rsm/special-allowance/allowancePopup";
@@ -137,7 +138,6 @@ function HistoryPageContent() {
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const visibleRows = logData.slice(startIndex, endIndex);
-  console.log("visible rows: ", visibleRows);
   // --- Derived ---
   const detail = custDetail || {};
   const firstEntry = logData[0] || {};
@@ -781,11 +781,8 @@ function HistoryPageContent() {
                       <thead>
                         <tr>
                           <th>Sr No</th>
-                          <th>Doc Key</th>
-                          <th>Type</th>
-                          <th>File Name</th>
-                          <th>Created By</th>
-                          <th>Created Date</th>
+                          <th>Doc Type</th>
+                          <th>Entered Date</th>
                           <th>Action</th>
                         </tr>
                       </thead>
@@ -793,20 +790,16 @@ function HistoryPageContent() {
                         {documents.map((doc, idx) => (
                           <tr key={idx}>
                             <td>{idx + 1}</td>
-                            <td>{doc.doc_key}</td>
-                            <td>{doc.docType}</td>
-                            <td>{doc.fileName}</td>
-                            <td>{doc.createdby}</td>
-                            <td>{new Date(doc.createddate).toLocaleDateString()}</td>
+                            <td>{doc.documentType}</td>
+                            <td>{doc.enteredDate}</td>
                             <td>
-                              <a
-                                href={doc.path}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 underline"
+                              <button
+                                onClick={() => window.open(doc.documentURL, "_blank")}
+                                className="doc-view-btn"
                               >
-                                View
-                              </a>
+                                <Eye size={16} />
+                                <span>View</span>
+                              </button>
                             </td>
                           </tr>
                         ))}

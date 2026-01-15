@@ -238,3 +238,4 @@
 
 - fix: part consumption, it was not rendering earlier, just showing the json direclyt
 - feat: menu for dispatch (sf/ssd)
+- fix: history-> documents tab: change to URL to fetch the document directly

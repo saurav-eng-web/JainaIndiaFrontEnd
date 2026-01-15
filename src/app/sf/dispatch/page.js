@@ -277,9 +277,7 @@ function SendDefectivePageContent() {
         Pincode: pincode,
         Weight: totalWeight,
       });
-      console.log("res: ", res);
       if (res?.data?.statusCode === 200) {
-        console.log("inside if");
         const data = res?.data?.data[0];
         setDispatchForm((prev) => ({
           ...prev,
@@ -347,10 +345,6 @@ function SendDefectivePageContent() {
       ),
     },
   ];
-
-  console.log("dispatchForm: ", dispatchForm);
-  console.log("selectedItems: ", selectedItems);
-  console.log("user: ", user);
 
   // <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}> --- Send Defective To NWH
   return (

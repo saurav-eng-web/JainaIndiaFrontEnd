@@ -378,7 +378,6 @@ export default function AddPartPending({ ticketNumber }) {
       toast.error("Failed to submit request. Please try again.");
     }
 
-    console.log("payload: ", payload);
     setSaveConfirmationOpen(false);
   }
 
@@ -463,8 +462,6 @@ export default function AddPartPending({ ticketNumber }) {
       ),
     },
   ];
-
-  console.log("images: ", images);
 
   return (
     <ModalSkeleton title="PO Request" rolesAllowed={["sf/ssd"]} size="xl">

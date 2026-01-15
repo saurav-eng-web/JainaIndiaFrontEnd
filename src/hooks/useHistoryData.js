@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 
 import axiosInstance from "@/api/axiosInstance";
 import { logger } from "@/utils/logger";
@@ -6,7 +7,6 @@ import { logger } from "@/utils/logger";
 export function useHistoryData(activeTicket, user, roleName) {
   const [logData, setLogData] = useState([]);
   const [custDetail, setCustDetail] = useState(null);
-
   // Initialize lazy-loaded data as null to distinguish "not fetched" vs "empty"
   const [partConsumption, setPartConsumption] = useState(null);
   const [documents, setDocuments] = useState(null);
@@ -127,8 +127,12 @@ export function useHistoryData(activeTicket, user, roleName) {
 
     setLoadingTabs((prev) => ({ ...prev, documents: true }));
     try {
-      const res = await axiosInstance.get(`DocumentUpload/ticket/${activeTicket}`);
-      const data = res.data;
+      // const res = await axiosInstance.get(`DocumentUpload/ticket/${activeTicket}`);
+      const res = await axios.post("/api/documents/history-doc", {
+        Ticket_no: activeTicket,
+        userName: user.userName,
+      });
+      const data = res.data?.documents;
       setDocuments(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch documents:", err);

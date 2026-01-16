@@ -33,8 +33,7 @@ function SendDefectivePageContent() {
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalWeight, setTotalWeight] = useState(0);
   const [pincode, setPincode] = useState(0);
-  const [dispatchForm, setDispatchForm] = useState({
-    // courierType: "",
+  const initialDispatchData = {
     type: "",
     warehouse: warehouseId,
     courierCode: "",
@@ -45,7 +44,8 @@ function SendDefectivePageContent() {
     box: "",
     challanDate: "",
     ipAddress: "",
-  });
+  };
+  const [dispatchForm, setDispatchForm] = useState(initialDispatchData);
 
   useEffect(() => {
     let isMounted = true;
@@ -179,6 +179,8 @@ function SendDefectivePageContent() {
       // setTotalPrice(selectedItems.reduce((acc, curr) => acc + curr.TotalPrice, 0));
       // setTotalWeight(selectedItems.reduce((acc, curr) => acc + curr.TotalWeight, 0));
     }
+    setDispatchForm(initialDispatchData);
+    setShowDispatchForm(false);
   };
 
   const handleNext = async () => {
@@ -291,6 +293,7 @@ function SendDefectivePageContent() {
       }
     } catch (error) {
       console.error("Error fetching docket get:", error);
+      toast.error("Something went wrong try again, please try again");
     }
   };
 
@@ -302,17 +305,17 @@ function SendDefectivePageContent() {
     {
       label: "Ticket No",
       key: "ticket_no",
-      size: "lg",
+      size: "md",
     },
     {
       label: "Part Code",
       key: "Part",
-      size: "lg",
+      size: "md",
     },
     {
       label: "Description",
       key: "Part desc.",
-      size: "xl",
+      size: "xxl",
     },
     {
       label: "Quantity",
@@ -339,14 +342,13 @@ function SendDefectivePageContent() {
             type="checkbox"
             checked={selectedItems.some((x) => x.ID === row.ID)}
             onChange={() => toggleSelection(row)}
-            className="size-4 cursor-pointer"
+            className="size-5 cursor-pointer"
           />
         </div>
       ),
     },
   ];
 
-  // <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}> --- Send Defective To NWH
   return (
     <PageSkeleton title="Send Inventory to Warehouse" rolesAllowed={["sf/ssd"]}>
       {/* ---------------- FILTER SECTION ---------------- */}
@@ -386,7 +388,7 @@ function SendDefectivePageContent() {
           <Table columns={columns} rows={tableData} />
 
           {/* NEXT BUTTON */}
-          {selectedItems.length > 0 && (
+          {selectedItems.length > 0 && showDispatchForm === false && (
             <div className="mt-4 text-right">
               <button
                 onClick={handleNext}

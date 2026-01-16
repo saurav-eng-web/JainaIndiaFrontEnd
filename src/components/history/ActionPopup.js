@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import CustomDropdown from "@/components/common/Dropdown";
 import { getAllowedHours, getAllowedMinutes } from "@/utils/historyUtils";
 
@@ -137,9 +136,7 @@ export default function ActionPopup({
             </div>
           </div>
           <div className="mb-6 flex flex-col">
-            <label className="font-medium text-gray-700">
-              Validate Serial Number:
-            </label>
+            <label className="font-medium text-gray-700">Validate Serial Number:</label>
             <input
               type="text"
               placeholder="Enter Serial Number"
@@ -247,9 +244,7 @@ export default function ActionPopup({
                     handleChange("appointmentMinute", "");
                   }}
                   max={
-                    new Date(Date.now() + 72 * 60 * 60 * 1000)
-                      .toISOString()
-                      .split("T")[0]
+                    new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]
                   }
                 />
               </div>

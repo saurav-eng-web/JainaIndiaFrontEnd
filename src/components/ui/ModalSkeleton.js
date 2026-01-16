@@ -29,7 +29,7 @@ export default function ModalSkeleton({
         // className={`flex ${modalSizeMap[size] || modalSizeMap.md} overflow-y-auto rounded-xl bg-yellow-300`}
       >
         <div className="flex-1">
-          <div className="rounded-xl p-8 shadow-lg">
+          <div className="rounded-xl p-8">
             <h2
               className="mb-6 rounded-lg p-2 text-[18px] font-semibold"
               style={{

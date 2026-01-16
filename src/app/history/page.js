@@ -40,6 +40,8 @@ import ProductDetailsTab from "@/components/history/tabs/ProductDetailsTab";
 import ActionButtons from "@/components/history/ActionButtons";
 import ActionPopup from "@/components/history/ActionPopup";
 
+import ReceiveFGPO from "../sf/action/ReceiveFGPO";
+
 const tabs = [
   "Job Details",
   "Customer Detail",
@@ -108,6 +110,7 @@ function HistoryPageContent() {
   const [remark, setRemark] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
   const [engineerData, setEngineerData] = useState([]);
+  const [doaReceivePopup, setDoaReceivePopup] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -283,6 +286,10 @@ function HistoryPageContent() {
       setPartPendingPopup(true);
       return;
     }
+    if (action === "DOA Receive") {
+      setDoaReceivePopup(true);
+      return;
+    }
     setShowActionPopup(true);
     if (action === "Assigned") {
       fetchEngineerData();
@@ -423,6 +430,8 @@ function HistoryPageContent() {
       setPopup({ isOpen: true, message: "Failed request for cancellation" });
     }
   };
+
+  console.log("ative ticket: ", activeTicket);
 
   const handleApprove = async () => {
     // ... Copy logic from original ...
@@ -572,6 +581,13 @@ function HistoryPageContent() {
 
             <Modal open={partPendingPopup} onClose={() => setPartPendingPopup(false)}>
               <AddPartPending ticketNumber={activeTicket} />
+            </Modal>
+
+            <Modal open={doaReceivePopup} onClose={() => setDoaReceivePopup(false)}>
+              <ReceiveFGPO
+                ticketNo={activeTicket}
+                onClose={() => setDoaReceivePopup(false)}
+              />
             </Modal>
           </>
         )}
@@ -897,13 +913,13 @@ function HistoryPageContent() {
                         {visitDetails.map((visit, index) => (
                           <tr key={index}>
                             <td>
-                              {visit.startTime
-                                ? new Date(visit.startTime).toLocaleString()
+                              {visit.vInTime
+                                ? new Date(visit.vInTime).toLocaleString()
                                 : "-"}
                             </td>
                             <td>
-                              {visit.endTime
-                                ? new Date(visit.endTime).toLocaleString()
+                              {visit.vOutTime
+                                ? new Date(visit.vOutTime).toLocaleString()
                                 : "-"}
                             </td>
                             <td>{visit.distance || "0"} km</td>

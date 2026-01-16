@@ -244,3 +244,9 @@
 
 - fix: ip not fetching
 - feat: health check
+
+# 2.3.3
+
+- fix: knowledge portal: refactored code, improve page performance
+- feat: DOA receive
+- feat: part consume, UI

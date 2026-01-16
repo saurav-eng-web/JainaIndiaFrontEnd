@@ -11,38 +11,7 @@ import PageSkeleton from "@/components/ui/PageSkeleton";
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
 import Loading from "@/components/ui/Loading";
-// unit 1 of 3 dispatched qty
-// const rawData = [
-//   {
-//     id: "m5gr84i9",
-//     challanNumber: "CH001",
-//     complaintNumber: "CMP456",
-//     partCode: "PC789",
-//     partDesc: "Engine Oil Filter",
-//     quantity: "3",
-//   },
-//   {
-//     id: "3u1reuv4",
-//     challanNumber: "CH002",
-//     complaintNumber: "CMP123",
-//     partCode: "PC101",
-//     partDesc: "Brake Pads Set",
-//     quantity: "3",
-//   },
-//   {
-//     id: "derv1ws0",
-//     challanNumber: "CH003",
-//     complaintNumber: "CMP789",
-//     partCode: "PC202",
-//     partDesc: "Spark Plug Kit",
-//     quantity: "1",
-//   },
-// ];
-
-// two things: 1. if the user has clicked on the search without any query then we have to disabled the statuses and submit, read only allow
-// 2. if there is a query then we have to enable the statuses and submit
-
-// another thing the type of data will be different
+import RadioOption from "@/components/ui/RadioOption";
 
 export default function ReceivePO() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,7 +27,8 @@ export default function ReceivePO() {
       ...prev,
       [row.id]: value,
     }));
-
+    // TODO: remove the log
+    console.log("selected Items: ", selectedItem);
     const filteredItems = selectedItem.filter((item) => item.id !== row.id);
     const updatedValue = value.toLowerCase();
     const receivedStatus = {
@@ -66,13 +36,17 @@ export default function ReceivePO() {
       damaged: updatedValue === "damaged" ? 1 : 0,
       short: updatedValue === "short" ? 1 : 0,
       wrong: updatedValue === "wrong" ? 1 : 0,
+      Price: Math.round(row.Price),
     };
+
     setSelectedItem([...filteredItems, { ...row, ...receivedStatus }]);
   };
 
   const handleSubmit = async () => {
     const totalItems = tableData.length;
     const selectedCount = Object.keys(selections).length;
+    const prices = selectedItem.map((item) => item.Price);
+    console.log("prices: ", prices);
 
     // const missingItems = expandedData.filter((row) => !selections[row.uniqueKey]);
     const unselectedItems = totalItems - selectedCount;
@@ -84,7 +58,7 @@ export default function ReceivePO() {
     }
 
     const payload = {
-      type: "Receive",
+      type: "Recieve",
       // ChallanNo: tableData[0].ChallanNo,
       payload: { data: selectedItem },
     };
@@ -96,13 +70,13 @@ export default function ReceivePO() {
         res.data?.statusCode === 200 &&
         res.data.statusMsg.includes("PO Received Successfully")
       ) {
-        toast.success(res.data.message);
-      } else {
-        toast.error(res.data.message);
+        toast.success(res.data.statusMsg);
         setSearchQuery("");
         setTableData([]);
         setSelectedItem([]);
         setSelections({});
+      } else {
+        toast.error(res.data.statusMsg);
       }
     } catch (error) {
       toast.error("Something went wrong while submitting, please try again");
@@ -283,31 +257,4 @@ export default function ReceivePO() {
   );
 }
 
-function RadioOption({ name, value, label, checked, onChange, color, actionsAllowed }) {
-  return (
-    <label
-      className={`group flex cursor-pointer items-center space-x-2 ${
-        checked ? "opacity-100" : "opacity-60 hover:opacity-100"
-      }`}
-    >
-      <div className="relative flex items-center">
-        <input
-          type="radio"
-          name={name}
-          value={value}
-          checked={checked}
-          onChange={onChange}
-          disabled={!actionsAllowed}
-          className="peer h-4 w-4 border-slate-300 text-[#714b67] focus:ring-[#714b67]"
-        />
-      </div>
-      <span className={`text-sm font-medium ${checked ? color : "text-slate-600"}`}>
-        {label}
-      </span>
-    </label>
-  );
-}
-
 // unique ids for every items
-// response message for successful submission
-// call updatecomplaint for every complaint numbers, what will the status and substatuses

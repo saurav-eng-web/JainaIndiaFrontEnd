@@ -252,3 +252,4 @@
 - feat: part consume, UI
 - fix: doa receive, routing
 - fix: asm reallot, re allot reject fix
+- update: node version in docker imag

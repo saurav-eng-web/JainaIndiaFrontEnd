@@ -488,6 +488,7 @@ function HistoryPageContent() {
   };
 
   const handleReject = async (submitFalse) => {
+    const now = new Date();
     const payload = {
       ticketNo: formData.tickeT_NO,
       type: "Re-AllotASMReject",
@@ -497,8 +498,10 @@ function HistoryPageContent() {
       ContactPersion: formData.contactPerson || "",
       usrName: loggedInUser,
       usrId: loggedInUserId.toString(),
-      Apptdate: formData.promiseDate,
-      Appttime: formData.promiseTime,
+      // Apptdate: formData.promiseDate,
+      // Appttime: formData.promiseTime,
+      Apptdate: now.toISOString().split("T")[0],
+      Appttime: now.toTimeString().split(" ")[0],
     };
 
     try {

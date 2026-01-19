@@ -184,7 +184,6 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
       render: (val) => val || "Not Available",
     },
   ];
-
   const rows = [
     {
       ticketNo: formData.tickeT_NO || "Not Available",

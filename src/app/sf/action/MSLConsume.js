@@ -14,10 +14,11 @@ import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import Modal from "@/components/ui/Modal";
 import axiosInstance from "@/api/axiosInstance";
 import { updateJob } from "@/utils/commonApis";
+import RadioOption from "@/components/ui/RadioOption";
 
 // ---- MOCK TICKET TABLE ----
 
-export default function MSLConsume({ ticketNumber = "MHSW2502041174241" }) {
+export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
   const { colors } = useTheme();
   const user = useSelector((state) => state.auth.user); // Adjust slice name if needed
 
@@ -95,7 +96,9 @@ export default function MSLConsume({ ticketNumber = "MHSW2502041174241" }) {
 
   const validatePart = async (partCode) => {
     if (!partCode) {
-      return false;
+      return {
+        status: false,
+      };
     }
 
     try {
@@ -106,27 +109,35 @@ export default function MSLConsume({ ticketNumber = "MHSW2502041174241" }) {
       });
       const data = res.data.data;
       const msg = data[0]?.res;
-      console.log("data: ", data);
-      console.log("msg: ", msg);
+
       if (res.data.statusCode === 200 && msg === "Allow Consumption") {
         toast.success("Consumption Allowed");
-        return true;
+        return {
+          status: true,
+          SFReceivePOID: data[0]?.SFReceivePOID,
+          InventoryType: data[0]?.InventoryType,
+        };
       } else {
         toast.error(`${msg}`);
-        return false;
+        return {
+          status: false,
+        };
       }
     } catch (error) {
       console.error("Error validating part:", error);
-      return false;
+      return {
+        status: false,
+      };
     }
   };
 
-  const handlePartSelect = (selectedValue) => {
+  const handlePartSelect = async (selectedValue) => {
     const part = dropdownOptions.find((item) => item.value === selectedValue);
     if (!part) return;
-
-    const validateResult = validatePart(part.value);
-    if (!validateResult) {
+    console.log("selectedValue: ", selectedValue);
+    const validateResult = await validatePart(part.value);
+    console.log("validate:  ", validatePart);
+    if (!validateResult.status) {
       return;
     }
 
@@ -135,6 +146,8 @@ export default function MSLConsume({ ticketNumber = "MHSW2502041174241" }) {
       value: part.value,
       imageUploadRequired: part.imageUploadRequired,
       partId: part.partId,
+      sfPOReceiveId: validateResult.SFReceivePOID,
+      inventoryType: validateResult.InventoryType,
     });
 
     setShowImageUpload(part.imageUploadRequired);
@@ -168,63 +181,35 @@ export default function MSLConsume({ ticketNumber = "MHSW2502041174241" }) {
 
   const handleAddToGrid = async () => {
     if (!selectedPart) return;
-
+    console.log("selectedPa", selectedPart);
     // Check if images are required but not uploaded
     if (showImageUpload && images.length === 0) {
       toast.error("Please upload at least one image!");
       return;
     }
 
-    try {
-      const res = await axiosInstance.post("po-validation/check", {
-        PartCode: selectedPart.value,
-        Type: "stockcheck",
-        TicketNo: ticketNumber,
-      });
+    setGrid((prev) => [
+      ...prev,
+      {
+        partCode: selectedPart.value,
+        desc: selectedPart.label,
+        images: [...images], // Store images in memory
+        imageUploadRequired: selectedPart.imageUploadRequired,
+        sfPOReceiveId: selectedPart.sfPOReceiveId,
+        inventoryType: selectedPart.inventoryType,
+        partId: selectedPart.partId,
+        consume: 1,
+        freshFaulty: 0,
+      },
+    ]);
 
-      const message = res.data?.statusMsg || "";
-      // Check for presence of key data fields to confirm success/data payload
-      if (message.includes("Inventory Type") || message.includes("Price")) {
-        const parts = message.split("|");
-        // Assume the data object is after the first pipe
-        const msgData = parts.length > 1 ? parts[1] : parts[0];
+    setDropdownOptions((prev) =>
+      prev.filter((item) => item.value !== selectedPart.value)
+    );
 
-        const data = parseKeyValueString(msgData);
-
-        setGrid((prev) => [
-          ...prev,
-          {
-            partCode: selectedPart.value,
-            desc: selectedPart.label,
-            images: [...images], // Store images in memory
-            imageUploadRequired: selectedPart.imageUploadRequired,
-          },
-        ]);
-
-        setDropdownOptions((prev) =>
-          prev.filter((item) => item.value !== selectedPart.value)
-        );
-
-        setSelectedPart(null);
-        setShowImageUpload(false);
-        setImages([]);
-      } else {
-        // Handle rejection or simple message cases
-        const parts = message.includes("|") ? message.split("|") : [message];
-        const msg = parts[0];
-        const qty = parts[1] ? parts[1].trim() : null;
-
-        toast.error(
-          <div>
-            <p>{msg}</p>
-            {qty && <p className="mt-1 text-sm">Available Qty: {qty}</p>}
-          </div>
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to validate part");
-    }
+    setSelectedPart(null);
+    setShowImageUpload(false);
+    setImages([]);
   };
 
   const handleDelete = (data) => {
@@ -249,34 +234,6 @@ export default function MSLConsume({ ticketNumber = "MHSW2502041174241" }) {
       });
     }
   };
-
-  // const checkSerialNumber = async () => {
-  //   if (!serialNo) {
-  //     toast.error("Please enter serial number");
-  //     return;
-  //   }
-
-  //   try {
-  //     const partCode = selectedPart.value;
-  //     const res = await axiosInstance.post("CheckSerialNo/CheckSerial", {
-  //       serialNo,
-  //       ticketNo: `${ticketNumber}|${partCode}`,
-  //       pincode: 0,
-  //       type: "partcodeserialno",
-  //     });
-
-  //     if (res.data.message === "Valid serial no") {
-  //       setIsValidSerialNumber(true);
-  //       toast.success("Serial number is valid");
-  //     } else {
-  //       toast.error(res.data.message);
-  //       setIsValidSerialNumber(false);
-  //     }
-  //   } catch (error) {
-  //     toast.error("Invalid serial number");
-  //     console.error(error);
-  //   }
-  // };
 
   function handleSaveClick() {
     setSaveConfirmationOpen(true);
@@ -322,40 +279,20 @@ export default function MSLConsume({ ticketNumber = "MHSW2502041174241" }) {
   async function onConfirmSave() {
     // 1. Upload Images First
 
-    const data = grid.flatMap((item) => {
-      // 1. Create the main part object
-      const mainPart = {
-        partCode: item.partCode,
-        inventoryType: item.inventoryType,
-        price: item.price,
-        serialNo: item.serialNo,
-        partDesc: item.desc,
-        availableQty: item.availableQty,
-        POQty: item.poQty,
-        imageupload: item.images.length > 0 ? "Uploaded" : null,
-      };
+    const data = grid.map((item) => ({
+      PartID: item.partId,
+      PartCode: item.partCode,
+      PartDescription: item.desc,
+      InventoryType: item.inventoryType,
+      SFReceivePOID: item.sfPOReceiveId,
+      freshFaulty: item.freshFaulty,
+      consume: item.consume,
+    }));
 
-      // 2. Check for extra part
-      if (item.extraPartCode && item.extraPartDescription) {
-        const extraPart = {
-          partCode: item.extraPartCode,
-          inventoryType: item.inventoryType,
-          price: 0,
-          serialNo: "",
-          partDesc: item.extraPartDescription,
-          availableQty: 1,
-          POQty: 1,
-          imageupload: null,
-        };
-        return [mainPart, extraPart];
-      }
-
-      return [mainPart];
-    });
     const payload = {
-      TicketNo: ticketNumber,
-      type: "SFPNAPO",
-      data,
+      type: "MSLPartConsume",
+      ticket_no: ticketNumber,
+      data: data,
     };
 
     try {
@@ -390,12 +327,29 @@ export default function MSLConsume({ ticketNumber = "MHSW2502041174241" }) {
   }
 
   /* ---------------- GRID TABLE CONFIG ---------------- */
+  console.log("selectedItems: ", selectedPart);
+  console.log("grid: ", grid);
+
+  const handleStatusChange = (row, statusType) => {
+    setGrid((prev) =>
+      prev.map((item) => {
+        if (item.partCode === row.partCode) {
+          if (statusType === "consume") {
+            return { ...item, consume: 1, freshFaulty: 0 };
+          } else {
+            return { ...item, consume: 0, freshFaulty: 1 };
+          }
+        }
+        return item;
+      })
+    );
+  };
 
   const gridColumns = [
     {
       label: "Part Code",
       key: "partCode",
-      size: "md",
+      size: "lg",
       render: (value) => <div className="font-semibold text-gray-700">{value}</div>,
     },
     {
@@ -419,41 +373,31 @@ export default function MSLConsume({ ticketNumber = "MHSW2502041174241" }) {
       ),
     },
     {
-      label: "Price",
-      key: "price",
-      size: "xs",
-      render: (value) => <span className="font-medium">₹{value}</span>,
-    },
-    {
-      label: "Available Qty",
-      key: "availableQty",
-      size: "xs",
-      render: (value) => (
-        <div className="w-16 rounded border border-gray-300 bg-white py-1 text-center text-sm text-gray-700 shadow-sm">
-          {value}
+      label: "Received Status",
+      key: "received",
+      size: "xxl",
+      render: (_v, row) => (
+        <div className="flex flex-wrap items-center justify-start gap-4">
+          <RadioOption
+            name={row.partCode}
+            value="consume"
+            label="Consume"
+            color="text-green-600"
+            // actionsAllowed={actionsAllowed}
+            checked={row.consume === 1}
+            onChange={() => handleStatusChange(row, "consume")}
+          />
+          <RadioOption
+            name={row.partCode}
+            value="freshFaulty"
+            label="Fresh Faulty"
+            color="text-red-600"
+            // actionsAllowed={actionsAllowed}
+            checked={row.freshFaulty === 1}
+            onChange={() => handleStatusChange(row, "freshFaulty")}
+          />
         </div>
       ),
-    },
-    {
-      label: "PO Qty",
-      key: "poQty",
-      size: "xs",
-      render: (value) => (
-        <div className="w-16 rounded bg-white py-1 text-center text-sm text-gray-900">
-          {value}
-        </div>
-      ),
-    },
-    {
-      label: "Serial Number",
-      key: "serialNo",
-      size: "md",
-      render: (value) =>
-        value ? (
-          <span className="rounded bg-gray-100 px-1 font-mono text-sm">{value}</span>
-        ) : (
-          <span className="text-gray-400">-</span>
-        ),
     },
     {
       label: "",
@@ -472,7 +416,7 @@ export default function MSLConsume({ ticketNumber = "MHSW2502041174241" }) {
   ];
 
   return (
-    <ModalSkeleton title="PO Request" rolesAllowed={["sf/ssd"]} size={"xl"}>
+    <ModalSkeleton title="MSL Part Consume" rolesAllowed={["sf/ssd"]} size={"xl"}>
       {/* PART SELECTION */}
       <div className="mb-6 min-w-4xl rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 className="mb-4 text-sm font-semibold tracking-wide text-gray-900 uppercase">

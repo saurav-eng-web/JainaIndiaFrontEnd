@@ -31,16 +31,21 @@ function maskSensitive(data) {
 
 // Attach token to requests
 axiosInstance.interceptors.request.use((config) => {
-  const userData = localStorage.getItem("userData");
-  if (userData) {
-    const parsed = JSON.parse(userData);
-    if (parsed.token) {
-      config.headers.Authorization = `Bearer ${parsed.token}`;
+  if (typeof window === "undefined") return config;
+
+  try {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsed = JSON.parse(userData);
+      if (parsed.token) {
+        config.headers.Authorization = `Bearer ${parsed.token}`;
+      }
     }
+  } catch {
+    // Ignore corrupted userData
   }
   return config;
 });
-
 let isRedirecting = false;
 
 // Handle API errors + log them

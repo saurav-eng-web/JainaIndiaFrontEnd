@@ -1,5 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
@@ -9,7 +12,6 @@ import Loading from "@/components/ui/Loading";
 import { Button } from "@/components/ui/button";
 
 export default function ReceiveFGPO({ ticketNo, onClose }) {
-  console.log("ticketNo: ", ticketNo);
   const [receivedStatus, setReceivedStatus] = useState("");
   const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -65,15 +67,11 @@ export default function ReceiveFGPO({ ticketNo, onClose }) {
         ],
       };
 
-      console.log("payload: ", payload);
-
       const res = await axiosInstance.post("doa/process", payload);
-      console.log("res: ", res);
-      if (res.data.statusCode === 200 && res.data.statusMsg.includes("Unit recieved")) {
+      if (res.data.statusCode === 200 && res.data.statusMsg.includes("Unit Recieved")) {
         toast.success(`${res.data.statusMsg}`);
         onClose();
       }
-      toast.success(res.data.statusMsg);
     } catch (error) {
       console.error(error.message);
       toast.error("Unable to submit. Please try again.");
@@ -124,7 +122,6 @@ export default function ReceiveFGPO({ ticketNo, onClose }) {
       value: data.Weight,
     },
   ];
-  console.log("data length:", data.length);
   return (
     <ModalSkeleton title={"Receive FG PO"}>
       {isLoading ? (

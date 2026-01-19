@@ -1,7 +1,5 @@
 "use client";
 
-import { type } from "os";
-
 import { useState, useMemo } from "react";
 import { Search, Send } from "lucide-react";
 import toast from "react-hot-toast";
@@ -22,13 +20,14 @@ export default function ReceivePO() {
   const [isLoading, setIsLoaing] = useState(false);
   const { colors } = useTheme();
 
+  // TODO:
+
   const handleStatusChange = (row, value) => {
     setSelections((prev) => ({
       ...prev,
       [row.id]: value,
     }));
     // TODO: remove the log
-    console.log("selected Items: ", selectedItem);
     const filteredItems = selectedItem.filter((item) => item.id !== row.id);
     const updatedValue = value.toLowerCase();
     const receivedStatus = {
@@ -45,8 +44,6 @@ export default function ReceivePO() {
   const handleSubmit = async () => {
     const totalItems = tableData.length;
     const selectedCount = Object.keys(selections).length;
-    const prices = selectedItem.map((item) => item.Price);
-    console.log("prices: ", prices);
 
     // const missingItems = expandedData.filter((row) => !selections[row.uniqueKey]);
     const unselectedItems = totalItems - selectedCount;
@@ -115,8 +112,6 @@ export default function ReceivePO() {
       } else {
         setActionsAllowed(false);
       }
-
-      // console.log("res; ", res.data);
     } catch (error) {
       toast.error("Unable to search challan, please try again");
       console.error("Error searching challan:", error);
@@ -215,11 +210,11 @@ export default function ReceivePO() {
 
   return (
     <PageSkeleton title="Receive PO" rolesAllowed={["sf/ssd"]}>
-      <div className="mb-8 flex items-start gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+      <div className="mb-8 flex items-start gap-4 rounded-lg bg-white py-4 pl-2 sm:flex-row sm:items-center">
         <input
           type="text"
-          placeholder="Search Challan or Part Code..."
-          className="h-10 w-82 rounded-md border border-slate-300 bg-white px-3 py-2 pr-4 pl-9 text-sm ring-offset-white focus-visible:ring-2 focus-visible:ring-[#714b67] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          placeholder="Search Challan"
+          className="h-10 w-82 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:ring-2 focus-visible:ring-[#714b67] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

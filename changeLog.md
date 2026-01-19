@@ -250,3 +250,4 @@
 - fix: knowledge portal: refactored code, improve page performance
 - feat: DOA receive
 - feat: part consume, UI
+- fix: doa receive, routing

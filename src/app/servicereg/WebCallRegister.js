@@ -5,13 +5,15 @@ import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import "./servicereg.css";
 import axios from "axios";
-import axiosInstance from "@/api/axiosInstance";
 
 // import CustomerDetailsStep from "@/components/CallRegisterSteps/CustomerDetailsStep";
+
 import CustomerDetailsStep from "./webCallRegisterSteps/CustomerDetailsStep";
 import AddressDetailsStep from "./webCallRegisterSteps/AddressDetailsStep";
 import ProductDetailsStep from "./webCallRegisterSteps/ProductDetailsStep";
 import ServiceDetailsStep from "./webCallRegisterSteps/ServiceDetailsStep";
+
+import axiosInstance from "@/api/axiosInstance";
 import { logger } from "@/utils/logger";
 
 const steps = [

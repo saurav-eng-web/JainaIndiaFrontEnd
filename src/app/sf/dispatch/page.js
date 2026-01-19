@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 
@@ -13,6 +13,7 @@ import ConfirmModal from "@/components/ui/ConfirmationModal";
 import Table from "@/components/common/Table";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import FormInput from "@/components/ui/FormInput";
+import TextArea from "@/components/ui/Textarea";
 
 function SendDefectivePageContent() {
   const { colors } = useTheme();
@@ -35,7 +36,7 @@ function SendDefectivePageContent() {
   const [pincode, setPincode] = useState(0);
   const initialDispatchData = {
     type: "",
-    warehouse: warehouseId,
+    warehouse: "",
     courierCode: "",
     doc: "",
     remark: "",
@@ -203,7 +204,11 @@ function SendDefectivePageContent() {
         } else {
           setPoptype("submit");
         }
-
+        setDispatchForm({
+          ...dispatchForm,
+          warehouse: warehouseId,
+          type: challanType,
+        });
         setShowConfirm(true);
 
         await fetchAscDetails();
@@ -212,18 +217,7 @@ function SendDefectivePageContent() {
       toast.error("Something went wrong try again");
       console.error(error);
     }
-
-    // setShowConfirm(true);
-
-    // setDispatchForm({
-    //   ...dispatchForm,
-    //   docketNo: "Dkt-" + Date.now(),
-    //   challanDate: new Date().toISOString().slice(0, 10),
-    // });
-
-    // setShowDispatchForm(true);
   };
-
   const onDispatchChange = (e) => {
     setDispatchForm({ ...dispatchForm, [e.target.name]: e.target.value });
   };
@@ -482,7 +476,7 @@ function SendDefectivePageContent() {
               onChange={onDispatchChange}
               type="textarea"
               className="col-span-2"
-              inputClassName="h-14" // slightly taller than h-10 for better UX, or keep h-10 if strict. I'll use h-14 for textarea.
+              inputClassName="h-14"
             />
           </div>
 

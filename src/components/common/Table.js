@@ -1,12 +1,13 @@
 import Loading from "../ui/Loading";
 
 const sizeMap = {
-  xs: "w-20", // very small
-  sm: "w-28", // small
-  md: "w-36", // medium
-  lg: "w-48", // large
-  xl: "w-64", // extra large
-  xxl: "w-80", // very large
+  xs: "w-20 max-w-[5rem]", // 80px
+  sm: "w-28 max-w-[7rem]", // 112px
+  md: "w-36 max-w-[9rem]", // 144px
+  lg: "w-48 max-w-[12rem]", // 192px
+  xl: "w-64 max-w-[16rem]", // 256px
+  xxl: "w-80 max-w-[20rem]", // 320px
+  xxxl: "w-96 max-w-[24rem]", // 384px replacing w-lg with valid w-96
   full: "",
 };
 
@@ -43,7 +44,7 @@ export default function Table({ columns, rows, isLoading = false }) {
               </tr>
             ) : (
               rows.map((row, rowIndex) => (
-                <tr key={rowIndex} className="transition-colors hover:bg-slate-50">
+                <tr key={rowIndex} className="transition-colors hover:bg-slate-100">
                   {columns.map((col) => (
                     <Td
                       key={col.key}
@@ -77,7 +78,7 @@ function Td({ data, sizeClass, render, row, rowIndex }) {
 function Th({ title, sizeClass }) {
   return (
     <th
-      className={`h-12 px-4 py-2 text-left text-[14px] font-semibold wrap-break-word whitespace-normal ${sizeClass || ""} `}
+      className={`h-12 truncate px-2 py-2 text-left text-[14px] font-semibold whitespace-nowrap ${sizeClass || ""} `}
     >
       {title}
     </th>

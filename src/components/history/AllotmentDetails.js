@@ -5,16 +5,18 @@ import toast from "react-hot-toast";
 
 import SectionHeading from "../common/SectionHeading";
 import ThemedButton from "../common/ThemedButton";
+import { Button } from "../ui/button";
+import Table from "../common/Table";
 
 import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
 import { formatIndianDate } from "@/utils/formatDate";
 
-// const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-
 export default function AllotmentDetails({ formData, onChange, onApprove, onReject }) {
   const [engineerData, setEngineerData] = useState([]);
   const [callScheduleData, setCallScheduleData] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingFalse = () => setIsSubmitting(false);
   const { colors } = useTheme();
 
   useEffect(() => {
@@ -156,57 +158,56 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
       toast.error("Please enter ASM remark!");
       return;
     }
-
+    setIsSubmitting(true);
     if (type === "approve") {
-      onApprove();
+      onApprove(submittingFalse);
     } else {
-      onReject();
+      onReject(submittingFalse);
     }
   }
+
+  const columns = [
+    {
+      label: "Ticket No.",
+      key: "ticketNo",
+      size: "lg",
+    },
+    {
+      label: "Talked To",
+      key: "talkedTo",
+      size: "md",
+    },
+    {
+      label: "Request Re-allot date/time",
+      key: "requestTime",
+      size: "lg",
+      render: (val) => val || "Not Available",
+    },
+  ];
+
+  const rows = [
+    {
+      ticketNo: formData.tickeT_NO || "Not Available",
+      talkedTo: callScheduleData?.talkToWhomeAllot || "Not Available",
+      requestTime: callScheduleData?.apptDateandTime
+        ? new Date(callScheduleData.apptDateandTime).toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          })
+        : "Not Available",
+    },
+  ];
 
   return (
     <div className="mb-10 rounded-xl bg-white p-6 shadow-md">
       <div className="mb-10 overflow-hidden">
         <SectionHeading>Previous Appointment Date/Time</SectionHeading>
-        <table className="w-full rounded-xl">
-          <thead>
-            <tr
-              className="border text-left"
-              style={{ background: colors.primary, color: colors.textColor }}
-            >
-              <th className="border px-4 py-2">Ticket No.</th>
-              <th className="border px-4 py-2">Talked to</th>
-              <th className="border px-4 py-2">Request Re-allot date/time</th>
-              {/* <th className="border px-4 py-2">ASC reason</th> */}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border px-4 py-2">
-                {formData.tickeT_NO || "Not Available"}
-              </td>
-              <td className="border px-4 py-2">
-                {callScheduleData?.talkToWhomeAllot || "Not Available"}
-              </td>
-              <td className="border px-4 py-2">
-                {callScheduleData?.apptDateandTime
-                  ? new Date(callScheduleData.apptDateandTime).toLocaleString("en-IN", {
-                      timeZone: "Asia/Kolkata",
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    })
-                  : "Not Available"}
-              </td>
-              {/* <td className="border px-4 py-2">
-                {formData.ascReason || "Not Available"}
-              </td> */}
-            </tr>
-          </tbody>
-        </table>
+        <Table columns={columns} rows={rows} />
       </div>
 
       <SectionHeading>📝Allotment Details</SectionHeading>
@@ -216,45 +217,38 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
 
         {/* ASC + Engineer */}
         <div className="grid grid-cols-3 gap-4">
-          <label className="flex flex-col">
-            <span className="font-semibold">ASC Name:</span>
-            <select
-              className="rounded border p-2"
-              value={formData.ascName}
-              onChange={(e) => onChange("ascName", e.target.value)}
-            >
-              <option value="">-- Select ASC --</option>
-              {formData.ascName && (
-                <option value={formData.ascName}>{formData.ascName}</option>
-              )}
-            </select>
-          </label>
+          <FormSelect
+            label="ASC Name"
+            value={formData.ascName}
+            onChange={(e) => onChange("ascName", e.target.value)}
+            options={
+              formData.ascName
+                ? [{ label: formData.ascName, value: formData.ascName }]
+                : []
+            }
+            placeholder="-- Select ASC --"
+          />
 
-          <label className="flex flex-col">
-            <span className="font-semibold">Engineer Name:</span>
-            <select
-              className="rounded border p-2"
-              value={formData.Eng_ID}
-              onChange={(e) => onChange("eng_ID", e.target.value)}
-            >
-              <option value="">-- Select Engineer --</option>
-              {engineerData &&
-                engineerData.map((data) => (
-                  <option key={data.Eng_ID} value={data.Eng_ID}>
-                    {data.Eng_Name}
-                  </option>
-                ))}
-            </select>
-          </label>
+          <FormSelect
+            label="Engineer Name"
+            value={formData.Eng_ID}
+            onChange={(e) => onChange("eng_ID", e.target.value)}
+            options={
+              engineerData
+                ? engineerData.map((data) => ({
+                    label: data.Eng_Name,
+                    value: data.Eng_ID,
+                  }))
+                : []
+            }
+            placeholder="-- Select Engineer --"
+          />
 
-          <label className="flex flex-col">
-            <span className="font-semibold">ASM Remark:</span>
-            <textarea
-              className="h-9 rounded border p-2"
-              value={formData.asmRemark}
-              onChange={(e) => onChange("asmRemark", e.target.value)}
-            />
-          </label>
+          <FormTextarea
+            label="ASM Remark"
+            value={formData.asmRemark}
+            onChange={(e) => onChange("asmRemark", e.target.value)}
+          />
 
           {/*-------------------------------Re allot checkbox Date NO NOT REMOVE------------------------------ */}
           {/* <label className="mt-6 flex items-center gap-2">
@@ -270,62 +264,47 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
         {/* Appointment Date + Time + Promise Date */}
         <div className="grid grid-cols-3 gap-4">
           {/* Appointment Date */}
-          <label className="flex flex-col">
-            <span className="font-semibold">Appointment Date:</span>
-            <input
-              type="date"
-              className="rounded border p-2"
-              value={formData.appointmentDate}
-              onChange={(e) => onChange("appointmentDate", e.target.value)}
-              min={new Date().toISOString().split("T")[0]}
-              max={new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]}
-            />
-          </label>
+          <FormInput
+            label="Appointment Date"
+            type="date"
+            value={formData.appointmentDate}
+            onChange={(e) => onChange("appointmentDate", e.target.value)}
+            min={new Date().toISOString().split("T")[0]}
+            max={new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]}
+          />
 
           <div className="grid grid-cols-2 gap-4">
-            <label className="flex flex-col">
-              <span className="font-semibold">Hour:</span>
-              <select
-                className="h-11 rounded border p-2"
-                value={formData.appointmentHour}
-                onChange={(e) => onChange("appointmentHour", e.target.value)}
-              >
-                <option value="">--Hour--</option>
-                {getAllowedHours(formData.appointmentDate).map((h) => (
-                  <option key={h} value={h}>
-                    {h}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col">
-              <span className="font-semibold">Minute:</span>
-              <select
-                className="h-11 rounded border p-2"
-                value={formData.appointmentMinute}
-                onChange={(e) => onChange("appointmentMinute", e.target.value)}
-              >
-                <option value="">--Minute--</option>
-                {getAllowedMinutes(
-                  formData.appointmentDate,
-                  formData.appointmentHour
-                ).map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <label className="flex flex-col">
-            <span className="font-semibold">Customer Remark (If Any):</span>
-            <textarea
-              className="h-11 rounded border p-2"
-              value={formData.customerRemark}
-              onChange={(e) => onChange("customerRemark", e.target.value)}
+            <FormSelect
+              label="Hour"
+              value={formData.appointmentHour}
+              onChange={(e) => onChange("appointmentHour", e.target.value)}
+              options={getAllowedHours(formData.appointmentDate).map((h) => ({
+                label: h,
+                value: h,
+              }))}
+              placeholder="--Hour--"
             />
-          </label>
+
+            <FormSelect
+              label="Minute"
+              value={formData.appointmentMinute}
+              onChange={(e) => onChange("appointmentMinute", e.target.value)}
+              options={getAllowedMinutes(
+                formData.appointmentDate,
+                formData.appointmentHour
+              ).map((m) => ({
+                label: m,
+                value: m,
+              }))}
+              placeholder="--Minute--"
+            />
+          </div>
+
+          <FormTextarea
+            label="Customer Remark (If Any)"
+            value={formData.customerRemark}
+            onChange={(e) => onChange("customerRemark", e.target.value)}
+          />
 
           {/*-------------------------------Promise Date NO NOT REMOVE------------------------------ */}
           {/* <label className="flex flex-col">
@@ -356,16 +335,94 @@ export default function AllotmentDetails({ formData, onChange, onApprove, onReje
         {/* Buttons */}
         <div className="mt-4 flex justify-end gap-4">
           <button
+            disabled={isSubmitting}
             className="cursor-pointer rounded border border-gray-300 px-4 py-2 hover:bg-gray-100"
             onClick={() => handleSubmit("reject")}
           >
             Reject
           </button>
-          <ThemedButton type="primary" onClick={() => handleSubmit("approve")}>
+          <Button
+            disabled={isSubmitting}
+            type="primary"
+            onClick={() => handleSubmit("approve")}
+          >
             Approve
-          </ThemedButton>
+          </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// --- Local Styled Components ---
+
+function FormInput({
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  min,
+  max,
+  disabled,
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      {label && <label className="text-sm font-semibold text-gray-700">{label}</label>}
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        min={min}
+        max={max}
+        disabled={disabled}
+        className="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 transition-all outline-none focus:border-purple-500 focus:ring-purple-500"
+      />
+    </div>
+  );
+}
+
+function FormSelect({
+  label,
+  value,
+  onChange,
+  options = [],
+  placeholder = "Select",
+  disabled,
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      {label && <label className="text-sm font-semibold text-gray-700">{label}</label>}
+      <select
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        className="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 transition-all outline-none focus:border-purple-500 focus:ring-purple-500"
+      >
+        <option value="">{placeholder}</option>
+        {options.map((opt, idx) => (
+          <option key={idx} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function FormTextarea({ label, value, onChange, placeholder, rows = 3, disabled }) {
+  return (
+    <div className="flex flex-col gap-1">
+      {label && <label className="text-sm font-semibold text-gray-700">{label}</label>}
+      <textarea
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        rows={rows}
+        disabled={disabled}
+        className="block h-10 w-full resize-none rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 transition-all outline-none focus:border-purple-500 focus:ring-purple-500"
+      />
     </div>
   );
 }

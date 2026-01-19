@@ -7,6 +7,7 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { Eye } from "lucide-react";
+import axios from "axios";
 
 import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
 import SpeicalAllowancePopup from "../rsm/special-allowance/allowancePopup";
@@ -14,6 +15,11 @@ import AddPartPending from "../sf/action/AddPartPending";
 
 import CancelPopup from "./CancelPopup";
 import EditCustPopup from "./EditCustPopup";
+
+import "./history.css";
+import "react-toastify/dist/ReactToastify.css";
+import ReceiveFGPO from "../sf/action/ReceiveFGPO";
+import PartConsume from "../sf/action/PartConsume";
 
 import SideBar from "@/components/SideBar";
 import axiosInstance from "@/api/axiosInstance";
@@ -26,11 +32,7 @@ import Loader from "@/components/common/LoaderComponent";
 import Pagination from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/Modal";
-
-import "./history.css";
-import "react-toastify/dist/ReactToastify.css";
 import { setRouteData } from "@/redux/slices/routeDataSlice";
-
 // Custom Hooks & Components
 import { useHistoryData } from "@/hooks/useHistoryData";
 import { parseStatusMessage } from "@/utils/historyUtils";
@@ -39,8 +41,6 @@ import CustomerDetailTab from "@/components/history/tabs/CustomerDetailTab";
 import ProductDetailsTab from "@/components/history/tabs/ProductDetailsTab";
 import ActionButtons from "@/components/history/ActionButtons";
 import ActionPopup from "@/components/history/ActionPopup";
-
-import ReceiveFGPO from "../sf/action/ReceiveFGPO";
 
 const tabs = [
   "Job Details",
@@ -111,6 +111,7 @@ function HistoryPageContent() {
   const [serialNumber, setSerialNumber] = useState("");
   const [engineerData, setEngineerData] = useState([]);
   const [doaReceivePopup, setDoaReceivePopup] = useState(false);
+  const [partConsumePopup, setPartConsumePopup] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -290,6 +291,10 @@ function HistoryPageContent() {
       setDoaReceivePopup(true);
       return;
     }
+    if (action === "Consume Part") {
+      setPartConsumePopup(true);
+      return;
+    }
     setShowActionPopup(true);
     if (action === "Assigned") {
       fetchEngineerData();
@@ -431,9 +436,7 @@ function HistoryPageContent() {
     }
   };
 
-  console.log("ative ticket: ", activeTicket);
-
-  const handleApprove = async () => {
+  const handleApprove = async (submitFalse) => {
     // ... Copy logic from original ...
     // To save space, implementing briefly or copy-paste relevant parts
     // Wait, original logic was quite long.
@@ -478,12 +481,13 @@ function HistoryPageContent() {
       toast.success("Approved successfully!");
       setTimeout(() => router.back(), 500);
     } catch (err) {
+      submitFalse();
       console.error(err);
       toast.error("Failed to approve");
     }
   };
 
-  const handleReject = async () => {
+  const handleReject = async (submitFalse) => {
     const payload = {
       ticketNo: formData.tickeT_NO,
       type: "Re-AllotASMReject",
@@ -508,6 +512,8 @@ function HistoryPageContent() {
       toast.success("Rejected successfully!");
       setTimeout(() => router.back(), 500);
     } catch (err) {
+      submitFalse();
+
       setPopup({ isOpen: true, message: "Failed to reject" });
     }
   };
@@ -584,9 +590,16 @@ function HistoryPageContent() {
             </Modal>
 
             <Modal open={doaReceivePopup} onClose={() => setDoaReceivePopup(false)}>
-              <ReceiveFGPO
+              <ReceiveFGPO ticketNo={activeTicket} onClose={() => router.back()} />
+            </Modal>
+
+            <Modal open={partConsumePopup} onClose={() => setPartConsumePopup(false)}>
+              <PartConsume
                 ticketNo={activeTicket}
-                onClose={() => setDoaReceivePopup(false)}
+                onClose={() => {
+                  // setPartConsumePopup(false);
+                  router.back();
+                }}
               />
             </Modal>
           </>
@@ -912,16 +925,8 @@ function HistoryPageContent() {
                       <tbody>
                         {visitDetails.map((visit, index) => (
                           <tr key={index}>
-                            <td>
-                              {visit.vInTime
-                                ? new Date(visit.vInTime).toLocaleString()
-                                : "-"}
-                            </td>
-                            <td>
-                              {visit.vOutTime
-                                ? new Date(visit.vOutTime).toLocaleString()
-                                : "-"}
-                            </td>
+                            <td>{visit.vInTime || "-"}</td>
+                            <td>{visit.vOutTime || "-"}</td>
                             <td>{visit.distance || "0"} km</td>
                             <td>{visit.duration || "-"}</td>
                             <td>{visit.startLocation || "-"}</td>

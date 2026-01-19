@@ -146,66 +146,6 @@ export default function Dashboard() {
     fetchDashboardData();
   }, [userInfo]);
 
-  // useEffect(() => {
-  //   const fetchDashboardData = async () => {
-  //     if (!userInfo?.roleID) return;
-
-  //     try {
-  //       let firstID = 0;
-
-  //       if (userInfo?.sF_ID && userInfo.sF_ID !== 0) firstID = userInfo.sF_ID;
-  //       else if (userInfo?.cat_MapID && userInfo.cat_MapID !== 0)
-  //         firstID = userInfo.cat_MapID;
-  //       else if (userInfo?.asmid && userInfo.asmid !== 0) firstID = userInfo.asmid;
-  //       else if (userInfo?.branch_ID && userInfo.branch_ID !== 0)
-  //         firstID = userInfo.branch_ID;
-  //       else if (userInfo?.userID) firstID = userInfo.userID;
-
-  //       const roleID = userInfo.roleID;
-  //       console.log("🔴firstID used →", firstID);
-
-  //       const [roleRes, aggRes] = await Promise.all([
-  //         axiosInstance.get(`/DashboardBucket/role/${roleID}`),
-  //         axiosInstance.get(`/DashboardBucket/aggregation/${firstID}/${roleID}`),
-  //       ]);
-
-  //       console.log("res: ", { roleRes, aggRes });
-  //       const countMap = {};
-  //       aggRes.data.forEach((item) => {
-  //         countMap[item.complaintSubStatus] = item.count;
-  //       });
-  //       console.log("countMap: ", countMap);
-  //       const formattedData = roleRes.data.map((item) => {
-  //         const mapItem = iconMap[item.bucket] || { Icon: MdOutlineHelpOutline };
-  //         // console.log("maptItem: ", mapItem);
-  //         return {
-  //           id: item.id,
-  //           title: item.bucket,
-  //           value: countMap[item.complaintSubStatus] ?? 0,
-  //           complaintStatus: item.complaintStatus,
-  //           complaintSubStatus: item.complaintSubStatus,
-  //           Icon: mapItem.Icon,
-  //           iconColor: mapItem.iconColor,
-  //         };
-  //       });
-  //       console.log("data: ", {
-  //         countMap,
-  //         formattedData,
-  //       });
-
-  //       setDashboardData(formattedData);
-  //     } catch (error) {
-  //       console.error(
-  //         "Error fetching dashboard data:",
-  //         error.response?.status,
-  //         error.response?.data
-  //       );
-  //     }
-  //   };
-
-  //   fetchDashboardData();
-  // }, [userInfo]);
-
   const handleCardClick = (item) => {
     if (item.url) {
       router.push(`/${item.url}`);

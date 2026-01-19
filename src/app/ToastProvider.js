@@ -1,8 +1,9 @@
 "use client";
 
-import { Toaster } from "react-hot-toast";
+import { Toaster, ToastBar, toast } from "react-hot-toast";
 
 import theme from "@/theme/theme";
+import { X } from "lucide-react";
 
 const ToastProvider = () => {
   return (
@@ -30,6 +31,10 @@ const ToastProvider = () => {
           borderRadius: theme.borderRadius,
           fontFamily: theme.fontFamily,
           boxShadow: "0 8px 20px rgba(0, 0, 0, 0.2)", // Increased shadow slightly for the larger box
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          position: "relative", // Needed for absolute positioning of close button
         },
         success: {
           iconTheme: {
@@ -50,7 +55,28 @@ const ToastProvider = () => {
           },
         },
       }}
-    />
+    >
+      {(t) => (
+        <ToastBar toast={t}>
+          {({ icon, message }) => (
+            <>
+              {icon}
+              <div className="flex-1 px-2">{message}</div>
+              {t.type !== "loading" && (
+                <button
+                  onClick={() => toast.dismiss(t.id)}
+                  className="absolute top-2 right-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-lg hover:bg-slate-100"
+                  style={{ color: theme.colors.primary }}
+                  aria-label="Close"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </>
+          )}
+        </ToastBar>
+      )}
+    </Toaster>
   );
 };
 

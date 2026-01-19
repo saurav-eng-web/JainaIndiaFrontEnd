@@ -33,40 +33,6 @@ export default function SpeicalAllowancePopup({ ticketNo }) {
 
   const { nspAmount, nspRemarks, nspAllowanceType } = nspData;
 
-  // useEffect(() => {
-  //   let isMounted = true;
-  //   const fetchAllowanceTypes = async () => {
-  //     if (!ticketNo) return;
-  //     try {
-  //       setIsLoading(true);
-  //       const res = await axiosInstance.post("DropdownMaster/GetDropdown", {
-  //         type: "specialallowance",
-  //         dispatchtype: ticketNo,
-  //       });
-  //       console.log("data: ", res);
-
-  //       if (!isMounted) return;
-  //       setAllowanceTypeOptions(
-  //         res.data?.statusCode === 200
-  //           ? res.data?.data.map((el) => {
-  //               return { label: el.value, value: el.value };
-  //             })
-  //           : []
-  //       );
-  //     } catch (error) {
-  //       console.error(error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   fetchAllowanceTypes();
-
-  //   return () => {
-  //     isMounted = false;
-  //   };
-  // }, [ticketNo]);
-
   if (!nspData) {
     return null; // or loader
   }

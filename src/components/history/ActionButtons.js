@@ -2,7 +2,7 @@ import React from "react";
 
 export default function ActionButtons({ actions, onActionClick }) {
   if (!actions || actions.length === 0) {
-    return <p className="text-gray-500">No actions available.</p>;
+    return <p className="mb-6 ml-6 text-gray-500">No actions available.</p>;
   }
 
   return (

@@ -25,6 +25,7 @@ export default function InputField({
   label,
   value,
   onChange,
+  onBlur,
   placeholder,
   type = "text",
   size = "md",
@@ -57,6 +58,7 @@ export default function InputField({
         type={type}
         value={value}
         onChange={onChange}
+        onBlur={onBlur}
         placeholder={placeholder}
         disabled={disabled}
         className={clsx(

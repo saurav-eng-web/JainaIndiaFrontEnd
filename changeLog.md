@@ -253,3 +253,8 @@
 - fix: doa receive, routing
 - fix: asm reallot, re allot reject fix
 - update: node version in docker imag
+
+# 2.3.4
+- feat: MSL part consume
+- feat: bind MSL part consume with dashboard bucket
+- feat: DOA Closure

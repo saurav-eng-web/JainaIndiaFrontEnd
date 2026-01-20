@@ -6,6 +6,7 @@ import { Trash2, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
@@ -13,14 +14,12 @@ import { useTheme } from "@/theme/ThemeContext";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import Modal from "@/components/ui/Modal";
 import axiosInstance from "@/api/axiosInstance";
-import { updateJob } from "@/utils/commonApis";
 import RadioOption from "@/components/ui/RadioOption";
 
-// ---- MOCK TICKET TABLE ----
-
-export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
+export default function MSLConsume({ ticketNumber }) {
   const { colors } = useTheme();
   const user = useSelector((state) => state.auth.user); // Adjust slice name if needed
+  const router = useRouter();
 
   const [selectedPart, setSelectedPart] = useState(null);
   const [grid, setGrid] = useState([]);
@@ -29,7 +28,7 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
   const [images, setImages] = useState([]);
   const [showImageUpload, setShowImageUpload] = useState(false);
 
-  const normalizeBoolean = (value) => String(value).toLowerCase() === "true";
+  // const normalizeBoolean = (value) => String(value).toLowerCase() === "true";
 
   // REM: This is a mock API call to fetch dropdown data
 
@@ -111,7 +110,7 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
       const msg = data[0]?.res;
 
       if (res.data.statusCode === 200 && msg === "Allow Consumption") {
-        toast.success("Consumption Allowed");
+        // toast.success("Consumption Allowed");
         return {
           status: true,
           SFReceivePOID: data[0]?.SFReceivePOID,
@@ -179,9 +178,9 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleAddToGrid = async () => {
+  const handleAddToTable = async () => {
     if (!selectedPart) return;
-    console.log("selectedPa", selectedPart);
+    console.log("selectedPart: ", selectedPart);
     // Check if images are required but not uploaded
     if (showImageUpload && images.length === 0) {
       toast.error("Please upload at least one image!");
@@ -198,7 +197,7 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
         sfPOReceiveId: selectedPart.sfPOReceiveId,
         inventoryType: selectedPart.inventoryType,
         partId: selectedPart.partId,
-        consume: 1,
+        consume: 0,
         freshFaulty: 0,
       },
     ]);
@@ -236,6 +235,10 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
   };
 
   function handleSaveClick() {
+    if (grid.some((item) => item.consume === 0 && item.freshFaulty === 0)) {
+      toast.error("Please select a status for all items.");
+      return;
+    }
     setSaveConfirmationOpen(true);
   }
 
@@ -252,12 +255,8 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("Ticket_no", ticketNumber);
-            formData.append("DocumentType", "highValuePORequest"); // Updated type
+            formData.append("DocumentType", "highValueMSLRequest"); // Updated type
 
-            // Using axiosInstance or axios?
-            // The file uses axiosInstance generally.
-            // However, the user snippet used a specific path.
-            // I'll use axiosInstance and the path provided.
             try {
               await axios.post("/api/documents/upload", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -276,9 +275,7 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
     }
   };
 
-  async function onConfirmSave() {
-    // 1. Upload Images First
-
+  async function handleSubmit() {
     const data = grid.map((item) => ({
       PartID: item.partId,
       PartCode: item.partCode,
@@ -289,38 +286,37 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
       consume: item.consume,
     }));
 
+    if (data.length === 0) {
+      toast.error("No items to submit.");
+      return;
+    }
+
     const payload = {
       type: "MSLPartConsume",
       ticket_no: ticketNumber,
       data: data,
     };
-
+    console.log("payload: ", payload);
     try {
-      const res = await axiosInstance.post("po/request", payload);
+      const res = await axiosInstance.post("consumption/process", payload);
       const message = res.data?.statusMsg || "";
-      if (message.includes("PO Created")) {
-        const parts = message.split("|");
-        const status = parts[0]?.trim();
-        const subStatus = parts[1]?.trim();
-        const responseMessage = parts[2]?.trim() || "";
-        await updateJob({
-          status,
-          subStatus,
-          message: responseMessage,
-          ticketNumber,
-          loggedInUser: user.userName,
-        });
-
+      const data = res.data?.data;
+      if (
+        res.data.statusCode === 200 &&
+        message === "Record Inserted Successfully" &&
+        data.length > 0
+      ) {
         const uploadSuccess = await handleUpload();
         if (!uploadSuccess) {
           toast.error("Failed to upload some images. Please try again.");
           return;
         }
         toast.success("Request submitted successfully!");
+        router.back();
       }
     } catch (error) {
       console.error("Error submitting request:", error);
-      toast.error("Failed to submit request. Please try again.");
+      toast.error("Failed to submit request. Please try again!");
     }
 
     setSaveConfirmationOpen(false);
@@ -333,14 +329,15 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
   const handleStatusChange = (row, statusType) => {
     setGrid((prev) =>
       prev.map((item) => {
-        if (item.partCode === row.partCode) {
-          if (statusType === "consume") {
-            return { ...item, consume: 1, freshFaulty: 0 };
-          } else {
-            return { ...item, consume: 0, freshFaulty: 1 };
-          }
-        }
-        return item;
+        if (item.partCode !== row.partCode) return item;
+
+        // Logic: if consume, set 1/0, else set 0/1
+        const isConsume = statusType === "consume";
+        return {
+          ...item,
+          consume: isConsume ? 1 : 0,
+          freshFaulty: isConsume ? 0 : 1,
+        };
       })
     );
   };
@@ -437,7 +434,7 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
           <div className="w-24 flex-none">
             {selectedPart && (
               <button
-                onClick={handleAddToGrid}
+                onClick={handleAddToTable}
                 className="h-10 w-full cursor-pointer rounded-lg text-sm font-medium text-white shadow-md transition-transform hover:scale-105 active:scale-95"
                 style={{ background: colors.primary }}
               >
@@ -533,7 +530,7 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
                 borderColor: colors.primary,
               }}
             >
-              Save Changes
+              Submit
             </button>
           </div>
         </div>
@@ -546,8 +543,8 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
       >
         <div className="p-6">
           <h3 className="mb-4 text-lg font-semibold text-gray-900">Confirm Save</h3>
-          <p className="mb-8 text-gray-600">
-            Are you sure you want to save these changes? This action cannot be undone.
+          <p className="mb-8 pr-18 text-gray-600">
+            Are you sure you want to submit the request?
           </p>
           <div className="flex justify-end gap-3">
             <button
@@ -557,7 +554,7 @@ export default function MSLConsume({ ticketNumber = "MHSL250203172772VS" }) {
               Cancel
             </button>
             <button
-              onClick={onConfirmSave}
+              onClick={handleSubmit}
               className="cursor-pointer rounded-lg px-4 py-2 text-white transition-transform hover:scale-105 active:scale-95"
               style={{ background: colors.primary }}
             >

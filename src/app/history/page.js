@@ -12,14 +12,15 @@ import axios from "axios";
 import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
 import SpeicalAllowancePopup from "../rsm/special-allowance/allowancePopup";
 import AddPartPending from "../sf/action/AddPartPending";
+import PartConsume from "../sf/action/PartConsume";
+import ReceiveFGPO from "../sf/action/ReceiveFGPO";
+import MSLConsume from "../sf/action/MSLConsume";
 
 import CancelPopup from "./CancelPopup";
 import EditCustPopup from "./EditCustPopup";
 
 import "./history.css";
 import "react-toastify/dist/ReactToastify.css";
-import ReceiveFGPO from "../sf/action/ReceiveFGPO";
-import PartConsume from "../sf/action/PartConsume";
 
 import SideBar from "@/components/SideBar";
 import axiosInstance from "@/api/axiosInstance";
@@ -102,16 +103,17 @@ function HistoryPageContent() {
   const [partPendingPopup, setPartPendingPopup] = useState(false);
 
   // --- Action Popup State ---
-  const [showActionPopup, setShowActionPopup] = useState(false);
-  const [selectedAction, setSelectedAction] = useState("");
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [cancelReasons, setCancelReasons] = useState([]);
   const [selectedReason, setSelectedReason] = useState("");
   const [remark, setRemark] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
   const [engineerData, setEngineerData] = useState([]);
+  const [showActionPopup, setShowActionPopup] = useState(false);
+  const [selectedAction, setSelectedAction] = useState("");
   const [doaReceivePopup, setDoaReceivePopup] = useState(false);
   const [partConsumePopup, setPartConsumePopup] = useState(false);
+  const [MSLPartConsumePopup, setMSLPartConsumePopup] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -293,6 +295,10 @@ function HistoryPageContent() {
     }
     if (action === "Consume Part") {
       setPartConsumePopup(true);
+      return;
+    }
+    if (action === "Consume Part From MSL") {
+      setMSLPartConsumePopup(true);
       return;
     }
     setShowActionPopup(true);
@@ -604,6 +610,13 @@ function HistoryPageContent() {
                   router.back();
                 }}
               />
+            </Modal>
+
+            <Modal
+              open={MSLPartConsumePopup}
+              onClose={() => setMSLPartConsumePopup(false)}
+            >
+              <MSLConsume ticketNumber={activeTicket} />
             </Modal>
           </>
         )}

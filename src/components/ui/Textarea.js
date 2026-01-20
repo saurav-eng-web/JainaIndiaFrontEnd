@@ -58,10 +58,10 @@ export default function TextArea({
         onChange={onChange}
         placeholder={placeholder}
         disabled={disabled}
-        rows={rows}
+        rows={1}
         className={clsx(
-          "resize-none rounded-lg border-2 border-[#714b67] bg-white transition-all outline-none",
-          "focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]",
+          "resize-none rounded-lg border border-gray-300 bg-white transition-all outline-none",
+          "focus:border-[#714b67] focus:ring-1 focus:ring-gray-400",
           disabled && "cursor-not-allowed bg-gray-100",
           error && "border-red-500 focus:border-red-500 focus:ring-red-500",
           styles.textarea

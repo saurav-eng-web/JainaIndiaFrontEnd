@@ -2,13 +2,13 @@ import React from "react";
 
 const VARIANT_CLASSES = {
   primary: "bg-[#714b67] text-white hover:bg-[#5e3f56] focus:ring-[#714b67]",
-  danger:
+  simple:
     "border-1 border-[#714b67] text-[#714b67] hover:text-[#5e3f56] focus:border-[#dc3545]",
 };
 
 export function Button({
   children,
-  variant = "primary", // primary | danger
+  variant = "primary", // primary | simple
   className = "",
   ...props
 }) {

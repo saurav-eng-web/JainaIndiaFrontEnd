@@ -258,3 +258,6 @@
 - feat: MSL part consume
 - feat: bind MSL part consume with dashboard bucket
 - feat: DOA Closure
+- feat: bind DOA closure to action button
+- fix: DOA closure payload
+- 

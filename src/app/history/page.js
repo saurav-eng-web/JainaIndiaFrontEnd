@@ -43,6 +43,8 @@ import ProductDetailsTab from "@/components/history/tabs/ProductDetailsTab";
 import ActionButtons from "@/components/history/ActionButtons";
 import ActionPopup from "@/components/history/ActionPopup";
 
+import DOAClosure from "../sf/action/DOAClosure";
+
 const tabs = [
   "Job Details",
   "Customer Detail",
@@ -114,6 +116,7 @@ function HistoryPageContent() {
   const [doaReceivePopup, setDoaReceivePopup] = useState(false);
   const [partConsumePopup, setPartConsumePopup] = useState(false);
   const [MSLPartConsumePopup, setMSLPartConsumePopup] = useState(false);
+  const [DOAConsumePopup, setDOAConsumePopup] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -299,6 +302,10 @@ function HistoryPageContent() {
     }
     if (action === "Consume Part From MSL") {
       setMSLPartConsumePopup(true);
+      return;
+    }
+    if (action === "Call Closure") {
+      setDOAConsumePopup(true);
       return;
     }
     setShowActionPopup(true);
@@ -568,7 +575,6 @@ function HistoryPageContent() {
           <>
             <h2 className="page-title">👉 Action</h2>
             <ActionButtons actions={actions} onActionClick={handleActionClick} />
-
             <ActionPopup
               isOpen={showActionPopup}
               onClose={() => setShowActionPopup(false)}
@@ -593,13 +599,18 @@ function HistoryPageContent() {
               engineerData={engineerData}
               handleAssigned={handleAssigned}
             />
-
             <Modal open={partPendingPopup} onClose={() => setPartPendingPopup(false)}>
               <AddPartPending ticketNumber={activeTicket} />
             </Modal>
-
             <Modal open={doaReceivePopup} onClose={() => setDoaReceivePopup(false)}>
               <ReceiveFGPO ticketNo={activeTicket} onClose={() => router.back()} />
+            </Modal>
+            <Modal open={DOAConsumePopup} onClose={() => setDOAConsumePopup(false)}>
+              <DOAClosure
+                ticketNo={activeTicket}
+                model={detail.model}
+                oldSerialNumber={detail.seriaL_NO}
+              />
             </Modal>
 
             <Modal open={partConsumePopup} onClose={() => setPartConsumePopup(false)}>
@@ -611,7 +622,6 @@ function HistoryPageContent() {
                 }}
               />
             </Modal>
-
             <Modal
               open={MSLPartConsumePopup}
               onClose={() => setMSLPartConsumePopup(false)}

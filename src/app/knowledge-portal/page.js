@@ -109,7 +109,7 @@ const KnowledgePortal = () => {
   };
 
   return (
-    <PageSkeleton title="Knowledge Portal" rolesAllowed={["asm", "br"]}>
+    <PageSkeleton title="Knowledge Portal" rolesAllowed={["asm", "br", "sf/ssd"]}>
       <div className="overflow-x-auto rounded-md border border-slate-300">
         <div className="overflow-x-auto rounded-md border border-slate-300">
           <Table columns={columns} rows={documents} isLoading={isDataLoading} />

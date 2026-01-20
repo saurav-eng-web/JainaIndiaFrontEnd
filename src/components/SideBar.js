@@ -113,7 +113,7 @@ export default function SideBar() {
       href: "/knowledge-portal",
       icon: "fa fa-files-o",
       text: "Knowledge Portal",
-      roles: ["ASM", "BR"],
+      roles: ["ASM", "BR", "SF/SSD"],
     },
     {
       href: "/nsp/special-approval",

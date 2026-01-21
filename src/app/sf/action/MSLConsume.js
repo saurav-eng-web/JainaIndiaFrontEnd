@@ -255,7 +255,7 @@ export default function MSLConsume({ ticketNumber }) {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("Ticket_no", ticketNumber);
-            formData.append("DocumentType", "highValueMSLRequest"); // Updated type
+            formData.append("DocumentType", "HVP Parts"); // Updated type
 
             try {
               await axios.post("/api/documents/upload", formData, {

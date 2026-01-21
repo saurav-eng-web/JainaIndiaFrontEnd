@@ -12,6 +12,7 @@ import axiosInstance from "@/api/axiosInstance";
 import { getUserFromLocalStorage } from "@/redux/slices/authSlice";
 import { exportToExcel } from "@/utils/exportToExcel";
 import Pagination from "@/components/Pagination";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 /* ---------------- COLUMN WIDTH CONFIG ---------------- */
 
@@ -57,8 +58,6 @@ const excelColumns = tableHeaders.map((h) => ({
   label: h,
   key: h,
 }));
-
-/* ---------------- MAIN CONTENT ---------------- */
 
 function DetailsContent() {
   const userData = getUserFromLocalStorage();
@@ -161,99 +160,86 @@ function DetailsContent() {
       }
     );
   };
-
+  // pending challan at warehouse
   return (
-    <ProtectedRoute allowedRoles={["ASM", "ZONE", "BR", "SF/SSD"]}>
-      <SideBar />
+    <PageSkeleton
+      title={"Pending Challan at Warehouse"}
+      rolesAllowed={["ASM", "ZONE", "BR", "SF/SSD"]}
+    >
+      {/* ---------------- SEARCH INPUT ---------------- */}
+      <input
+        type="text"
+        placeholder="Search..."
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setCurrentPage(1); // reset page on search
+        }}
+        className="mb-6 h-11 w-72 rounded-lg border-2 border-[#714b67] px-3 py-2 text-sm focus:ring-1 focus:ring-[#714b67] focus:outline-none"
+      />
 
-      <div className="flex min-h-screen w-full flex-col font-sans">
-        <div className="mx-auto w-full max-w-[1400px] p-4">
-          <div className="space-y-8 rounded-xl p-6 sm:p-10">
-            <h2 className="mb-8 rounded-md border-2 border-[#714b67] p-2 text-lg font-bold text-[#714b67]">
-              Pending Challans at Warehouse
-            </h2>
+      {/* ---------------- TABLE ---------------- */}
+      <div className="overflow-x-hidden rounded-md border border-slate-300">
+        <table className="w-full table-fixed border-separate border-spacing-0">
+          <thead className="bg-[#714b67]">
+            <tr>
+              {tableHeaders.map((header) => (
+                <Th key={header} title={header} />
+              ))}
+            </tr>
+          </thead>
 
-            {/* ---------------- SEARCH INPUT ---------------- */}
-            <input
-              type="text"
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setCurrentPage(1); // reset page on search
-              }}
-              className="h-11 w-72 rounded-lg border-2 border-[#714b67] px-3 py-2 text-sm focus:ring-1 focus:ring-[#714b67] focus:outline-none"
-            />
-
-            {/* ---------------- TABLE ---------------- */}
-            <div className="overflow-x-hidden rounded-md border border-slate-300">
-              <table className="w-full table-fixed border-separate border-spacing-0">
-                <thead className="bg-[#714b67]">
-                  <tr>
-                    {tableHeaders.map((header) => (
-                      <Th key={header} title={header} />
-                    ))}
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {isDataLoading ? (
-                    <tr>
-                      <td
-                        colSpan={tableHeaders.length}
-                        className="p-4 text-center text-slate-500"
-                      >
-                        Loading...
-                      </td>
-                    </tr>
-                  ) : paginatedRows.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={tableHeaders.length}
-                        className="p-4 text-center text-slate-500"
-                      >
-                        No data available
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedRows.map((row, rowIndex) => (
-                      <tr key={rowIndex} className="hover:bg-[#f1faff]">
-                        {columnOrder.map((key, colIndex) => (
-                          <Td
-                            key={`${rowIndex}-${colIndex}`}
-                            data={row[key]}
-                            header={key}
-                          />
-                        ))}
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* ---------------- PAGINATION ---------------- */}
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              setPageSize={setPageSize}
-              setCurrentPage={setCurrentPage}
-            />
-
-            {/* ---------------- EXCEL BUTTON ---------------- */}
-            {!isDataLoading && challanData.length > 0 && (
-              <button
-                onClick={handleExcelDownload}
-                className="fixed right-6 bottom-6 z-50 rounded-full bg-[#714b67] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-[#57324d]"
-              >
-                Export to Excel
-              </button>
+          <tbody>
+            {isDataLoading ? (
+              <tr>
+                <td
+                  colSpan={tableHeaders.length}
+                  className="p-4 text-center text-slate-500"
+                >
+                  Loading...
+                </td>
+              </tr>
+            ) : paginatedRows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={tableHeaders.length}
+                  className="p-4 text-center text-slate-500"
+                >
+                  No data available
+                </td>
+              </tr>
+            ) : (
+              paginatedRows.map((row, rowIndex) => (
+                <tr key={rowIndex} className="hover:bg-[#f1faff]">
+                  {columnOrder.map((key, colIndex) => (
+                    <Td key={`${rowIndex}-${colIndex}`} data={row[key]} header={key} />
+                  ))}
+                </tr>
+              ))
             )}
-          </div>
-        </div>
+          </tbody>
+        </table>
       </div>
-    </ProtectedRoute>
+
+      {/* ---------------- PAGINATION ---------------- */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+        setCurrentPage={setCurrentPage}
+      />
+
+      {/* ---------------- EXCEL BUTTON ---------------- */}
+      {!isDataLoading && challanData.length > 0 && (
+        <button
+          onClick={handleExcelDownload}
+          className="fixed right-6 bottom-6 z-50 rounded-full bg-[#714b67] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-[#57324d]"
+        >
+          Export to Excel
+        </button>
+      )}
+    </PageSkeleton>
   );
 }
 

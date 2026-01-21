@@ -1,3 +1,5 @@
+import { Button } from "../ui/button";
+
 import CustomDropdown from "@/components/common/Dropdown";
 import { getAllowedHours, getAllowedMinutes } from "@/utils/historyUtils";
 
@@ -85,7 +87,7 @@ export default function ActionPopup({
               <div className="mt-3 flex justify-end gap-3">
                 <button
                   onClick={() => setConfirmCancel(false)}
-                  className="rounded-md bg-gray-300 px-4 py-1 text-gray-800 hover:bg-gray-400"
+                  className="w-18 rounded-md border border-[#714b67] bg-gray-100 px-4 py-1 text-gray-900 hover:bg-gray-400"
                 >
                   No
                 </button>
@@ -94,7 +96,7 @@ export default function ActionPopup({
                     setConfirmCancel(false);
                     handleSubmitCancellation();
                   }}
-                  className="rounded-md bg-red-600 px-4 py-1 text-white hover:bg-red-700"
+                  className="rounded-md bg-[#714b67] px-4 py-1 text-white shadow-sm hover:bg-red-700"
                 >
                   Yes, Submit
                 </button>
@@ -104,12 +106,7 @@ export default function ActionPopup({
 
           {/* Buttons */}
           <div className="mt-6 flex justify-end gap-4">
-            <button
-              onClick={() => setConfirmCancel(true)}
-              className="rounded-md bg-red-600 px-5 py-2 text-white transition hover:bg-red-700"
-            >
-              Submit Cancellation
-            </button>
+            <Button onClick={() => setConfirmCancel(true)}>Request Cancellation</Button>
           </div>
         </div>
       ) : selectedAction === "WIP" ? (

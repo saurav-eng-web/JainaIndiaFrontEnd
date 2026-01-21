@@ -20,7 +20,6 @@ export default function ModalSkeleton({
     full: "w-[90vw] min-h-[80vh]",
     content: "w-fit min-h-fit max-w-[95vw]",
   };
-  console.log("size: ", size);
   return (
     <ProtectedRoute allowedRoles={rolesAllowed}>
       <div

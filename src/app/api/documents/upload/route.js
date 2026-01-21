@@ -8,7 +8,7 @@ export async function POST(req) {
     form.append("accessCode", process.env.DOC_ACCESSCODE);
     form.append("username", process.env.DOC_USERNAME);
     form.append("password", process.env.DOC_PASSWORD);
-
+    console.log("formData, route: ", form);
     const apiUrl = `${process.env.DOC_BASE_URL}/DocumentUpload/upload`;
 
     const res = await fetch(apiUrl, {

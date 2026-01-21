@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { Upload } from "lucide-react";
+import { uploadImage } from "@/utils/uploadImage";
 
 import { Button } from "@/components/ui/button";
-import ImageUpload from "@/components/ui/ImageUpload";
 import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import axiosInstance from "@/api/axiosInstance";
+import ImagePreview from "@/components/ui/image/ImagePreview";
+import ImageUpload from "@/components/ui/image/ImageUpload";
 // import TextArea from "@/components/ui/Textarea";
 
 // status, substatus =  doa approved
@@ -17,9 +21,22 @@ export default function DOAClosure({ ticketNo, oldSerialNumber, model }) {
   const [happyCode, setHappyCode] = useState(false);
   const [validHappyCode, setValidHappyCode] = useState(false);
   const [images, setImages] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [remarks, setRemarks] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!images || images.length === 0) {
+      setPreviews([]);
+      return;
+    }
+
+    const newPreviews = images.map((file) => URL.createObjectURL(file));
+    setPreviews(newPreviews);
+
+    return () => newPreviews.forEach((url) => URL.revokeObjectURL(url));
+  }, [images]);
 
   async function handleSerialCheck() {
     if (!serialNumber) {
@@ -75,6 +92,30 @@ export default function DOAClosure({ ticketNo, oldSerialNumber, model }) {
     }
   };
 
+  const handleUpload = async () => {
+    try {
+      if (!images || images.length === 0) return true;
+
+      // Use the generic uploadImage utility which supports multiple files
+      const result = await uploadImage({
+        file: images,
+        ticketNo: ticketNo,
+        documentType: "DOA Closure",
+      });
+
+      if (!result.success) {
+        console.error("Upload failed:", result.error);
+        toast.error("Failed to upload images");
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error("Global Upload error", err);
+      return false;
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validSerial || !validHappyCode) {
       toast.error("Please validate serial number and happy code.");
@@ -119,7 +160,11 @@ export default function DOAClosure({ ticketNo, oldSerialNumber, model }) {
         res.data?.data.length > 0
       ) {
         if (images.length > 0) {
-          await handleUpload();
+          const uploadSuccess = await handleUpload();
+          if (!uploadSuccess) {
+            toast.error("Some images failed to upload");
+            // Continue to close? Usually yes, but warn.
+          }
         }
         toast.success("Call closed successfully");
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -136,7 +181,10 @@ export default function DOAClosure({ ticketNo, oldSerialNumber, model }) {
   };
 
   const handleImageSelect = (e) => {
-    const files = Array.from(e.target.files || []);
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+
+    const files = Array.from(fileList);
 
     // Validate total count
     if (images.length + files.length > 5) {
@@ -160,43 +208,7 @@ export default function DOAClosure({ ticketNo, oldSerialNumber, model }) {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleUpload = async () => {
-    try {
-      let allSuccess = true;
-
-      //   for (const item of grid) {
-      //   if (item.images && item.images.length > 0) {
-      //     for (const file of item.images) {
-      if (!images) return;
-
-      const formData = new FormData();
-      formData.append("file", images);
-      formData.append("Ticket_no", ticketNumber);
-      formData.append("DocumentType", "DOAClosure"); 
-
-      // Using axiosInstance or axios?
-      // The file uses axiosInstance generally.
-      // However, the user snippet used a specific path.
-      // I'll use axiosInstance and the path provided.
-      try {
-        await axios.post("/api/documents/upload", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-      } catch (err) {
-        console.error("Upload error for file", file.name, err);
-        allSuccess = false;
-      }
-      //     }
-      //   }
-      //   }
-      return allSuccess;
-    } catch (err) {
-      console.error("Global Upload error", err);
-      return false;
-    }
-  };
-
-
+  const isUploadDisabled = !validSerial || !validHappyCode;
 
   // TODO: Valid serial no
   return (
@@ -221,6 +233,7 @@ export default function DOAClosure({ ticketNo, oldSerialNumber, model }) {
 
         <ImageUpload
           label={"Image"}
+          variant="input"
           multiple
           disabled={!validSerial || !validHappyCode}
           onChange={(e) => handleImageSelect(e)}
@@ -233,8 +246,19 @@ export default function DOAClosure({ ticketNo, oldSerialNumber, model }) {
           required={true}
         />
       </div>
+
+      {/* Preview Section */}
+      {previews.length > 0 && (
+        <div className="mt-6 rounded-lg border bg-white p-4">
+          <h4 className="mb-2 text-sm font-semibold text-gray-700">
+            Selected Images ({previews.length}/5)
+          </h4>
+          <ImagePreview images={previews} onRemove={handleRemoveImage} />
+        </div>
+      )}
+
       <div className="mt-10 flex justify-end gap-4">
-        <Button disabled={isSubmitting} onClick={() => router.back()} variant="simple">
+        <Button disabled={isSubmitting} onClick={() => router.back()} variant="outline">
           Back
         </Button>
         <Button disabled={isSubmitting} onClick={handleSubmit}>

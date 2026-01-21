@@ -174,7 +174,7 @@ export default function Dashboard() {
     router.push(`/nsp/dashboardcall?d=${encoded}`);
   };
 
-  // <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}>
+
   return (
     <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}>
       <div className="flex">

@@ -33,7 +33,7 @@ function ConfirmModal({
         <div className="mt-6 flex justify-end gap-3">
           {type === "submit" ? (
             <>
-              <Button className="h-9!" onClick={onCancel} variant="simple">
+              <Button className="h-9!" onClick={onCancel} variant="outline">
                 No
               </Button>
 

@@ -357,7 +357,7 @@ function HistoryPageContent() {
         setShowActionPopup(false);
       }
     } catch (error) {
-      alert("Failed to submit cancellation.");
+      toast.error("Failed to submit cancellation.");
     }
   };
 

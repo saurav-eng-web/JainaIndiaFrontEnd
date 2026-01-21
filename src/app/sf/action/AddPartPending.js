@@ -287,7 +287,7 @@ export default function AddPartPending({ ticketNumber }) {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("Ticket_no", ticketNumber);
-            formData.append("DocumentType", "highValuePORequest"); // Updated type
+            formData.append("DocumentType", "HVP Parts"); // Updated type
 
             // Using axiosInstance or axios?
             // The file uses axiosInstance generally.

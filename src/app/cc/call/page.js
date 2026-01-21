@@ -291,7 +291,6 @@ function CallRegisterInner({ showSidebar = true }) {
         }
       );
     } catch (error) {
-      // Optional: handle silently or report to monitoring service
       console.error("SMS send failed:", error.message);
     }
   }

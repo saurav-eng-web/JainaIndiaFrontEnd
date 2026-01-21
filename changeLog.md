@@ -260,4 +260,6 @@
 - feat: DOA Closure
 - feat: bind DOA closure to action button
 - fix: DOA closure payload
-- 
+- feat: Image pendign for HVP
+- fix: Image upload
+- fix: image upload route

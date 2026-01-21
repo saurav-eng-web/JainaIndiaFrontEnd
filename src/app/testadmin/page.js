@@ -9,6 +9,7 @@ import MSLConsume from "../sf/action/MSLConsume";
 import DOAClosure from "../sf/action/DOAClosure";
 
 import Bucket from "./bucket";
+import DOAClosureTest from "./test";
 
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import Modal from "@/components/ui/Modal";
@@ -27,7 +28,10 @@ export default function TestComponent() {
         <Button onClick={() => setIsopen(true)}>MSL</Button>
         <Button onClick={() => setIsopenD(true)}>DOA</Button>
         <Button onClick={() => setIsopenR(true)}>Open</Button>
+        <Button onClick={() => setIsopenR(true)}>Open</Button>
       </div>
+
+      <DOAClosureTest />
 
       {isOpenR && <Bucket />}
       <Modal open={isOpen} onClose={() => setIsopen(false)}>

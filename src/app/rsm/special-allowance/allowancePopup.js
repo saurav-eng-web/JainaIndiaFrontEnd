@@ -201,7 +201,7 @@ export default function SpeicalAllowancePopup({ ticketNo }) {
             </div>
 
             <div className="flex justify-end">
-              <Button variant="simple" onClick={handleReject} className="mt-6 mr-4 w-24">
+              <Button variant="outline" onClick={handleReject} className="mt-6 mr-4 w-24">
                 Reject
               </Button>
               <Button onClick={handleApprove} className="mt-6 w-24">

@@ -36,6 +36,8 @@ export default function ImageUpload({
   disabled = false,
   variant = "input", // "input" | "box"
   accept = "image/*",
+  maxFileSize = 5,
+  maxFileAllowed = 5,
 }) {
   const styles = sizeMap[size] || sizeMap.md;
 
@@ -91,7 +93,7 @@ export default function ImageUpload({
               Click to upload images
             </span>
             <span className="text-xs text-gray-500">
-              Max 5 images. Supported formats: JPG, PNG (Max 5MB)
+              {`Max ${maxFileAllowed} images. Supported formats: JPG, PNG (Max ${maxFileSize}MB)`}
             </span>
             <input
               id={id || name}

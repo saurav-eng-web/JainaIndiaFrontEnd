@@ -5,6 +5,7 @@ export const fetchCache = "force-no-store";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, Suspense } from "react";
+import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
 import { getUserFromLocalStorage } from "../../../../redux/slices/authSlice";
@@ -91,7 +92,7 @@ function DetailsContent() {
   const handleUpload = async () => {
     try {
       if (!file) {
-        alert("Please select a file");
+        toast.error("Please select a file");
         return { success: false };
       }
 
@@ -114,7 +115,7 @@ function DetailsContent() {
 
   const handleSave = async () => {
     if (!remarks) {
-      alert("Please enter remarks");
+      toast.error("Please enter remarks");
       return;
     }
     setIsDataLoading(true);
@@ -123,7 +124,7 @@ function DetailsContent() {
     const uploadResult = await handleUpload();
 
     if (!uploadResult.success) {
-      alert("File upload failed. Please try again.");
+      toast.error("File upload failed. Please try again.");
       setIsDataLoading(false);
       return;
     }
@@ -138,7 +139,7 @@ function DetailsContent() {
         Remarks: remarks,
       });
 
-      alert("Saved successfully");
+      toast.error("Saved successfully");
     } catch (err) {
       console.error("Save error", err);
       logger.error(`Save error ${err.message}`, "claim-approve/details");

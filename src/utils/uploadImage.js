@@ -14,11 +14,12 @@ async function uploadImage({ file, ticketNo, documentType }) {
   }
   try {
     const formData = new FormData();
-    if (Array.isArray(file)) {
-      file.forEach((f) => formData.append("file", f));
-    } else {
-      formData.append("file", file);
-    }
+    // if (Array.isArray(file)) {
+    //   file.forEach((f) => formData.append("file", f));
+    // } else {
+    //   formData.append("file", file);
+    // }
+    formData.append("file", file);
 
     formData.append("Ticket_no", ticketNo);
     formData.append("DocumentType", documentType);

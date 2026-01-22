@@ -185,7 +185,9 @@ export default function WarrantyForm() {
         toast.error("This serial number is already registered.");
         return;
       }
-    } catch {}
+    } catch {
+      console.error("Serial number not registered yet");
+    }
 
     // 🔹 Upload invoice first
     let uploadedFileName = null;

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import ImagePreview from "@/components/ui/image/ImagePreview";
 import ImageUpload from "@/components/ui/image/ImageUpload";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
+import UploadProgress from "@/components/ui/UploadProgress";
 import { logger } from "@/utils/logger";
 import { uploadImage } from "@/utils/uploadImage";
 
@@ -14,6 +15,8 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentFileInfo, setCurrentFileInfo] = useState(null);
 
   const MAX_SIZE_MB = 5;
   const MAX_FILES = 5;
@@ -64,11 +67,15 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
     }
 
     try {
-      // Upload all files as a single request (supported by uploadImage now)
+      // Upload all files one by one with progress tracking
       const res = await uploadImage({
-        file: files,
+        files: files,
         ticketNo: userId || ticketNo,
         documentType: "HVP Parts",
+        onProgress: (percent, current, total) => {
+          setUploadProgress(percent);
+          setCurrentFileInfo({ current, total });
+        },
       });
       console.log("upload image res: ", res);
       return res;
@@ -80,6 +87,8 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
 
   const handleSubmit = async () => {
     setIsDataLoading(true);
+    setUploadProgress(0);
+    setCurrentFileInfo(null);
 
     // 1) Upload files
     const uploadResult = await handleUpload();
@@ -87,6 +96,8 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
     if (!uploadResult.success) {
       toast.error("File upload failed. Please try again.");
       setIsDataLoading(false);
+      setUploadProgress(0);
+      setCurrentFileInfo(null);
       return;
     }
 
@@ -111,9 +122,9 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
       toast.error("Save failed. Please try again.");
     } finally {
       setIsDataLoading(false);
+      setUploadProgress(0);
+      setCurrentFileInfo(null);
     }
-
-    setIsDataLoading(false);
   };
 
   return (
@@ -131,6 +142,13 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
             <ImagePreview images={previews} onRemove={handleRemove} />
           </div>
         )}
+
+        {/* Progress Bar Section */}
+        <UploadProgress
+          progress={uploadProgress}
+          fileInfo={currentFileInfo}
+          variant="default"
+        />
       </div>
 
       <div className="mt-6 flex justify-end gap-2">

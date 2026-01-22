@@ -2,37 +2,70 @@ import axios from "axios";
 
 import { logger } from "./logger";
 
-async function uploadImage({ file, ticketNo, documentType }) {
-  if (!file) {
+async function uploadImage({ files, ticketNo, documentType, onProgress = null }) {
+  if (!files) {
     return { success: false, error: "Please select a file" };
   }
 
   if (!ticketNo || !documentType) {
     console.log("received data: ", { ticketNo, documentType });
-    // toast.error("Something went wrong, please try again");
     return { success: false, error: "ticketNo or documentType is missing" };
   }
+
   try {
-    const formData = new FormData();
-    // if (Array.isArray(file)) {
-    //   file.forEach((f) => formData.append("file", f));
-    // } else {
-    //   formData.append("file", file);
-    // }
-    formData.append("file", file);
+    // Convert single file to array for uniform processing
+    const fileArray = Array.isArray(files) ? files : [files];
+    const results = [];
 
-    formData.append("Ticket_no", ticketNo);
-    formData.append("DocumentType", documentType);
+    // Upload files one by one
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      const formData = new FormData();
 
-    const res = await axios.post("/api/documents/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+      formData.append("file", file);
+      formData.append("Ticket_no", ticketNo);
+      formData.append("DocumentType", documentType);
 
-    if (res.data.status === "Success") {
-      return { success: true, data: res.data };
-    } else {
-      return { success: false, error: res.data };
+      const res = await axios.post("/api/documents/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        // Track upload progress for current file
+        onUploadProgress: (progressEvent) => {
+          if (onProgress) {
+            // Calculate overall progress: (current file index + progress of current file) / total files
+            const fileProgress = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            const overallProgress = Math.round(
+              ((i + fileProgress / 100) * 100) / fileArray.length
+            );
+            onProgress(overallProgress, i + 1, fileArray.length);
+          }
+        },
+      });
+
+      if (res.data.status === "Success") {
+        results.push({
+          success: true,
+          fileName: file.name,
+          data: res.data,
+        });
+      } else {
+        results.push({
+          success: false,
+          fileName: file.name,
+          error: res.data,
+        });
+      }
     }
+
+    // Check if all uploads were successful
+    const allSuccess = results.every((r) => r.success);
+    return {
+      success: allSuccess,
+      data: results,
+      totalFiles: fileArray.length,
+      successCount: results.filter((r) => r.success).length,
+    };
   } catch (err) {
     console.error("Upload error", err);
     logger.error(`Upload error ${err.message}`, `${documentType}/${ticketNo}`);

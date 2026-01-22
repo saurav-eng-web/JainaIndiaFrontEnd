@@ -12,7 +12,7 @@ export default function ImagePreview({ images, onRemove, size = "14" }) {
             <div
               key={index}
               className={clsx(
-                `relative size-${size} overflow-hidden rounded border border-gray-400`
+                `relative size-14 overflow-hidden rounded border border-gray-400`
               )}
             >
               <Image
@@ -22,7 +22,6 @@ export default function ImagePreview({ images, onRemove, size = "14" }) {
                 className="object-cover"
               />
 
-              {/* Remove button */}
               <button
                 type="button"
                 onClick={() => onRemove && onRemove(index)}

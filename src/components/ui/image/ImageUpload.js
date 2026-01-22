@@ -35,7 +35,7 @@ export default function ImageUpload({
   multiple = false,
   disabled = false,
   variant = "input", // "input" | "box"
-  accept = "image/*",
+  accept = "image/*", // Can be "image/*", "video/*", or "image/*,video/*"
   maxFileSize = 5,
   maxFileAllowed = 5,
 }) {
@@ -90,10 +90,12 @@ export default function ImageUpload({
                 disabled ? "text-gray-400" : "text-[#714b67]"
               )}
             >
-              Click to upload images
+              Click to upload files
             </span>
             <span className="text-xs text-gray-500">
-              {`Max ${maxFileAllowed} images. Supported formats: JPG, PNG (Max ${maxFileSize}MB)`}
+              {accept.includes("video")
+                ? `Max ${maxFileAllowed} files. Images & Videos (Max ${maxFileSize}MB)`
+                : `Max ${maxFileAllowed} images. Supported formats: JPG, PNG (Max ${maxFileSize}MB)`}
             </span>
             <input
               id={id || name}
@@ -104,6 +106,7 @@ export default function ImageUpload({
               multiple={multiple}
               accept={accept}
               disabled={disabled}
+              tabIndex={-1}
             />
           </label>
         </div>

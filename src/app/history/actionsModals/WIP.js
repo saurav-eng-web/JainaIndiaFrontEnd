@@ -21,7 +21,6 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validSerial, setValidSerial] = useState(false);
   const imageUploaded = serialFile.length > 0 && invoiceFile.length > 0;
-  console.log("imageUploaded: ", imageUploaded);
 
   const MAX_SIZE_MB = 5;
   //   const MAX_FILES = 5;
@@ -97,8 +96,8 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
         pincode: pinCode,
         type: "simpcheck",
       });
-
-      if (res.data.statusCode === 200 && res.data.message === "Valid serial no") {
+      console.log("res: ", res);
+      if (res.data.statusCode === 200 && res.data.statusMsg === "Valid serial no") {
         setValidSerial(true);
         toast.success("Serial number is valid");
       } else {
@@ -140,16 +139,14 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
 
       const [status, subStatus, responseMessage] = parts.map((s) => s?.trim());
 
-      //   await updateJob(status, subStatus, responseMessage || "", serialNumber);
-
       const [serialRes, invoiceRes] = await Promise.all([
         uploadImage({
-          file: serialFile,
+          files: serialFile,
           documentType: "Serial Document",
           ticketNo,
         }),
         uploadImage({
-          file: invoiceFile,
+          files: invoiceFile,
           documentType: "Invoice Document",
           ticketNo,
         }),

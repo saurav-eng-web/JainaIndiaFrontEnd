@@ -266,3 +266,6 @@
 - fix: image upload route
 - feat: reallot, assign
 - change: add photos upload in WIP
+- feat: gas charging approval
+- fix: image preview
+- fix: video uploads

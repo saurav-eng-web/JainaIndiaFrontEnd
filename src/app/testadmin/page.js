@@ -5,15 +5,15 @@ import { useState } from "react";
 
 // import ReceiveFGPO from "../sf/action/ReceiveFGPO";
 // import PartConsume from "../sf/action/PartConsume";
-import MSLConsume from "../sf/action/MSLConsume";
 import DOAClosure from "../sf/action/DOAClosure";
+import MSLConsume from "../sf/action/MSLConsume";
 
 import Bucket from "./bucket";
 import DOAClosureTest from "./test";
 
-import PageSkeleton from "@/components/ui/PageSkeleton";
-import Modal from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
+import Modal from "@/components/ui/Modal";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 export default function TestComponent() {
   const [isOpen, setIsopen] = useState(false);

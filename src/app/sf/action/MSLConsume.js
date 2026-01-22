@@ -1,20 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import axios from "axios";
 import { Trash2, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
-import { useSelector } from "react-redux";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
+import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
-import { useTheme } from "@/theme/ThemeContext";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import Modal from "@/components/ui/Modal";
-import axiosInstance from "@/api/axiosInstance";
+import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import RadioOption from "@/components/ui/RadioOption";
+import { useTheme } from "@/theme/ThemeContext";
 
 export default function MSLConsume({ ticketNumber }) {
   const { colors } = useTheme();

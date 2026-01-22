@@ -1,7 +1,8 @@
 // src/redux/slices/authSlice.js
-import { logger } from "@/utils/logger";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+
+import { logger } from "@/utils/logger";
 
 // const BASE_URL
 

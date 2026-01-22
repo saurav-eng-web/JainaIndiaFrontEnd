@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Loader from "./common/LoaderComponent";

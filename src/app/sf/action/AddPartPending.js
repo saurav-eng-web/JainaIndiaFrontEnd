@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import axios from "axios";
 import { Trash2, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
-import axios from "axios";
 
+import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
-import { useTheme } from "@/theme/ThemeContext";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import Modal from "@/components/ui/Modal";
-import axiosInstance from "@/api/axiosInstance";
+import ModalSkeleton from "@/components/ui/ModalSkeleton";
+import { useTheme } from "@/theme/ThemeContext";
 import { updateJob } from "@/utils/commonApis";
 
 // ---- MOCK TICKET TABLE ----

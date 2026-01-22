@@ -1,11 +1,10 @@
-
-
 "use client";
 
-import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import axiosInstance from "@/api/axiosInstance";
 import Image from "next/image";
+import React, { useEffect, useState } from "react";
+
+import axiosInstance from "@/api/axiosInstance";
 
 const Barcode = dynamic(() => import("react-barcode"), { ssr: false });
 
@@ -32,13 +31,20 @@ function formatMoney(n) {
 
 function AscRightBox({ invoiceDetail }) {
   return (
-    <div className="w-64 ml-4">
-      
+    <div className="ml-4 w-64">
       <div className="border p-2 text-sm">
-        <div><strong>GSTIN:</strong> {invoiceDetail.ascgst || "-"}</div>
-        <div><strong>DCR Number:</strong> {invoiceDetail.asc_dcrno || "-"}</div>
-        <div><strong>DCR Date:</strong> {invoiceDetail.asc_dcrdate || "-"}</div>
-        <div><strong>Shipment ID:</strong> {invoiceDetail.asc_shipid || "-"}</div>
+        <div>
+          <strong>GSTIN:</strong> {invoiceDetail.ascgst || "-"}
+        </div>
+        <div>
+          <strong>DCR Number:</strong> {invoiceDetail.asc_dcrno || "-"}
+        </div>
+        <div>
+          <strong>DCR Date:</strong> {invoiceDetail.asc_dcrdate || "-"}
+        </div>
+        <div>
+          <strong>Shipment ID:</strong> {invoiceDetail.asc_shipid || "-"}
+        </div>
       </div>
     </div>
   );
@@ -46,12 +52,20 @@ function AscRightBox({ invoiceDetail }) {
 
 function NspRightBox({ invoiceDetail }) {
   return (
-    <div className="w-64 ml-4">
+    <div className="ml-4 w-64">
       <div className="border p-2 text-sm">
-        <div><strong>GSTIN:</strong> {invoiceDetail.nspgst || "-"}</div>
-        <div><strong>DCR Number:</strong> {invoiceDetail.invno || "-"}</div>
-        <div><strong>DCR Date:</strong> {invoiceDetail.invdate || "-"}</div>
-        <div><strong>Shipment ID:</strong> {invoiceDetail.defPO_SFDocNo || "-"}</div>
+        <div>
+          <strong>GSTIN:</strong> {invoiceDetail.nspgst || "-"}
+        </div>
+        <div>
+          <strong>DCR Number:</strong> {invoiceDetail.invno || "-"}
+        </div>
+        <div>
+          <strong>DCR Date:</strong> {invoiceDetail.invdate || "-"}
+        </div>
+        <div>
+          <strong>Shipment ID:</strong> {invoiceDetail.defPO_SFDocNo || "-"}
+        </div>
       </div>
     </div>
   );
@@ -60,7 +74,7 @@ function NspRightBox({ invoiceDetail }) {
 function TermsBlock({ terms = HARD_TERMS }) {
   return (
     <div className="col-span-4 border-r p-3 text-xs">
-      <div className="font-bold mb-2">Terms & Conditions:</div>
+      <div className="mb-2 font-bold">Terms & Conditions:</div>
       {terms.map((t, idx) => (
         <div key={idx} className={idx === 0 ? "" : "mt-2"}>
           {t}
@@ -73,12 +87,25 @@ function TermsBlock({ terms = HARD_TERMS }) {
 function PickupBlock() {
   return (
     <div className="col-span-4 border-r p-3 text-xs">
-      <div className="mb-2"><strong>LSP Name</strong> ..........................................................</div>
-      <div className="mb-2"><strong>Pickup Boy Name</strong> ............................................</div>
-      <div className="mb-2"><strong>Pickup Boy Mobile number</strong> ............................</div>
-      <div className="mb-2"><strong>Number of Boxes Received</strong> .......................</div>
-      <div className="mb-2"><strong>Pickup Date</strong> ....................................................</div>
-      <div className="mb-2"><strong>Pickup Boy Signature</strong> ...............................</div>
+      <div className="mb-2">
+        <strong>LSP Name</strong>{" "}
+        ..........................................................
+      </div>
+      <div className="mb-2">
+        <strong>Pickup Boy Name</strong> ............................................
+      </div>
+      <div className="mb-2">
+        <strong>Pickup Boy Mobile number</strong> ............................
+      </div>
+      <div className="mb-2">
+        <strong>Number of Boxes Received</strong> .......................
+      </div>
+      <div className="mb-2">
+        <strong>Pickup Date</strong> ....................................................
+      </div>
+      <div className="mb-2">
+        <strong>Pickup Boy Signature</strong> ...............................
+      </div>
     </div>
   );
 }
@@ -86,7 +113,7 @@ function PickupBlock() {
 function SignatoryBlock({ name }) {
   return (
     <div className="col-span-4 p-3 text-center text-xs">
-      <div className="font-bold mb-2">{name}</div>
+      <div className="mb-2 font-bold">{name}</div>
       <div className="mt-10 font-semibold">(Authorized Signatory)</div>
     </div>
   );
@@ -111,8 +138,8 @@ export function ChallanASC({ invoiceDetail, items, total, totalTax, grandTotal }
   };
 
   return (
-    <article className="challan asc-copy bg-white border p-4 shadow-sm">
-      <header className="flex justify-between items-start border-b pb-2 mb-2">
+    <article className="challan asc-copy border bg-white p-4 shadow-sm">
+      <header className="mb-2 flex items-start justify-between border-b pb-2">
         <div className="flex-1">
           <Image
             src="/SansuiLogo.jpg"
@@ -125,17 +152,22 @@ export function ChallanASC({ invoiceDetail, items, total, totalTax, grandTotal }
           <div className="text-center">
             <h2 className="text-lg font-semibold">Delivery Challan</h2>
             <div className="text-xs">Goods Not For Sale / Return of Defective Parts</div>
-            <div className="text-sm font-medium mt-1">{invoiceDetail?.ctype || "Defective Spare"}</div>
+            <div className="mt-1 text-sm font-medium">
+              {invoiceDetail?.ctype || "Defective Spare"}
+            </div>
           </div>
 
           <div className="mt-3 text-sm">
-            <strong>Copy Type: </strong><span className="font-bold">ASC COPY</span>
+            <strong>Copy Type: </strong>
+            <span className="font-bold">ASC COPY</span>
           </div>
 
           <div className="mt-3 text-sm">
             <strong>ASC Name:</strong> {shippedTo.name}
             <div className="mt-1">{shippedTo.address}</div>
-            <div className="mt-1"><strong>State:</strong> {invoiceDetail.asC_State || "-"}</div>
+            <div className="mt-1">
+              <strong>State:</strong> {invoiceDetail.asC_State || "-"}
+            </div>
           </div>
         </div>
 
@@ -143,16 +175,18 @@ export function ChallanASC({ invoiceDetail, items, total, totalTax, grandTotal }
       </header>
 
       {/* ADDRESS BLOCKS */}
-      <section className="grid grid-cols-12 gap-4 text-sm mb-2">
+      <section className="mb-2 grid grid-cols-12 gap-4 text-sm">
         <div className="col-span-3 border p-2 text-xs">
-          <div className="font-semibold mb-1">Billed To</div>
+          <div className="mb-1 font-semibold">Billed To</div>
           <div>{invoiceDetail.whs1 || "-"}</div>
           <div className="mt-1">{invoiceDetail.cwhs1 || "-"}</div>
-          <div className="mt-1"><strong>GSTIN:</strong> {invoiceDetail.gsT1 || "-"}</div>
+          <div className="mt-1">
+            <strong>GSTIN:</strong> {invoiceDetail.gsT1 || "-"}
+          </div>
         </div>
 
         <div className="col-span-3 border p-2 text-xs">
-          <div className="font-semibold mb-1">Shipped To</div>
+          <div className="mb-1 font-semibold">Shipped To</div>
           <div>{shippedTo.name}</div>
           <div className="mt-1">{shippedTo.address}</div>
           <div className="mt-1">{shippedTo.extra}</div>
@@ -162,34 +196,56 @@ export function ChallanASC({ invoiceDetail, items, total, totalTax, grandTotal }
           <strong>Shipped From</strong>
           <div className="mt-1">{ascName}</div>
           <div className="mt-1">{ascAddress}</div>
-          <div className="mt-1"><strong>Mobile:</strong> {ascMobile}</div>
+          <div className="mt-1">
+            <strong>Mobile:</strong> {ascMobile}
+          </div>
         </div>
 
         <div className="col-span-3 border p-2 text-xs">
-          <div><strong>LSP Name:</strong> {invoiceDetail.defPO_Crname || "-"}</div>
-          <div><strong>Weight:</strong> {invoiceDetail.courierWeight || "-"} gm</div>
-          <div><strong>Box Qty:</strong> {invoiceDetail.boxQty || "-"}</div>
-
-          <div className="mt-2"><strong>Docket No:</strong> {invoiceDetail.defPO_SFDocNo || "-"}</div>
+          <div>
+            <strong>LSP Name:</strong> {invoiceDetail.defPO_Crname || "-"}
+          </div>
+          <div>
+            <strong>Weight:</strong> {invoiceDetail.courierWeight || "-"} gm
+          </div>
+          <div>
+            <strong>Box Qty:</strong> {invoiceDetail.boxQty || "-"}
+          </div>
 
           <div className="mt-2">
-            <Barcode value={invoiceDetail.defPO_SFDocNo || "NA"} width={1.2} height={48} format="CODE128" />
+            <strong>Docket No:</strong> {invoiceDetail.defPO_SFDocNo || "-"}
+          </div>
+
+          <div className="mt-2">
+            <Barcode
+              value={invoiceDetail.defPO_SFDocNo || "NA"}
+              width={1.2}
+              height={48}
+              format="CODE128"
+            />
           </div>
         </div>
       </section>
 
       {/* ITEMS TABLE */}
-      <ItemsTable items={items} total={total} totalTax={totalTax} grandTotal={grandTotal} />
+      <ItemsTable
+        items={items}
+        total={total}
+        totalTax={totalTax}
+        grandTotal={grandTotal}
+      />
 
       {/* TERMS / PICKUP / SIGNATORY */}
-      <section className="grid grid-cols-12 mt-4 border text-xs">
+      <section className="mt-4 grid grid-cols-12 border text-xs">
         <TermsBlock />
         <PickupBlock />
         <SignatoryBlock name={ascName} />
       </section>
 
-      <div className="text-center mt-3 text-xs font-medium">This is Computer Generated Challan.</div>
-      <div className="text-right text-xs mt-2">ASC COPY</div>
+      <div className="mt-3 text-center text-xs font-medium">
+        This is Computer Generated Challan.
+      </div>
+      <div className="mt-2 text-right text-xs">ASC COPY</div>
     </article>
   );
 }
@@ -205,8 +261,8 @@ export function ChallanNSP({ invoiceDetail, items, total, totalTax, grandTotal }
   };
 
   return (
-    <article className="challan nsp-copy bg-white border p-4 shadow-sm">
-      <header className="flex justify-between items-start border-b pb-2 mb-2">
+    <article className="challan nsp-copy border bg-white p-4 shadow-sm">
+      <header className="mb-2 flex items-start justify-between border-b pb-2">
         <div className="flex-1">
           <Image
             src="/SansuiLogo.jpg"
@@ -219,18 +275,27 @@ export function ChallanNSP({ invoiceDetail, items, total, totalTax, grandTotal }
           <div className="text-center">
             <h2 className="text-lg font-semibold">Delivery Challan</h2>
             <div className="text-xs">Goods Not For Sale / Return of Defective Parts</div>
-            <div className="text-sm font-medium mt-1">{invoiceDetail?.ctype || "Defective Spare"}</div>
+            <div className="mt-1 text-sm font-medium">
+              {invoiceDetail?.ctype || "Defective Spare"}
+            </div>
           </div>
 
           <div className="mt-3 text-sm">
-            <strong>Copy Type: </strong><span className="font-bold">NSP COPY</span>
+            <strong>Copy Type: </strong>
+            <span className="font-bold">NSP COPY</span>
           </div>
 
           <div className="mt-3 text-sm">
             <strong>NSP Name:</strong> {nspName}
             <div className="mt-1">{nspAddress}</div>
-            <div className="mt-1"><strong>State:</strong> {invoiceDetail.nSpState || "-"}</div>
-            {invoiceDetail.gst && <div className="mt-1"><strong>GSTIN:</strong> {invoiceDetail.gst}</div>}
+            <div className="mt-1">
+              <strong>State:</strong> {invoiceDetail.nSpState || "-"}
+            </div>
+            {invoiceDetail.gst && (
+              <div className="mt-1">
+                <strong>GSTIN:</strong> {invoiceDetail.gst}
+              </div>
+            )}
           </div>
         </div>
 
@@ -238,16 +303,18 @@ export function ChallanNSP({ invoiceDetail, items, total, totalTax, grandTotal }
       </header>
 
       {/* ADDRESS BLOCKS */}
-      <section className="grid grid-cols-12 gap-4 text-sm mb-2">
+      <section className="mb-2 grid grid-cols-12 gap-4 text-sm">
         <div className="col-span-3 border p-2 text-xs">
-          <div className="font-semibold mb-1">Billed To</div>
+          <div className="mb-1 font-semibold">Billed To</div>
           <div>{invoiceDetail.whs1 || "-"}</div>
           <div className="mt-1">{invoiceDetail.cwhs1 || "-"}</div>
-          <div className="mt-1"><strong>GSTIN:</strong> {invoiceDetail.gsT1 || "-"}</div>
+          <div className="mt-1">
+            <strong>GSTIN:</strong> {invoiceDetail.gsT1 || "-"}
+          </div>
         </div>
 
         <div className="col-span-3 border p-2 text-xs">
-          <div className="font-semibold mb-1">Shipped To</div>
+          <div className="mb-1 font-semibold">Shipped To</div>
           <div>{shippedTo.name}</div>
           <div className="mt-1">{shippedTo.address}</div>
           <div className="mt-1">{shippedTo.extra}</div>
@@ -257,32 +324,54 @@ export function ChallanNSP({ invoiceDetail, items, total, totalTax, grandTotal }
           <strong>Shipped From</strong>
           <div className="mt-1">{invoiceDetail.asC_Name || "-"}</div>
           <div className="mt-1">{invoiceDetail.address || "-"}</div>
-          <div className="mt-1"><strong>Mobile:</strong> {invoiceDetail.mobileno || "-"}</div>
+          <div className="mt-1">
+            <strong>Mobile:</strong> {invoiceDetail.mobileno || "-"}
+          </div>
         </div>
 
         <div className="col-span-3 border p-2 text-xs">
-          <div><strong>LSP Name:</strong> {invoiceDetail.defPO_Crname || "-"}</div>
-          <div><strong>Weight:</strong> {invoiceDetail.courierWeight || "-"} gm</div>
-          <div><strong>Box Qty:</strong> {invoiceDetail.boxQty || "-"}</div>
-
-          <div className="mt-2"><strong>Docket No:</strong> {invoiceDetail.defPO_SFDocNo || "-"}</div>
+          <div>
+            <strong>LSP Name:</strong> {invoiceDetail.defPO_Crname || "-"}
+          </div>
+          <div>
+            <strong>Weight:</strong> {invoiceDetail.courierWeight || "-"} gm
+          </div>
+          <div>
+            <strong>Box Qty:</strong> {invoiceDetail.boxQty || "-"}
+          </div>
 
           <div className="mt-2">
-            <Barcode value={invoiceDetail.defPO_SFDocNo || "NA"} width={1.2} height={48} format="CODE128" />
+            <strong>Docket No:</strong> {invoiceDetail.defPO_SFDocNo || "-"}
+          </div>
+
+          <div className="mt-2">
+            <Barcode
+              value={invoiceDetail.defPO_SFDocNo || "NA"}
+              width={1.2}
+              height={48}
+              format="CODE128"
+            />
           </div>
         </div>
       </section>
 
-      <ItemsTable items={items} total={total} totalTax={totalTax} grandTotal={grandTotal} />
+      <ItemsTable
+        items={items}
+        total={total}
+        totalTax={totalTax}
+        grandTotal={grandTotal}
+      />
 
-      <section className="grid grid-cols-12 mt-4 border text-xs">
+      <section className="mt-4 grid grid-cols-12 border text-xs">
         <TermsBlock />
         <PickupBlock />
         <SignatoryBlock name={invoiceDetail.nspName || "NSP"} />
       </section>
 
-      <div className="text-center mt-3 text-xs font-medium">This is Computer Generated Challan.</div>
-      <div className="text-right text-xs mt-2">NSP COPY</div>
+      <div className="mt-3 text-center text-xs font-medium">
+        This is Computer Generated Challan.
+      </div>
+      <div className="mt-2 text-right text-xs">NSP COPY</div>
     </article>
   );
 }
@@ -326,16 +415,24 @@ function ItemsTable({ items, total, totalTax, grandTotal }) {
 
         <tfoot>
           <tr>
-            <td colSpan="7" className="border px-2 py-1 text-right">Total:</td>
+            <td colSpan="7" className="border px-2 py-1 text-right">
+              Total:
+            </td>
             <td className="border px-2 py-1 text-right">{formatMoney(total)}</td>
           </tr>
           <tr>
-            <td colSpan="7" className="border px-2 py-1 text-right">Tax:</td>
+            <td colSpan="7" className="border px-2 py-1 text-right">
+              Tax:
+            </td>
             <td className="border px-2 py-1 text-right">{formatMoney(totalTax)}</td>
           </tr>
           <tr>
-            <td colSpan="7" className="border px-2 py-1 text-right font-bold">Grand Total:</td>
-            <td className="border px-2 py-1 text-right font-bold">{formatMoney(grandTotal)}</td>
+            <td colSpan="7" className="border px-2 py-1 text-right font-bold">
+              Grand Total:
+            </td>
+            <td className="border px-2 py-1 text-right font-bold">
+              {formatMoney(grandTotal)}
+            </td>
           </tr>
         </tfoot>
       </table>
@@ -390,7 +487,8 @@ export default function PrintChallanPage({ searchParams }) {
 
         const total = lineItems.reduce((s, it) => s + Number(it.amount || 0), 0);
         const totalTax = lineItems.reduce(
-          (s, it) => s + (Number(it.price || 0) * Number(it.qty || 0) * Number(it.tax || 0)) / 100,
+          (s, it) =>
+            s + (Number(it.price || 0) * Number(it.qty || 0) * Number(it.tax || 0)) / 100,
           0
         );
         setTotals({ total, totalTax, grandTotal: total + totalTax });
@@ -422,17 +520,17 @@ export default function PrintChallanPage({ searchParams }) {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="flex gap-3 mb-4">
+      <div className="mb-4 flex gap-3">
         <button
           onClick={() => setPrintTarget("asc")}
-          className="px-4 py-2 border rounded bg-white shadow-sm"
+          className="rounded border bg-white px-4 py-2 shadow-sm"
         >
           Print ASC Only
         </button>
 
         <button
           onClick={() => setPrintTarget("nsp")}
-          className="px-4 py-2 border rounded bg-white shadow-sm"
+          className="rounded border bg-white px-4 py-2 shadow-sm"
         >
           Print NSP Only
         </button>
@@ -475,22 +573,37 @@ export default function PrintChallanPage({ searchParams }) {
         /* default: when printing without data-print attribute — show both */
         @media print {
           /* hide the on-screen print buttons */
-          button { display: none !important; }
+          button {
+            display: none !important;
+          }
 
           /* if attribute set to asc → hide nsp copy */
-          html[data-print="asc"] .nsp-copy { display: none !important; }
-          html[data-print="asc"] .asc-copy { display: block !important; }
+          html[data-print="asc"] .nsp-copy {
+            display: none !important;
+          }
+          html[data-print="asc"] .asc-copy {
+            display: block !important;
+          }
 
           /* if attribute set to nsp → hide asc copy */
-          html[data-print="nsp"] .asc-copy { display: none !important; }
-          html[data-print="nsp"] .nsp-copy { display: block !important; }
+          html[data-print="nsp"] .asc-copy {
+            display: none !important;
+          }
+          html[data-print="nsp"] .nsp-copy {
+            display: block !important;
+          }
 
           /* if attribute set to all → show both (default) */
           html[data-print="all"] .asc-copy,
-          html[data-print="all"] .nsp-copy { display: block !important; }
+          html[data-print="all"] .nsp-copy {
+            display: block !important;
+          }
 
           /* ensure print uses exact colors where possible */
-          body { -webkit-print-color-adjust: exact; color-adjust: exact; }
+          body {
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
+          }
         }
       `}</style>
     </div>

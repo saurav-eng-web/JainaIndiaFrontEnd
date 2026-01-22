@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   MdAssignmentLate,
   MdAssignmentTurnedIn,
@@ -22,13 +22,13 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 import axiosInstance from "@/api/axiosInstance";
-import SideBar from "@/components/SideBar";
-import DashboardCard from "@/components/DashboardCard";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import Loader from "@/components/common/LoaderComponent";
+import DashboardCard from "@/components/DashboardCard";
+import SideBar from "@/components/SideBar";
+import { hideLoader, showLoader } from "@/redux/slices/loaderSlice";
 import { useTheme } from "@/theme/ThemeContext";
 import { encodeRouteData } from "@/utils/secureRoute";
-import { hideLoader, showLoader } from "@/redux/slices/loaderSlice";
-import Loader from "@/components/common/LoaderComponent";
 // import "../../../components/Sidebar.css";
 
 export default function Dashboard() {
@@ -173,7 +173,6 @@ export default function Dashboard() {
 
     router.push(`/nsp/dashboardcall?d=${encoded}`);
   };
-
 
   return (
     <ProtectedRoute allowedRoles={["br", "asm", "zone", "sf/ssd"]}>

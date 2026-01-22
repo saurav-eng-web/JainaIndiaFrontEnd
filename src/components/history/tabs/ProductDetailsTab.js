@@ -5,7 +5,7 @@ export default function ProductDetailsTab({ detail }) {
 
   return (
     <div className="tab-section">
-      <h3 style={{ fontWeight: "bold" }}>📦 Product Details</h3> 
+      <h3 style={{ fontWeight: "bold" }}>📦 Product Details</h3>
       <div className="row-content">
         <div>
           <strong>Model:</strong> {detail.model || "-"}

@@ -1,15 +1,15 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 
+import axiosInstance from "@/api/axiosInstance";
+import { Button } from "@/components/ui/button";
 import InputField from "@/components/ui/InputWithLabel";
+import Loading from "@/components/ui/Loading";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import RadioOption from "@/components/ui/RadioOption";
-import axiosInstance from "@/api/axiosInstance";
-import Loading from "@/components/ui/Loading";
-import { Button } from "@/components/ui/button";
 
 export default function ReceiveFGPO({ ticketNo, onClose }) {
   const [receivedStatus, setReceivedStatus] = useState("");

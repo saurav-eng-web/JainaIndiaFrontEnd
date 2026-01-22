@@ -3,17 +3,17 @@
 export const dynamic = "force-dynamic";
 
 import React, { Suspense, useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
-import CustomDropdown from "@/components/common/Dropdown";
-import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
-import ConfirmModal from "@/components/ui/ConfirmationModal";
+import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import ConfirmModal from "@/components/ui/ConfirmationModal";
 import FormInput from "@/components/ui/FormInput";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 import TextArea from "@/components/ui/Textarea";
+import { useTheme } from "@/theme/ThemeContext";
 
 function SendDefectivePageContent() {
   const { colors } = useTheme();

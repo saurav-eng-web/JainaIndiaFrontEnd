@@ -2,19 +2,19 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState, Suspense, useCallback } from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import toast from "react-hot-toast";
-import { Eye } from "lucide-react";
 import axios from "axios";
+import { Eye } from "lucide-react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, Suspense, useCallback } from "react";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 
 import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
 import SpeicalAllowancePopup from "../rsm/special-allowance/allowancePopup";
 import AddPartPending from "../sf/action/AddPartPending";
+import MSLConsume from "../sf/action/MSLConsume";
 import PartConsume from "../sf/action/PartConsume";
 import ReceiveFGPO from "../sf/action/ReceiveFGPO";
-import MSLConsume from "../sf/action/MSLConsume";
 
 import CancelPopup from "./CancelPopup";
 import EditCustPopup from "./EditCustPopup";
@@ -22,28 +22,33 @@ import EditCustPopup from "./EditCustPopup";
 import "./history.css";
 import "react-toastify/dist/ReactToastify.css";
 
-import SideBar from "@/components/SideBar";
+import Assigned from "./actionsModals/Assigned";
+
 import axiosInstance from "@/api/axiosInstance";
-import RemarkSection from "@/components/history/RemarkSection";
-import AllotmentDetails from "@/components/history/AllotmentDetails";
+import Loader from "@/components/common/LoaderComponent";
 import Popup from "@/components/common/Popup";
 import Table from "@/components/common/Table";
-import { logger } from "@/utils/logger";
-import Loader from "@/components/common/LoaderComponent";
-import Pagination from "@/components/Pagination";
-import { Button } from "@/components/ui/button";
-import Modal from "@/components/ui/Modal";
-import { setRouteData } from "@/redux/slices/routeDataSlice";
-// Custom Hooks & Components
-import { useHistoryData } from "@/hooks/useHistoryData";
-import { parseStatusMessage } from "@/utils/historyUtils";
-import JobDetailsTab from "@/components/history/tabs/JobDetailsTab";
-import CustomerDetailTab from "@/components/history/tabs/CustomerDetailTab";
-import ProductDetailsTab from "@/components/history/tabs/ProductDetailsTab";
 import ActionButtons from "@/components/history/ActionButtons";
 import ActionPopup from "@/components/history/ActionPopup";
+import AllotmentDetails from "@/components/history/AllotmentDetails";
+import RemarkSection from "@/components/history/RemarkSection";
+import CustomerDetailTab from "@/components/history/tabs/CustomerDetailTab";
+import JobDetailsTab from "@/components/history/tabs/JobDetailsTab";
+import ProductDetailsTab from "@/components/history/tabs/ProductDetailsTab";
+import Pagination from "@/components/Pagination";
+import SideBar from "@/components/SideBar";
+import { Button } from "@/components/ui/button";
+import Modal from "@/components/ui/Modal";
+import { useHistoryData } from "@/hooks/useHistoryData";
+import { setRouteData } from "@/redux/slices/routeDataSlice";
+import { parseStatusMessage } from "@/utils/historyUtils";
+import { logger } from "@/utils/logger";
+// Custom Hooks & Components
 
 import DOAClosure from "../sf/action/DOAClosure";
+
+import AssignedPopup from "./actionsModals/Assigned";
+import WIPPopupModal from "./actionsModals/WIP";
 
 const tabs = [
   "Job Details",
@@ -117,6 +122,9 @@ function HistoryPageContent() {
   const [partConsumePopup, setPartConsumePopup] = useState(false);
   const [MSLPartConsumePopup, setMSLPartConsumePopup] = useState(false);
   const [DOAConsumePopup, setDOAConsumePopup] = useState(false);
+  const [assignPopup, setAssignPopup] = useState(false);
+  const [assignPopupType, setAssignPopupType] = useState("");
+  const [WIPPopup, setWIPPopup] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -308,10 +316,23 @@ function HistoryPageContent() {
       setDOAConsumePopup(true);
       return;
     }
-    setShowActionPopup(true);
     if (action === "Assigned") {
-      fetchEngineerData();
+      // fetchEngineerData();
+      setAssignPopup(true);
+      setAssignPopupType("Assigned");
+      return;
     }
+    if (action === "Re-allot") {
+      // fetchEngineerData();
+      setAssignPopup(true);
+      setAssignPopupType("Re-allot");
+      return;
+    }
+    if (action === "WIP") {
+      setWIPPopup(true);
+      return;
+    }
+    setShowActionPopup(true);
   };
 
   async function fetchEngineerData() {
@@ -627,6 +648,21 @@ function HistoryPageContent() {
               onClose={() => setMSLPartConsumePopup(false)}
             >
               <MSLConsume ticketNumber={activeTicket} />
+            </Modal>
+            <Modal open={assignPopup} onClose={() => setAssignPopup(false)}>
+              <AssignedPopup
+                selectedAction={selectedAction}
+                onClose={() => setAssignPopup(false)}
+                ticketNo={activeTicket}
+                detail={detail}
+                engineerData={engineerData}
+                formData={formData}
+                setFormData={setFormData}
+                type={assignPopupType}
+              />
+            </Modal>
+            <Modal open={WIPPopup} onClose={() => setWIPPopup(false)}>
+              <WIPPopupModal ticketNo={activeTicket} onClose={() => router.back()} />
             </Modal>
           </>
         )}

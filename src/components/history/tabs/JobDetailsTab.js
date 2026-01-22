@@ -1,4 +1,5 @@
 import React from "react";
+
 import { formatIndianDate } from "@/utils/formatDate";
 
 export default function JobDetailsTab({ detail, firstEntry }) {

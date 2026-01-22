@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import SectionHeading from "../common/SectionHeading";
+import Table from "../common/Table";
 import ThemedButton from "../common/ThemedButton";
 import { Button } from "../ui/button";
-import Table from "../common/Table";
 
-import { useTheme } from "@/theme/ThemeContext";
 import axiosInstance from "@/api/axiosInstance";
+import { useTheme } from "@/theme/ThemeContext";
 import { formatIndianDate } from "@/utils/formatDate";
 
 export default function AllotmentDetails({ formData, onChange, onApprove, onReject }) {

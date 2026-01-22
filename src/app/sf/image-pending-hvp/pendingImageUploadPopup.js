@@ -1,14 +1,14 @@
-import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
 import { Upload } from "lucide-react"; // Importing an icon for the upload button
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
-import { Button } from "@/components/ui/button";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
-import { uploadImage } from "@/utils/uploadImage";
-import ImagePreview from "@/components/ui/image/ImagePreview";
 import axiosInstance from "@/api/axiosInstance";
-import { logger } from "@/utils/logger";
+import { Button } from "@/components/ui/button";
+import ImagePreview from "@/components/ui/image/ImagePreview";
 import ImageUpload from "@/components/ui/image/ImageUpload";
+import ModalSkeleton from "@/components/ui/ModalSkeleton";
+import { logger } from "@/utils/logger";
+import { uploadImage } from "@/utils/uploadImage";
 
 export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
   const [files, setFiles] = useState([]);
@@ -144,5 +144,3 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
     </ModalSkeleton>
   );
 }
-
-

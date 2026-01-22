@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 import { showLoader, hideLoader } from "@/redux/slices/loaderSlice";

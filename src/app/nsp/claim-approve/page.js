@@ -1,20 +1,20 @@
 "use client";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { getUserFromLocalStorage } from "../../../redux/slices/authSlice";
 import { setRouteData } from "../../../redux/slices/routeDataSlice";
 
-import SideBar from "@/components/SideBar";
-import { useTheme } from "@/theme/ThemeContext";
-import SectionHeading from "@/components/common/SectionHeading";
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import SectionHeading from "@/components/common/SectionHeading";
 import Table from "@/components/common/Table";
+import SideBar from "@/components/SideBar";
+import PageSkeleton from "@/components/ui/PageSkeleton";
+import { useTheme } from "@/theme/ThemeContext";
 
 export default function ComplaintTable() {
   const { colors } = useTheme();

@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { FaDownload } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { FaDownload } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
+import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
-import { useTheme } from "@/theme/ThemeContext";
-import axiosInstance from "@/api/axiosInstance";
-import { logger } from "@/utils/logger";
 import PageSkeleton from "@/components/ui/PageSkeleton";
+import { useTheme } from "@/theme/ThemeContext";
+import { logger } from "@/utils/logger";
 
 export default function DashboardPage() {
   const { colors } = useTheme();

@@ -3,8 +3,8 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 
-import CustomDropdown from "@/components/common/Dropdown";
 import axiosInstance from "@/api/axiosInstance";
+import CustomDropdown from "@/components/common/Dropdown";
 
 export default function ProductDetailsStep({
   formData,

@@ -2,20 +2,20 @@
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-import React, { useEffect, useState, Suspense } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSelector } from "react-redux";
 
 import { getUserFromLocalStorage } from "../../../../redux/slices/authSlice";
 
-import { useTheme } from "@/theme/ThemeContext";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import SideBar from "@/components/SideBar";
-import { logger } from "@/utils/logger";
 import axiosInstance from "@/api/axiosInstance";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Table from "@/components/common/Table";
+import SideBar from "@/components/SideBar";
+import PageSkeleton from "@/components/ui/PageSkeleton";
+import { useTheme } from "@/theme/ThemeContext";
+import { logger } from "@/utils/logger";
 
 // --- Main Content Component ---
 function DetailsContent() {

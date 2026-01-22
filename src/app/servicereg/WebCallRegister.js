@@ -1,15 +1,15 @@
 "use client";
 
 // import {} from "react"; // ✅ ADD THIS IMPORT
-import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
 import "./servicereg.css";
 import axios from "axios";
 
 // import CustomerDetailsStep from "@/components/CallRegisterSteps/CustomerDetailsStep";
 
-import CustomerDetailsStep from "./webCallRegisterSteps/CustomerDetailsStep";
 import AddressDetailsStep from "./webCallRegisterSteps/AddressDetailsStep";
+import CustomerDetailsStep from "./webCallRegisterSteps/CustomerDetailsStep";
 import ProductDetailsStep from "./webCallRegisterSteps/ProductDetailsStep";
 import ServiceDetailsStep from "./webCallRegisterSteps/ServiceDetailsStep";
 

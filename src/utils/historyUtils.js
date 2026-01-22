@@ -40,7 +40,6 @@ export function getNearestValidMinute(minute) {
 
 export function getAllowedMinutes(selectedDate, selectedHour) {
   const slots = [0, 15, 30, 45];
-
   if (!selectedDate || selectedHour === "") return slots;
 
   if (!isToday(selectedDate)) return slots;

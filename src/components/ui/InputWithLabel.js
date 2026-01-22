@@ -35,6 +35,7 @@ export default function InputField({
   name,
   id,
   className,
+  message,
 }) {
   const styles = sizeMap[size] || sizeMap.md;
 
@@ -48,6 +49,7 @@ export default function InputField({
         >
           {label}
           {required && <span className="ml-1 text-red-500">*</span>}
+          {message && <span className="ml-2 text-xs text-gray-500">{message}</span>}
         </label>
       )}
 

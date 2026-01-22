@@ -27,9 +27,7 @@ export default function CustomerDetailTab({ detail }) {
         </div>
         <div>
           <strong>Address:</strong>{" "}
-          {`${detail.addresS1 || ""} ${detail.addresS2 || ""} ${
-            detail.addresS3 || ""
-          }`}
+          {`${detail.addresS1 || ""} ${detail.addresS2 || ""} ${detail.addresS3 || ""}`}
         </div>
         <div>
           <strong>Landmark:</strong> {detail.landmark || "-"}

@@ -3,9 +3,9 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
 import { useTheme } from "@/theme/ThemeContext";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 function Loader() {
   return (

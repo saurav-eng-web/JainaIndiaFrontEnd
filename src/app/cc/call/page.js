@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
 
-import CustomerDetailsStep from "./CallRegisterSteps/CustomerDetailsStep";
 import AddressDetailsStep from "./CallRegisterSteps/AddressDetailsStep";
+import CustomerDetailsStep from "./CallRegisterSteps/CustomerDetailsStep";
 import ProductDetailsStep from "./CallRegisterSteps/ProductDetailsStep";
 import ServiceDetailsStep from "./CallRegisterSteps/ServiceDetailsStep";
 
-import SideBar from "@/components/SideBar";
 import axiosInstance from "@/api/axiosInstance";
+import SideBar from "@/components/SideBar";
 import { logger } from "@/utils/logger";
 
 const steps = [

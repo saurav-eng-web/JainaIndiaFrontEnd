@@ -1,8 +1,10 @@
 import path from "path";
 import { fileURLToPath } from "url";
+import js from "@eslint/js";
 
 // Plugins (MUST be imported for flat config)
 import prettierPlugin from "eslint-plugin-prettier";
+import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import importPlugin from "eslint-plugin-import";
 import { FlatCompat } from "@eslint/eslintrc";
@@ -17,35 +19,64 @@ const compat = new FlatCompat({
 
 const conf = [
   {
-    ignores: ["**/.next/**", "node_modules/**"],
+    ignores: [
+      "**/.next/**",
+      "node_modules/**",
+      "*.config.mjs",
+      "*.config.js",
+      "dist/**",
+      "build/**",
+      ".vercel/**",
+    ],
   },
-  // 1) Load Next.js rules first
-  // ...compat.extends("next/core-web-vitals"),
-  ...compat.extends("eslint-config-next/core-web-vitals"),
+  js.configs.recommended,
+  // 1) Load Next.js rules
+  ...compat.extends("next/core-web-vitals"),
 
   // 2) Your custom rules
   {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    languageOptions: {
+      ecmaVersion: 2020,
+      sourceType: "module",
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        React: "readonly",
+        JSX: "readonly",
+      },
+    },
     plugins: {
-      prettier: prettierPlugin,
-
+      react: reactPlugin,
       "react-hooks": reactHooksPlugin,
       import: importPlugin,
+      prettier: prettierPlugin,
     },
 
     rules: {
-      // Prettier
-      "prettier/prettier": [
-        "warn",
-        {
-          endOfLine: "auto",
-        },
-      ],
+      // Don't run prettier through ESLint - use prettier separately
+      // "prettier/prettier": "warn",
 
       // Core JS rules
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
       // "no-console": "warn",
       "prefer-const": "warn",
       "no-duplicate-imports": "warn",
+
+      // React rules
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "react/no-unescaped-entities": "warn",
 
       // React hooks
       "react-hooks/rules-of-hooks": "error",
@@ -57,6 +88,10 @@ const conf = [
         {
           groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
           "newlines-between": "always",
+          alphabetize: {
+            order: "asc",
+            caseInsensitive: true,
+          },
         },
       ],
     },

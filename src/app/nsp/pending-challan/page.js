@@ -5,14 +5,14 @@ export const fetchCache = "force-no-store";
 import React, { useEffect, useState, Suspense, useMemo } from "react";
 import toast from "react-hot-toast";
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import SideBar from "@/components/SideBar";
-import { logger } from "@/utils/logger";
 import axiosInstance from "@/api/axiosInstance";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import Pagination from "@/components/Pagination";
+import SideBar from "@/components/SideBar";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 import { getUserFromLocalStorage } from "@/redux/slices/authSlice";
 import { exportToExcel } from "@/utils/exportToExcel";
-import Pagination from "@/components/Pagination";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import { logger } from "@/utils/logger";
 
 /* ---------------- COLUMN WIDTH CONFIG ---------------- */
 

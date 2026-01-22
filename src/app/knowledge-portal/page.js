@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
-import { logger } from "@/utils/logger";
-import PageSkeleton from "@/components/ui/PageSkeleton";
 import Table from "@/components/common/Table";
+import PageSkeleton from "@/components/ui/PageSkeleton";
+import { logger } from "@/utils/logger";
 
 const KnowledgePortal = () => {
   const [isDataLoading, setIsDataLoading] = useState(true);

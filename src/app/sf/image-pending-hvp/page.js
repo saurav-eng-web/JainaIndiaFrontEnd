@@ -6,11 +6,11 @@ import { useSelector } from "react-redux";
 import PendingImageUploadPopup from "./pendingImageUploadPopup";
 
 import axiosInstance from "@/api/axiosInstance";
-import { useTheme } from "@/theme/ThemeContext";
-import Pagination from "@/components/Pagination";
 import Table from "@/components/common/Table";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import Pagination from "@/components/Pagination";
 import Modal from "@/components/ui/Modal";
+import PageSkeleton from "@/components/ui/PageSkeleton";
+import { useTheme } from "@/theme/ThemeContext";
 
 function ComplaintTableInner() {
   const { colors } = useTheme();

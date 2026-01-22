@@ -255,6 +255,7 @@
 - update: node version in docker imag
 
 # 2.3.4
+
 - feat: MSL part consume
 - feat: bind MSL part consume with dashboard bucket
 - feat: DOA Closure
@@ -263,3 +264,5 @@
 - feat: Image pendign for HVP
 - fix: Image upload
 - fix: image upload route
+- feat: reallot, assign
+- change: add photos upload in WIP

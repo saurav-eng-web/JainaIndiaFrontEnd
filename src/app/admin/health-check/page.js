@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import axios from "axios";
 import { CheckCircle, ShieldCheck, Activity, Globe, Info, Link } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import SideBar from "@/components/SideBar";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import SideBar from "@/components/SideBar";
 
 export default function HealthCheckPage() {
   const [ip, setIp] = useState("Loading...");

@@ -4,10 +4,10 @@ import Script from "next/script";
 
 import ToastProvider from "./ToastProvider";
 
+import Loader from "@/components/Loader";
+import NavigationLoader from "@/components/NavigationLoader";
 import ReduxProvider from "@/redux/ReduxProvider"; // ✅ Import client provider
 import { ThemeProvider } from "@/theme/ThemeContext";
-import NavigationLoader from "@/components/NavigationLoader";
-import Loader from "@/components/Loader";
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 

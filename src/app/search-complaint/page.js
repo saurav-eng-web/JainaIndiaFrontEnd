@@ -4,12 +4,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-import SideBar from "@/components/SideBar";
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { logger } from "@/utils/logger";
 import Table from "@/components/common/Table";
+import SideBar from "@/components/SideBar";
 import PageSkeleton from "@/components/ui/PageSkeleton";
+import { logger } from "@/utils/logger";
 
 export default function SearchComplaintPage() {
   const router = useRouter();

@@ -1,7 +1,7 @@
 "use client";
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import { loginUser } from "@/redux/slices/authSlice";
 

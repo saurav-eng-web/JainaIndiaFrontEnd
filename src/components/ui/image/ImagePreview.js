@@ -1,6 +1,6 @@
+import clsx from "clsx";
 import { X } from "lucide-react";
 import Image from "next/image";
-import clsx from "clsx";
 
 export default function ImagePreview({ images, onRemove, size = "14" }) {
   // console.log("images: ", images);

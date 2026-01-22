@@ -1,9 +1,9 @@
 "use client";
 
+import { X } from "lucide-react";
 import { Toaster, ToastBar, toast } from "react-hot-toast";
 
 import theme from "@/theme/theme";
-import { X } from "lucide-react";
 
 const ToastProvider = () => {
   return (

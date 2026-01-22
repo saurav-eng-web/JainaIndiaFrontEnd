@@ -1,6 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 import { useState, useRef } from "react";
+
 import axiosInstance from "@/api/axiosInstance";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -36,7 +37,7 @@ export default function AddressDetailsStep({
   const fetchPincodeDetails = async (pincode) => {
     try {
       const res = await axiosInstance.get(
-        `${BASE_URL}/LocalityMaster/by-pincode/${pincode}`,
+        `${BASE_URL}/LocalityMaster/by-pincode/${pincode}`
       );
       const data = res.data;
 
@@ -76,9 +77,7 @@ export default function AddressDetailsStep({
   };
 
   const handleLocalityChange = (e) => {
-    const selected = localities.find(
-      (loc) => loc.locality_Name === e.target.value,
-    );
+    const selected = localities.find((loc) => loc.locality_Name === e.target.value);
     setFormData((prev) => ({
       ...prev,
       locality: selected?.locality_Name || "",
@@ -107,9 +106,7 @@ export default function AddressDetailsStep({
               name={field}
               placeholder={formatLabel(field)}
               value={formData[field] || ""}
-              onChange={
-                field === "pincode" ? handlePincodeChange : handleChange
-              }
+              onChange={field === "pincode" ? handlePincodeChange : handleChange}
               readOnly={["state", "city"].includes(field)}
               maxLength={field === "pincode" ? 6 : undefined}
             />

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import axiosInstance from "@/api/axiosInstance"; // adjust if your instance path differs
+import ImageUpload from "@/components/ui/image/ImageUpload";
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function TestUploadPage() {
@@ -55,13 +56,24 @@ export default function TestUploadPage() {
         </h2>
 
         <div className="space-y-4">
+          <div className="flex gap-4">
+            <ImageUpload
+              variant="box"
+              onChange={(e) => setFile(e.target.files[0])}
+              multiple={true}
+            />{" "}
+            <ImageUpload
+              variant="box"
+              onChange={(e) => setFile(e.target.files[0])}
+              multiple={true}
+            />
+          </div>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => setFile(e.target.files[0])}
             className="file:hover: block w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 file:h-8 file:w-24 file:rounded-lg file:bg-[#714b67] file:text-white"
           />
-
           <input
             type="text"
             placeholder="Ticket Number"
@@ -69,7 +81,6 @@ export default function TestUploadPage() {
             onChange={(e) => setTicketNo(e.target.value)}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-800"
           />
-
           <input
             type="text"
             placeholder="Document Type"
@@ -77,7 +88,6 @@ export default function TestUploadPage() {
             onChange={(e) => setDocumentType(e.target.value)}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-800"
           />
-
           <button
             onClick={handleUpload}
             disabled={loading}
@@ -85,7 +95,6 @@ export default function TestUploadPage() {
           >
             {loading ? "Uploading..." : "Upload"}
           </button>
-
           {responseMsg && (
             <p className="mt-2 text-center text-sm font-medium">{responseMsg}</p>
           )}

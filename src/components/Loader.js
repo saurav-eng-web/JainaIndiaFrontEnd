@@ -1,7 +1,7 @@
 "use client";
 
-import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 export default function Loader() {
   const loading = useSelector((state) => state.loader.loading);

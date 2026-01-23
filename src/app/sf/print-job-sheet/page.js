@@ -72,72 +72,73 @@ export default function PrintJobSheet() {
           font-size: 10px;
           line-height: 1.2;
           color: black;
+          border: 2px solid black;
         }
         .job-sheet-table td,
         .job-sheet-table th {
           border: 1px solid black;
-          padding: 3px 5px;
+
           vertical-align: middle;
         }
-        .bold-label {
-          font-weight: bold;
+        .no-border-left {
+          border-left: none !important;
         }
-        .italic-label {
-          font-style: italic;
+        .no-border-right {
+          border-right: none !important;
         }
+        .no-border-top {
+          border-top: none !important;
+        }
+        .no-border-bottom {
+          border-bottom: none !important;
+        }
+
         .label-cell {
           font-weight: bold;
-          font-style: italic; /* Based on image, headers are bold italic? Or just bold? 'ASC Name' looks bold. 'Address' looks bold. */
-          /* Actually looking closely at 'Customer Name', it is BOLD. 'Address:' is BOLD. 'Job Sheet No.' BOLD. */
-          /* Some look slightly condensed? Let's just use font-bold. */
+          white-space: nowrap;
+          width: 1px; /* shrink to fit */
+          padding-right: 10px;
+        }
+        .value-cell {
+          font-weight: bold;
+          text-transform: uppercase;
         }
         .section-header {
-          background-color: #f3f4f6; /* gray-100/50 */
+          background-color: #f3f4f6;
           text-align: center;
           font-weight: bold;
-        }
-        .text-center {
-          text-align: center;
-        }
-        .text-right {
-          text-align: right;
-        }
-        .align-top {
-          vertical-align: top !important;
-        }
-        .uppercase {
-          text-transform: uppercase;
         }
       `}</style>
 
       {/* Floating Print Button */}
       <button
         onClick={handlePrint}
-        className="fixed right-8 bottom-8 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-xl transition-transform hover:scale-110 active:scale-95 print:hidden"
+        className="fixed right-8 bottom-8 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-white bg-[#714b67] text-white shadow-xl transition-transform hover:scale-110 active:scale-95 print:hidden"
         title="Print Job Sheet"
       >
         <Printer size={24} />
       </button>
 
       <div className="mx-auto max-w-[210mm] bg-white print:max-w-full">
-        {/* RE-WRITING THE TABLE TO BE ONE CONTINUOUS TABLE WITH NESTED TABLES IN THE 2 MAIN COLUMNS FOR THE BODY */}
-
-        <table className="job-sheet-table border-b leading-tight">
+        {/* Main Wrapper Table */}
+        <table className="job-sheet-table">
           <colgroup>
             <col style={{ width: "55%" }} />
             <col style={{ width: "45%" }} />
           </colgroup>
           <tbody>
-            {/* HEADER */}
+            {/* --- HEADER --- */}
             <tr>
-              <td className="p-4 align-top" style={{ padding: "10px" }}>
+              <td className="align-top">
                 <div className="flex h-full flex-col justify-between">
                   <div>
                     <div className="mb-4">
-                      <img
+                      <Image
                         src="/SansuiLogo.jpg"
                         alt="SANSUI Logo"
-                        className="h-8 object-contain"
+                        width={160}
+                        height={60}
+                        className="object-contain"
                       />
                       <div className="mt-1 flex gap-1">
                         <div className="h-1.5 w-6 bg-[#C6Dba8]"></div>
@@ -157,9 +158,9 @@ export default function PrintJobSheet() {
                   </div>
                 </div>
               </td>
-              <td className="p-0 align-top" style={{ padding: 0 }}>
+              <td className="align-top">
                 <table
-                  className="h-full w-full"
+                  className="h-full w-full pl-5"
                   style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                 >
                   <colgroup>
@@ -167,9 +168,9 @@ export default function PrintJobSheet() {
                     <col style={{ width: "70%" }} />
                   </colgroup>
                   <tbody>
-                    <tr>
+                    <tr className="">
                       <td className="label-cell border-t-0 border-l-0">Job Sheet No.</td>
-                      <td className="border-t-0 border-r-0 text-center font-bold">
+                      <td className="value-cell border-t-0 border-r-0 text-center">
                         {dummyData.jobSheetNo}
                       </td>
                     </tr>
@@ -183,19 +184,19 @@ export default function PrintJobSheet() {
                     </tr>
                     <tr>
                       <td className="label-cell border-l-0">ASC Name</td>
-                      <td className="border-r-0 text-center text-[9px] font-bold uppercase">
+                      <td className="value-cell border-r-0 text-center text-[9px]">
                         {dummyData.ascName}
                       </td>
                     </tr>
                     <tr>
                       <td className="label-cell border-l-0 align-top">Address</td>
-                      <td className="border-r-0 py-1 text-center text-[9px] leading-tight font-bold uppercase">
+                      <td className="value-cell border-r-0 py-2 text-center text-[9px] leading-tight">
                         {dummyData.ascAddress}
                       </td>
                     </tr>
                     <tr>
                       <td className="label-cell border-b-0 border-l-0">Contact Number</td>
-                      <td className="border-r-0 border-b-0 text-center font-bold">
+                      <td className="value-cell border-r-0 border-b-0 text-center">
                         {dummyData.ascContact}
                       </td>
                     </tr>
@@ -204,9 +205,9 @@ export default function PrintJobSheet() {
               </td>
             </tr>
 
-            {/* BODY (Split Left/Right) */}
+            {/* --- BLOCK 2: Customer vs Complaint (Split at Contact Number / Model Number) --- */}
             <tr>
-              <td className="p-0 align-top" style={{ padding: 0 }}>
+              <td className="p-0 align-top">
                 <table
                   className="h-full w-full"
                   style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
@@ -217,20 +218,18 @@ export default function PrintJobSheet() {
                   </colgroup>
                   <tbody>
                     <tr>
-                      <td colSpan={2} className="border-t-0 border-r-0 border-l-0 py-1">
+                      <td colSpan={2} className="border-t-0 border-r-0 border-l-0">
                         <span className="label-cell">Customer Name: </span>
-                        <span className="font-bold uppercase">
-                          {dummyData.customerName}
-                        </span>
+                        <span className="value-cell">{dummyData.customerName}</span>
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0 py-4 align-top">Address:</td>
-                      <td className="border-r-0 py-1 align-top text-[9px] leading-tight font-bold uppercase">
+                      <td className="label-cell border-l-0 py-2 align-top">Address:</td>
+                      <td className="value-cell border-r-0 py-1 text-[9px] leading-tight">
                         {dummyData.customerAddress}
                       </td>
                     </tr>
-                    {/* Inner table for row-span effect on columns? No, just render rows. */}
+                    {/* Nested table for city/state grid to ensure alignment */}
                     <tr>
                       <td colSpan={2} className="border-r-0 border-l-0 p-0">
                         <table
@@ -245,14 +244,17 @@ export default function PrintJobSheet() {
                           <tbody>
                             <tr className="border-t border-black">
                               <td className="label-cell border-t-0 border-l-0">City</td>
-                              <td className="border-t-0 text-center uppercase">
+                              <td className="value-cell border-t-0 text-center">
                                 {dummyData.city}
                               </td>
-                              <td className="border-t-0 border-r-0"></td>
+                              <td className="border-t-0 border-r-0 bg-gray-50"></td>
+                              {/* Image shows blank cell? Or just border? It's just border. */}
                             </tr>
                             <tr>
                               <td className="label-cell border-l-0">State</td>
-                              <td className="text-center uppercase">{dummyData.state}</td>
+                              <td className="value-cell text-center">
+                                {dummyData.state}
+                              </td>
                               <td className="border-r-0 text-center">
                                 {dummyData.pincode}
                               </td>
@@ -273,35 +275,20 @@ export default function PrintJobSheet() {
                     </tr>
                     <tr>
                       <td className="label-cell border-l-0">Contact Person</td>
-                      <td className="border-r-0 text-center font-bold">
+                      <td className="value-cell border-r-0 text-center">
                         {dummyData.contactPerson}
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">Contact Number</td>
-                      <td className="border-r-0 text-center font-bold">
+                      <td className="label-cell border-b-0 border-l-0">Contact Number</td>
+                      <td className="value-cell border-r-0 border-b-0 text-center">
                         {dummyData.contactNumber}
-                      </td>
-                    </tr>
-                    {/* Specific Request - Tall Cell */}
-                    <tr>
-                      <td className="label-cell h-24 border-l-0 align-top">
-                        Specific Request:
-                      </td>
-                      <td className="border-r-0 p-1 align-top">
-                        {dummyData.specificRequest}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td colSpan={2} className="border-r-0 border-b-0 border-l-0 py-2">
-                        <span className="label-cell">Call type:- </span>
-                        <span>{dummyData.callType}</span>
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </td>
-              <td className="p-0 align-top" style={{ padding: 0 }}>
+              <td className="p-0 align-top">
                 <table
                   className="h-full w-full"
                   style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
@@ -313,13 +300,13 @@ export default function PrintJobSheet() {
                   <tbody>
                     <tr>
                       <td className="label-cell border-t-0 border-l-0">Complaint No.:</td>
-                      <td className="border-t-0 border-r-0 text-center text-[9px] font-bold">
+                      <td className="value-cell border-t-0 border-r-0 text-center text-[10px]">
                         {dummyData.complaintNo}
                       </td>
                     </tr>
                     <tr>
                       <td className="label-cell border-l-0">Complaint Date:</td>
-                      <td className="border-r-0 text-center font-bold">
+                      <td className="value-cell border-r-0 text-center">
                         {dummyData.complaintDate}
                       </td>
                     </tr>
@@ -335,29 +322,81 @@ export default function PrintJobSheet() {
                       <td className="label-cell border-l-0">Category</td>
                       <td className="border-r-0 text-center">{dummyData.category}</td>
                     </tr>
-                    <tr className="h-10">
+                    <tr className="h-8">
                       <td className="label-cell border-l-0">Product</td>
                       <td className="border-r-0 text-center align-bottom">
                         {dummyData.product}
                       </td>
                     </tr>
-                    <tr className="h-10">
-                      <td className="label-cell border-l-0">Model Number</td>
-                      <td className="border-r-0 text-center align-bottom font-bold">
+                    <tr className="h-8">
+                      <td className="label-cell border-b-0 border-l-0">Model Number</td>
+                      <td className="value-cell border-r-0 border-b-0 text-center align-bottom">
                         {dummyData.modelNumber}
                       </td>
                     </tr>
+                    {/* The number of rows and heights MUST match left side if we want strict bottom alignment.
+                                 Left side has 8 rows (Cust, Addr, City, State, Land, Phone, ContactP, ContactN).
+                                 Right side has 7 rows (ComplaintNo, Date, Alt, Brand, Cat, Prod, Model).
+                                 Address on Left is likely taller.
+                                 Product/Model on Right might need to stretch to fill height.
+                             */}
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            {/* --- BLOCK 3: Specific Request vs Serial No --- */}
+            <tr>
+              <td className="p-0 align-top">
+                <table
+                  className="h-full w-full"
+                  style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
+                >
+                  <colgroup>
+                    <col style={{ width: "25%" }} />
+                    <col style={{ width: "75%" }} />
+                  </colgroup>
+                  <tbody>
+                    {/* Specific Request spans multiple rows of right side */}
                     <tr>
-                      <td className="label-cell border-l-0">Serial Number</td>
-                      <td className="border-r-0 text-center font-bold">
+                      <td
+                        className="label-cell border-t-0 border-l-0 pt-2 align-top"
+                        style={{ height: "100px" }}
+                      >
+                        Specific Request:
+                      </td>
+                      <td className="border-t-0 border-r-0 p-1 align-top">
+                        {dummyData.specificRequest}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="label-cell border-b-0 border-l-0">Call type:- </td>
+                      <td className="border-r-0 border-b-0">{dummyData.callType}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+              <td className="p-0 align-top">
+                <table
+                  className="h-full w-full"
+                  style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
+                >
+                  <colgroup>
+                    <col style={{ width: "35%" }} />
+                    <col style={{ width: "65%" }} />
+                  </colgroup>
+                  <tbody>
+                    <tr>
+                      <td className="label-cell border-t-0 border-l-0">Serial Number</td>
+                      <td className="value-cell border-t-0 border-r-0 text-center">
                         {dummyData.serialNumber}
                       </td>
                     </tr>
-                    <tr className="h-12">
-                      <td className="label-cell border-l-0 pt-1 align-top">
+                    <tr style={{ height: "60px" }}>
+                      <td className="label-cell border-l-0 pt-2 align-top">
                         Date of Purchase
                       </td>
-                      <td className="border-r-0 pb-1 text-center align-bottom font-bold">
+                      <td className="value-cell border-r-0 pb-1 text-center align-bottom">
                         {dummyData.dop}
                       </td>
                     </tr>
@@ -378,7 +417,7 @@ export default function PrintJobSheet() {
                     </tr>
                     <tr>
                       <td className="label-cell border-b-0 border-l-0">Warranty Type</td>
-                      <td className="border-r-0 border-b-0 text-center font-bold">
+                      <td className="value-cell border-r-0 border-b-0 text-center">
                         {dummyData.warrantyType}
                       </td>
                     </tr>
@@ -387,40 +426,38 @@ export default function PrintJobSheet() {
               </td>
             </tr>
 
-            {/* DEFECT OBSERVED */}
+            {/* --- DEFECT & ACTION --- */}
             <tr>
               <td colSpan={2} className="border-t p-0">
                 <div className="flex w-full" style={{ minHeight: "30px" }}>
-                  <div className="label-cell w-[100px] shrink-0 p-1">
+                  <div className="label-cell w-[120px] shrink-0 border-r border-transparent p-1">
                     Defect Observed:
                   </div>
                   <div className="p-1">{dummyData.defectObserved}</div>
                 </div>
               </td>
             </tr>
-
-            {/* ACTION TAKEN */}
             <tr>
-              <td colSpan={2} className="p-0">
+              <td colSpan={2} className="border-t p-0">
                 <div className="flex min-h-[40px] w-full">
-                  {/* Left side (Action Taken label + space) */}
-                  <div className="flex w-[55%] border-r border-black">
-                    <div className="label-cell w-[100px] shrink-0 p-1">Action Taken:</div>
-                    <div className="p-1"></div>
+                  <div className="flex w-[60%] border-r border-black">
+                    <div className="label-cell w-[120px] shrink-0 p-1">Action Taken:</div>
+                    <div>{dummyData.actionTaken}</div>
                   </div>
-                  {/* Right side (Value) */}
-                  <div className="w-[45%] p-1 font-bold">{dummyData.actionTaken}</div>
+                  <div className="w-[40%]"></div>
                 </div>
               </td>
             </tr>
 
-            {/* PART CONSUMPTION */}
+            {/* --- PART CONSUMPTION --- */}
             <tr>
-              <td colSpan={2} className="border-b bg-gray-50 p-1 text-center font-bold">
+              <td
+                colSpan={2}
+                className="border-t border-b bg-gray-50 p-1 text-center font-bold"
+              >
                 Part Consumption Detail
               </td>
             </tr>
-
             <tr>
               <td colSpan={2} className="border-b-0 p-0">
                 <table
@@ -447,10 +484,10 @@ export default function PrintJobSheet() {
                         qty: "",
                       };
                       return (
-                        <tr key={i} className="h-6 text-center">
-                          <td className="border-l-0">{part.code}</td>
-                          <td>{part.description}</td>
-                          <td className="border-r-0">{part.qty}</td>
+                        <tr key={i} className="h-6">
+                          <td className="border-l-0 p-1">{part.code}</td>
+                          <td className="p-1">{part.description}</td>
+                          <td className="border-r-0 p-1 text-center">{part.qty}</td>
                         </tr>
                       );
                     })}
@@ -459,31 +496,30 @@ export default function PrintJobSheet() {
               </td>
             </tr>
 
-            {/* FOOTER */}
+            {/* --- FOOTER --- */}
             <tr>
-              <td className="h-32 p-0 align-top" style={{ padding: 0 }}>
-                <div className="flex h-full flex-col">
-                  <div className="border-b border-black p-1 text-center font-bold italic">
+              <td className="h-32 p-0 align-top">
+                <div className="flex h-full flex-col border-b-0">
+                  <div className="border-b border-black p-1 text-center font-bold">
                     Engineer Name, Sign & Date
                   </div>
                   <div className="flex-1"></div>
                   <div className="flex border-t border-black">
-                    <div className="label-cell flex w-[40%] items-center justify-center border-r border-black bg-gray-50 p-2 text-center">
+                    <div className="flex w-[120px] items-center justify-center border-r border-black p-2 text-center font-bold">
                       To & Fro Distance
                     </div>
-                    <div className="flex flex-1 items-center justify-center p-2">
+                    <div className="flex flex-1 items-center justify-center font-bold">
                       {dummyData.toFroDistance}
                     </div>
                   </div>
                 </div>
               </td>
-              <td className="h-32 p-0 align-top" style={{ padding: 0 }}>
-                <div className="flex h-full flex-col text-center">
-                  <div className="border-b border-black p-1 text-center font-bold italic">
+              <td className="h-32 p-0 align-top">
+                <div className="flex h-full flex-col border-b-0">
+                  <div className="border-b border-black p-1 text-center font-bold">
                     Product Serviced, Up to My Satisfaction
                   </div>
-                  <div className="relative flex flex-1 flex-col items-center justify-center p-2">
-                    {/* Image box placeholder */}
+                  <div className="flex flex-1 flex-col items-center justify-center p-2">
                     <div className="mb-2 h-16 w-32 border border-gray-300"></div>
                     <div className="font-bold italic">Customer Signature & Date</div>
                   </div>

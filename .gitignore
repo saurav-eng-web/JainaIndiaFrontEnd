@@ -41,14 +41,21 @@ yarn-error.log*
 next-env.d.ts
 
 
-temp.js
-/temp
-./temp
-./src/app/temp
-/src/app/temp
-/src/app/testadmin
+
 .vscode
 .vscode/
 
 docker-compose.yml
 .vscode/settings.json
+
+
+# Ignored files
+temp.js
+
+# Specific folders (anchored to the root)
+/src/app/temp/
+/src/app/testadmin/
+
+# Root folders
+/temp/
+testadmin

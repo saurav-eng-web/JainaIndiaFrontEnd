@@ -1,6 +1,7 @@
+"use client";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
 import { Button } from "@/components/ui/button";
@@ -121,8 +122,10 @@ export default function GasChargingReqModal({ ticketNo }) {
   };
 
   const handleSubmit = async () => {
+    console.log("submit clicked: ");
     if (!files || files.length === 0) {
       toast.error("Please select at least one file");
+      console.log("No files selected");
       return;
     }
 
@@ -203,7 +206,7 @@ export default function GasChargingReqModal({ ticketNo }) {
         <Button variant="outline" onClick={() => router.back()} disabled={isLoading}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={isLoading || files.length === 0}>
+        <Button onClick={handleSubmit} disabled={isLoading}>
           {isLoading ? "Uploading..." : "Submit"}
         </Button>
       </div>

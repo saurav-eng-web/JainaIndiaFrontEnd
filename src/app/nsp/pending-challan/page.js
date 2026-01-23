@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import Table from "@/components/common/Table";
 import Pagination from "@/components/Pagination";
 import SideBar from "@/components/SideBar";
 import PageSkeleton from "@/components/ui/PageSkeleton";
@@ -15,28 +16,6 @@ import { exportToExcel } from "@/utils/exportToExcel";
 import { logger } from "@/utils/logger";
 
 /* ---------------- COLUMN WIDTH CONFIG ---------------- */
-
-const sizeClassMap = {
-  sm: "w-[60px]",
-  sm1: "w-[80px]",
-  md: "w-[120px]",
-  lg: "w-[160px]",
-  xl: "w-[220px]",
-};
-
-const columnSizes = {
-  "S.No.": "sm",
-  "ASC Code": "md",
-  "Complaint No": "md",
-  "Challan Number": "md",
-  "Part code": "md",
-  "Part Description": "xl",
-  Price: "sm1",
-  Date: "sm1",
-  Status: "lg",
-  "Challan Type": "md",
-  "Line Status": "lg",
-};
 
 const tableHeaders = [
   "S.No.",
@@ -51,8 +30,6 @@ const tableHeaders = [
   "Challan Type",
   "Line Status",
 ];
-
-const columnOrder = [...tableHeaders];
 
 const excelColumns = tableHeaders.map((h) => ({
   label: h,
@@ -160,13 +137,42 @@ function DetailsContent() {
       }
     );
   };
-  // pending challan at warehouse
+
+  const columns = [
+    {
+      label: "S.No.",
+      key: "sr",
+      size: "xs",
+      render: (_v, _row, index) => (currentPage - 1) * pageSize + index + 1,
+    },
+    { label: "Complaint No", key: "Complaint No", size: "md" },
+    { label: "Challan Number", key: "Challan Number", size: "md" },
+    { label: "Part code", key: "Part code", size: "md" },
+    { label: "Part Description", key: "Part Description", size: "xl" },
+    {
+      label: "Price",
+      key: "Price",
+      size: "sm",
+      render: (v) => `₹ ${Number(v).toFixed(2)}`,
+    },
+    { label: "Date", key: "Date", size: "sm" },
+    {
+      label: "Status",
+      key: "Status",
+      size: "lg",
+      render: (v) => (
+        <span className={`rounded-full py-1 text-xs font-semibold`}>{v}</span>
+      ),
+    },
+    { label: "Challan Type", key: "Challan Type", size: "md" },
+    { label: "Line Status", key: "Line Status", size: "lg" },
+  ];
+
   return (
     <PageSkeleton
       title={"Pending Challan at Warehouse"}
       rolesAllowed={["ASM", "ZONE", "BR", "SF/SSD"]}
     >
-      {/* ---------------- SEARCH INPUT ---------------- */}
       <input
         type="text"
         placeholder="Search..."
@@ -178,50 +184,10 @@ function DetailsContent() {
         className="mb-6 h-11 w-72 rounded-lg border-2 border-[#714b67] px-3 py-2 text-sm focus:ring-1 focus:ring-[#714b67] focus:outline-none"
       />
 
-      {/* ---------------- TABLE ---------------- */}
       <div className="overflow-x-hidden rounded-md border border-slate-300">
-        <table className="w-full table-fixed border-separate border-spacing-0">
-          <thead className="bg-[#714b67]">
-            <tr>
-              {tableHeaders.map((header) => (
-                <Th key={header} title={header} />
-              ))}
-            </tr>
-          </thead>
-
-          <tbody>
-            {isDataLoading ? (
-              <tr>
-                <td
-                  colSpan={tableHeaders.length}
-                  className="p-4 text-center text-slate-500"
-                >
-                  Loading...
-                </td>
-              </tr>
-            ) : paginatedRows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={tableHeaders.length}
-                  className="p-4 text-center text-slate-500"
-                >
-                  No data available
-                </td>
-              </tr>
-            ) : (
-              paginatedRows.map((row, rowIndex) => (
-                <tr key={rowIndex} className="hover:bg-[#f1faff]">
-                  {columnOrder.map((key, colIndex) => (
-                    <Td key={`${rowIndex}-${colIndex}`} data={row[key]} header={key} />
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        <Table columns={columns} rows={paginatedRows} isLoading={isDataLoading} />
       </div>
 
-      {/* ---------------- PAGINATION ---------------- */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -230,7 +196,6 @@ function DetailsContent() {
         setCurrentPage={setCurrentPage}
       />
 
-      {/* ---------------- EXCEL BUTTON ---------------- */}
       {!isDataLoading && challanData.length > 0 && (
         <button
           onClick={handleExcelDownload}
@@ -242,36 +207,6 @@ function DetailsContent() {
     </PageSkeleton>
   );
 }
-
-/* ---------------- TABLE CELLS ---------------- */
-
-function Th({ title }) {
-  const size = columnSizes[title] || "md";
-
-  return (
-    <th
-      className={`px-3 py-3 text-left text-[14px] font-semibold text-white ${sizeClassMap[size]} truncate`}
-      title={title}
-    >
-      {title}
-    </th>
-  );
-}
-
-function Td({ data, header }) {
-  const size = columnSizes[header] || "md";
-
-  return (
-    <td
-      className={`border-b border-[#e0e0e0] px-3 py-2 text-sm text-[#333] ${sizeClassMap[size]} break-words whitespace-normal`}
-      title={String(data ?? "")}
-    >
-      {data ?? "-"}
-    </td>
-  );
-}
-
-/* ---------------- PAGE WRAPPER ---------------- */
 
 export default function PendingChallan() {
   return (

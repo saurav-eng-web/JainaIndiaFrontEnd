@@ -9,10 +9,7 @@ import { getUserFromLocalStorage } from "../../../redux/slices/authSlice";
 import { setRouteData } from "../../../redux/slices/routeDataSlice";
 
 import axiosInstance from "@/api/axiosInstance";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import SectionHeading from "@/components/common/SectionHeading";
 import Table from "@/components/common/Table";
-import SideBar from "@/components/SideBar";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
 
@@ -115,7 +112,7 @@ export default function ComplaintTable() {
 
   // <ProtectedRoute allowedRoles={["BR", "NSP"]}> Reject Claims call
   return (
-    <PageSkeleton title="Reject Claims Calls" rolesAllowed={["BR", "NSP"]}>
+    <PageSkeleton title="Reject Claims Calls" rolesAllowed={["BR", "NSP", "SF/SSD"]}>
       {loading ? (
         <p className="text-gray-500">Loading complaints...</p>
       ) : error ? (

@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import SideBar from "@/components/SideBar";
+import { Button } from "@/components/ui/button";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { logger } from "@/utils/logger";
 
@@ -101,7 +100,7 @@ export default function SendHappyCode() {
       }
 
       // Step 2: Extract mobile numbers
-      const { primaryno, altNo } = checkRes?.data;
+      const { primaryno, altNo } = checkRes.data;
 
       // Step 3: Send SMS to one/both numbers
       const smsResults = await sendSMS({ primaryno, altNo, happycode });
@@ -143,18 +142,10 @@ export default function SendHappyCode() {
           onChange={(e) => setComplaintNo(e.target.value)}
         />
         <div className="mt-5 flex gap-2.5">
-          <button
-            className="h-11 w-28 cursor-pointer rounded-lg border border-[#714b67] bg-white px-5 py-3 text-base font-bold text-[#714b67] shadow-lg transition-colors duration-300 hover:bg-[#5a3c52] hover:text-white"
-            onClick={handleBack}
-          >
+          <Button variant="outline" onClick={handleBack}>
             Back
-          </button>
-          <button
-            className="h-11 w-28 cursor-pointer rounded-lg bg-[#714b67] px-5 py-3 text-base font-bold text-white transition-colors duration-300 hover:bg-[#5a3c52]"
-            onClick={handleSend}
-          >
-            Send
-          </button>
+          </Button>
+          <Button onClick={handleSend}>Send</Button>
         </div>
       </div>
     </PageSkeleton>

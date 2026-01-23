@@ -12,10 +12,13 @@ import { useDispatch, useSelector } from "react-redux";
 import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
 import SpeicalAllowancePopup from "../rsm/special-allowance/allowancePopup";
 import AddPartPending from "../sf/action/AddPartPending";
+import DOAClosure from "../sf/action/DOAClosure";
 import MSLConsume from "../sf/action/MSLConsume";
 import PartConsume from "../sf/action/PartConsume";
 import ReceiveFGPO from "../sf/action/ReceiveFGPO";
 
+import AssignedPopup from "./actionsModals/Assigned";
+import WIPPopupModal from "./actionsModals/WIP";
 import CancelPopup from "./CancelPopup";
 import EditCustPopup from "./EditCustPopup";
 
@@ -43,12 +46,9 @@ import { useHistoryData } from "@/hooks/useHistoryData";
 import { setRouteData } from "@/redux/slices/routeDataSlice";
 import { parseStatusMessage } from "@/utils/historyUtils";
 import { logger } from "@/utils/logger";
+
+import OKPopup from "./actionsModals/OK";
 // Custom Hooks & Components
-
-import DOAClosure from "../sf/action/DOAClosure";
-
-import AssignedPopup from "./actionsModals/Assigned";
-import WIPPopupModal from "./actionsModals/WIP";
 
 const tabs = [
   "Job Details",
@@ -125,6 +125,7 @@ function HistoryPageContent() {
   const [assignPopup, setAssignPopup] = useState(false);
   const [assignPopupType, setAssignPopupType] = useState("");
   const [WIPPopup, setWIPPopup] = useState(false);
+  const [OkPopup, setOkPopup] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -295,44 +296,53 @@ function HistoryPageContent() {
   }
 
   const handleActionClick = (action) => {
+    // Always update the selected action first
     setSelectedAction(action);
-    if (action === "Part Pending") {
-      setPartPendingPopup(true);
-      return;
+
+    switch (action) {
+      case "Part Pending":
+        setPartPendingPopup(true);
+        break;
+
+      case "DOA Receive":
+        setDoaReceivePopup(true);
+        break;
+
+      case "Consume Part":
+        setPartConsumePopup(true);
+        break;
+
+      case "Consume Part From MSL":
+        setMSLPartConsumePopup(true);
+        break;
+
+      case "Call Closure":
+        setDOAConsumePopup(true);
+        break;
+
+      case "Assigned":
+        setAssignPopup(true);
+        setAssignPopupType("Assigned");
+        break;
+
+      case "Re-allot":
+        setAssignPopup(true);
+        setAssignPopupType("Re-allot");
+        break;
+
+      case "WIP":
+        setWIPPopup(true);
+        break;
+
+      case "OK":
+        setOkPopup(true);
+        break;
+
+      default:
+        // This runs only if none of the above match
+        setShowActionPopup(true);
+        break;
     }
-    if (action === "DOA Receive") {
-      setDoaReceivePopup(true);
-      return;
-    }
-    if (action === "Consume Part") {
-      setPartConsumePopup(true);
-      return;
-    }
-    if (action === "Consume Part From MSL") {
-      setMSLPartConsumePopup(true);
-      return;
-    }
-    if (action === "Call Closure") {
-      setDOAConsumePopup(true);
-      return;
-    }
-    if (action === "Assigned") {
-      // fetchEngineerData();
-      setAssignPopup(true);
-      setAssignPopupType("Assigned");
-      return;
-    }
-    if (action === "Re-allot") {
-      // fetchEngineerData();
-      setAssignPopup(true);
-      setAssignPopupType("Re-allot");
-      return;
-    }
-    if (action === "WIP") {
-      setWIPPopup(true);
-      return;
-    }
-    setShowActionPopup(true);
   };
 
   async function fetchEngineerData() {
@@ -633,7 +643,6 @@ function HistoryPageContent() {
                 oldSerialNumber={detail.seriaL_NO}
               />
             </Modal>
-
             <Modal open={partConsumePopup} onClose={() => setPartConsumePopup(false)}>
               <PartConsume
                 ticketNo={activeTicket}
@@ -663,6 +672,9 @@ function HistoryPageContent() {
             </Modal>
             <Modal open={WIPPopup} onClose={() => setWIPPopup(false)}>
               <WIPPopupModal ticketNo={activeTicket} onClose={() => router.back()} />
+            </Modal>{" "}
+            <Modal open={OkPopup} onClose={() => setOkPopup(false)}>
+              <OKPopup ticketNo={activeTicket} onClose={() => router.back()} />
             </Modal>
           </>
         )}

@@ -184,14 +184,14 @@ function DetailsContent() {
     { label: "Id", key: "TicketKey", size: "xs" },
     { label: "Complaint Number", key: "ticket_no", size: "md" },
     { label: "Serial Number", key: "serialNo", size: "md" },
-    { label: "Call Type", key: "callType", size: "xs" },
+    { label: "Call Type", key: "callType", size: "sm" },
     { label: "Warranty", key: "warranty", size: "sm" },
     { label: "DOP", key: "DOP", size: "sm" },
     { label: "Finance Remarks", key: "FinanceRemarks", size: "xl" },
     { label: "Rejection Reason", key: "Action", size: "xl" },
     { label: "Rejection Date", key: "RejectionDate", size: "sm" },
     { label: "OK Date", key: "OKDate", size: "sm" },
-    { label: "Customer Name", key: "CustName", size: "lg" },
+    { label: "Customer Name", key: "CustName", size: "sm" },
     { label: "Customer Mobile", key: "CustMobile", size: "sm" },
   ];
 
@@ -223,7 +223,7 @@ function DetailsContent() {
   const complaintRows = Object.keys(complaintData).length > 0 ? [complaintData] : [];
 
   return (
-    <PageSkeleton title="Complaint Details" rolesAllowed={["BR", "NSP"]}>
+    <PageSkeleton title="Complaint Details" rolesAllowed={["BR", "NSP", "SF/SSD"]}>
       {isDataLoading ? (
         <div className="p-4 text-center text-slate-500">Loading...</div>
       ) : (

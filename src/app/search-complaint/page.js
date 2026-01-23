@@ -8,6 +8,7 @@ import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Table from "@/components/common/Table";
 import SideBar from "@/components/SideBar";
+import { Button } from "@/components/ui/button";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { logger } from "@/utils/logger";
 
@@ -241,14 +242,14 @@ export default function SearchComplaintPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <div className="mt-5 flex gap-2.5">
-          <button
+        <div className="mt-4 flex gap-2.5">
+          <Button
             disabled={isLoading}
             className="cursor-pointer rounded-lg bg-[#714b67] px-5 py-3 text-base font-bold text-white transition-colors duration-300 hover:bg-[#5a3c52]"
             onClick={handleSearch}
           >
             {isLoading ? "Searching..." : "Search"}
-          </button>
+          </Button>
         </div>
       </div>
 

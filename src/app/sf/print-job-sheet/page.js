@@ -77,7 +77,8 @@ export default function PrintJobSheet() {
         .job-sheet-table td,
         .job-sheet-table th {
           border: 1px solid black;
-
+          padding: 6px 4px;
+          height: 30px;
           vertical-align: middle;
         }
         .no-border-left {

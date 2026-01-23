@@ -77,10 +77,10 @@ export default function PrintJobSheet() {
         .job-sheet-table td,
         .job-sheet-table th {
           border: 1px solid black;
-          padding: 6px 4px;
           height: 30px;
           vertical-align: middle;
         }
+
         .no-border-left {
           border-left: none !important;
         }
@@ -161,12 +161,12 @@ export default function PrintJobSheet() {
               </td>
               <td className="align-top">
                 <table
-                  className="h-full w-full pl-5"
+                  className="h-full w-full"
                   style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                 >
                   <colgroup>
-                    <col style={{ width: "30%" }} />
-                    <col style={{ width: "70%" }} />
+                    <col style={{ width: "35%" }} />
+                    <col style={{ width: "65%" }} />
                   </colgroup>
                   <tbody>
                     <tr className="">
@@ -210,7 +210,7 @@ export default function PrintJobSheet() {
             <tr>
               <td className="p-0 align-top">
                 <table
-                  className="h-full w-full"
+                  className="h-full w-full bg-green-800"
                   style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                 >
                   <colgroup>
@@ -219,7 +219,10 @@ export default function PrintJobSheet() {
                   </colgroup>
                   <tbody>
                     <tr>
-                      <td colSpan={2} className="border-t-0 border-r-0 border-l-0">
+                      <td
+                        colSpan={2}
+                        className="border-t-0 border-r-0 border-l-0 bg-yellow-300"
+                      >
                         <span className="label-cell">Customer Name: </span>
                         <span className="value-cell">{dummyData.customerName}</span>
                       </td>
@@ -234,13 +237,13 @@ export default function PrintJobSheet() {
                     <tr>
                       <td colSpan={2} className="border-r-0 border-l-0 p-0">
                         <table
-                          className="w-full"
+                          className="w-full bg-red-800"
                           style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                         >
                           <colgroup>
-                            <col style={{ width: "25%" }} />
+                            <col style={{ width: "31.2%" }} />
                             <col style={{ width: "50%" }} />
-                            <col style={{ width: "25%" }} />
+                            <col style={{ width: "18.8%" }} />
                           </colgroup>
                           <tbody>
                             <tr className="border-t border-black">
@@ -289,9 +292,9 @@ export default function PrintJobSheet() {
                   </tbody>
                 </table>
               </td>
-              <td className="p-0 align-top">
+              <td className="align-top">
                 <table
-                  className="h-full w-full"
+                  className="h-full w-full bg-yellow-300"
                   style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                 >
                   <colgroup>
@@ -350,7 +353,7 @@ export default function PrintJobSheet() {
             <tr>
               <td className="p-0 align-top">
                 <table
-                  className="h-full w-full"
+                  className="h-full w-full bg-red-300"
                   style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                 >
                   <colgroup>
@@ -501,12 +504,10 @@ export default function PrintJobSheet() {
             <tr>
               <td className="h-32 p-0 align-top">
                 <div className="flex h-full flex-col border-b-0">
-                  <div className="border-b border-black p-1 text-center font-bold">
-                    Engineer Name, Sign & Date
-                  </div>
+                  <div className="p-1 font-bold">Engineer Name, Sign & Date</div>
                   <div className="flex-1"></div>
                   <div className="flex border-t border-black">
-                    <div className="flex w-[120px] items-center justify-center border-r border-black p-2 text-center font-bold">
+                    <div className="flex w-30 items-center justify-center border-r border-black p-2 text-center font-bold">
                       To & Fro Distance
                     </div>
                     <div className="flex flex-1 items-center justify-center font-bold">
@@ -517,11 +518,11 @@ export default function PrintJobSheet() {
               </td>
               <td className="h-32 p-0 align-top">
                 <div className="flex h-full flex-col border-b-0">
-                  <div className="border-b border-black p-1 text-center font-bold">
+                  <div className="p-1 pt-4 text-center font-bold">
                     Product Serviced, Up to My Satisfaction
                   </div>
                   <div className="flex flex-1 flex-col items-center justify-center p-2">
-                    <div className="mb-2 h-16 w-32 border border-gray-300"></div>
+                    <div className="mb-2 h-16 w-72 border border-gray-300 px-12"></div>
                     <div className="font-bold italic">Customer Signature & Date</div>
                   </div>
                 </div>

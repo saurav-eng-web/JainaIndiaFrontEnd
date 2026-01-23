@@ -1,47 +1,113 @@
 "use client";
+import React from "react";
 
-import { useState } from "react";
-import { toast } from "react-hot-toast";
+/** * Sub-Components for clean table construction
+ */
 
-import OKPopup from "../history/actionsModals/OK";
+const Th = ({ children, className = "" }) => (
+  <th
+    className={`border border-gray-300 bg-gray-50 px-8 py-4 text-left text-xs font-semibold tracking-wider text-gray-900 uppercase ${className}`}
+  >
+    {children}
+  </th>
+);
 
-import { Button } from "@/components/ui/button";
-import Modal from "@/components/ui/Modal";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+const Td = ({ children, className = "" }) => (
+  <td className={`border px-6 py-4 text-sm whitespace-nowrap text-gray-600 ${className}`}>
+    {children}
+  </td>
+);
 
-export default function Page() {
-  const [okpup, setokpup] = useState(false);
-  console.log("okpup: ", okpup);
+const Tr = ({ children, isStriped = false, className = "" }) => (
+  <tr
+    className={`transition-colors hover:bg-blue-50/40 ${isStriped ? "bg-gray-50/50" : "bg-white"} ${className} `}
+  >
+    {children}
+  </tr>
+);
+
+/**
+ * Main Page Component
+ */
+const JobStatusPage = () => {
+  const tableData = [
+    {
+      id: "TKT-9205",
+      task: "Serial Verification",
+      status: "Completed",
+      color: "text-green-700 bg-green-100",
+    },
+    {
+      id: "TKT-8271",
+      task: "WIP Documentation",
+      status: "In Progress",
+      color: "text-blue-700 bg-blue-100",
+    },
+    {
+      id: "TKT-1189",
+      task: "Happy Code Validation",
+      status: "Pending",
+      color: "text-yellow-700 bg-yellow-100",
+    },
+    {
+      id: "TKT-4432",
+      task: "Final Job Closure",
+      status: "Awaiting",
+      color: "text-red-700 bg-red-100",
+    },
+  ];
 
   return (
-    <PageSkeleton title={"test page"} rolesAllowed={["sf/ssd", "asm", "zone", "br"]}>
-      <header>
-        <h2 class="border-primary w-full border-b pb-3 text-xl font-bold text-gray-900 dark:text-white">
-          Complaint Details
-        </h2>
-      </header>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="mx-auto max-w-4xl">
+        {/* Header Section */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Service Ticket Summary</h1>
+          <p className="text-sm text-gray-500">
+            Overview of current 4 tasks and their status.
+          </p>
+        </div>
 
-      <div className="grid min-h-screen grid-cols-12 gap-4">
-        <Button
-          onClick={() => {
-            setokpup(true);
-            toast.success("OK Popup opened");
-            console.log("okpup: ", okpup);
-          }}
-        >
-          Call OK
-        </Button>
-      </div>
+        {/* Table Container */}
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <table className="min-w-full border-collapse">
+            <thead>
+              <tr>
+                <Th>Ticket ID</Th>
+                <Th>Task Description</Th>
+                <Th>Current Status</Th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {tableData.map((row, index) => (
+                <Tr key={row.id} isStriped={index % 2 !== 0}>
+                  <Td className="font-mono font-medium text-blue-600">{row.id}</Td>
+                  <Td>{row.task}</Td>
+                  <Td>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${row.color}`}
+                    >
+                      {row.status}
+                    </span>
+                  </Td>
+                </Tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <div class="group bg-red- mb-6 flex items-center gap-3">
-        <h2 class="text-lg font-bold whitespace-nowrap text-gray-800 dark:text-gray-100">
-          Complaint Details
-        </h2>
-        <div class="group-hover:bg-primary/30 h-px w-full bg-gray-200 transition-colors duration-300 dark:bg-gray-700"></div>
+        {/* Footer Info */}
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => window.location.reload()}
+            className="text-sm font-medium text-blue-600 hover:underline"
+          >
+            Refresh Table Data
+          </button>
+        </div>
       </div>
-      <Modal open={okpup} onClose={() => setokpup(false)}>
-        <OKPopup ticketNo={"TEST1234"} />
-      </Modal>
-    </PageSkeleton>
+    </div>
   );
-}
+};
+
+export default JobStatusPage;

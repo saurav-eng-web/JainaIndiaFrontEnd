@@ -127,6 +127,12 @@ export default function SideBar() {
       text: "Special Allowance Requests",
       roles: ["ZONE", "RSM"],
     },
+    {
+      href: "/sf/current-stock",
+      icon: "fa fa-cubes",
+      text: "Current Stock",
+      roles: ["sf/ssd", "SF/SSD"],
+    },
   ];
 
   const allowedBulkUsers = ["T284977"];

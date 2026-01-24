@@ -210,7 +210,7 @@ export default function PrintJobSheet() {
             <tr>
               <td className="p-0 align-top">
                 <table
-                  className="h-full w-full bg-green-800"
+                  className="h-full w-full"
                   style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                 >
                   <colgroup>
@@ -219,10 +219,7 @@ export default function PrintJobSheet() {
                   </colgroup>
                   <tbody>
                     <tr>
-                      <td
-                        colSpan={2}
-                        className="border-t-0 border-r-0 border-l-0 bg-yellow-300"
-                      >
+                      <td colSpan={2} className="border-t-0 border-r-0 border-l-0">
                         <span className="label-cell">Customer Name: </span>
                         <span className="value-cell">{dummyData.customerName}</span>
                       </td>
@@ -237,7 +234,7 @@ export default function PrintJobSheet() {
                     <tr>
                       <td colSpan={2} className="border-r-0 border-l-0 p-0">
                         <table
-                          className="w-full bg-red-800"
+                          className="w-full"
                           style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                         >
                           <colgroup>
@@ -294,7 +291,7 @@ export default function PrintJobSheet() {
               </td>
               <td className="align-top">
                 <table
-                  className="h-full w-full bg-yellow-300"
+                  className="h-full w-full"
                   style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                 >
                   <colgroup>
@@ -338,12 +335,6 @@ export default function PrintJobSheet() {
                         {dummyData.modelNumber}
                       </td>
                     </tr>
-                    {/* The number of rows and heights MUST match left side if we want strict bottom alignment.
-                                 Left side has 8 rows (Cust, Addr, City, State, Land, Phone, ContactP, ContactN).
-                                 Right side has 7 rows (ComplaintNo, Date, Alt, Brand, Cat, Prod, Model).
-                                 Address on Left is likely taller.
-                                 Product/Model on Right might need to stretch to fill height.
-                             */}
                   </tbody>
                 </table>
               </td>
@@ -353,7 +344,7 @@ export default function PrintJobSheet() {
             <tr>
               <td className="p-0 align-top">
                 <table
-                  className="h-full w-full bg-red-300"
+                  className="h-full w-full"
                   style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                 >
                   <colgroup>
@@ -443,9 +434,9 @@ export default function PrintJobSheet() {
             </tr>
             <tr>
               <td colSpan={2} className="border-t p-0">
-                <div className="flex min-h-[40px] w-full">
+                <div className="flex min-h-10 w-full">
                   <div className="flex w-[60%] border-r border-black">
-                    <div className="label-cell w-[120px] shrink-0 p-1">Action Taken:</div>
+                    <div className="label-cell w-30 shrink-0 p-1">Action Taken:</div>
                     <div>{dummyData.actionTaken}</div>
                   </div>
                   <div className="w-[40%]"></div>

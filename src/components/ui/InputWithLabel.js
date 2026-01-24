@@ -42,7 +42,7 @@ export default function InputField({
   return (
     <div className={clsx("flex w-full flex-col gap-1", className)}>
       {/* Label */}
-      {label && (
+      {/* {label && (
         <label
           htmlFor={id || name}
           className={clsx("font-medium text-[#714b67]", styles.label)}
@@ -51,7 +51,19 @@ export default function InputField({
           {required && <span className="ml-1 text-red-500">*</span>}
           {message && <span className="ml-2 text-xs text-gray-500">{message}</span>}
         </label>
-      )}
+      )} */}
+      {/* Label (reserve space even if not provided) */}
+      <div className={clsx("min-h-[1.25rem]", styles.label)}>
+        {label ? (
+          <label htmlFor={id || name} className="font-medium text-[#714b67]">
+            {label}
+            {required && <span className="ml-1 text-red-500">*</span>}
+            {message && <span className="ml-2 text-xs text-gray-500">{message}</span>}
+          </label>
+        ) : (
+          <span className="invisible">placeholder</span>
+        )}
+      </div>
 
       {/* Input */}
       <input

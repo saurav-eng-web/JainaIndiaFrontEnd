@@ -38,6 +38,7 @@ export default function ImageUpload({
   accept = "image/*", // Can be "image/*", "video/*", or "image/*,video/*"
   maxFileSize = 5,
   maxFileAllowed = 5,
+  message = "",
 }) {
   const styles = sizeMap[size] || sizeMap.md;
 
@@ -57,6 +58,7 @@ export default function ImageUpload({
         >
           {label}
           {required && <span className="ml-1 text-red-500">*</span>}
+          {message && <span className="ml-1 text-sm text-gray-500">{message}</span>}
         </label>
       )}
 

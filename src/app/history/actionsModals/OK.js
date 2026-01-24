@@ -32,7 +32,8 @@ export default function OKPopup({ ticketNo, onClose }) {
   }, [images]);
 
   const handleValidateHappycode = async () => {
-    if (!happyCode) {
+    if (!happyCode || happyCode.length !== 4) {
+      toast.error("Please enter a valid 4-digit happy code");
       return;
     }
 
@@ -42,19 +43,61 @@ export default function OKPopup({ ticketNo, onClose }) {
     };
 
     try {
-      const res = await axiosInstance.post("happycode-job-close-check/validate", payload);
-      if (res.data.statusCode === 200 && res.data.statusMsg === "Valid Happy Code") {
-        toast.success("Happy code is valid");
-        setValidHappyCode(true);
-      } else {
-        toast.error("Invalid happy code");
-        setValidHappyCode(false);
-      }
+      const res = await toast.promise(
+        axiosInstance.post("happycode-job-close-check/validate", payload),
+        {
+          loading: "Validating happy code...",
+          success: (res) => {
+            if (
+              res.data.statusCode === 200 &&
+              res.data.statusMsg === "Valid Happy Code"
+            ) {
+              setValidHappyCode(true);
+              return "Happy code is valid";
+            } else {
+              setValidHappyCode(false);
+              throw new Error("Invalid happy code");
+            }
+          },
+          error: (err) =>
+            err?.response?.data?.statusMsg ||
+            err.message ||
+            "Unable to verify happy code. Please try again.",
+        }
+      );
+
+      return res;
     } catch (error) {
-      toast.error("Unable to verify validate happy code! Please try again.");
+      // already handled by toast.promise
       console.error("API Error:", error);
     }
   };
+
+  // const handleValidateHappycode = async () => {
+  //   if (!happyCode || happyCode.length !== 4) {
+  //     toast.error("Please enter a valid 4-digit happy code");
+  //     return;
+  //   }
+
+  //   const payload = {
+  //     TicketNo: ticketNo,
+  //     Pin: happyCode,
+  //   };
+
+  //   try {
+  //     const res = await axiosInstance.post("happycode-job-close-check/validate", payload);
+  //     if (res.data.statusCode === 200 && res.data.statusMsg === "Valid Happy Code") {
+  //       toast.success("Happy code is valid");
+  //       setValidHappyCode(true);
+  //     } else {
+  //       toast.error("Invalid happy code");
+  //       setValidHappyCode(false);
+  //     }
+  //   } catch (error) {
+  //     toast.error("Unable to verify validate happy code! Please try again.");
+  //     console.error("API Error:", error);
+  //   }
+  // };
 
   const handleUpload = async () => {
     try {
@@ -86,47 +129,48 @@ export default function OKPopup({ ticketNo, onClose }) {
       return;
     }
 
-    if (!remarks) {
-      toast.error("Please enter remarks");
-      return;
-    }
-
-    if (isSubmitting) {
-      return;
-    }
-
-    setIsSubmitting(true);
+    if (isSubmitting) return;
 
     const payload = {
-      type: "OK",
+      type: "okcheck",
       ticket_no: ticketNo,
-      happyCode: happyCode,
-      remarks: remarks,
+      // happyCode: happyCode,
+      // remarks: remarks,
     };
 
     try {
-      const res = await axiosInstance.post("consumption/process", payload);
+      setIsSubmitting(true);
 
-      if (
-        res.data.statusCode === 200 &&
-        res.data.statusMsg === "Record Inserted/Updated Successfully" &&
-        res.data?.data.length > 0
-      ) {
-        if (images.length > 0) {
-          const uploadSuccess = await handleUpload();
-          if (!uploadSuccess) {
-            toast.error("Some images failed to upload");
-            // Continue to close? Usually yes, but warn.
+      const res = await toast.promise(axiosInstance.post("ok-call/process", payload), {
+        loading: "Submitting request...",
+        success: async (res) => {
+          if (
+            res.data.statusCode === 200 &&
+            res.data.statusMsg === "Record Inserted/Updated Successfully" &&
+            res.data?.data.length > 0
+          ) {
+            if (images.length > 0) {
+              const uploadSuccess = await handleUpload();
+              if (!uploadSuccess) {
+                toast.error("Some images failed to upload");
+              }
+            }
+
+            setTimeout(() => router.back(), 1000);
+            return "Call closed successfully";
           }
-        }
-        toast.success("Call closed successfully");
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        router.back();
-      }
+
+          throw new Error(res.data.statusMsg || "Failed to close call");
+        },
+        error: (err) =>
+          err?.response?.data?.statusMsg ||
+          err.message ||
+          "Something went wrong while closing the call",
+      });
 
       console.log("res: ", res);
     } catch (error) {
-      toast.error("Something went wrong");
+      // Already handled by toast.promise
       console.error("API Error:", error);
     } finally {
       setIsSubmitting(false);
@@ -165,21 +209,31 @@ export default function OKPopup({ ticketNo, onClose }) {
 
   // TODO: Valid serial no
   return (
-    <ModalSkeleton title={"OK"} rolesAllowed={["sf/ssd"]} size="xl">
+    <ModalSkeleton title={"Call Closure"} rolesAllowed={["sf/ssd"]} size="xl">
       <div className="space-y-6">
         <div className="grid w-2xl grid-cols-2 gap-6">
-          <InputField
-            label={"Happy Code"}
-            type={"text"}
-            onChange={(e) => setHappyCode(e.target.value)}
-            required={true}
-            onBlur={handleValidateHappycode}
-          />
+          <div>
+            <InputField
+              label={"Happy Code"}
+              type={"number"}
+              onChange={(e) => setHappyCode(e.target.value)}
+              required={true}
+            />
+            <Button
+              variant={validHappyCode ? "verified" : "primary"}
+              disabled={validHappyCode}
+              onClick={handleValidateHappycode}
+              className="mt-4"
+            >
+              {validHappyCode ? "Verified" : "Verify"}
+            </Button>
+          </div>
 
           <InputField
             label={"Remarks"}
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
+            message={"Optional"}
           />
         </div>
         <div>
@@ -189,6 +243,7 @@ export default function OKPopup({ ticketNo, onClose }) {
             multiple
             onChange={(e) => handleImageSelect(e)}
             value={images}
+            message={"(Optional)"}
           />
           {/* Preview Section */}
           {previews.length > 0 && (

@@ -2,6 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
+import axios from "axios";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";

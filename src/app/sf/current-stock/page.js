@@ -2,18 +2,12 @@
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-import { get } from "http";
-
-import { set } from "date-fns";
-import { FormInput } from "lucide-react";
 import React, { useEffect, useState, Suspense, useMemo } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Table from "@/components/common/Table";
 import Pagination from "@/components/Pagination";
-import SideBar from "@/components/SideBar";
 import { Button } from "@/components/ui/button";
 import Dropdown from "@/components/ui/Dropdown";
 import ThemedDropdown from "@/components/ui/Dropdown";
@@ -222,7 +216,13 @@ function DetailsContent() {
       </div>
 
       <div className="overflow-x-hidden rounded-md border border-slate-300">
-        <Table columns={columns} rows={paginatedRows} isLoading={isDataLoading} />
+        {selectedStockType === null || stockData.length === 0 ? (
+          <div className="p-6 text-center text-sm text-slate-600">
+            Please select a stock type and click "Fetch Data" to view current stock.
+          </div>
+        ) : (
+          <Table columns={columns} rows={paginatedRows} isLoading={isDataLoading} />
+        )}
       </div>
 
       {stockData.length > 15 && (

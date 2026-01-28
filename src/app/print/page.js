@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
+import { Button } from "@/components/ui/button";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
 
@@ -149,22 +150,12 @@ export default function ChallanSearch() {
         />
 
         <div className="col-span-3 mt-6 flex gap-4">
-          <button
-            type="button"
-            className="cursor-pointer rounded-lg px-6 py-2 text-sm font-medium shadow-md"
-            style={{ background: colors.primary, color: "#fff" }}
-            onClick={() => window.history.back()}
-          >
+          <Button variant="outline" onClick={() => window.history.back()}>
             Back
-          </button>
-          <button
-            type="submit"
-            className="cursor-pointer rounded-lg px-6 py-2 text-sm font-medium shadow-md"
-            style={{ background: colors.primary, color: "#fff" }}
-            disabled={loading}
-          >
+          </Button>
+          <Button type="submit" disabled={loading}>
             {loading ? "Searching..." : "Search"}
-          </button>
+          </Button>
         </div>
       </form>
 

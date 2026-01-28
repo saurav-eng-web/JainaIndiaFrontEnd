@@ -2,7 +2,11 @@
 
 import { Printer } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+
+import axiosInstance from "@/api/axiosInstance";
 
 // Dummy data to match the screenshot populate
 const dummyData = {
@@ -48,6 +52,83 @@ const dummyData = {
 };
 
 export default function PrintJobSheet() {
+  const complaintNo = useSelector((state) => state.routeData.store.complaintNo);
+  const [data, setData] = useState(dummyData);
+  console.log("complaint No: ", complaintNo);
+
+  const sampleData = [
+    {
+      Complaint: "Hanging",
+      CALL_TYPE: "Service",
+      TICKET_NO: "MHSL2502191188842",
+      NAME: "Mr. RAJUSAH SHEKH ",
+      ADDRESS1: "CHAWL NO -01, SHRE SADGURU KIRPA CHAWL, KHOONI, WADAVALI KHURD",
+      State_Name: "Maharashtra",
+      CITY: "THANE",
+      landmark: "NEAR NIRJEE",
+      PINCODE: 421201,
+      Expr1: "app",
+      TDATE: "19/02/2025",
+      TTIME: "2025-02-19T14:18:15.733",
+      category: "LED",
+      PRODUCT: "Smart LED",
+      MODEL: "JSWY32GSHD",
+      SERIAL_NO: "S32HG1924WP043379",
+      PURCHASE_DATE: "25/10/2024",
+      InvoiceNo: "",
+      ASC_NAME: "PRAKASH ELECTRONICS SALES & SERVICES-MHS3ASC-089",
+      ASCAddress:
+        "SHOP NO 6 JAY HANUMAN CHAYA BILD DAWADI ROAD DOMBIVALI EAST\nMumbai\nMaharashtra-421203,",
+      ascMobile: "9322730240",
+      CUSTREMARK: "",
+      WARRANTY: "In Warranty",
+      COMPLAINT_STATUS: "Part Pending",
+      Complaint: "Hanging",
+      JD_Workdone: "Backlight problem panel required",
+      TICKET_KEY: 1188842,
+      Jd_Symptom: "No Picture",
+      MOBILE: "9930489503",
+      Dealer: "NANDAS ELEL. ",
+      DealerMobno: "8692896911",
+      engname: null,
+      Actualdistance: null,
+      MOBILE: "9930489503",
+      HMPH: "9930489503",
+      WKPH: "",
+      splint: "8692896911//DIGVIJAY",
+      PurchaseFrom: "Dealer",
+      Complaint_SubStatus: "Part Requested",
+      ST_Number: "",
+      brand_name: "Sansui",
+      Email: "sansuicare@jainaindia.com",
+      Web: "sansuiworld.com",
+      AF: "Sansui Authorised Franchise",
+      Toll: "18605003555",
+      Img: "../image/sansui_logo_color.jpg",
+      cause: "Panel Faulty",
+      Analysis: "Panel replaced",
+    },
+  ];
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await axiosInstance.post("print-jobsheet/process", {
+          type: "JobSheet",
+          ticket_no: complaintNo,
+        });
+        if (res.data?.statusCode === 200 && res.data?.data.length > 0) {
+          setData(res.data.data[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load data, try again");
+      }
+    }
+
+    fetchData();
+  }, [complaintNo]);
+
   const handlePrint = () => {
     window.print();
   };

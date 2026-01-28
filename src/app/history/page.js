@@ -126,6 +126,7 @@ function HistoryPageContent() {
   const [assignPopupType, setAssignPopupType] = useState("");
   const [WIPPopup, setWIPPopup] = useState(false);
   const [OkPopup, setOkPopup] = useState(false);
+  const [SCAPopup, setSCAPopup] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -336,6 +337,9 @@ function HistoryPageContent() {
 
       case "OK":
         setOkPopup(true);
+        break;
+      case "SCA":
+        setSCAPopup(true);
         break;
 
       default:
@@ -674,6 +678,9 @@ function HistoryPageContent() {
               <WIPPopupModal ticketNo={activeTicket} onClose={() => router.back()} />
             </Modal>{" "}
             <Modal open={OkPopup} onClose={() => setOkPopup(false)}>
+              <OKPopup ticketNo={activeTicket} onClose={() => router.back()} />
+            </Modal>{" "}
+            <Modal open={SCAPopup} onClose={() => setSCAPopup(false)}>
               <OKPopup ticketNo={activeTicket} onClose={() => router.back()} />
             </Modal>
           </>

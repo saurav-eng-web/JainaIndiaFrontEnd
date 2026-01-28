@@ -11,7 +11,6 @@ export default function CustomDropdown({ label, options, value, onChange, placeh
   const dropdownRef = useRef(null);
   const listRef = useRef(null);
   const { colors } = useTheme();
-
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {

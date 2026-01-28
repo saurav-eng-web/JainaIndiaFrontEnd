@@ -1,20 +1,23 @@
 "use client";
 
+import { Printer } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
 
 import axiosInstance from "@/api/axiosInstance";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Table from "@/components/common/Table";
-import SideBar from "@/components/SideBar";
 import { Button } from "@/components/ui/button";
 import PageSkeleton from "@/components/ui/PageSkeleton";
+import { setRouteData } from "@/redux/slices/routeDataSlice";
 import { logger } from "@/utils/logger";
 
 export default function SearchComplaintPage() {
   const router = useRouter();
   const [userRole, setUserRole] = useState("");
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
@@ -115,6 +118,11 @@ export default function SearchComplaintPage() {
     router.push(`/call?${params.toString()}`);
   };
 
+  const handlePrintJobSheet = (complaintNo) => {
+    dispatch(setRouteData({ key: "complaintNo", data: complaintNo }));
+    router.push("sf/print-job-sheet");
+  };
+
   const showRegistrationColumn =
     userRole === "cc" &&
     searchResults.some(
@@ -122,6 +130,9 @@ export default function SearchComplaintPage() {
         r?.complainT_SUBSTATUS?.toLowerCase() === "ok" ||
         r?.complainT_SUBSTATUS?.toLowerCase() === "cancel"
     );
+
+  const showPrinterColumn =
+    userRole === "sf/ssd" || userRole === "sf" || userRole === "ssd";
 
   const columns = [
     {
@@ -226,6 +237,24 @@ export default function SearchComplaintPage() {
       size: "sm",
       render: (v) => v || "-",
     },
+    ...(showPrinterColumn
+      ? [
+          {
+            key: "print",
+            label: "Print",
+            size: "xs",
+            render: (_, row) => (
+              <button
+                className="flex cursor-pointer items-center gap-2 rounded-md px-3.5 py-2 text-[13px] text-[#714b67] transition-colors"
+                onClick={() => handlePrintJobSheet(row.tickeT_NO)}
+                title="Print Job Sheet"
+              >
+                <Printer size={18} />
+              </button>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (

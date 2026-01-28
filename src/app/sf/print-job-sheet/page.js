@@ -1,7 +1,8 @@
 "use client";
 
-import { Printer } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
@@ -54,36 +55,37 @@ const dummyData = {
 export default function PrintJobSheet() {
   const complaintNo = useSelector((state) => state.routeData.store.complaintNo);
   const [data, setData] = useState(dummyData);
+
+  const router = useRouter();
   console.log("complaint No: ", complaintNo);
 
   const sampleData = [
     {
       Complaint: "Hanging",
       CALL_TYPE: "Service",
-      TICKET_NO: "MHSL2502191188842",
-      NAME: "Mr. RAJUSAH SHEKH ",
-      ADDRESS1: "CHAWL NO -01, SHRE SADGURU KIRPA CHAWL, KHOONI, WADAVALI KHURD",
-      State_Name: "Maharashtra",
-      CITY: "THANE",
-      landmark: "NEAR NIRJEE",
-      PINCODE: 421201,
+      TICKET_NO: "MHSL2502191188842", // jobSheetNo
+      NAME: "Mr. RAJUSAH SHEKH ", // customerName
+      ADDRESS1: "CHAWL NO -01, SHRE SADGURU KIRPA CHAWL, KHOONI, WADAVALI KHURD", // customerAddress
+      State_Name: "Maharashtra", // state
+      CITY: "THANE", // city
+      landmark: "NEAR NIRJEE", // landmark
+      PINCODE: 421201, // pincode
       Expr1: "app",
       TDATE: "19/02/2025",
       TTIME: "2025-02-19T14:18:15.733",
-      category: "LED",
-      PRODUCT: "Smart LED",
-      MODEL: "JSWY32GSHD",
-      SERIAL_NO: "S32HG1924WP043379",
-      PURCHASE_DATE: "25/10/2024",
-      InvoiceNo: "",
-      ASC_NAME: "PRAKASH ELECTRONICS SALES & SERVICES-MHS3ASC-089",
+      category: "LED", // category
+      PRODUCT: "Smart LED", // product
+      MODEL: "JSWY32GSHD", // modelNumber
+      SERIAL_NO: "S32HG1924WP043379", // serialNumber
+      PURCHASE_DATE: "25/10/2024", // dop
+      InvoiceNo: "", // invoiceNo
+      ASC_NAME: "PRAKASH ELECTRONICS SALES & SERVICES-MHS3ASC-089", // ascName
       ASCAddress:
-        "SHOP NO 6 JAY HANUMAN CHAYA BILD DAWADI ROAD DOMBIVALI EAST\nMumbai\nMaharashtra-421203,",
-      ascMobile: "9322730240",
+        "SHOP NO 6 JAY HANUMAN CHAYA BILD DAWADI ROAD DOMBIVALI EAST\nMumbai\nMaharashtra-421203,", // ascAddress
+      ascMobile: "9322730240", // ascContact
       CUSTREMARK: "",
-      WARRANTY: "In Warranty",
+      WARRANTY: "In Warranty", // warrantyType
       COMPLAINT_STATUS: "Part Pending",
-      Complaint: "Hanging",
       JD_Workdone: "Backlight problem panel required",
       TICKET_KEY: 1188842,
       Jd_Symptom: "No Picture",
@@ -92,26 +94,33 @@ export default function PrintJobSheet() {
       DealerMobno: "8692896911",
       engname: null,
       Actualdistance: null,
-      MOBILE: "9930489503",
       HMPH: "9930489503",
       WKPH: "",
       splint: "8692896911//DIGVIJAY",
-      PurchaseFrom: "Dealer",
+      PurchaseFrom: "Dealer", // purchaseFrom
       Complaint_SubStatus: "Part Requested",
       ST_Number: "",
       brand_name: "Sansui",
       Email: "sansuicare@jainaindia.com",
       Web: "sansuiworld.com",
-      AF: "Sansui Authorised Franchise",
-      Toll: "18605003555",
+      AF: "Sansui Authorised Franchise", //franchiseName
+      Toll: "18605003555", // tollFreeNumber
       Img: "../image/sansui_logo_color.jpg",
       cause: "Panel Faulty",
       Analysis: "Panel replaced",
     },
   ];
 
+  // useEffect(() => {
+  //   if(compl)
+  // }, [data]);
+
   useEffect(() => {
     async function fetchData() {
+      if (!complaintNo) {
+        router.push("/search-complaint");
+        return;
+      }
       try {
         const res = await axiosInstance.post("print-jobsheet/process", {
           type: "JobSheet",
@@ -195,10 +204,17 @@ export default function PrintJobSheet() {
       {/* Floating Print Button */}
       <button
         onClick={handlePrint}
-        className="fixed right-8 bottom-8 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-white bg-[#714b67] text-white shadow-xl transition-transform hover:scale-110 active:scale-95 print:hidden"
+        className="fixed top-8 left-28 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-white bg-[#714b67] text-white shadow-xl transition-transform hover:scale-110 active:scale-95 print:hidden"
         title="Print Job Sheet"
       >
         <Printer size={24} />
+      </button>
+      <button
+        onClick={() => router.back()}
+        className="fixed top-8 left-8 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-white text-[#714b67] shadow-xl transition-transform hover:scale-110 active:scale-95 print:hidden"
+        title="Print Job Sheet"
+      >
+        <ArrowLeft size={24} strokeWidth={2.75} />
       </button>
 
       <div className="mx-auto max-w-[210mm] bg-white print:max-w-full">
@@ -211,7 +227,7 @@ export default function PrintJobSheet() {
           <tbody>
             {/* --- HEADER --- */}
             <tr>
-              <td className="align-top">
+              <td className="pl-4 align-top">
                 <div className="flex h-full flex-col justify-between">
                   <div>
                     <div className="mb-4">
@@ -251,7 +267,9 @@ export default function PrintJobSheet() {
                   </colgroup>
                   <tbody>
                     <tr className="">
-                      <td className="label-cell border-t-0 border-l-0">Job Sheet No.</td>
+                      <td className="label-cell border-t-0 border-l-0 pl-2">
+                        Job Sheet No.
+                      </td>
                       <td className="value-cell border-t-0 border-r-0 text-center">
                         {dummyData.jobSheetNo}
                       </td>
@@ -265,19 +283,21 @@ export default function PrintJobSheet() {
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">ASC Name</td>
+                      <td className="label-cell border-l-0 pl-2">ASC Name</td>
                       <td className="value-cell border-r-0 text-center text-[9px]">
                         {dummyData.ascName}
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0 align-top">Address</td>
+                      <td className="label-cell border-l-0 pl-2 align-top">Address</td>
                       <td className="value-cell border-r-0 py-2 text-center text-[9px] leading-tight">
                         {dummyData.ascAddress}
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-b-0 border-l-0">Contact Number</td>
+                      <td className="label-cell border-b-0 border-l-0 pl-2">
+                        Contact Number
+                      </td>
                       <td className="value-cell border-r-0 border-b-0 text-center">
                         {dummyData.ascContact}
                       </td>
@@ -301,12 +321,14 @@ export default function PrintJobSheet() {
                   <tbody>
                     <tr>
                       <td colSpan={2} className="border-t-0 border-r-0 border-l-0">
-                        <span className="label-cell">Customer Name: </span>
+                        <span className="label-cell pl-2">Customer Name: </span>
                         <span className="value-cell">{dummyData.customerName}</span>
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0 py-2 align-top">Address:</td>
+                      <td className="label-cell border-l-0 py-2 pl-2 align-top">
+                        Address:
+                      </td>
                       <td className="value-cell border-r-0 py-1 text-[9px] leading-tight">
                         {dummyData.customerAddress}
                       </td>
@@ -319,13 +341,15 @@ export default function PrintJobSheet() {
                           style={{ borderCollapse: "collapse", borderStyle: "hidden" }}
                         >
                           <colgroup>
-                            <col style={{ width: "31.2%" }} />
+                            <col style={{ width: "23.5%" }} />
                             <col style={{ width: "50%" }} />
-                            <col style={{ width: "18.8%" }} />
+                            <col style={{ width: "20%" }} />
                           </colgroup>
                           <tbody>
                             <tr className="border-t border-black">
-                              <td className="label-cell border-t-0 border-l-0">City</td>
+                              <td className="label-cell border-t-0 border-l-0 pl-2">
+                                City
+                              </td>
                               <td className="value-cell border-t-0 text-center">
                                 {dummyData.city}
                               </td>
@@ -333,7 +357,7 @@ export default function PrintJobSheet() {
                               {/* Image shows blank cell? Or just border? It's just border. */}
                             </tr>
                             <tr>
-                              <td className="label-cell border-l-0">State</td>
+                              <td className="label-cell border-l-0 pl-2">State</td>
                               <td className="value-cell text-center">
                                 {dummyData.state}
                               </td>
@@ -346,23 +370,25 @@ export default function PrintJobSheet() {
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">Landmark</td>
+                      <td className="label-cell border-l-0 pl-2">Landmark</td>
                       <td className="border-r-0 text-center">{dummyData.landmark}</td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">Phone No.</td>
+                      <td className="label-cell border-l-0 pl-2">Phone No.</td>
                       <td className="border-r-0 text-center font-bold">
                         {dummyData.phoneNo}
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">Contact Person</td>
+                      <td className="label-cell border-l-0 pl-2">Contact Person</td>
                       <td className="value-cell border-r-0 text-center">
                         {dummyData.contactPerson}
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-b-0 border-l-0">Contact Number</td>
+                      <td className="label-cell border-b-0 border-l-0 pl-2">
+                        Contact Number
+                      </td>
                       <td className="value-cell border-r-0 border-b-0 text-center">
                         {dummyData.contactNumber}
                       </td>
@@ -381,37 +407,41 @@ export default function PrintJobSheet() {
                   </colgroup>
                   <tbody>
                     <tr>
-                      <td className="label-cell border-t-0 border-l-0">Complaint No.:</td>
+                      <td className="label-cell border-t-0 border-l-0 pl-2">
+                        Complaint No.:
+                      </td>
                       <td className="value-cell border-t-0 border-r-0 text-center text-[10px]">
                         {dummyData.complaintNo}
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">Complaint Date:</td>
+                      <td className="label-cell border-l-0 pl-2">Complaint Date:</td>
                       <td className="value-cell border-r-0 text-center">
                         {dummyData.complaintDate}
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">Alternate No.</td>
+                      <td className="label-cell border-l-0 pl-2">Alternate No.</td>
                       <td className="border-r-0 text-center">{dummyData.alternateNo}</td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">Brand</td>
+                      <td className="label-cell border-l-0 pl-2">Brand</td>
                       <td className="border-r-0 text-center">{dummyData.brand}</td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">Category</td>
+                      <td className="label-cell border-l-0 pl-2">Category</td>
                       <td className="border-r-0 text-center">{dummyData.category}</td>
                     </tr>
                     <tr className="h-8">
-                      <td className="label-cell border-l-0">Product</td>
+                      <td className="label-cell border-l-0 pl-2">Product</td>
                       <td className="border-r-0 text-center align-bottom">
                         {dummyData.product}
                       </td>
                     </tr>
                     <tr className="h-8">
-                      <td className="label-cell border-b-0 border-l-0">Model Number</td>
+                      <td className="label-cell border-b-0 border-l-0 pl-2">
+                        Model Number
+                      </td>
                       <td className="value-cell border-r-0 border-b-0 text-center align-bottom">
                         {dummyData.modelNumber}
                       </td>
@@ -436,7 +466,7 @@ export default function PrintJobSheet() {
                     {/* Specific Request spans multiple rows of right side */}
                     <tr>
                       <td
-                        className="label-cell border-t-0 border-l-0 pt-2 align-top"
+                        className="label-cell border-t-0 border-l-0 pt-2 pl-2 align-top"
                         style={{ height: "100px" }}
                       >
                         Specific Request:
@@ -446,7 +476,9 @@ export default function PrintJobSheet() {
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-b-0 border-l-0">Call type:- </td>
+                      <td className="label-cell border-b-0 border-l-0 pl-2">
+                        Call type:-{" "}
+                      </td>
                       <td className="border-r-0 border-b-0">{dummyData.callType}</td>
                     </tr>
                   </tbody>
@@ -463,13 +495,15 @@ export default function PrintJobSheet() {
                   </colgroup>
                   <tbody>
                     <tr>
-                      <td className="label-cell border-t-0 border-l-0">Serial Number</td>
+                      <td className="label-cell border-t-0 border-l-0 pl-2">
+                        Serial Number
+                      </td>
                       <td className="value-cell border-t-0 border-r-0 text-center">
                         {dummyData.serialNumber}
                       </td>
                     </tr>
                     <tr style={{ height: "60px" }}>
-                      <td className="label-cell border-l-0 pt-2 align-top">
+                      <td className="label-cell border-l-0 pt-2 pl-2 align-top">
                         Date of Purchase
                       </td>
                       <td className="value-cell border-r-0 pb-1 text-center align-bottom">
@@ -477,7 +511,7 @@ export default function PrintJobSheet() {
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">Purchase from</td>
+                      <td className="label-cell border-l-0 pl-2">Purchase from</td>
                       <td className="border-r-0">
                         <div className="flex justify-between px-1 text-[9px]">
                           <span>{dummyData.purchaseFrom}</span>
@@ -486,13 +520,15 @@ export default function PrintJobSheet() {
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-l-0">Invoice Number</td>
+                      <td className="label-cell border-l-0 pl-2">Invoice Number</td>
                       <td className="border-r-0 text-center">
                         {dummyData.invoiceNumber}
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-b-0 border-l-0">Warranty Type</td>
+                      <td className="label-cell border-b-0 border-l-0 pl-2">
+                        Warranty Type
+                      </td>
                       <td className="value-cell border-r-0 border-b-0 text-center">
                         {dummyData.warrantyType}
                       </td>
@@ -517,7 +553,9 @@ export default function PrintJobSheet() {
               <td colSpan={2} className="border-t p-0">
                 <div className="flex min-h-10 w-full">
                   <div className="flex w-[60%] border-r border-black">
-                    <div className="label-cell w-30 shrink-0 p-1">Action Taken:</div>
+                    <div className="label-cell w-30 shrink-0 pt-1 pl-2">
+                      Action Taken:
+                    </div>
                     <div>{dummyData.actionTaken}</div>
                   </div>
                   <div className="w-[40%]"></div>

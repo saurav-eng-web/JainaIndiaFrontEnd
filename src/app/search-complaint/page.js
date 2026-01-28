@@ -249,7 +249,7 @@ export default function SearchComplaintPage() {
                 onClick={() => handlePrintJobSheet(row.tickeT_NO)}
                 title="Print Job Sheet"
               >
-                <Printer size={18} />
+                <Printer size={20} />
               </button>
             ),
           },

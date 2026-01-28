@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 import SCAPopup from "../sf/action/sca";
 
+import axiosInstance from "@/api/axiosInstance";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/Modal";
 import PageSkeleton from "@/components/ui/PageSkeleton";
@@ -13,6 +14,16 @@ import PageSkeleton from "@/components/ui/PageSkeleton";
 
 const JobStatusPage = () => {
   const [open, setOpen] = useState(false);
+  async function loadDate() {
+    try {
+      const res = await axiosInstance.post("cancellation/request", {
+        type: "POCancel",
+      });
+      console.log("res: ", res);
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+  }
 
   const s =
     "SHOP NO 6 JAY HANUMAN CHAYA BILD DAWADI ROAD DOMBIVALI EAST\nMumbai\nMaharashtra-421203";
@@ -27,7 +38,7 @@ const JobStatusPage = () => {
           <SCAPopup ticketNo="TKT-9205" onClose={() => setOpen(false)} />
         </Modal>
       </div>
-      <p className="">{s}</p>
+      <Button onClick={loadDate}>load</Button>
     </PageSkeleton>
   );
 };

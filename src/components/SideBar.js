@@ -128,6 +128,12 @@ export default function SideBar() {
       roles: ["ZONE", "RSM"],
     },
     {
+      href: "/sf/po-cancel-req",
+      icon: "fa fa-times",
+      text: "PO Request Cancel",
+      roles: ["SF/SSD"],
+    },
+    {
       href: "/sf/current-stock",
       icon: "fa fa-cubes",
       text: "Current Stock",

@@ -11,7 +11,26 @@ const SansuiJobSheet = () => {
     window.print();
   };
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gray-100 py-10 font-sans">
+    <div className="font-arial flex min-h-screen flex-col items-center py-10 print:block print:bg-white print:p-0">
+      <style jsx global>{`
+        @media print {
+          @page {
+            margin: 5mm;
+            size: A4;
+          }
+          body {
+            background-color: white;
+            -webkit-print-color-adjust: exact;
+          }
+          .print-container {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            border: 1px solid black !important;
+          }
+        }
+      `}</style>
       <button
         onClick={handlePrint}
         className="fixed top-8 left-28 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-white bg-[#714b67] text-white shadow-xl transition-transform hover:scale-110 active:scale-95 print:hidden"
@@ -22,22 +41,13 @@ const SansuiJobSheet = () => {
       <button
         onClick={() => router.back()}
         className="fixed top-8 left-8 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-white text-[#714b67] shadow-xl transition-transform hover:scale-110 active:scale-95 print:hidden"
-        title="Print Job Sheet"
+        title="Back"
       >
         <ArrowLeft size={24} strokeWidth={2.75} />
       </button>
-      {/* Controls */}
-      <div className="mb-6 flex gap-4 print:hidden">
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-2 rounded px-6 py-2 font-semibold shadow transition-colors"
-        >
-          <Printer size={16} /> Print Job Sheet
-        </button>
-      </div>
 
       {/* A4 Page Container */}
-      <div className="flex min-h-[297mm] w-[210mm] flex-col overflow-hidden border border-black bg-white text-[10px] leading-tight text-black shadow-lg print:border-none print:shadow-none">
+      <div className="print-container flex min-h-[285mm] w-[210mm] flex-col overflow-hidden border border-black bg-white text-[10px] leading-tight text-black shadow-lg print:w-full print:shadow-none">
         {/* --- TOP HEADER SECTION --- */}
         <div className="flex border-b border-black">
           {/* Left Block: Logo & Info */}
@@ -125,7 +135,7 @@ const SansuiJobSheet = () => {
           {/* LEFT COLUMN (40%) */}
           <div className="flex w-[40%] flex-col border-r border-black">
             {/* Customer Name (Moved Inside) */}
-            <div className="flex h-14 border-b border-black">
+            <div className="flex h-10 border-b border-black">
               <div className="flex w-24 items-center border-r border-black p-2 leading-tight font-bold">
                 Customer Name:
               </div>
@@ -135,7 +145,7 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Address */}
-            <div className="flex h-16 border-b border-black">
+            <div className="flex h-12 border-b border-black">
               <div className="flex w-24 items-center border-r border-black p-2 font-bold">
                 Address:
               </div>
@@ -205,7 +215,7 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Specific Request (Spans Serial + Date) */}
-            <div className="flex h-[5rem] border-b border-black">
+            <div className="flex h-14 border-b border-black">
               <div className="w-24 border-r border-black p-2 leading-tight font-bold">
                 Specific Request:
               </div>
@@ -224,7 +234,7 @@ const SansuiJobSheet = () => {
           {/* RIGHT COLUMN (60%) */}
           <div className="flex w-[60%] flex-col">
             {/* Complaint Date */}
-            <div className="flex h-14 border-b border-black">
+            <div className="flex h-10 border-b border-black">
               <div className="flex w-28 items-center border-r border-black px-2 leading-none font-bold">
                 Complaint Date:
               </div>
@@ -234,7 +244,7 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Alternate No */}
-            <div className="flex h-16 border-b border-black">
+            <div className="flex h-12 border-b border-black">
               <div className="flex w-28 items-center border-r border-black px-2 font-bold">
                 Alternate No.
               </div>
@@ -260,7 +270,7 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Product (Spans 2 Left Rows) */}
-            <div className="flex h-16 border-b border-black">
+            <div className="flex h-12 border-b border-black">
               <div className="flex w-28 items-center border-r border-black px-2 font-bold">
                 Product
               </div>
@@ -268,11 +278,11 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Model Number (Spans 2 Left Rows) */}
-            <div className="flex h-16 border-b border-black">
+            <div className="flex h-12 border-b border-black">
               <div className="flex w-28 items-center border-r border-black px-2 font-bold">
                 Model Number
               </div>
-              <div className="flex flex-1 flex-col items-center justify-center pt-8">
+              <div className="flex flex-1 flex-col items-center justify-center pt-2">
                 <span>JSK32LSHD</span>
               </div>
             </div>
@@ -288,11 +298,11 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Date of Purchase */}
-            <div className="flex h-12 border-b border-black">
+            <div className="flex h-10 border-b border-black">
               <div className="flex w-28 items-center border-r border-black px-2 font-bold">
                 Date of Purchase
               </div>
-              <div className="flex flex-1 items-center justify-center pt-4">
+              <div className="flex flex-1 items-center justify-center pt-2">
                 20/03/2020
               </div>
             </div>

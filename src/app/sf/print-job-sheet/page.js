@@ -14,105 +14,168 @@ import axiosInstance from "@/api/axiosInstance";
 
 // Dummy data to match the screenshot populate
 const dummyData = {
-  jobSheetNo: "MHSL250220179155VS",
-  ascName: "PRAKASH ELECTRONICS SALES & SERVICES-MHS3ASC-089",
-  ascAddress:
-    "SHOP NO 6 JAY HANUMAN CHAYA BILD DAWADI ROAD DOMBIVALI EAST Mumbai Maharashtra-421203,",
-  ascContact: "9322730240",
-  customerName: "Mr./Mrs.. BHAVESH SANJAY BHAGAT BHAVESH SANJAY BHAGAT",
-  customerAddress:
-    "110 SHIVAJI MAHARAJ CHOWK CHINCHAWLI NEAR BY RAILWAY FHATAK BHIVPURI ROAD RAIGARH(MH) Chinchwali (Karjat)",
-  city: "RAIGARH",
-  state: "Maharashtra",
-  pincode: "410201",
-  landmark: "Mahim(W)",
-  phoneNo: "8237198686",
-  contactPerson: "APP",
-  contactNumber: "0000000000",
-  complaintNo: "MHSL250220179155VS",
-  complaintDate: "20/02/2025",
-  alternateNo: "7972879538",
-  brand: "Sansui",
-  category: "LED",
-  product: "Smart LED",
-  modelNumber: "JSK32LSHD",
-  serialNumber: "S19190K0S005182",
-  dop: "20/03/2020",
-  purchaseFrom: "NA",
-  purchaseFromContact: "0000000000",
-  invoiceNumber: "NA",
-  warrantyType: "Out Warranty",
-  callType: "Demo",
-  specificRequest: "",
-  defectObserved: "",
-  actionTaken: "-",
-  toFroDistance: "",
-  partsConsumed: [
-    { code: "", description: "", qty: "" },
-    { code: "", description: "", qty: "" },
-    { code: "", description: "", qty: "" },
-    { code: "", description: "", qty: "" },
-  ],
+  Complaint: "Hanging", // defectObserved
+  CALL_TYPE: "Service",
+  TICKET_NO: "MHSL2502191188842", // jobSheetNo
+  NAME: "Mr. RAJUSAH SHEKH ", // customerName
+  ADDRESS1: "CHAWL NO -01, SHRE SADGURU KIRPA CHAWL, KHOONI, WADAVALI KHURD", // customerAddress
+  State_Name: "Maharashtra", // state
+  CITY: "THANE", // city
+  landmark: "NEAR NIRJEE", // landmark
+  PINCODE: 421201, // pincode
+  Expr1: "app",
+  TDATE: "19/02/2025",
+  TTIME: "2025-02-19T14:18:15.733",
+  category: "LED", // category
+  PRODUCT: "Smart LED", // product
+  MODEL: "JSWY32GSHD", // modelNumber
+  SERIAL_NO: "S32HG1924WP043379", // serialNumber
+  PURCHASE_DATE: "25/10/2024", // dop
+  InvoiceNo: "", // invoiceNo
+  ASC_NAME: "PRAKASH ELECTRONICS SALES & SERVICES-MHS3ASC-089", // ascName
+  ASCAddress:
+    "SHOP NO 6 JAY HANUMAN CHAYA BILD DAWADI ROAD DOMBIVALI EAST\nMumbai\nMaharashtra-421203,", // ascAddress
+  ascMobile: "9322730240", // ascContact
+  CUSTREMARK: "", // specificRequest
+  WARRANTY: "In Warranty", // warrantyType
+  COMPLAINT_STATUS: "Part Pending",
+  JD_Workdone: "Backlight problem panel required",
+  TICKET_KEY: 1188842,
+  Jd_Symptom: "No Picture",
+  MOBILE: "9930489503",
+  Dealer: "NANDAS ELEL. ",
+  DealerMobno: "8692896911",
+  engname: null,
+  Actualdistance: null,
+  HMPH: "9930489503",
+  WKPH: "",
+  splint: "8692896911//DIGVIJAY",
+  PurchaseFrom: "Dealer", // purchaseFrom
+  Complaint_SubStatus: "Part Requested",
+  ST_Number: "",
+  brand_name: "Sansui",
+  Email: "sansuicare@jainaindia.com",
+  Web: "sansuiworld.com",
+  AF: "Sansui Authorised Franchise", //franchiseName
+  Toll: "18605003555", // tollFreeNumber
+  Img: "../image/sansui_logo_color.jpg",
+  cause: "Panel Faulty",
+  Analysis: "Panel replaced", // actionTaken
 };
 
+const partConsumed = [
+  {
+    part: "Panel",
+    quantity: 1,
+    rate: 1000,
+    amount: 1000,
+  },
+  {
+    part: "Panel",
+    quantity: 1,
+    rate: 1000,
+    amount: 1000,
+  },
+  {
+    part: "Panel",
+    quantity: 1,
+    rate: 1000,
+    amount: 1000,
+  },
+  {
+    part: "Panel",
+    quantity: 1,
+    rate: 1000,
+    amount: 1000,
+  },
+];
 export default function PrintJobSheet() {
-  const complaintNo = useSelector((state) => state.routeData.store.complaintNo);
+  const complaintNo =
+    useSelector((state) => state.routeData.store.complaintNo) || "MHSL2502191188842";
   const [data, setData] = useState(dummyData);
 
   const router = useRouter();
   console.log("complaint No: ", complaintNo);
 
-  const sampleData = [
-    {
-      Complaint: "Hanging",
-      CALL_TYPE: "Service",
-      TICKET_NO: "MHSL2502191188842", // jobSheetNo
-      NAME: "Mr. RAJUSAH SHEKH ", // customerName
-      ADDRESS1: "CHAWL NO -01, SHRE SADGURU KIRPA CHAWL, KHOONI, WADAVALI KHURD", // customerAddress
-      State_Name: "Maharashtra", // state
-      CITY: "THANE", // city
-      landmark: "NEAR NIRJEE", // landmark
-      PINCODE: 421201, // pincode
-      Expr1: "app",
-      TDATE: "19/02/2025",
-      TTIME: "2025-02-19T14:18:15.733",
-      category: "LED", // category
-      PRODUCT: "Smart LED", // product
-      MODEL: "JSWY32GSHD", // modelNumber
-      SERIAL_NO: "S32HG1924WP043379", // serialNumber
-      PURCHASE_DATE: "25/10/2024", // dop
-      InvoiceNo: "", // invoiceNo
-      ASC_NAME: "PRAKASH ELECTRONICS SALES & SERVICES-MHS3ASC-089", // ascName
-      ASCAddress:
-        "SHOP NO 6 JAY HANUMAN CHAYA BILD DAWADI ROAD DOMBIVALI EAST\nMumbai\nMaharashtra-421203,", // ascAddress
-      ascMobile: "9322730240", // ascContact
-      CUSTREMARK: "",
-      WARRANTY: "In Warranty", // warrantyType
-      COMPLAINT_STATUS: "Part Pending",
-      JD_Workdone: "Backlight problem panel required",
-      TICKET_KEY: 1188842,
-      Jd_Symptom: "No Picture",
-      MOBILE: "9930489503",
-      Dealer: "NANDAS ELEL. ",
-      DealerMobno: "8692896911",
-      engname: null,
-      Actualdistance: null,
-      HMPH: "9930489503",
-      WKPH: "",
-      splint: "8692896911//DIGVIJAY",
-      PurchaseFrom: "Dealer", // purchaseFrom
-      Complaint_SubStatus: "Part Requested",
-      ST_Number: "",
-      brand_name: "Sansui",
-      Email: "sansuicare@jainaindia.com",
-      Web: "sansuiworld.com",
-      AF: "Sansui Authorised Franchise", //franchiseName
-      Toll: "18605003555", // tollFreeNumber
-      Img: "../image/sansui_logo_color.jpg",
-      cause: "Panel Faulty",
-      Analysis: "Panel replaced",
-    },
-  ];
+  const sampleData = {
+    Complaint: "Hanging", // defectObserved
+    CALL_TYPE: "Service",
+    TICKET_NO: "MHSL2502191188842", // jobSheetNo
+    NAME: "Mr. RAJUSAH SHEKH ", // customerName
+    ADDRESS1: "CHAWL NO -01, SHRE SADGURU KIRPA CHAWL, KHOONI, WADAVALI KHURD", // customerAddress
+    State_Name: "Maharashtra", // state
+    CITY: "THANE", // city
+    landmark: "NEAR NIRJEE", // landmark
+    PINCODE: 421201, // pincode
+    Expr1: "app",
+    TDATE: "19/02/2025",
+    TTIME: "2025-02-19T14:18:15.733",
+    category: "LED", // category
+    PRODUCT: "Smart LED", // product
+    MODEL: "JSWY32GSHD", // modelNumber
+    SERIAL_NO: "S32HG1924WP043379", // serialNumber
+    PURCHASE_DATE: "25/10/2024", // dop
+    InvoiceNo: "", // invoiceNo
+    ASC_NAME: "PRAKASH ELECTRONICS SALES & SERVICES-MHS3ASC-089", // ascName
+    ASCAddress:
+      "SHOP NO 6 JAY HANUMAN CHAYA BILD DAWADI ROAD DOMBIVALI EAST\nMumbai\nMaharashtra-421203,", // ascAddress
+    ascMobile: "9322730240", // ascContact
+    CUSTREMARK: "", // specificRequest
+    WARRANTY: "In Warranty", // warrantyType
+    COMPLAINT_STATUS: "Part Pending",
+    JD_Workdone: "Backlight problem panel required",
+    TICKET_KEY: 1188842,
+    Jd_Symptom: "No Picture",
+    MOBILE: "9930489503",
+    Dealer: "NANDAS ELEL. ",
+    DealerMobno: "8692896911",
+    engname: null,
+    Actualdistance: null,
+    HMPH: "9930489503",
+    WKPH: "",
+    splint: "8692896911//DIGVIJAY",
+    PurchaseFrom: "Dealer", // purchaseFrom
+    Complaint_SubStatus: "Part Requested",
+    ST_Number: "",
+    brand_name: "Sansui",
+    Email: "sansuicare@jainaindia.com",
+    Web: "sansuiworld.com",
+    AF: "Sansui Authorised Franchise", //franchiseName
+    Toll: "18605003555", // tollFreeNumber
+    Img: "../image/sansui_logo_color.jpg",
+    cause: "Panel Faulty",
+    Analysis: "Panel replaced", // actionTaken
+  };
+
+  const {
+    Complaint: defectObserved,
+    TICKET_NO: jobSheetNo,
+    NAME: customerName,
+    ADDRESS1: customerAddress,
+    State_Name: state,
+    CITY: city,
+    landmark: landmark,
+    PINCODE: pincode,
+    category: category,
+    PRODUCT: product,
+    MODEL: modelNumber,
+    SERIAL_NO: serialNumber,
+    PURCHASE_DATE: dop,
+    InvoiceNo: invoiceNo,
+    ASC_NAME: ascName,
+    ASCAddress: ascAddress,
+    ascMobile: ascContact,
+    CUSTREMARK: specificRequest,
+    WARRANTY: warrantyType,
+    PurchaseFrom: purchaseFrom,
+    AF: franchiseName,
+    Toll: tollFreeNumber,
+    Analysis: actionTaken,
+  } = data;
+
+  // Now you can use them directly:
+  console.log(customerName); // Output: Mr. RAJUSAH SHEKH
+  console.log(jobSheetNo); // Output: MHSL2502191188842
 
   // useEffect(() => {
   //   if(compl)
@@ -120,10 +183,10 @@ export default function PrintJobSheet() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!complaintNo) {
-        router.push("/search-complaint");
-        return;
-      }
+      // if (!complaintNo) {
+      //   router.push("/search-complaint");
+      //   return;
+      // }
       try {
         const res = await axiosInstance.post("print-jobsheet/process", {
           type: "JobSheet",
@@ -439,17 +502,15 @@ export default function PrintJobSheet() {
                         className="label-cell border-t-0 border-l-0 pt-2 pl-2 align-top"
                         style={{ height: "100px" }}
                       >
-                        Specific Request:
+                        Specific Request
                       </td>
-                      <td className="border-t-0 border-r-0 p-1 align-top">
-                        {dummyData.specificRequest}
+                      <td className="border-t-0 border-r-0 p-1 pl-2 align-top">
+                        {dummyData.specificRequest || "test"}
                       </td>
                     </tr>
                     <tr>
-                      <td className="label-cell border-b-0 border-l-0 pl-2">
-                        Call type:-{" "}
-                      </td>
-                      <td className="border-r-0 border-b-0">{dummyData.callType}</td>
+                      <td className="label-cell border-b-0 border-l-0 pl-2">Call type</td>
+                      <td className="border-r-0 border-b-0 pl-2">{dummyData.callType}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -556,7 +617,7 @@ export default function PrintJobSheet() {
                   </thead>
                   <tbody>
                     {[...Array(4)].map((_, i) => {
-                      const part = dummyData.partsConsumed[i] || {
+                      const part = partConsumed[i] || {
                         code: "",
                         description: "",
                         qty: "",
@@ -578,7 +639,7 @@ export default function PrintJobSheet() {
             <tr>
               <td className="h-32 p-0 align-top">
                 <div className="flex h-full flex-col border-b-0">
-                  <div className="p-1 font-bold">Engineer Name, Sign & Date</div>
+                  <div className="p-2 font-bold">Engineer Name, Sign & Date</div>
                   <div className="flex-1"></div>
                   <div className="flex border-t border-black">
                     <div className="flex w-30 items-center justify-center border-r border-black p-2 text-center font-bold">

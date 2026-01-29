@@ -28,6 +28,8 @@ const JobStatusPage = () => {
   const s =
     "SHOP NO 6 JAY HANUMAN CHAYA BILD DAWADI ROAD DOMBIVALI EAST\nMumbai\nMaharashtra-421203";
 
+  const str = '"""LED Panel UHD 43"""""""';
+
   return (
     <PageSkeleton title="Test">
       <div className="min-h-2xl min-w-2xl bg-red-400 p-20">
@@ -38,6 +40,7 @@ const JobStatusPage = () => {
           <SCAPopup ticketNo="TKT-9205" onClose={() => setOpen(false)} />
         </Modal>
       </div>
+      <p>{str.trim()}</p>
       <Button onClick={loadDate}>load</Button>
     </PageSkeleton>
   );

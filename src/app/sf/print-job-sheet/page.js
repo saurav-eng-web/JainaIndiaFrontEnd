@@ -7,6 +7,9 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
+import InfoRow from "./components/InfoRow";
+import SectionHeader from "./components/SectionHeader";
+
 import axiosInstance from "@/api/axiosInstance";
 
 // Dummy data to match the screenshot populate
@@ -266,42 +269,30 @@ export default function PrintJobSheet() {
                     <col style={{ width: "65%" }} />
                   </colgroup>
                   <tbody>
-                    <tr className="">
-                      <td className="label-cell border-t-0 border-l-0 pl-2">
-                        Job Sheet No.
-                      </td>
-                      <td className="value-cell border-t-0 border-r-0 text-center">
-                        {dummyData.jobSheetNo}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td
-                        colSpan={2}
-                        className="border-r-0 border-l-0 bg-gray-50 text-center font-bold"
-                      >
-                        Sansui Authorised Franchise
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 pl-2">ASC Name</td>
-                      <td className="value-cell border-r-0 text-center text-[9px]">
-                        {dummyData.ascName}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 pl-2 align-top">Address</td>
-                      <td className="value-cell border-r-0 py-2 text-center text-[9px] leading-tight">
-                        {dummyData.ascAddress}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-b-0 border-l-0 pl-2">
-                        Contact Number
-                      </td>
-                      <td className="value-cell border-r-0 border-b-0 text-center">
-                        {dummyData.ascContact}
-                      </td>
-                    </tr>
+                    <InfoRow
+                      label="Job Sheet No."
+                      value={dummyData.jobSheetNo}
+                      labelClass="border-t-0"
+                      valueClass="border-t-0"
+                    />
+                    <SectionHeader title="Sansui Authorised Franchise" />
+                    <InfoRow
+                      label="ASC Name"
+                      value={dummyData.ascName}
+                      valueClass="text-[9px]"
+                    />
+                    <InfoRow
+                      label="Address"
+                      value={dummyData.ascAddress}
+                      labelClass="align-top"
+                      valueClass="py-2 text-[9px] leading-tight"
+                    />
+                    <InfoRow
+                      label="Contact Number"
+                      value={dummyData.ascContact}
+                      labelClass="border-b-0"
+                      valueClass="border-b-0"
+                    />
                   </tbody>
                 </table>
               </td>
@@ -325,14 +316,12 @@ export default function PrintJobSheet() {
                         <span className="value-cell">{dummyData.customerName}</span>
                       </td>
                     </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 py-2 pl-2 align-top">
-                        Address:
-                      </td>
-                      <td className="value-cell border-r-0 py-1 text-[9px] leading-tight">
-                        {dummyData.customerAddress}
-                      </td>
-                    </tr>
+                    <InfoRow
+                      label="Address:"
+                      value={dummyData.customerAddress}
+                      labelClass="align-top py-2"
+                      valueClass="py-1 text-[9px] leading-tight"
+                    />
                     {/* Nested table for city/state grid to ensure alignment */}
                     <tr>
                       <td colSpan={2} className="border-r-0 border-l-0 p-0">
@@ -369,30 +358,19 @@ export default function PrintJobSheet() {
                         </table>
                       </td>
                     </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 pl-2">Landmark</td>
-                      <td className="border-r-0 text-center">{dummyData.landmark}</td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 pl-2">Phone No.</td>
-                      <td className="border-r-0 text-center font-bold">
-                        {dummyData.phoneNo}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 pl-2">Contact Person</td>
-                      <td className="value-cell border-r-0 text-center">
-                        {dummyData.contactPerson}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-b-0 border-l-0 pl-2">
-                        Contact Number
-                      </td>
-                      <td className="value-cell border-r-0 border-b-0 text-center">
-                        {dummyData.contactNumber}
-                      </td>
-                    </tr>
+                    <InfoRow
+                      label="Landmark"
+                      value={dummyData.landmark}
+                      isValueCell={false}
+                    />
+                    <InfoRow label="Phone No." value={dummyData.phoneNo} />
+                    <InfoRow label="Contact Person" value={dummyData.contactPerson} />
+                    <InfoRow
+                      label="Contact Number"
+                      value={dummyData.contactNumber}
+                      labelClass="border-b-0"
+                      valueClass="border-b-0"
+                    />
                   </tbody>
                 </table>
               </td>
@@ -406,46 +384,38 @@ export default function PrintJobSheet() {
                     <col style={{ width: "65%" }} />
                   </colgroup>
                   <tbody>
-                    <tr>
-                      <td className="label-cell border-t-0 border-l-0 pl-2">
-                        Complaint No.:
-                      </td>
-                      <td className="value-cell border-t-0 border-r-0 text-center text-[10px]">
-                        {dummyData.complaintNo}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 pl-2">Complaint Date:</td>
-                      <td className="value-cell border-r-0 text-center">
-                        {dummyData.complaintDate}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 pl-2">Alternate No.</td>
-                      <td className="border-r-0 text-center">{dummyData.alternateNo}</td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 pl-2">Brand</td>
-                      <td className="border-r-0 text-center">{dummyData.brand}</td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 pl-2">Category</td>
-                      <td className="border-r-0 text-center">{dummyData.category}</td>
-                    </tr>
-                    <tr className="h-8">
-                      <td className="label-cell border-l-0 pl-2">Product</td>
-                      <td className="border-r-0 text-center align-bottom">
-                        {dummyData.product}
-                      </td>
-                    </tr>
-                    <tr className="h-8">
-                      <td className="label-cell border-b-0 border-l-0 pl-2">
-                        Model Number
-                      </td>
-                      <td className="value-cell border-r-0 border-b-0 text-center align-bottom">
-                        {dummyData.modelNumber}
-                      </td>
-                    </tr>
+                    <InfoRow
+                      label="Complaint No.:"
+                      value={dummyData.complaintNo}
+                      labelClass="border-t-0"
+                      valueClass="border-t-0 text-[10px]"
+                    />
+                    <InfoRow label="Complaint Date:" value={dummyData.complaintDate} />
+                    <InfoRow
+                      label="Alternate No."
+                      value={dummyData.alternateNo}
+                      isValueCell={false}
+                    />
+                    <InfoRow label="Brand" value={dummyData.brand} isValueCell={false} />
+                    <InfoRow
+                      label="Category"
+                      value={dummyData.category}
+                      isValueCell={false}
+                    />
+                    <InfoRow
+                      label="Product"
+                      value={dummyData.product}
+                      valueClass="align-bottom"
+                      isValueCell={false}
+                      className="h-8"
+                    />
+                    <InfoRow
+                      label="Model Number"
+                      value={dummyData.modelNumber}
+                      labelClass="border-b-0"
+                      valueClass="border-b-0 align-bottom"
+                      className="h-8"
+                    />
                   </tbody>
                 </table>
               </td>
@@ -494,22 +464,19 @@ export default function PrintJobSheet() {
                     <col style={{ width: "65%" }} />
                   </colgroup>
                   <tbody>
-                    <tr>
-                      <td className="label-cell border-t-0 border-l-0 pl-2">
-                        Serial Number
-                      </td>
-                      <td className="value-cell border-t-0 border-r-0 text-center">
-                        {dummyData.serialNumber}
-                      </td>
-                    </tr>
-                    <tr style={{ height: "60px" }}>
-                      <td className="label-cell border-l-0 pt-2 pl-2 align-top">
-                        Date of Purchase
-                      </td>
-                      <td className="value-cell border-r-0 pb-1 text-center align-bottom">
-                        {dummyData.dop}
-                      </td>
-                    </tr>
+                    <InfoRow
+                      label="Serial Number"
+                      value={dummyData.serialNumber}
+                      labelClass="border-t-0"
+                      valueClass="border-t-0"
+                    />
+                    <InfoRow
+                      label="Date of Purchase"
+                      value={dummyData.dop}
+                      labelClass="align-top pt-2"
+                      valueClass="pb-1 align-bottom"
+                      className="h-[60px]" // check style overrides
+                    />
                     <tr>
                       <td className="label-cell border-l-0 pl-2">Purchase from</td>
                       <td className="border-r-0">
@@ -519,20 +486,17 @@ export default function PrintJobSheet() {
                         </div>
                       </td>
                     </tr>
-                    <tr>
-                      <td className="label-cell border-l-0 pl-2">Invoice Number</td>
-                      <td className="border-r-0 text-center">
-                        {dummyData.invoiceNumber}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="label-cell border-b-0 border-l-0 pl-2">
-                        Warranty Type
-                      </td>
-                      <td className="value-cell border-r-0 border-b-0 text-center">
-                        {dummyData.warrantyType}
-                      </td>
-                    </tr>
+                    <InfoRow
+                      label="Invoice Number"
+                      value={dummyData.invoiceNumber}
+                      isValueCell={false}
+                    />
+                    <InfoRow
+                      label="Warranty Type"
+                      value={dummyData.warrantyType}
+                      labelClass="border-b-0"
+                      valueClass="border-b-0"
+                    />
                   </tbody>
                 </table>
               </td>

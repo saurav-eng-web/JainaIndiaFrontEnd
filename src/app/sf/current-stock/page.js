@@ -215,7 +215,7 @@ function DetailsContent() {
         />
       </div>
 
-      <div className="overflow-x-hidden rounded-md border border-slate-300">
+      <div className="mt-8 overflow-x-hidden rounded-md">
         {selectedStockType === null || stockData.length === 0 ? (
           <div className="p-6 text-center text-sm text-slate-600">
             Please select a stock type and click "Fetch Data" to view current stock.

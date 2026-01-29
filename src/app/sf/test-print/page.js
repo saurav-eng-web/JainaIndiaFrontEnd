@@ -15,7 +15,7 @@ const SansuiJobSheet = () => {
       <style jsx global>{`
         @media print {
           @page {
-            margin: 5mm;
+            margin: 10mm;
             size: A4;
           }
           body {
@@ -24,10 +24,7 @@ const SansuiJobSheet = () => {
           }
           .print-container {
             width: 100% !important;
-            height: auto !important;
             min-height: 0 !important;
-            margin: 0 !important;
-            border: 1px solid black !important;
           }
         }
       `}</style>
@@ -47,7 +44,7 @@ const SansuiJobSheet = () => {
       </button>
 
       {/* A4 Page Container */}
-      <div className="print-container flex min-h-[285mm] w-[210mm] flex-col overflow-hidden border border-black bg-white text-[10px] leading-tight text-black shadow-lg print:w-full print:shadow-none">
+      <div className="print-container flex min-h-[296mm] w-[210mm] flex-col overflow-hidden border border-black bg-white text-[10px] leading-tight text-black shadow-lg print:w-full print:shadow-none">
         {/* --- TOP HEADER SECTION --- */}
         <div className="flex border-b border-black">
           {/* Left Block: Logo & Info */}
@@ -135,7 +132,7 @@ const SansuiJobSheet = () => {
           {/* LEFT COLUMN (40%) */}
           <div className="flex w-[40%] flex-col border-r border-black">
             {/* Customer Name (Moved Inside) */}
-            <div className="flex h-10 border-b border-black">
+            <div className="flex h-14 border-b border-black">
               <div className="flex w-24 items-center border-r border-black p-2 leading-tight font-bold">
                 Customer Name:
               </div>
@@ -145,7 +142,7 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Address */}
-            <div className="flex h-12 border-b border-black">
+            <div className="flex h-16 border-b border-black">
               <div className="flex w-24 items-center border-r border-black p-2 font-bold">
                 Address:
               </div>
@@ -215,7 +212,7 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Specific Request (Spans Serial + Date) */}
-            <div className="flex h-14 border-b border-black">
+            <div className="flex h-20 border-b border-black">
               <div className="w-24 border-r border-black p-2 leading-tight font-bold">
                 Specific Request:
               </div>
@@ -234,7 +231,7 @@ const SansuiJobSheet = () => {
           {/* RIGHT COLUMN (60%) */}
           <div className="flex w-[60%] flex-col">
             {/* Complaint Date */}
-            <div className="flex h-10 border-b border-black">
+            <div className="flex h-14 border-b border-black">
               <div className="flex w-28 items-center border-r border-black px-2 leading-none font-bold">
                 Complaint Date:
               </div>
@@ -244,7 +241,7 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Alternate No */}
-            <div className="flex h-12 border-b border-black">
+            <div className="flex h-16 border-b border-black">
               <div className="flex w-28 items-center border-r border-black px-2 font-bold">
                 Alternate No.
               </div>
@@ -270,7 +267,7 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Product (Spans 2 Left Rows) */}
-            <div className="flex h-12 border-b border-black">
+            <div className="flex h-16 border-b border-black">
               <div className="flex w-28 items-center border-r border-black px-2 font-bold">
                 Product
               </div>
@@ -278,11 +275,11 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Model Number (Spans 2 Left Rows) */}
-            <div className="flex h-12 border-b border-black">
+            <div className="flex h-16 border-b border-black">
               <div className="flex w-28 items-center border-r border-black px-2 font-bold">
                 Model Number
               </div>
-              <div className="flex flex-1 flex-col items-center justify-center pt-2">
+              <div className="flex flex-1 flex-col items-center justify-center pt-8">
                 <span>JSK32LSHD</span>
               </div>
             </div>
@@ -298,11 +295,11 @@ const SansuiJobSheet = () => {
             </div>
 
             {/* Date of Purchase */}
-            <div className="flex h-10 border-b border-black">
+            <div className="flex h-12 border-b border-black">
               <div className="flex w-28 items-center border-r border-black px-2 font-bold">
                 Date of Purchase
               </div>
-              <div className="flex flex-1 items-center justify-center pt-2">
+              <div className="flex flex-1 items-center justify-center pt-4">
                 20/03/2020
               </div>
             </div>

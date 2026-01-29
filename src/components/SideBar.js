@@ -130,7 +130,7 @@ export default function SideBar() {
     {
       href: "/sf/po-cancel-req",
       icon: "fa fa-times",
-      text: "PO Request Cancel",
+      text: "PO Cancellation Request",
       roles: ["SF/SSD"],
     },
     {

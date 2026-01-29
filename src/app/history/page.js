@@ -48,6 +48,8 @@ import { parseStatusMessage } from "@/utils/historyUtils";
 import { logger } from "@/utils/logger";
 
 import OKPopup from "./actionsModals/OK";
+
+import SCAPopup from "../sf/action/sca";
 // Custom Hooks & Components
 
 const tabs = [
@@ -56,7 +58,7 @@ const tabs = [
   "Product Details",
   // "Pending Level",
   "Documents",
-  "Job Done",
+  "S.C.A.",
   "Consumption",
   "Visit Detail",
 ];
@@ -95,6 +97,8 @@ function HistoryPageContent() {
     fetchPendingHistory,
     fetchVisitDetails,
     visitDetails,
+    fetchSCADetails,
+    SCAData,
   } = useHistoryData(activeTicket, user, user?.roleName);
 
   // --- Local UI State ---
@@ -126,7 +130,7 @@ function HistoryPageContent() {
   const [assignPopupType, setAssignPopupType] = useState("");
   const [WIPPopup, setWIPPopup] = useState(false);
   const [OkPopup, setOkPopup] = useState(false);
-  const [SCAPopup, setSCAPopup] = useState(false);
+  const [openSCAPopup, setOpenSCAPopup] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -338,8 +342,8 @@ function HistoryPageContent() {
       case "OK":
         setOkPopup(true);
         break;
-      case "SCA":
-        setSCAPopup(true);
+      case "Update SCA":
+        setOpenSCAPopup(true);
         break;
 
       default:
@@ -680,8 +684,12 @@ function HistoryPageContent() {
             <Modal open={OkPopup} onClose={() => setOkPopup(false)}>
               <OKPopup ticketNo={activeTicket} onClose={() => router.back()} />
             </Modal>{" "}
-            <Modal open={SCAPopup} onClose={() => setSCAPopup(false)}>
-              <OKPopup ticketNo={activeTicket} onClose={() => router.back()} />
+            <Modal open={openSCAPopup} onClose={() => setOpenSCAPopup(false)}>
+              <SCAPopup
+                ticketNo={activeTicket}
+                onClose={() => router.back()}
+                productType={detail.product}
+              />
             </Modal>
           </>
         )}
@@ -918,10 +926,39 @@ function HistoryPageContent() {
                   )}
                 </div>
               )}
-              {activeTab === "Job Done" && (
-                <div className="tab-section">
-                  <h3 style={{ fontWeight: "bold" }}>✅ Job Done</h3>
-                  <p>No job done data available.</p>
+              {activeTab === "S.C.A." && (
+                <div className="tab-section2">
+                  <h3 style={{ fontWeight: "bold" }}>🛠️ Symptom Cause Analysis</h3>
+                  {loadingTabs.sca ? (
+                    <p>Loading...</p>
+                  ) : !SCAData || SCAData.length === 0 ? (
+                    <p>No SCA data available.</p>
+                  ) : (
+                    // Logic for consumption table if exists, else text
+                    <Table
+                      columns={[
+                        { label: "Symptom", key: "Jd_Symptom", size: "md" },
+                        { label: "Cause", key: "JD_Cause", size: "lg" },
+                        { label: "Analysis", key: "JD_Analysis", size: "sm" },
+                        { label: "Job done", key: "JD_Workdone", size: "xs" },
+                        { label: "Remarks by Eng.", key: "remarks", size: "xs" },
+                        {
+                          label: "Date",
+                          key: "Tdate",
+                          size: "sm",
+                          render: (val) => {
+                            if (!val) return "-";
+                            const d = new Date(val);
+                            const day = String(d.getDate()).padStart(2, "0");
+                            const month = String(d.getMonth() + 1).padStart(2, "0");
+                            const year = d.getFullYear();
+                            return `${day}-${month}-${year}`;
+                          },
+                        },
+                      ]}
+                      rows={SCAData}
+                    />
+                  )}
                 </div>
               )}
               {activeTab === "Consumption" && (

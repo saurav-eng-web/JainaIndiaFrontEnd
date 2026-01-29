@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 
-export default function SCAPopup({ ticketNo, onClose }) {
+export default function SCAPopup({ ticketNo, onClose, productType }) {
   const [jobAction, setJobAction] = useState("");
   const [remarks, setRemarks] = useState("");
   const [data, setData] = useState({});
+  const [remarkMandatory, setRemarkMandatory] = useState(false);
 
   const [symptoms, setSymptoms] = useState([]);
   const [selectedSymptom, setSelectedSymptom] = useState("");
@@ -29,7 +30,7 @@ export default function SCAPopup({ ticketNo, onClose }) {
       try {
         const res = await axiosInstance.post("symptom-cause/process", {
           type: "GetSCA",
-          payload: "Smart LED",
+          payload: productType || "",
         });
         if (
           res.data.statusCode === 200 &&
@@ -51,7 +52,7 @@ export default function SCAPopup({ ticketNo, onClose }) {
     }
 
     fetchData();
-  }, []);
+  }, [productType]);
 
   function changeSymptom(value) {
     // setSelectedSymptom(value);
@@ -70,6 +71,12 @@ export default function SCAPopup({ ticketNo, onClose }) {
     console.log("value: ", value);
     setSelectedCause(value);
     const newAnalysis = cause.find((item) => item.value === value);
+    const label = newAnalysis.label;
+    if (label.includes("Specify in remarks")) {
+      setRemarkMandatory(true);
+    } else {
+      setRemarkMandatory(false);
+    }
     setAnalysis(
       newAnalysis.data.map((item) => {
         return { label: item.Aanalysis, value: item.anid };
@@ -77,37 +84,40 @@ export default function SCAPopup({ ticketNo, onClose }) {
     );
   }
 
-  const causeOptions = [
-    { label: "PCB Faulty", value: "PCB" },
-    { label: "Panel Damaged", value: "PANEL" },
-  ];
-
-  const analysisOptions = [
-    { label: "Short Circuit", value: "SHORT" },
-    { label: "Over Voltage", value: "OVERVOLT" },
-  ];
-
   const handleSubmit = async () => {
+    if (!selectedAnalysis || !selectedCause || !selectedSymptom) {
+      toast.error("Please select all fields!");
+      return;
+    }
+
     if (!jobAction) {
       toast.error("Please fill job action!");
       return;
     }
 
-    if (!selectedAnalysis || !selectedCause || !selectedSymptom) {
-      toast.error("Please select all fields!");
+    if (remarkMandatory && !remarks) {
+      toast.error("Please fill remarks!");
       return;
     }
 
     const payload = {
       type: "Insert",
       ticket_no: ticketNo,
-      jobaction: jobAction,
       syid: selectedSymptom,
       cid: selectedCause,
       anid: selectedAnalysis,
+      jobaction: jobAction,
       remarks: remarks,
     };
 
+    const res = await axiosInstance.post("symptom-cause/process", payload);
+    if (
+      res.data.statusCode === 200 &&
+      res.data.statusMsg === "Record Inserted Successfully"
+    ) {
+      toast.success("SC Saved Successfully");
+      onClose?.();
+    }
     console.log("SC Payload:", payload);
     toast.success("SC Saved Successfully");
     onClose?.();
@@ -155,6 +165,7 @@ export default function SCAPopup({ ticketNo, onClose }) {
             label="Remarks"
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
+            required={remarkMandatory}
           />
         </div>
         <div className="mt-6 flex justify-end">

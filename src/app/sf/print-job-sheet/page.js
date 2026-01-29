@@ -42,12 +42,12 @@ const dummyData = {
   JD_Workdone: "Backlight problem panel required",
   TICKET_KEY: 1188842,
   Jd_Symptom: "No Picture",
-  MOBILE: "9930489503",
-  Dealer: "NANDAS ELEL. ",
-  DealerMobno: "8692896911",
+  MOBILE: "9930489503", // customerSecondaryContact
+  Dealer: "NANDAS ELEL. ", // dealerName
+  DealerMobno: "8692896911", // dealerContact
   engname: null,
   Actualdistance: null,
-  HMPH: "9930489503",
+  HMPH: "9930489503", // customerPrimaryContact
   WKPH: "",
   splint: "8692896911//DIGVIJAY",
   PurchaseFrom: "Dealer", // purchaseFrom
@@ -127,8 +127,8 @@ export default function PrintJobSheet() {
     TICKET_KEY: 1188842,
     Jd_Symptom: "No Picture",
     MOBILE: "9930489503",
-    Dealer: "NANDAS ELEL. ",
-    DealerMobno: "8692896911",
+    Dealer: "NANDAS ELEL. ", // dealerName
+    DealerMobno: "8692896911", //dealerContact
     engname: null,
     Actualdistance: null,
     HMPH: "9930489503",
@@ -150,27 +150,37 @@ export default function PrintJobSheet() {
   const {
     Complaint: defectObserved,
     TICKET_NO: jobSheetNo,
+    // TICKET_NO: complaintNo,
+    TDATE: complaintDate,
     NAME: customerName,
     ADDRESS1: customerAddress,
     State_Name: state,
     CITY: city,
     landmark: landmark,
     PINCODE: pincode,
+    MOBILE: phoneNo,
+    MOBILE: contactNumber,
+    Expr1: contactPerson,
+    WKPH: alternateNo,
+    brand_name: brand,
     category: category,
     PRODUCT: product,
     MODEL: modelNumber,
     SERIAL_NO: serialNumber,
     PURCHASE_DATE: dop,
-    InvoiceNo: invoiceNo,
+    InvoiceNo: invoiceNumber,
     ASC_NAME: ascName,
     ASCAddress: ascAddress,
     ascMobile: ascContact,
     CUSTREMARK: specificRequest,
     WARRANTY: warrantyType,
     PurchaseFrom: purchaseFrom,
+    DealerMobno: purchaseFromContact,
     AF: franchiseName,
     Toll: tollFreeNumber,
     Analysis: actionTaken,
+    CALL_TYPE: callType,
+    Actualdistance: toFroDistance,
   } = data;
 
   // Now you can use them directly:
@@ -334,25 +344,21 @@ export default function PrintJobSheet() {
                   <tbody>
                     <InfoRow
                       label="Job Sheet No."
-                      value={dummyData.jobSheetNo}
+                      value={jobSheetNo}
                       labelClass="border-t-0"
                       valueClass="border-t-0"
                     />
                     <SectionHeader title="Sansui Authorised Franchise" />
-                    <InfoRow
-                      label="ASC Name"
-                      value={dummyData.ascName}
-                      valueClass="text-[9px]"
-                    />
+                    <InfoRow label="ASC Name" value={ascName} valueClass="text-[9px]" />
                     <InfoRow
                       label="Address"
-                      value={dummyData.ascAddress}
+                      value={ascAddress}
                       labelClass="align-top"
                       valueClass="py-2 text-[9px] leading-tight"
                     />
                     <InfoRow
                       label="Contact Number"
-                      value={dummyData.ascContact}
+                      value={ascContact}
                       labelClass="border-b-0"
                       valueClass="border-b-0"
                     />
@@ -376,12 +382,12 @@ export default function PrintJobSheet() {
                     <tr>
                       <td colSpan={2} className="border-t-0 border-r-0 border-l-0">
                         <span className="label-cell pl-2">Customer Name: </span>
-                        <span className="value-cell">{dummyData.customerName}</span>
+                        <span className="value-cell">{customerName}</span>
                       </td>
                     </tr>
                     <InfoRow
                       label="Address:"
-                      value={dummyData.customerAddress}
+                      value={customerAddress}
                       labelClass="align-top py-2"
                       valueClass="py-1 text-[9px] leading-tight"
                     />
@@ -403,34 +409,26 @@ export default function PrintJobSheet() {
                                 City
                               </td>
                               <td className="value-cell border-t-0 text-center">
-                                {dummyData.city}
+                                {city}
                               </td>
                               <td className="border-t-0 border-r-0 bg-gray-50"></td>
                               {/* Image shows blank cell? Or just border? It's just border. */}
                             </tr>
                             <tr>
                               <td className="label-cell border-l-0 pl-2">State</td>
-                              <td className="value-cell text-center">
-                                {dummyData.state}
-                              </td>
-                              <td className="border-r-0 text-center">
-                                {dummyData.pincode}
-                              </td>
+                              <td className="value-cell text-center">{state}</td>
+                              <td className="border-r-0 text-center">{pincode}</td>
                             </tr>
                           </tbody>
                         </table>
                       </td>
                     </tr>
-                    <InfoRow
-                      label="Landmark"
-                      value={dummyData.landmark}
-                      isValueCell={false}
-                    />
-                    <InfoRow label="Phone No." value={dummyData.phoneNo} />
-                    <InfoRow label="Contact Person" value={dummyData.contactPerson} />
+                    <InfoRow label="Landmark" value={landmark} isValueCell={false} />
+                    <InfoRow label="Phone No." value={phoneNo} />
+                    <InfoRow label="Contact Person" value={contactPerson} />
                     <InfoRow
                       label="Contact Number"
-                      value={dummyData.contactNumber}
+                      value={contactNumber}
                       labelClass="border-b-0"
                       valueClass="border-b-0"
                     />
@@ -449,32 +447,28 @@ export default function PrintJobSheet() {
                   <tbody>
                     <InfoRow
                       label="Complaint No.:"
-                      value={dummyData.complaintNo}
+                      value={complaintNo}
                       labelClass="border-t-0"
                       valueClass="border-t-0 text-[10px]"
                     />
-                    <InfoRow label="Complaint Date:" value={dummyData.complaintDate} />
+                    <InfoRow label="Complaint Date:" value={complaintDate} />
                     <InfoRow
                       label="Alternate No."
-                      value={dummyData.alternateNo}
+                      value={alternateNo}
                       isValueCell={false}
                     />
-                    <InfoRow label="Brand" value={dummyData.brand} isValueCell={false} />
-                    <InfoRow
-                      label="Category"
-                      value={dummyData.category}
-                      isValueCell={false}
-                    />
+                    <InfoRow label="Brand" value={brand} isValueCell={false} />
+                    <InfoRow label="Category" value={category} isValueCell={false} />
                     <InfoRow
                       label="Product"
-                      value={dummyData.product}
+                      value={product}
                       valueClass="align-bottom"
                       isValueCell={false}
                       className="h-8"
                     />
                     <InfoRow
                       label="Model Number"
-                      value={dummyData.modelNumber}
+                      value={modelNumber}
                       labelClass="border-b-0"
                       valueClass="border-b-0 align-bottom"
                       className="h-8"
@@ -505,12 +499,12 @@ export default function PrintJobSheet() {
                         Specific Request
                       </td>
                       <td className="border-t-0 border-r-0 p-1 pl-2 align-top">
-                        {dummyData.specificRequest || "test"}
+                        {specificRequest || "test"}
                       </td>
                     </tr>
                     <tr>
                       <td className="label-cell border-b-0 border-l-0 pl-2">Call type</td>
-                      <td className="border-r-0 border-b-0 pl-2">{dummyData.callType}</td>
+                      <td className="border-r-0 border-b-0 pl-2">{callType}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -527,13 +521,13 @@ export default function PrintJobSheet() {
                   <tbody>
                     <InfoRow
                       label="Serial Number"
-                      value={dummyData.serialNumber}
+                      value={serialNumber}
                       labelClass="border-t-0"
                       valueClass="border-t-0"
                     />
                     <InfoRow
                       label="Date of Purchase"
-                      value={dummyData.dop}
+                      value={dop}
                       labelClass="align-top pt-2"
                       valueClass="pb-1 align-bottom"
                       className="h-[60px]" // check style overrides
@@ -542,19 +536,19 @@ export default function PrintJobSheet() {
                       <td className="label-cell border-l-0 pl-2">Purchase from</td>
                       <td className="border-r-0">
                         <div className="flex justify-between px-1 text-[9px]">
-                          <span>{dummyData.purchaseFrom}</span>
-                          <span>{dummyData.purchaseFromContact}</span>
+                          <span>{purchaseFrom}</span>
+                          <span>{purchaseFromContact}</span>
                         </div>
                       </td>
                     </tr>
                     <InfoRow
                       label="Invoice Number"
-                      value={dummyData.invoiceNumber}
+                      value={invoiceNumber}
                       isValueCell={false}
                     />
                     <InfoRow
                       label="Warranty Type"
-                      value={dummyData.warrantyType}
+                      value={warrantyType}
                       labelClass="border-b-0"
                       valueClass="border-b-0"
                     />
@@ -567,10 +561,10 @@ export default function PrintJobSheet() {
             <tr>
               <td colSpan={2} className="border-t p-0">
                 <div className="flex w-full" style={{ minHeight: "30px" }}>
-                  <div className="label-cell w-[120px] shrink-0 border-r border-transparent p-1">
+                  <div className="w-[120px] shrink-0 border-r border-transparent p-1">
                     Defect Observed:
                   </div>
-                  <div className="p-1">{dummyData.defectObserved}</div>
+                  <div className="p-1">{defectObserved}</div>
                 </div>
               </td>
             </tr>
@@ -578,10 +572,8 @@ export default function PrintJobSheet() {
               <td colSpan={2} className="border-t p-0">
                 <div className="flex min-h-10 w-full">
                   <div className="flex w-[60%] border-r border-black">
-                    <div className="label-cell w-30 shrink-0 pt-1 pl-2">
-                      Action Taken:
-                    </div>
-                    <div>{dummyData.actionTaken}</div>
+                    <div className="w-30 shrink-0 pt-1 pl-2">Action Taken:</div>
+                    <div className="">{actionTaken}</div>
                   </div>
                   <div className="w-[40%]"></div>
                 </div>
@@ -618,15 +610,14 @@ export default function PrintJobSheet() {
                   <tbody>
                     {[...Array(4)].map((_, i) => {
                       const part = partConsumed[i] || {
-                        code: "",
-                        description: "",
-                        qty: "",
+                        part: "",
+                        quantity: "",
                       };
                       return (
                         <tr key={i} className="h-6">
-                          <td className="border-l-0 p-1">{part.code}</td>
-                          <td className="p-1">{part.description}</td>
-                          <td className="border-r-0 p-1 text-center">{part.qty}</td>
+                          <td className="border-l-0 p-1">{part.part}</td>
+                          <td className="p-1">{part.part}</td>
+                          <td className="border-r-0 p-1 text-center">{part.quantity}</td>
                         </tr>
                       );
                     })}
@@ -646,7 +637,7 @@ export default function PrintJobSheet() {
                       To & Fro Distance
                     </div>
                     <div className="flex flex-1 items-center justify-center font-bold">
-                      {dummyData.toFroDistance}
+                      {toFroDistance}
                     </div>
                   </div>
                 </div>

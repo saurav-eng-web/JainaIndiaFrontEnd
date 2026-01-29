@@ -13,6 +13,7 @@ export function useHistoryData(activeTicket, user, roleName) {
   const [pendingHistory, setPendingHistory] = useState(null);
   const [reminders, setReminders] = useState(null);
   const [visitDetails, setVisitDetails] = useState(null);
+  const [SCAData, setSCAData] = useState(null);
 
   const [actions, setActions] = useState([]);
   const [allowanceLocationDetails, setAllowanceLocationDetails] = useState([]);
@@ -187,6 +188,24 @@ export function useHistoryData(activeTicket, user, roleName) {
     }
   }, [ticketKey, visitDetails]);
 
+  const fetchSCADetails = useCallback(async () => {
+    if (!ticketKey) return; // Need ticketKey first
+
+    setLoadingTabs((prev) => ({ ...prev, sca: true }));
+    try {
+      const res = await axiosInstance.get(`symptom-cause/process`, {
+        type: "GetSCATicketNo",
+        ticket_no: ticketKey,
+      });
+      const data = res.data.data;
+      setSCAData(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch visit data:", err);
+    } finally {
+      setLoadingTabs((prev) => ({ ...prev, visit: false }));
+    }
+  }, [ticketKey]);
+
   return {
     logData,
     custDetail,
@@ -196,6 +215,7 @@ export function useHistoryData(activeTicket, user, roleName) {
     pendingHistory,
     reminders,
     visitDetails,
+    SCAData,
     // Actions & Metadata
     actions,
     allowanceLocationDetails,
@@ -213,5 +233,6 @@ export function useHistoryData(activeTicket, user, roleName) {
     fetchConsumption,
     fetchPendingHistory,
     fetchVisitDetails,
+    fetchSCADetails,
   };
 }

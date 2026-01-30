@@ -8,7 +8,6 @@ import ModalSkeleton from "@/components/ui/ModalSkeleton";
 
 export default function RequestModal({ payload, onClose }) {
   const [remarks, setRemarks] = useState("");
-  console.log("payload: ", payload);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -17,7 +16,6 @@ export default function RequestModal({ payload, onClose }) {
       return;
     }
     const data = { ...payload, remarks, type: "POCancelRequest" };
-    console.log("data: ", data);
 
     try {
       const res = await axiosInstance.post("cancellation-requests/request", data);

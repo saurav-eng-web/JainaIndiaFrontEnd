@@ -63,36 +63,11 @@ const dummyData = {
   Analysis: "Panel replaced", // actionTaken
 };
 
-const partConsumed = [
-  {
-    part: "Panel",
-    quantity: 1,
-    rate: 1000,
-    amount: 1000,
-  },
-  {
-    part: "Panel",
-    quantity: 1,
-    rate: 1000,
-    amount: 1000,
-  },
-  {
-    part: "Panel",
-    quantity: 1,
-    rate: 1000,
-    amount: 1000,
-  },
-  {
-    part: "Panel",
-    quantity: 1,
-    rate: 1000,
-    amount: 1000,
-  },
-];
+const partConsumed = [];
 export default function PrintJobSheet() {
   const complaintNo =
     useSelector((state) => state.routeData.store.complaintNo) || "MHSL2502191188842";
-  const [data, setData] = useState(dummyData);
+  const [data, setData] = useState({});
 
   const router = useRouter();
   console.log("complaint No: ", complaintNo);
@@ -158,9 +133,9 @@ export default function PrintJobSheet() {
     CITY: city,
     landmark: landmark,
     PINCODE: pincode,
-    MOBILE: phoneNo,
-    MOBILE: contactNumber,
-    Expr1: contactPerson,
+    MOBILE: customerPrimaryContact,
+    HMPH: customerSecondaryContact,
+    // Expr1: contactPerson,
     WKPH: alternateNo,
     brand_name: brand,
     category: category,
@@ -174,13 +149,14 @@ export default function PrintJobSheet() {
     ascMobile: ascContact,
     CUSTREMARK: specificRequest,
     WARRANTY: warrantyType,
-    PurchaseFrom: purchaseFrom,
-    DealerMobno: purchaseFromContact,
+    splint: specialInstruction,
     AF: franchiseName,
     Toll: tollFreeNumber,
     Analysis: actionTaken,
     CALL_TYPE: callType,
     Actualdistance: toFroDistance,
+    Dealer,
+    DealerMobno,
   } = data;
 
   // Now you can use them directly:
@@ -204,6 +180,8 @@ export default function PrintJobSheet() {
         });
         if (res.data?.statusCode === 200 && res.data?.data.length > 0) {
           setData(res.data.data[0]);
+        } else {
+          toast.error("No data found");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -417,18 +395,20 @@ export default function PrintJobSheet() {
                             <tr>
                               <td className="label-cell border-l-0 pl-2">State</td>
                               <td className="value-cell text-center">{state}</td>
-                              <td className="border-r-0 text-center">{pincode}</td>
+                              <td className="border-r-0 text-center font-bold">
+                                {pincode}
+                              </td>
                             </tr>
                           </tbody>
                         </table>
                       </td>
                     </tr>
-                    <InfoRow label="Landmark" value={landmark} isValueCell={false} />
-                    <InfoRow label="Phone No." value={phoneNo} />
-                    <InfoRow label="Contact Person" value={contactPerson} />
+                    <InfoRow label="Landmark" value={landmark} />
+                    <InfoRow label="Primary No" value={customerPrimaryContact} />
+                    <InfoRow label="Contact Person" value={"-"} />
                     <InfoRow
-                      label="Contact Number"
-                      value={contactNumber}
+                      label="Alternate Number"
+                      value={customerSecondaryContact}
                       labelClass="border-b-0"
                       valueClass="border-b-0"
                     />
@@ -499,7 +479,7 @@ export default function PrintJobSheet() {
                         Specific Request
                       </td>
                       <td className="border-t-0 border-r-0 p-1 pl-2 align-top">
-                        {specificRequest || "test"}
+                        {specialInstruction || "-"}
                       </td>
                     </tr>
                     <tr>
@@ -535,9 +515,10 @@ export default function PrintJobSheet() {
                     <tr>
                       <td className="label-cell border-l-0 pl-2">Purchase from</td>
                       <td className="border-r-0">
-                        <div className="flex justify-between px-1 text-[9px]">
-                          <span>{purchaseFrom}</span>
-                          <span>{purchaseFromContact}</span>
+                        <div className="flex justify-between px-1">
+                          <span>
+                            {Dealer} - {DealerMobno}
+                          </span>
                         </div>
                       </td>
                     </tr>
@@ -561,10 +542,10 @@ export default function PrintJobSheet() {
             <tr>
               <td colSpan={2} className="border-t p-0">
                 <div className="flex w-full" style={{ minHeight: "30px" }}>
-                  <div className="w-[120px] shrink-0 border-r border-transparent p-1">
+                  <div className="w-[120px] shrink-0 border-r border-transparent p-1 font-bold">
                     Defect Observed:
                   </div>
-                  <div className="p-1">{defectObserved}</div>
+                  <div className="pt-1">{defectObserved}</div>
                 </div>
               </td>
             </tr>
@@ -572,8 +553,8 @@ export default function PrintJobSheet() {
               <td colSpan={2} className="border-t p-0">
                 <div className="flex min-h-10 w-full">
                   <div className="flex w-[60%] border-r border-black">
-                    <div className="w-30 shrink-0 pt-1 pl-2">Action Taken:</div>
-                    <div className="">{actionTaken}</div>
+                    <div className="w-30 shrink-0 pt-1 pl-2 font-bold">Action Taken:</div>
+                    <div className="pt-1">{actionTaken || "-"}</div>
                   </div>
                   <div className="w-[40%]"></div>
                 </div>

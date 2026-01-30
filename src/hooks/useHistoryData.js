@@ -189,22 +189,22 @@ export function useHistoryData(activeTicket, user, roleName) {
   }, [ticketKey, visitDetails]);
 
   const fetchSCADetails = useCallback(async () => {
-    if (!ticketKey) return; // Need ticketKey first
+    if (!activeTicket) return;
 
     setLoadingTabs((prev) => ({ ...prev, sca: true }));
     try {
-      const res = await axiosInstance.get(`symptom-cause/process`, {
+      const res = await axiosInstance.post(`symptom-cause/process`, {
         type: "GetSCATicketNo",
-        ticket_no: ticketKey,
+        ticket_no: activeTicket,
       });
       const data = res.data.data;
       setSCAData(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch visit data:", err);
     } finally {
-      setLoadingTabs((prev) => ({ ...prev, visit: false }));
+      setLoadingTabs((prev) => ({ ...prev, sca: false }));
     }
-  }, [ticketKey]);
+  }, [activeTicket]);
 
   return {
     logData,

@@ -272,3 +272,6 @@
 - fix: update next js to version 15.3.8, suggested by next js itself in npm audit
 - fix: consume part, remove tabs
 - feat: ok call
+- feat: sca
+- feat: sca history on history page
+- fix: load sca data

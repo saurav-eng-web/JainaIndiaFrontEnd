@@ -234,7 +234,7 @@ export default function SearchComplaintPage() {
     {
       key: "complainT_SUBSTATUS",
       label: "Sub Status",
-      size: "sm",
+      size: "xs",
       render: (v) => v || "-",
     },
     ...(showPrinterColumn

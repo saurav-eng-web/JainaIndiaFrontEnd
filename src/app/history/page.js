@@ -254,6 +254,9 @@ function HistoryPageContent() {
       case "Pending Level":
         fetchPendingHistory();
         break;
+      case "S.C.A.":
+        fetchSCADetails();
+        break;
       case "Visit Detail":
         fetchVisitDetails();
         break;
@@ -937,15 +940,15 @@ function HistoryPageContent() {
                     // Logic for consumption table if exists, else text
                     <Table
                       columns={[
-                        { label: "Symptom", key: "Jd_Symptom", size: "md" },
-                        { label: "Cause", key: "JD_Cause", size: "lg" },
-                        { label: "Analysis", key: "JD_Analysis", size: "sm" },
-                        { label: "Job done", key: "JD_Workdone", size: "xs" },
-                        { label: "Remarks by Eng.", key: "remarks", size: "xs" },
+                        { label: "Symptom", key: "Jd_Symptom", size: "sm" },
+                        { label: "Cause", key: "JD_Cause", size: "md" },
+                        { label: "Analysis", key: "JD_Analysis", size: "md" },
+                        { label: "Job done", key: "JD_Workdone", size: "sm" },
+                        { label: "Remarks by Eng.", key: "remarks", size: "sm" },
                         {
                           label: "Date",
                           key: "Tdate",
-                          size: "sm",
+                          size: "xs",
                           render: (val) => {
                             if (!val) return "-";
                             const d = new Date(val);

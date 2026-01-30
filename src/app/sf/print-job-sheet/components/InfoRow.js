@@ -19,7 +19,7 @@ export default function InfoRow({
           isValueCell ? "value-cell" : ""
         } border-r-0 text-center ${valueClass}`}
       >
-        {value}
+        {value ? value : "-"}
       </td>
     </tr>
   );

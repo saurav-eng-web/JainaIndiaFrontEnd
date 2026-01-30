@@ -1,6 +1,5 @@
 "use client";
 
-import { set } from "date-fns";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -56,7 +55,6 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
 
   function changeSymptom(value) {
     // setSelectedSymptom(value);
-    console.log("value: ", value);
     setSelectedSymptom(value);
     const newCause = symptoms.find((item) => item.value === value);
     setCause(
@@ -67,8 +65,6 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
   }
 
   function changeCause(value) {
-    // setSelectedSymptom(value);
-    console.log("value: ", value);
     setSelectedCause(value);
     const newAnalysis = cause.find((item) => item.value === value);
     const label = newAnalysis.label;
@@ -110,22 +106,20 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
       remarks: remarks,
     };
 
-    const res = await axiosInstance.post("symptom-cause/process", payload);
-    if (
-      res.data.statusCode === 200 &&
-      res.data.statusMsg === "Record Inserted Successfully"
-    ) {
-      toast.success("SC Saved Successfully");
-      onClose?.();
+    try {
+      const res = await axiosInstance.post("symptom-cause/process", payload);
+      if (
+        res.data.statusCode === 200 &&
+        res.data.statusMsg === "Record Inserted Successfully"
+      ) {
+        toast.success("SCA submitted Successfully");
+        onClose?.();
+      }
+    } catch (error) {
+      console.error("Error fetching SCA data:", error);
+      toast.error("Failed to submit SCA data");
     }
-    console.log("SC Payload:", payload);
-    toast.success("SC Saved Successfully");
-    onClose?.();
   };
-
-  console.log("symptom: ", { symptoms, selectedSymptom });
-  console.log("cause: ", { cause, selectedCause });
-  console.log("analysis: ", { analysis, selectedAnalysis });
 
   return (
     <ModalSkeleton title="Symptom Cause Analysis" size="xl">

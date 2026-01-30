@@ -17,6 +17,7 @@ export default function ModalSkeleton({
     md: "w-full max-w-lg min-h-[400px]",
     lg: "w-full max-w-2xl min-h-[500px]",
     xl: "w-full max-w-5xl min-h-[600px]",
+    xxl: "w-full max-w-5xl min-h-[750px]",
     full: "w-[90vw] min-h-[80vh]",
     content: "w-fit min-h-fit max-w-[95vw]",
   };
@@ -32,15 +33,17 @@ export default function ModalSkeleton({
       >
         <div className="flex-1 bg-white">
           <div className="rounded-xl p-8">
-            <h2
-              className="mb-6 rounded-lg p-2 text-[18px] font-semibold"
-              style={{
-                color: colors.primary,
-                border: `2px solid ${colors.primary}`,
-              }}
-            >
-              {title}
-            </h2>
+            {title && (
+              <h2
+                className="mb-6 rounded-lg p-2 text-[18px] font-semibold"
+                style={{
+                  color: colors.primary,
+                  border: `2px solid ${colors.primary}`,
+                }}
+              >
+                {title}
+              </h2>
+            )}
 
             {children}
           </div>

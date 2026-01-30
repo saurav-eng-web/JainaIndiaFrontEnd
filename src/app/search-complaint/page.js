@@ -1,14 +1,17 @@
 "use client";
 
-import { Printer } from "lucide-react";
+import { BadgeIndianRupee, Printer } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 
+import CostEstimationModal from "../sf/Modals/CostEstimationModal";
+
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
 import { Button } from "@/components/ui/button";
+import Modal from "@/components/ui/Modal";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { setRouteData } from "@/redux/slices/routeDataSlice";
 import { logger } from "@/utils/logger";
@@ -34,6 +37,8 @@ export default function SearchComplaintPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchAttempted, setSearchAttempted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [openCostEstimationPopup, setOpenCostEstimationPopup] = useState(false);
+  const [activeTicket, setActiveTicket] = useState(null);
 
   const handleViewHistory = (ticketNo) => {
     sessionStorage.setItem("currentTicket", ticketNo);
@@ -123,6 +128,14 @@ export default function SearchComplaintPage() {
     router.push("sf/print-job-sheet");
   };
 
+  // TODO:
+  const handleCostEstimation = (complaintNo) => {
+    setOpenCostEstimationPopup(true);
+    setActiveTicket(complaintNo);
+    // dispatch(setRouteData({ key: "complaintNo", data: complaintNo }));
+    // router.push("sf/cost-estimation");
+  };
+
   const showRegistrationColumn =
     userRole === "cc" &&
     searchResults.some(
@@ -132,6 +145,9 @@ export default function SearchComplaintPage() {
     );
 
   const showPrinterColumn =
+    userRole === "sf/ssd" || userRole === "sf" || userRole === "ssd";
+
+  const showCostEstimationColumn =
     userRole === "sf/ssd" || userRole === "sf" || userRole === "ssd";
 
   const columns = [
@@ -255,6 +271,24 @@ export default function SearchComplaintPage() {
           },
         ]
       : []),
+    ...(showCostEstimationColumn
+      ? [
+          {
+            key: "print",
+            label: "Print",
+            size: "xs",
+            render: (_, row) => (
+              <button
+                className="flex cursor-pointer items-center gap-2 rounded-md px-3.5 py-2 text-[13px] text-[#714b67] transition-colors"
+                onClick={() => handleCostEstimation(row.tickeT_NO)}
+                title="Print Job Sheet"
+              >
+                <BadgeIndianRupee size={20} />
+              </button>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -292,6 +326,13 @@ export default function SearchComplaintPage() {
       {searchAttempted && searchResults.length === 0 && (
         <p className="mt-5 text-red-600">No results found.</p>
       )}
+
+      <Modal
+        open={openCostEstimationPopup}
+        onClose={() => setOpenCostEstimationPopup(false)}
+      >
+        <CostEstimationModal ticketNumber={activeTicket} />
+      </Modal>
     </PageSkeleton>
   );
 }

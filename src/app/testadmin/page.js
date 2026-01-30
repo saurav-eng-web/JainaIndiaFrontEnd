@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 
 import SCAPopup from "../sf/action/sca";
+import CostEstimationModal from "../sf/Modals/CostEstimationModal";
 
 import axiosInstance from "@/api/axiosInstance";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import PageSkeleton from "@/components/ui/PageSkeleton";
 
 const JobStatusPage = () => {
   const [open, setOpen] = useState(false);
+  const [openCost, setOpenCost] = useState(false);
   async function loadDate() {
     try {
       const res = await axiosInstance.post("cancellation/request", {
@@ -42,6 +44,17 @@ const JobStatusPage = () => {
       </div>
       <p>{str.trim()}</p>
       <Button onClick={loadDate}>load</Button>
+
+      {/* ---------Cost Estimation */}
+      <Button className="mt-8" onClick={() => setOpenCost(true)}>
+        Cost estimate
+      </Button>
+      <Modal open={openCost} onClose={() => setOpenCost(false)}>
+        <CostEstimationModal
+          ticketNumber="BRSL2510301509318"
+          onClose={() => setOpen(false)}
+        />
+      </Modal>
     </PageSkeleton>
   );
 };

@@ -42,8 +42,10 @@ function DetailsContent() {
   const userData = getUserFromLocalStorage();
   const userId = userData?.userID;
 
+  const [isLoading, setIsLoading] = useState(false);
+
   /* ---------------- DATA STATE ---------------- */
-  const [stockData, setStockData] = useState([]);
+  const [stockData, setStockData] = useState(null);
   const [isDataLoading, setIsDataLoading] = useState(false);
 
   const [search, setSearch] = useState("");
@@ -61,6 +63,7 @@ function DetailsContent() {
 
     async function getDropdown() {
       try {
+        setIsDataLoading(true);
         const res = await axiosInstance.post("DropdownMaster/GetDropdown", {
           type: "InventoryType",
           dispatchType: "",
@@ -77,6 +80,8 @@ function DetailsContent() {
         setStockTypes(dropdownData);
       } catch (error) {
         console.error("Error fetching dropdown data:", error);
+      } finally {
+        setIsDataLoading(false);
       }
     }
     getDropdown();
@@ -87,24 +92,33 @@ function DetailsContent() {
   }, [userId]);
 
   async function fetchStock() {
+    if (!selectedStockType) {
+      toast.error("Please select a stock type");
+      return;
+    }
+
     setIsDataLoading(true);
+
+    const toastId = toast.loading("Fetching stock...");
+
     try {
       const res = await axiosInstance.post("stock-by-sf/process", {
         type: "ok",
         inventorytype: selectedStockType?.value || "",
       });
 
-      if (
-        res.data.statusCode === 200 &&
-        res.data.statusMsg === "Records Found" &&
-        res.data.data.length > 0
-      ) {
+      if (res.data?.statusCode === 200 && res.data?.statusMsg === "Records Found") {
         setStockData(res.data.data);
+      } else {
+        throw new Error(res.data?.statusMsg || "No records found");
       }
-      // setstockData(res?.data?.data || []);
+
+      toast.dismiss(toastId);
     } catch (err) {
-      console.error("Error fetching challan:", err);
-      logger.error(`Error fetching challan: ${err?.message}`, "pending-challan");
+      toast.dismiss(toastId);
+      toast.error(err.message || "Failed to fetch stock data");
+
+      logger.error(`Error fetching stock data: ${err?.message}`, "current-stock");
     } finally {
       setIsDataLoading(false);
     }
@@ -126,14 +140,14 @@ function DetailsContent() {
     );
   }, [search, stockData]);
 
-  const totalItems = filteredData.length;
+  const totalItems = filteredData?.length;
   const totalPages = Math.ceil(totalItems / pageSize);
 
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
 
   const paginatedRows = useMemo(() => {
-    return filteredData.slice(startIndex, endIndex);
+    return filteredData?.slice(startIndex, endIndex);
   }, [filteredData, startIndex, endIndex]);
 
   useEffect(() => {
@@ -201,7 +215,7 @@ function DetailsContent() {
           />
         </div>
         <Button onClick={fetchStock} className="mt-6 ml-6 w-32">
-          Fetch Data
+          {isLoading ? "Loading..." : "Fetch Data"}
         </Button>
         <InputField
           type="text"
@@ -216,7 +230,7 @@ function DetailsContent() {
       </div>
 
       <div className="mt-8 overflow-x-hidden rounded-md">
-        {selectedStockType === null || stockData.length === 0 ? (
+        {selectedStockType === null || stockData === null ? (
           <div className="p-6 text-center text-sm text-slate-600">
             Please select a stock type and click "Fetch Data" to view current stock.
           </div>
@@ -225,7 +239,7 @@ function DetailsContent() {
         )}
       </div>
 
-      {stockData.length > 15 && (
+      {stockData?.length > 15 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -247,7 +261,7 @@ function DetailsContent() {
   );
 }
 
-export default function PendingChallan() {
+export default function CurrentStock() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <DetailsContent />

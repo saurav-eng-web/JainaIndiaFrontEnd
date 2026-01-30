@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import axiosInstance from "@/api/axiosInstance";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 
-export default function CostEstimationModal({ ticketNumber = "UPSL2502221191893" }) {
+export default function CostEstimationModal({ ticketNumber }) {
   const [poData, setPoData] = useState([]);
   const [selected, setSelected] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -17,9 +17,11 @@ export default function CostEstimationModal({ ticketNumber = "UPSL2502221191893"
       try {
         const res = await axiosInstance.post("DropdownMaster/GetDropdown", {
           type: "PartCodeCost",
-          dispatchType: "UPSL2502221191893",
+          dispatchType: ticketNumber,
         });
-
+        if (res.data.message === "No data found for the specified type.") {
+          toast.error("No parts found");
+        }
         if (res.data?.data?.length) {
           const normalized = res.data.data.map((item) => ({
             partCode: item.key,
@@ -31,7 +33,7 @@ export default function CostEstimationModal({ ticketNumber = "UPSL2502221191893"
           toast.error("No parts found");
         }
       } catch (err) {
-        toast.error("Failed to load part list");
+        toast.error("Failed to load data");
         console.error(err);
       } finally {
         setIsLoading(false);
@@ -63,9 +65,11 @@ export default function CostEstimationModal({ ticketNumber = "UPSL2502221191893"
         <div className="py-10 text-center text-slate-500">Loading parts…</div>
       ) : (
         <>
-          <div className="mt-4 mb-4 flex min-w-xl items-center rounded-lg bg-[#714b67] px-6 py-4">
-            <div className="text-xl font-semibold text-white">
-              Estimated Total: ₹ {totalPrice.toFixed(2)}
+          <div className="sticky top-0 z-20 -mx-8 -mt-8 bg-white px-8 pt-8 pb-4">
+            <div className="flex min-w-xl items-center rounded-lg bg-[#714b67] px-6 py-4 shadow-md">
+              <div className="text-xl font-semibold text-white">
+                Estimated Total: ₹ {totalPrice.toFixed(2)}
+              </div>
             </div>
           </div>
           <div className="divide-y rounded-lg border">

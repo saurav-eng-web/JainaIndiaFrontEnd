@@ -144,11 +144,15 @@ export default function SearchComplaintPage() {
         r?.complainT_SUBSTATUS?.toLowerCase() === "cancel"
     );
 
-  const showPrinterColumn =
-    userRole === "sf/ssd" || userRole === "sf" || userRole === "ssd";
+  const showPrinterColumn = ["sf/ssd", "sf", "ssd"].includes(userRole);
 
+  const costEstimationRoles = ["sf/ssd", "sf", "ssd"];
   const showCostEstimationColumn =
-    userRole === "sf/ssd" || userRole === "sf" || userRole === "ssd";
+    costEstimationRoles.includes(userRole) &&
+    searchResults.some((r) => {
+      const s = (r?.complainT_SUBSTATUS || "").toLowerCase();
+      return s && !["ok", "cancel"].includes(s);
+    });
 
   const columns = [
     {
@@ -259,33 +263,45 @@ export default function SearchComplaintPage() {
             key: "print",
             label: "Print",
             size: "xs",
-            render: (_, row) => (
-              <button
-                className="flex cursor-pointer items-center gap-2 rounded-md px-3.5 py-2 text-[13px] text-[#714b67] transition-colors"
-                onClick={() => handlePrintJobSheet(row.tickeT_NO)}
-                title="Print Job Sheet"
-              >
-                <Printer size={20} />
-              </button>
-            ),
+            render: (_, row) => {
+              const sub = (row?.complainT_SUBSTATUS || "").toLowerCase();
+              const canShow = sub && !["ok", "cancel"].includes(sub);
+              return canShow ? (
+                <button
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-3.5 py-2 text-[13px] text-[#714b67] transition-colors"
+                  onClick={() => handlePrintJobSheet(row.tickeT_NO)}
+                  title="Print Job Sheet"
+                >
+                  <Printer size={20} />
+                </button>
+              ) : (
+                "-"
+              );
+            },
           },
         ]
       : []),
     ...(showCostEstimationColumn
       ? [
           {
-            key: "print",
-            label: "Print",
+            key: "costEst",
+            label: "Cost Est.",
             size: "xs",
-            render: (_, row) => (
-              <button
-                className="flex cursor-pointer items-center gap-2 rounded-md px-3.5 py-2 text-[13px] text-[#714b67] transition-colors"
-                onClick={() => handleCostEstimation(row.tickeT_NO)}
-                title="Print Job Sheet"
-              >
-                <BadgeIndianRupee size={20} />
-              </button>
-            ),
+            render: (_, row) => {
+              const sub = (row?.complainT_SUBSTATUS || "").toLowerCase();
+              const canShow = sub && !["ok", "cancel"].includes(sub);
+              return canShow ? (
+                <button
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-3.5 py-2 text-[13px] text-[#714b67] transition-colors"
+                  onClick={() => handleCostEstimation(row.tickeT_NO)}
+                  title="Cost Estimation"
+                >
+                  <BadgeIndianRupee size={20} />
+                </button>
+              ) : (
+                "-"
+              );
+            },
           },
         ]
       : []),

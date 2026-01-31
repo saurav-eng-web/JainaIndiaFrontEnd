@@ -74,7 +74,7 @@ export default function HealthCheckPage() {
   const [ip, setIp] = useState("Loading...");
   const [backendHealth, setBackendHealth] = useState(null); // null = loading
   const [isLoading, setIsLoading] = useState(true);
-  const [isEnvExpanded, setIsEnvExpanded] = useState(false);
+  const [isEnvExpanded, setIsEnvExpanded] = useState(true);
   const version = process.env.NEXT_PUBLIC_APP_VERSION || "v1.0.0";
 
   useEffect(() => {
@@ -328,10 +328,8 @@ export default function HealthCheckPage() {
                 </div>
               </div>
 
-              {/* 3. Sidebar: Frontend Status & Environment (De-emphasized) */}
               <div className="space-y-6">
-                {/* Frontend Status - Context Aware */}
-                <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div className="mt-10 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                   <div className="mb-4 flex items-center gap-3">
                     <div
                       className={`rounded-lg p-2 ${systemState.status === "healthy" ? "bg-indigo-50 text-indigo-600" : "bg-orange-50 text-orange-600"}`}

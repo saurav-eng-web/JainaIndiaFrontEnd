@@ -193,7 +193,6 @@ export default function SideBar() {
           })}
       </ul>
 
-      {/* USER SECTION */}
       <div className="h-24 border-t border-neutral-700 bg-neutral-800 px-3">
         <div className="flex h-full items-center gap-3">
           <Image

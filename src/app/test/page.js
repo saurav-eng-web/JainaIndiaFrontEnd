@@ -61,7 +61,7 @@ export default function Test() {
                 {loading ? <Loader /> : "New Registration"}
               </button>
               <button
-                className="flex w-[400px] items-center justify-center rounded-[8px] px-[24px] py-[16px] text-[18px] font-bold transition-colors"
+                className="flex w-[400px] items-center justify-center rounded-lg px-6 py-[16px] text-[18px] font-bold transition-colors"
                 style={{ backgroundColor: colors.primary, color: colors.warning }}
                 onClick={() => handleNavigate("/search-complaint")}
                 disabled={loading}

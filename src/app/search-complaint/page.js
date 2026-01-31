@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeIndianRupee, Printer } from "lucide-react";
+import { BadgeIndianRupee, Printer, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -11,6 +11,7 @@ import CostEstimationModal from "../sf/Modals/CostEstimationModal";
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
 import { Button } from "@/components/ui/button";
+import InputField from "@/components/ui/InputWithLabel";
 import Modal from "@/components/ui/Modal";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { setRouteData } from "@/redux/slices/routeDataSlice";
@@ -313,23 +314,19 @@ export default function SearchComplaintPage() {
       rolesAllowed={["cc", "br", "asm", "zone", "sf/ssd"]}
     >
       {/* Search Box Section */}
-      <div className="mt-5 flex flex-col items-start gap-2.5">
-        <input
+      <div className="flex gap-4">
+        <InputField
           type="text"
           placeholder="Complaint No / Mobile No / Serial No"
-          className="w-[350px] rounded-md border border-[#714b67] bg-white px-4 py-3 text-base outline-none focus:ring-2 focus:ring-[#714b67]"
+          className="w-xs"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <div className="mt-4 flex gap-2.5">
-          <Button
-            disabled={isLoading}
-            className="cursor-pointer rounded-lg bg-[#714b67] px-5 py-3 text-base font-bold text-white transition-colors duration-300 hover:bg-[#5a3c52]"
-            onClick={handleSearch}
-          >
-            {isLoading ? "Searching..." : "Search"}
-          </Button>
-        </div>
+        <Button disabled={isLoading} className="mt-6" onClick={handleSearch}>
+          {isLoading ? "Searching..." : "Search"}
+          <Search size={20} className="ml-2" />
+        </Button>
+        {/* </div> */}
       </div>
 
       {/* Results Table */}

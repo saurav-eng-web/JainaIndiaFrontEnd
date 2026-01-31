@@ -33,8 +33,8 @@ export default function RequestModal({ payload, onClose }) {
     }
   }
   return (
-    <ModalSkeleton title={"Request for cancellation"} size="sm">
-      <form className="min-w-xs space-y-4 pt-4" onSubmit={(e) => handleSubmit(e)}>
+    <ModalSkeleton title={"Request for cancellation"} size="md">
+      <form className="min-w-sm space-y-6 pt-4" onSubmit={(e) => handleSubmit(e)}>
         <InputField
           onChange={(e) => setRemarks(e.target.value)}
           value={remarks}

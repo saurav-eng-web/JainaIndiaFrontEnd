@@ -99,7 +99,7 @@ export default function PaidWarrantyRequest() {
   ];
 
   return (
-    <PageSkeleton title={"Paid Warranty Request"}>
+    <PageSkeleton title={"Paid Warranty Part Request"}>
       <Table columns={columns} rows={data} isLoading={isLoading} />
       <Modal open={openPopup} onClose={() => setOpenPopup(false)} title={"Request"}>
         <PaidWarrantyReqModal data={selectedData} onClose={() => setOpenPopup(false)} />

@@ -62,7 +62,7 @@ export default function CostEstimationModal({ ticketNumber }) {
   return (
     <ModalSkeleton title="" size="xxl">
       {isLoading ? (
-        <div className="py-10 text-center text-slate-500">Loading parts…</div>
+        <div className="min-w-xl py-10 text-center text-slate-500">Loading parts…</div>
       ) : (
         <>
           <div className="sticky top-0 z-20 -mx-8 -mt-8 bg-white px-8 pt-8 pb-4">

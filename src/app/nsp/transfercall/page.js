@@ -4,9 +4,7 @@ import toast from "react-hot-toast";
 import { useSelector } from "react-redux"; // Redux
 
 import axiosInstance from "@/api/axiosInstance";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import CustomDropdown from "@/components/common/Dropdown";
-import SideBar from "@/components/SideBar";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
 import { updateJob } from "@/utils/commonApis";

@@ -22,7 +22,7 @@ export default function NotFound() {
         <div className="mt-6 flex flex-col gap-3">
           <Button onClick={() => router.back()}>Go back</Button>
 
-          <Link href="/dashboard" className="w-full">
+          <Link href="/nsp/dashboard" className="w-full">
             <Button variant="outline" className="w-full">
               Go to Dashboard
             </Button>

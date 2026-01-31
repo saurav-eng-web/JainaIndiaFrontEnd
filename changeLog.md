@@ -276,3 +276,4 @@
 - feat: sca history on history page
 - fix: load sca data
 - feat: cost estimate
+- feat: paid warranty, integrate api

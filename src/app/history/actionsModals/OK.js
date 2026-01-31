@@ -157,7 +157,7 @@ export default function OKPopup({ ticketNo, onClose }) {
             }
 
             setTimeout(() => router.back(), 1000);
-            return "Call closed successfully";
+            return res.data.statusMsg;
           }
 
           throw new Error(res.data.statusMsg || "Failed to close call");

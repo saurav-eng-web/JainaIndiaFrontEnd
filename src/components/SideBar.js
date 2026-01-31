@@ -32,7 +32,7 @@ export default function SideBar() {
 
   if (!mounted) {
     return (
-      <div className="flex h-screen w-[60px] items-center justify-center bg-neutral-900">
+      <div className="flex h-screen w-15 items-center justify-center bg-neutral-900">
         <Loader />
       </div>
     );

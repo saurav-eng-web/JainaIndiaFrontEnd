@@ -26,7 +26,6 @@ export default function PaidWarrantyReqModal({ data, onClose }) {
         success: (res) => {
           toast.success("Request submitted successfully");
           onClose();
-          console.log("res: ", res);
         },
         error: () => {
           toast.error("Failed to submit, try again!");

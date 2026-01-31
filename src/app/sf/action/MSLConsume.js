@@ -133,9 +133,7 @@ export default function MSLConsume({ ticketNumber }) {
   const handlePartSelect = async (selectedValue) => {
     const part = dropdownOptions.find((item) => item.value === selectedValue);
     if (!part) return;
-    console.log("selectedValue: ", selectedValue);
     const validateResult = await validatePart(part.value);
-    console.log("validate:  ", validatePart);
     if (!validateResult.status) {
       return;
     }
@@ -180,7 +178,6 @@ export default function MSLConsume({ ticketNumber }) {
 
   const handleAddToTable = async () => {
     if (!selectedPart) return;
-    console.log("selectedPart: ", selectedPart);
     // Check if images are required but not uploaded
     if (showImageUpload && images.length === 0) {
       toast.error("Please upload at least one image!");
@@ -296,7 +293,6 @@ export default function MSLConsume({ ticketNumber }) {
       ticket_no: ticketNumber,
       data: data,
     };
-    console.log("payload: ", payload);
     try {
       const res = await axiosInstance.post("consumption/process", payload);
       const message = res.data?.statusMsg || "";
@@ -323,8 +319,6 @@ export default function MSLConsume({ ticketNumber }) {
   }
 
   /* ---------------- GRID TABLE CONFIG ---------------- */
-  console.log("selectedItems: ", selectedPart);
-  console.log("grid: ", grid);
 
   const handleStatusChange = (row, statusType) => {
     setGrid((prev) =>

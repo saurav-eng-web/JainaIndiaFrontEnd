@@ -167,8 +167,6 @@ export default function OKPopup({ ticketNo, onClose }) {
           err.message ||
           "Something went wrong while closing the call",
       });
-
-      console.log("res: ", res);
     } catch (error) {
       // Already handled by toast.promise
       console.error("API Error:", error);

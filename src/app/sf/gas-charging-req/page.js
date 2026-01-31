@@ -106,7 +106,6 @@ function ComplaintTableInner() {
           className="cursor-pointer rounded-md px-4 py-2 text-sm font-medium text-white"
           style={{ background: colors.primary }}
           onClick={() => {
-            console.log("clicked button");
             setOpenUploadPopup(true);
             setSelectedTicket(row.TICKET_NO);
           }}

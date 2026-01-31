@@ -77,7 +77,6 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
           setCurrentFileInfo({ current, total });
         },
       });
-      console.log("upload image res: ", res);
       return res;
     } catch (error) {
       console.error("Upload error:", error);
@@ -92,7 +91,6 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
 
     // 1) Upload files
     const uploadResult = await handleUpload();
-    console.log("upload result: ", uploadResult);
     if (!uploadResult.success) {
       toast.error("File upload failed. Please try again.");
       setIsDataLoading(false);

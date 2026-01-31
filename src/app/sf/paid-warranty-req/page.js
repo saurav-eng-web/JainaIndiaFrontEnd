@@ -10,23 +10,9 @@ import Modal from "@/components/ui/Modal";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { formatIndianDate } from "@/utils/formatDate";
 
-const dummyData = [
-  {
-    id: 1182305,
-    "Complaint No.": "DLSL2502121182305",
-    "Serial No.": "S1A221W0P052923",
-    "Call Type": "Stock Repair",
-    Warranty: "In Warranty",
-    category: "LED",
-    Model: "JSW55ASUHD",
-    dop: "2025-02-10T00:00:00",
-  },
-];
-
 export default function PaidWarrantyRequest() {
   const [data, setData] = useState([]);
   const [selectedData, setSelectedData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [openPopup, setOpenPopup] = useState(false);
 
   useEffect(() => {
@@ -48,8 +34,6 @@ export default function PaidWarrantyRequest() {
           },
           error: () => {
             toast.error("Failed to load data, try again");
-            setData(dummyData);
-
             return null;
           },
         }
@@ -60,7 +44,6 @@ export default function PaidWarrantyRequest() {
   }, []);
 
   function handleClick(value) {
-    console.log("value: ", value);
     setSelectedData(value);
     setOpenPopup(true);
   }
@@ -100,7 +83,7 @@ export default function PaidWarrantyRequest() {
 
   return (
     <PageSkeleton title={"Paid Warranty Part Request"}>
-      <Table columns={columns} rows={data} isLoading={isLoading} />
+      <Table columns={columns} rows={data} />
       <Modal open={openPopup} onClose={() => setOpenPopup(false)} title={"Request"}>
         <PaidWarrantyReqModal data={selectedData} onClose={() => setOpenPopup(false)} />
       </Modal>

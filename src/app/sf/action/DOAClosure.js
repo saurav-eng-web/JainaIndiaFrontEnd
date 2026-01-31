@@ -61,7 +61,6 @@ export default function DOAClosure({ ticketNo, oldSerialNumber, model }) {
         toast.error(message);
         setValidSerial(false);
       }
-      console.log("res: ", res);
     } catch (error) {
       console.error("Error serial check:", error);
       toast.error("Failed to validate serial number. Please try again.");
@@ -170,8 +169,6 @@ export default function DOAClosure({ ticketNo, oldSerialNumber, model }) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         router.back();
       }
-
-      console.log("res: ", res);
     } catch (error) {
       toast.error("Something went wrong");
       console.error("API Error:", error);

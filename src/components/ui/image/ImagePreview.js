@@ -3,7 +3,6 @@ import { X } from "lucide-react";
 import Image from "next/image";
 
 export default function ImagePreview({ images, onRemove, size = "14" }) {
-  // console.log("images: ", images);
   return (
     <div className="w-full">
       {images.length > 0 && (

@@ -113,7 +113,6 @@ function PNA({ ticketNo, onClose }) {
       ticket_no: ticketNo,
       data: formattedData,
     };
-    console.log("payload: ", payload);
     try {
       setIsSubmitting(true);
       const res = await axiosInstance.post("consumption/process", payload);
@@ -270,7 +269,6 @@ function MSL({ ticketNo, onClose }) {
       ticket_no: ticketNo,
       data: formattedData,
     };
-    console.log("payload: ", payload);
     try {
       setIsSubmitting(true);
       const res = await axiosInstance.post("consumption/process", payload);

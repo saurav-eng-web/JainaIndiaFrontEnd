@@ -8,7 +8,6 @@ async function uploadImage({ files, ticketNo, documentType, onProgress = null })
   }
 
   if (!ticketNo || !documentType) {
-    console.log("received data: ", { ticketNo, documentType });
     return { success: false, error: "ticketNo or documentType is missing" };
   }
 

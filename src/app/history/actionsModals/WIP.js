@@ -96,7 +96,6 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
         pincode: pinCode,
         type: "simpcheck",
       });
-      console.log("res: ", res);
       if (res.data.statusCode === 200 && res.data.statusMsg === "Valid serial no") {
         setValidSerial(true);
         toast.success("Serial number is valid");

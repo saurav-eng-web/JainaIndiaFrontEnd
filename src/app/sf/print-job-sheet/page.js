@@ -70,7 +70,6 @@ export default function PrintJobSheet() {
   const [data, setData] = useState({});
 
   const router = useRouter();
-  console.log("complaint No: ", complaintNo);
 
   const sampleData = {
     Complaint: "Hanging", // defectObserved

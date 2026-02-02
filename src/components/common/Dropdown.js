@@ -4,7 +4,14 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 
 import { useTheme } from "@/theme/ThemeContext";
 
-export default function CustomDropdown({ label, options, value, onChange, placeholder }) {
+export default function CustomDropdown({
+  label,
+  options,
+  value,
+  onChange,
+  placeholder,
+  required = false,
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1); // For keyboard focus
@@ -81,7 +88,12 @@ export default function CustomDropdown({ label, options, value, onChange, placeh
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
-      {label && <label className="mb-2 text-sm font-medium text-gray-700">{label}</label>}
+      {label && (
+        <label className="mb-2 text-sm font-medium text-gray-700">
+          {label}
+          {required && <span className="ml-1 text-red-500">*</span>}
+        </label>
+      )}
 
       {/* Dropdown button */}
       <div

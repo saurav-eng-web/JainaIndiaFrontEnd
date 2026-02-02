@@ -108,8 +108,6 @@ export default function AssignedPopup({
     fetch();
   }, [product]);
 
-  const testPayload = true;
-
   async function handleSubmit() {
     if (
       !appointmentDate ||
@@ -149,6 +147,7 @@ export default function AssignedPopup({
       const res = await axiosInstance.post("sflevel1/process", payload);
 
       if (res.data.statusCode === 200 && res.data?.data?.length > 0) {
+        await submitCallSchedule();
         toast.success(`Call ${type} successfully`);
         router.back();
       }
@@ -174,8 +173,6 @@ export default function AssignedPopup({
       status: 1,
       apptDateandTime: new Date().toISOString(),
     };
-
-    console.log("callshedule: ", callSchedulePayload);
 
     try {
       await axiosInstance.post("/CallSchedule/create", callSchedulePayload);
@@ -210,7 +207,9 @@ export default function AssignedPopup({
       <div className="mt-10 grid grid-cols-3 gap-6">
         {/* Appointment Date */}
         <div className="flex flex-col">
-          <label className="mb-1 font-medium text-gray-700">Appointment Date</label>
+          <label className="mb-1 font-medium text-gray-700">
+            Appointment Date<span className="ml-1 text-red-500">*</span>
+          </label>
           <input
             type="date"
             className="rounded-md border px-3 py-2"
@@ -276,12 +275,15 @@ export default function AssignedPopup({
           value={engineerId}
           onChange={(val) => setEngineerId(val)}
           options={engineerData}
+          required
         />
 
         {type === "Assigned" && (
           <>
             <div className="flex flex-col">
-              <label className="mb-1 font-medium text-gray-700">DOP</label>
+              <label className="mb-1 font-medium text-gray-700">
+                DOP <span className="ml-1 text-red-500">*</span>
+              </label>
               <input
                 type="date"
                 className="rounded-md border px-3 py-2"
@@ -300,6 +302,7 @@ export default function AssignedPopup({
               value={selectedCallType}
               onChange={(val) => setSelectedCallType(val)}
               options={callTypeOptions}
+              required
             />
           </>
         )}
@@ -307,7 +310,7 @@ export default function AssignedPopup({
 
       {/* Footer */}
       <div className="mt-8 flex justify-end gap-4">
-        <Button onClick={submitCallSchedule} disabled={isSubmitting}>
+        <Button onClick={handleSubmit} disabled={isSubmitting}>
           {isSubmitting ? "Submitting..." : "Submit"}
         </Button>
       </div>

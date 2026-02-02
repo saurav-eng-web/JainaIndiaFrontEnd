@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import React, { forwardRef } from "react";
 
 const sizeMap = {
   sm: {
@@ -21,38 +22,36 @@ const sizeMap = {
   },
 };
 
-export default function InputField({
-  label,
-  value,
-  onChange,
-  onBlur,
-  placeholder,
-  type = "text",
-  size = "md",
-  disabled = false,
-  error = "",
-  required = false,
-  name,
-  id,
-  className,
-  message,
-}) {
+export default forwardRef(function InputField(
+  {
+    label,
+    value,
+    onChange,
+    onBlur,
+    placeholder,
+    type = "text",
+    size = "md",
+    disabled = false,
+    error = "",
+    required = false,
+    name,
+    id,
+    className,
+    message,
+    onEnterKeyPressed,
+  },
+  ref
+) {
   const styles = sizeMap[size] || sizeMap.md;
+
+  function handleKeyPress(event) {
+    if (event.key === "Enter") {
+      onEnterKeyPressed();
+    }
+  }
 
   return (
     <div className={clsx("flex w-full flex-col gap-1", className)}>
-      {/* Label */}
-      {/* {label && (
-        <label
-          htmlFor={id || name}
-          className={clsx("font-medium text-[#714b67]", styles.label)}
-        >
-          {label}
-          {required && <span className="ml-1 text-red-500">*</span>}
-          {message && <span className="ml-2 text-xs text-gray-500">{message}</span>}
-        </label>
-      )} */}
-      {/* Label (reserve space even if not provided) */}
       <div className={clsx("min-h-[1.25rem]", styles.label)}>
         {label ? (
           <label htmlFor={id || name} className="font-medium text-[#714b67]">
@@ -68,6 +67,7 @@ export default function InputField({
       {/* Input */}
       <input
         id={id || name}
+        ref={ref}
         name={name}
         type={type}
         value={value}
@@ -75,6 +75,7 @@ export default function InputField({
         onBlur={onBlur}
         placeholder={placeholder}
         disabled={disabled}
+        onKeyDown={handleKeyPress}
         className={clsx(
           "rounded-lg border border-[#a6829d] transition-all outline-none",
           "focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]",
@@ -88,4 +89,4 @@ export default function InputField({
       {error && <span className="text-xs text-red-600">{error}</span>}
     </div>
   );
-}
+});

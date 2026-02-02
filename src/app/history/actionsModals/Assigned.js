@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 import { Input } from "postcss";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
@@ -26,6 +26,9 @@ export default function AssignedPopup({
   const [minute, setMinute] = useState("");
   const [customerRemark, setCustomerRemark] = useState("");
   const [engineerData, setEngineerData] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [callTypeOptions, setCallTypeOptions] = useState([]);
+  const [talkToWhom, setTalkToWhom] = useState("");
   const router = useRouter();
 
   const { DOP, loggedInUserId: userId, promiseDate } = formData;
@@ -38,7 +41,11 @@ export default function AssignedPopup({
     complainT_STATUS: complaintStatus,
     complaint_SubStatus: complaintSubStatus,
     product,
+    tickeT_KEY: ticketKey,
   } = detail;
+
+  const [updatedDOP, setUpdatedDOP] = useState(DOP);
+  const [selectedCallType, setSelectedCallType] = useState(callType);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -80,6 +87,29 @@ export default function AssignedPopup({
     fetchEngineerData();
   }, [sfId]);
 
+  useEffect(() => {
+    async function fetch() {
+      try {
+        const res = await axiosInstance.post("DropdownMaster/GetDropdown", {
+          type: "CallType",
+          dispatchType: product,
+        });
+        if (res.data.statusCode === 200 && res.data.data.length > 0) {
+          setCallTypeOptions(
+            res.data.data.map((item) => ({ label: item.value, value: item.value }))
+          );
+        }
+      } catch (error) {
+        // toast.error("Failed to fetch data");
+        console.error("Failed to fetch call type:", error);
+      }
+    }
+
+    fetch();
+  }, [product]);
+
+  const testPayload = true;
+
   async function handleSubmit() {
     if (
       !appointmentDate ||
@@ -87,7 +117,8 @@ export default function AssignedPopup({
       !minute ||
       !engineerId ||
       !customerRemark ||
-      !contactPerson
+      !contactPerson ||
+      !talkToWhom
     ) {
       toast.error("Please fill all required fields");
       return;
@@ -107,13 +138,14 @@ export default function AssignedPopup({
           customerRemark,
           engId: engineerId,
           callTypeId: callTypeId.toString(),
-          callType,
+          callType: selectedCallType,
           product,
         },
       ],
     };
 
     try {
+      setIsSubmitting(true);
       const res = await axiosInstance.post("sflevel1/process", payload);
 
       if (res.data.statusCode === 200 && res.data?.data?.length > 0) {
@@ -123,6 +155,32 @@ export default function AssignedPopup({
     } catch (error) {
       console.error("Error submitting assigned data:", error);
       toast.error("Failed to submit data");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  console.log("details: ", { formData, detail });
+
+  async function submitCallSchedule() {
+    const callSchedulePayload = {
+      sfId: formData.sf_ID,
+      engId: engineerId,
+      appointmentDate: appointmentDate,
+      appointmentTime: `${hour}:${minute}:00`,
+      talkToWhomeAllot: talkToWhom, // ,
+      ticketNo: ticketNo,
+      ticketKey,
+      status: 1,
+      apptDateandTime: new Date().toISOString(),
+    };
+
+    console.log("callshedule: ", callSchedulePayload);
+
+    try {
+      await axiosInstance.post("/CallSchedule/create", callSchedulePayload);
+    } catch (error) {
+      console.error("Unable to submit call schedule", error);
     }
   }
 
@@ -149,10 +207,10 @@ export default function AssignedPopup({
           size="sm"
         />
       </div>
-      <div className="mt-12 grid grid-cols-3 gap-6">
+      <div className="mt-10 grid grid-cols-3 gap-6">
         {/* Appointment Date */}
         <div className="flex flex-col">
-          <label className="font-medium text-gray-700">Appointment Date</label>
+          <label className="mb-1 font-medium text-gray-700">Appointment Date</label>
           <input
             type="date"
             className="rounded-md border px-3 py-2"
@@ -185,16 +243,11 @@ export default function AssignedPopup({
           value={minute}
           onChange={(val) => setMinute(val)}
           options={minuteOptions}
+          required={true}
         />
 
         {/* Engineer Name */}
-        <CustomDropdown
-          label="Engineer Name"
-          placeholder="Select Engineer"
-          value={engineerId}
-          onChange={(val) => setEngineerId(val)}
-          options={engineerData}
-        />
+
         <InputField
           label="Contact Person"
           value={detail?.contactPerson}
@@ -209,11 +262,54 @@ export default function AssignedPopup({
           onChange={(e) => setCustomerRemark(e.target.value)}
           required
         />
+
+        <InputField
+          label="Talk To Whom"
+          value={talkToWhom}
+          onChange={(e) => setTalkToWhom(e.target.value)}
+          required
+        />
+
+        <CustomDropdown
+          label="Engineer Name"
+          placeholder="Select Engineer"
+          value={engineerId}
+          onChange={(val) => setEngineerId(val)}
+          options={engineerData}
+        />
+
+        {type === "Assigned" && (
+          <>
+            <div className="flex flex-col">
+              <label className="mb-1 font-medium text-gray-700">DOP</label>
+              <input
+                type="date"
+                className="rounded-md border px-3 py-2"
+                value={updatedDOP.split("T")[0]}
+                onChange={(e) => {
+                  setUpdatedDOP(e.target.value);
+                  setHour("");
+                  setMinute("");
+                }}
+                max={todayStr}
+              />
+            </div>
+            <CustomDropdown
+              label="Call Type"
+              placeholder="Select Call Type"
+              value={selectedCallType}
+              onChange={(val) => setSelectedCallType(val)}
+              options={callTypeOptions}
+            />
+          </>
+        )}
       </div>
 
       {/* Footer */}
       <div className="mt-8 flex justify-end gap-4">
-        <Button onClick={handleSubmit}>Save</Button>
+        <Button onClick={submitCallSchedule} disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
       </div>
     </ModalSkeleton>
   );

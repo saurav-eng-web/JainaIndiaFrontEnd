@@ -2,7 +2,7 @@
 
 import { BadgeIndianRupee, Printer, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 
@@ -23,6 +23,14 @@ export default function SearchComplaintPage() {
 
   const dispatch = useDispatch();
 
+  const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchAttempted, setSearchAttempted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [openCostEstimationPopup, setOpenCostEstimationPopup] = useState(false);
+  const [activeTicket, setActiveTicket] = useState(null);
+  const searchInputRef = useRef(null);
+
   useEffect(() => {
     const userData = localStorage.getItem("userData");
     if (!userData) {
@@ -34,12 +42,21 @@ export default function SearchComplaintPage() {
     }
   }, [router]);
 
-  const [query, setQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchAttempted, setSearchAttempted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [openCostEstimationPopup, setOpenCostEstimationPopup] = useState(false);
-  const [activeTicket, setActiveTicket] = useState(null);
+  // Try to focus as early as possible (before paint)
+  useLayoutEffect(() => {
+    try {
+      searchInputRef.current?.focus();
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  // Fallback: some UI (modals, router navigation, or other side-effects) can steal focus on mount
+  // so retry focus shortly after mount.
+  useEffect(() => {
+    const t = setTimeout(() => searchInputRef.current?.focus(), 50);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleViewHistory = (ticketNo) => {
     sessionStorage.setItem("currentTicket", ticketNo);
@@ -316,11 +333,13 @@ export default function SearchComplaintPage() {
       {/* Search Box Section */}
       <div className="flex gap-4">
         <InputField
+          ref={searchInputRef}
           type="text"
           placeholder="Complaint No / Mobile No / Serial No"
           className="w-xs"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onEnterKeyPressed={handleSearch}
         />
         <Button disabled={isLoading} className="mt-6" onClick={handleSearch}>
           {isLoading ? "Searching..." : "Search"}

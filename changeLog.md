@@ -281,3 +281,4 @@
 - fix: assingpage
 - fix: request for cancellation, routing fixed
 - fix: WIP, unable to upload image and submit request
+- fix: add product details in history page

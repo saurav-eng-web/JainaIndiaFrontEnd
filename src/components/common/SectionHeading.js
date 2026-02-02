@@ -6,14 +6,16 @@ export default function SectionHeading({ children }) {
   const { colors } = useTheme();
 
   return (
-    <h2
-      className="mb-[30px] rounded-[5px] border-2 p-[5px] pl-2.5 text-left text-lg font-bold"
-      style={{
-        color: colors.primary,
-        borderColor: colors.primary,
-      }}
-    >
-      {children}
-    </h2>
+    <div className="rounded-xl py-8">
+      <h2
+        className="mb-6 rounded-lg p-2 text-[18px] font-semibold"
+        style={{
+          color: colors.primary,
+          border: `2px solid ${colors.primary}`,
+        }}
+      >
+        {children}
+      </h2>
+    </div>
   );
 }

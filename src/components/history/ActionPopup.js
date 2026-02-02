@@ -112,50 +112,6 @@ export default function ActionPopup({
             <Button onClick={() => setConfirmCancel(true)}>Request Cancellation</Button>
           </div>
         </div>
-      ) : selectedAction === "WIP" ? (
-        /* ========================= */
-        /* SPECIAL POPUP FOR WIP ONLY */
-        /* ========================= */
-        <div className="animate-fadeIn w-[450px] rounded-xl bg-white p-6 shadow-2xl">
-          {/* Header */}
-          <div className="mb-5 flex items-center justify-between border-b pb-3">
-            <h2 className="text-xl font-semibold text-gray-800">WIP</h2>
-            <button
-              onClick={onClose}
-              className="text-xl text-gray-600 transition hover:text-red-600"
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* Ticket Number */}
-          <div className="mb-10 flex flex-col">
-            <label className="font-medium text-gray-700">Ticket Number:</label>
-            <div className="rounded-md border bg-gray-100 px-3 py-2">
-              {detail.tickeT_NO || "-"}
-            </div>
-          </div>
-          <div className="mb-6 flex flex-col">
-            <label className="font-medium text-gray-700">Validate Serial Number:</label>
-            <input
-              type="text"
-              placeholder="Enter Serial Number"
-              className="rounded-md border px-3 py-2"
-              value={serialNumber}
-              onChange={(e) => setSerialNumber(e.target.value)}
-            />
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end gap-4">
-            <button
-              onClick={handleSerialCheck}
-              className="rounded-md bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
-            >
-              Check Serial Number
-            </button>
-          </div>
-        </div>
       ) : (
         /* ========================= */
         /* GENERIC / ASSIGNED POPUP */

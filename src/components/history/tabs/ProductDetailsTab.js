@@ -14,6 +14,9 @@ export default function ProductDetailsTab({ detail }) {
           <strong>Product Category:</strong> {detail.category || "-"}
         </div>
         <div>
+          <strong>Product:</strong> {detail.product || "-"}
+        </div>
+        <div>
           <strong>Serial No.:</strong> {detail.seriaL_NO || "-"}
         </div>
         <div>

@@ -2,19 +2,29 @@
 import { useState } from "react";
 
 import CancelReqModal from "../history/actionsModals/CancelReqModal";
+import DOATDPopup from "../history/actionsModals/DOATD";
 
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/Modal";
 import PageSkeleton from "@/components/ui/PageSkeleton";
+import TimePicker from "@/components/ui/timepicker";
 
 export default function Page() {
   const [showModal, setShowModal] = useState(false);
+  const [time, setTime] = useState("");
+  console.log("time: ", time);
 
   return (
     <PageSkeleton title="Test Admin">
-      <Button onClick={() => setShowModal(true)}>test</Button>
+      <div className="grid grid-cols-3 gap-4">
+        <Button onClick={() => setShowModal(true)}>test</Button>
+        <Button onClick={() => setShowModal(true)}>test</Button>
+
+        <TimePicker label="Visit Time" value={time} onChange={setTime} />
+      </div>
       <Modal open={showModal} onClose={() => setShowModal(false)}>
-        <CancelReqModal />
+        {/* <CancelReqModal /> */}
+        <DOATDPopup />
       </Modal>
     </PageSkeleton>
   );

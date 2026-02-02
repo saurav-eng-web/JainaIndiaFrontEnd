@@ -392,6 +392,7 @@ function HistoryPageContent() {
       if (res?.status === 200) {
         toast.success("Cancellation Request Submitted Successfully!");
         setShowActionPopup(false);
+        router.back();
       }
     } catch (error) {
       toast.error("Failed to submit cancellation.");

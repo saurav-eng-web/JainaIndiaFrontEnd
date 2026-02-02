@@ -203,6 +203,37 @@ export default function AssignedPopup({
           disabled
           size="sm"
         />
+
+        {/* {type === "Assigned" && (  */}
+        <>
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium text-gray-700">
+              DOP <span className="ml-1 text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              disabled={type !== "Assigned"}
+              className="rounded-md border px-3 py-2"
+              value={updatedDOP.split("T")[0]}
+              onChange={(e) => {
+                setUpdatedDOP(e.target.value);
+                setHour("");
+                setMinute("");
+              }}
+              max={todayStr}
+            />
+          </div>
+          <CustomDropdown
+            label="Call Type"
+            placeholder="Select Call Type"
+            value={selectedCallType}
+            onChange={(val) => setSelectedCallType(val)}
+            options={callTypeOptions}
+            required
+            disabled={type !== "Assigned"}
+          />
+        </>
+        {/* )} */}
       </div>
       <div className="mt-10 grid grid-cols-3 gap-6">
         {/* Appointment Date */}
@@ -277,35 +308,6 @@ export default function AssignedPopup({
           options={engineerData}
           required
         />
-
-        {type === "Assigned" && (
-          <>
-            <div className="flex flex-col">
-              <label className="mb-1 font-medium text-gray-700">
-                DOP <span className="ml-1 text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                className="rounded-md border px-3 py-2"
-                value={updatedDOP.split("T")[0]}
-                onChange={(e) => {
-                  setUpdatedDOP(e.target.value);
-                  setHour("");
-                  setMinute("");
-                }}
-                max={todayStr}
-              />
-            </div>
-            <CustomDropdown
-              label="Call Type"
-              placeholder="Select Call Type"
-              value={selectedCallType}
-              onChange={(val) => setSelectedCallType(val)}
-              options={callTypeOptions}
-              required
-            />
-          </>
-        )}
       </div>
 
       {/* Footer */}

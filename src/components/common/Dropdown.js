@@ -11,6 +11,7 @@ export default function CustomDropdown({
   onChange,
   placeholder,
   required = false,
+  disabled = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -37,6 +38,8 @@ export default function CustomDropdown({
 
   // Handle keyboard events
   const handleKeyDown = (e) => {
+    if (disabled) return;
+
     if (!isOpen) {
       if (e.key === "ArrowDown" || e.key === "Enter") {
         setIsOpen(true);
@@ -73,6 +76,14 @@ export default function CustomDropdown({
     }
   };
 
+  // Close if we become disabled
+  useEffect(() => {
+    if (disabled) {
+      setIsOpen(false);
+      setHighlightedIndex(-1);
+    }
+  }, [disabled]);
+
   // Scroll highlighted item into view
   useEffect(() => {
     if (listRef.current && highlightedIndex >= 0) {
@@ -85,22 +96,30 @@ export default function CustomDropdown({
     <div
       className="relative flex w-full flex-col"
       ref={dropdownRef}
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
+      tabIndex={disabled ? -1 : 0}
+      onKeyDown={disabled ? undefined : handleKeyDown}
     >
       {label && (
-        <label className="mb-2 text-sm font-medium text-gray-700">
+        <label
+          className={`mb-2 text-sm font-medium ${disabled ? "text-gray-700" : "text-gray-700"}`}
+        >
+          {required && <span className="mr-1 text-red-500">*</span>}
           {label}
-          {required && <span className="ml-1 text-red-500">*</span>}
         </label>
       )}
 
       {/* Dropdown button */}
       <div
-        className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-400 bg-white px-3 py-2"
-        onClick={() => setIsOpen(!isOpen)}
+        className={`flex items-center justify-between rounded-lg border border-gray-400 bg-white px-3 py-2 ${disabled ? "cursor-not-allowed opacity-90" : "cursor-pointer"}`}
+        onClick={() => {
+          if (disabled) return;
+          setIsOpen(!isOpen);
+        }}
+        aria-disabled={disabled}
       >
-        <span>{options.find((opt) => opt.value === value)?.label || placeholder}</span>
+        <span className={`${disabled ? "text-gray-500" : ""}`}>
+          {options.find((opt) => opt.value === value)?.label || placeholder}
+        </span>
         <MdKeyboardArrowDown size={20} />
       </div>
 

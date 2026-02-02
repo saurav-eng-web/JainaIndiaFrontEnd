@@ -21,7 +21,8 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validSerial, setValidSerial] = useState(false);
   const imageUploaded = serialFile.length > 0 && invoiceFile.length > 0;
-
+  console.log("serialFile: ", serialFile);
+  console.log("invoiceFile: ", invoiceFile);
   const MAX_SIZE_MB = 5;
   //   const MAX_FILES = 5;
 
@@ -54,6 +55,39 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
     const files = type === "serial" ? serialFile : invoiceFile;
     const setFiles = type === "serial" ? setSerialFile : setInvoiceFile;
     const MAX_FILES = type === "serial" ? 3 : 1;
+
+    // Prevent selecting the same file for serial and invoice
+    if (type === "serial" && invoiceFile.length > 0) {
+      const conflict = selectedFiles.some((sf) =>
+        invoiceFile.some(
+          (inv) =>
+            inv.name === sf.name &&
+            inv.size === sf.size &&
+            inv.lastModified === sf.lastModified
+        )
+      );
+      if (conflict) {
+        toast.error(
+          "Images for invoice and serial can't be same, please upload serial doc"
+        );
+        return;
+      }
+    }
+
+    if (type === "invoice" && serialFile.length > 0) {
+      const conflict = selectedFiles.some((sf) =>
+        serialFile.some(
+          (s) =>
+            s.name === sf.name && s.size === sf.size && s.lastModified === sf.lastModified
+        )
+      );
+      if (conflict) {
+        toast.error(
+          "Images for invoice and serial can't be same, please upload invoice doc"
+        );
+        return;
+      }
+    }
 
     // Total count validation
     if (selectedFiles.length + files.length > MAX_FILES) {
@@ -181,117 +215,6 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
       setIsSubmitting(false);
     }
   }
-
-  //   async function handleSubmit() {
-  //     if (!imageUploaded) {
-  //       toast.error("Please upload both images");
-  //       return;
-  //     }
-  //     if (!serialNumber) {
-  //       toast.error("Please enter serial number");
-  //       return;
-  //     }
-
-  //     const uplaodSerialImagePromise = uploadImage({
-  //       file: serialFile,
-  //       documentType: "Serial Document",
-  //       ticketNo,
-  //     });
-  //     const uploadInvoiceImagePromise = uploadImage({
-  //       file: invoiceFile,
-  //       documentType: "Invoice Document",
-  //       ticketNo,
-  //     });
-
-  //     try {
-  //       setIsSubmitting(true);
-  //       const [serialRes, invoiceRes] = await Promise.all([
-  //         uplaodSerialImagePromise,
-  //         uploadInvoiceImagePromise,
-  //       ]);
-
-  //       if (!serialRes.success) {
-  //         toast.error("Failed to upload Serial Number images");
-  //         return;
-  //       }
-  //       if (!invoiceRes.success) {
-  //         toast.error("Failed to upload Invoice images");
-  //         return;
-  //       }
-  //     } catch (error) {
-  //       logger.error(`Error during WIP submission: ${error.message}`, "WIP submission");
-  //       toast.error("An error occurred while uploading images");
-  //     } finally {
-  //       setIsSubmitting(false);
-  //     }
-
-  //     const payload = {
-  //       serialNo: serialNumber,
-  //       ticketNo: ticketNo,
-  //       pincode: pinCode,
-  //       type: "WIPProcess",
-  //     };
-  //     try {
-  //       setIsSubmitting(true);
-  //       const res = await axiosInstance.post("/CheckSerialNo/CheckSerial", payload);
-  //       const message = res?.data?.message?.trim() || "";
-  //       const parts = message.split("|");
-  //       const hasStatus = parts.length >= 2;
-
-  //       if (!hasStatus) {
-  //         toast.error(message);
-  //         return;
-  //       }
-
-  //       const status = parts[0]?.trim();
-  //       const subStatus = parts[1]?.trim();
-  //       const responseMessage = parts[2]?.trim() || "";
-
-  //       await updateJob(status, subStatus, responseMessage, serialNumber);
-  //       logger.info(`Serial check: ${status}|${subStatus}`, "serial check WIP", {
-  //         payload,
-  //       });
-  //       onClose();
-  //     } catch (error) {
-  //       logger.error(`Error serial check: ${error.message}`, "serial check WIP");
-  //       toast.error("Error validating serial number");
-  //     } finally {
-  //       setIsSubmitting(false);
-  //     }
-  //   }
-
-  //   const handleSerialCheck = async () => {
-  //     const payload = {
-  //       serialNo: serialNumber,
-  //       ticketNo: ticketNo,
-  //       pincode: pinCode,
-  //       type: "WIPProcess",
-  //     };
-  //     try {
-  //       const res = await axiosInstance.post("/CheckSerialNo/CheckSerial", payload);
-  //       const message = res?.data?.message?.trim() || "";
-  //       const parts = message.split("|");
-  //       const hasStatus = parts.length >= 2;
-
-  //       if (!hasStatus) {
-  //         toast.error(message);
-  //         return;
-  //       }
-
-  //       const status = parts[0]?.trim();
-  //       const subStatus = parts[1]?.trim();
-  //       const responseMessage = parts[2]?.trim() || "";
-
-  //       await updateJob(status, subStatus, responseMessage, serialNumber);
-  //       logger.info(`Serial check: ${status}|${subStatus}`, "serial check WIP", {
-  //         payload,
-  //       });
-  //       onClose();
-  //     } catch (error) {
-  //       logger.error(`Error serial check: ${error.message}`, "serial check WIP");
-  //       toast.error("Error validating serial number");
-  //     }
-  //   };
 
   return (
     <ModalSkeleton title={"WIP"} size={"xl"} rolesAllowed={["sf/ssd"]}>

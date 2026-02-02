@@ -46,6 +46,12 @@ export default function ImageUpload({
     if (onChange) {
       onChange(e);
     }
+
+    try {
+      e.target.value = null;
+    } catch (err) {
+      // ignore
+    }
   };
 
   return (

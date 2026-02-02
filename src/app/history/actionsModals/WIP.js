@@ -129,7 +129,7 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
       };
 
       const res = await axiosInstance.post("/CheckSerialNo/CheckSerial", payload);
-      const message = res?.data?.message?.trim() || "";
+      const message = res?.data?.statusMsg?.trim() || "";
       const parts = message.split("|");
 
       if (parts.length < 2) {

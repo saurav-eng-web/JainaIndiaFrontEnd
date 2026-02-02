@@ -374,7 +374,7 @@ function HistoryPageContent() {
 
   const handleSubmitCancellation = async () => {
     if (!selectedReason) {
-      alert("Please select a cancel reason!");
+      toast.error("Please select a cancel reason!");
       return;
     }
     try {
@@ -389,13 +389,8 @@ function HistoryPageContent() {
       };
       const res = await axiosInstance.post("/RequestCancellation/create", payload);
 
-      if (res?.data?.statusMsg) {
-        alert(res.data.statusMsg);
-      } else {
-        alert("Cancellation Request Submitted Successfully!");
-      }
-
-      if (res?.data?.statusCode === 200 && res.data.statusMsg.includes("success")) {
+      if (res?.status === 200) {
+        toast.success("Cancellation Request Submitted Successfully!");
         setShowActionPopup(false);
       }
     } catch (error) {
@@ -460,8 +455,6 @@ function HistoryPageContent() {
     }
   };
 
-  // --- Other Handlers (Approve/Reject/RequestCancellation separate flow) ---
-
   const handleRequestCancellation = async () => {
     const { tickeT_NO, tickeT_KEY } = custDetail;
     const { cancelReason, customerRemarks, contactPerson, userIP } = formData;
@@ -484,8 +477,8 @@ function HistoryPageContent() {
 
     try {
       await axiosInstance.post("/RequestCancellation/create", payload);
-      setPopup({ isOpen: true, message: "Cancelled successfully!" });
       setCancelPopupOpen(false);
+      setPopup({ isOpen: true, message: "Cancelled successfully!" });
     } catch (err) {
       setPopup({ isOpen: true, message: "Failed request for cancellation" });
     }

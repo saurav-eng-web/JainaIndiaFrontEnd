@@ -194,7 +194,7 @@ export function useHistoryData(activeTicket, user, roleName) {
     setLoadingTabs((prev) => ({ ...prev, sca: true }));
     try {
       const res = await axiosInstance.post(`symptom-cause/process`, {
-        type: "GetSCATicketNo",
+        type: "GetSCATicketNoTBL",
         ticket_no: activeTicket,
       });
       const data = res.data.data;

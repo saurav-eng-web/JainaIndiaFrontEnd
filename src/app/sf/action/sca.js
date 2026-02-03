@@ -1,15 +1,13 @@
 "use client";
 
-import { set } from "date-fns";
-import { Input } from "postcss";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { useSelector } from "react-redux";
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import SectionHeading from "@/components/common/SectionHeading";
 import { Button } from "@/components/ui/button";
+import DatePicker from "@/components/ui/Datepicker";
 import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import TimePicker from "@/components/ui/timepicker";
@@ -29,15 +27,6 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
   const [analysis, setAnalysis] = useState([]);
   const [selectedAnalysis, setSelectedAnalysis] = useState("");
 
-  const [engineerData, setEngineerData] = useState([]);
-  const [engineerId, setEngineerId] = useState("");
-
-  const [visitDate, setVisitDate] = useState("");
-  const [inTime, setInTime] = useState("");
-  const [outTime, setOutTime] = useState("");
-  const [visitRemarks, setVisitRemarks] = useState("");
-
-  const sfId = 1420;
   // const sfId = useSelector((state) => state.auth.user.sfId);
 
   useEffect(() => {
@@ -142,30 +131,20 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
     }
   }, [selectedCause, cause]);
 
-  useEffect(() => {
-    async function fetchEngineerData() {
-      try {
-        const res = await axiosInstance.post(
-          `Engineer/Manage`,
-          {
-            Action: "SELECT_ACTIVE_BY_SFID",
-            Eng_SFID: sfId,
-          },
-          { headers: { "Content-Type": "application/json" } }
-        );
-        const data = res.data.data;
-        setEngineerData(
-          data.map((item) => ({
-            value: item.Eng_ID,
-            label: item.Eng_Name,
-          }))
-        );
-      } catch (err) {
-        console.error("Error fetching engineer data:", err);
-      }
+  // Optional: handle visit submit from child component if needed (e.g., to include ticketNo)
+  async function handleVisitSubmit(payload) {
+    // If child calls onSubmit with a payload, enhance it with ticketNo and send to server
+    const fullPayload = { ...payload, ticket_no: ticketNo };
+    try {
+      // Example: send to an API endpoint if required
+      console.log("Submitting visit with payload:", fullPayload);
+      // await axiosInstance.post('Visit/insert', fullPayload);
+      toast.success("Visit submitted successfully");
+    } catch (err) {
+      console.error("Error submitting visit:", err);
+      toast.error("Failed to submit visit details");
     }
-    fetchEngineerData();
-  }, [sfId]);
+  }
 
   function changeSymptom(value) {
     setSelectedSymptom(value);
@@ -235,23 +214,6 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
     }
   };
 
-  const handleVisitSubmit = async () => {
-    if (!engineerId || !visitDate || !inTime || !outTime) {
-      toast.error("Please fill all fields!");
-      return;
-    }
-    const payload = {
-      type: "Insert",
-      ticket_no: ticketNo,
-      eng_id: engineerId,
-      visit_date: visitDate,
-      in_time: inTime,
-      out_time: outTime,
-      remarks: "",
-    };
-    console.log("payload: ", payload);
-  };
-
   return (
     <ModalSkeleton title="Symptom Cause Analysis" size="xl">
       <div className="flex min-h-full flex-col justify-center">
@@ -296,50 +258,130 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
         <div className="mt-6 flex justify-end">
           <Button onClick={handleSubmit}>Submit SCA</Button>
         </div>
+
         <SectionHeading>Update Visit Details</SectionHeading>
-        <div className="grid grid-cols-3 items-center gap-6">
-          <CustomDropdown
-            label="Engineer Name"
-            placeholder="Select Engineer"
-            value={engineerId}
-            onChange={(val) => setEngineerId(val)}
-            options={engineerData}
-            required
-          />
 
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium text-gray-700">
-              Visit Date<span className="ml-1 text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              className="rounded-md border px-3 py-2"
-              value={visitDate}
-              onChange={(e) => {
-                setVisitDate(e.target.value);
-                // Reset time when date changes (handled by parent logic usually, but here just updating state)
-                // setHour("");
-                // setMinute("");
-              }}
-              // min={todayStr}
-              // max={new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]}
-            />
-          </div>
-
-          <InputField
-            label="Remarks"
-            value={visitRemarks}
-            onChange={(e) => setVisitRemarks(e.target.value)}
-            required
-          />
-
-          <TimePicker label="In Time" value={inTime} onChange={setInTime} />
-          <TimePicker label="Out Time" value={outTime} onChange={setOutTime} />
-        </div>
-        <div className="mt-6 flex justify-end">
-          <Button onClick={handleVisitSubmit}>Submit Visit details</Button>
-        </div>
+        <VisitDetails submitType={"visitDetails"} />
       </div>
     </ModalSkeleton>
+  );
+}
+
+function VisitDetails() {
+  const [engineerId, setEngineerId] = useState("");
+  const [visitDate, setVisitDate] = useState("");
+  const [inTime, setInTime] = useState("09:00");
+  const [outTime, setOutTime] = useState("");
+  const [visitRemarks, setVisitRemarks] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [engineerData, setEngineerData] = useState([]);
+
+  const sfId = 1420;
+
+  useEffect(() => {
+    async function fetchEngineerData() {
+      try {
+        const res = await axiosInstance.post(
+          `Engineer/Manage`,
+          {
+            Action: "SELECT_ACTIVE_BY_SFID",
+            Eng_SFID: sfId,
+          },
+          { headers: { "Content-Type": "application/json" } }
+        );
+        const data = res.data.data;
+        setEngineerData(
+          data.map((item) => ({
+            value: item.Eng_ID,
+            label: item.Eng_Name,
+          }))
+        );
+      } catch (err) {
+        console.error("Error fetching engineer data:", err);
+      }
+    }
+    fetchEngineerData();
+  }, [sfId]);
+
+  const localSubmit = async () => {
+    if (!engineerId || !visitDate || !inTime || !outTime) {
+      toast.error("Please fill all fields!");
+      return;
+    }
+
+    const payload = {
+      type: "Insert",
+      ticket_no: undefined,
+      eng_id: engineerId,
+      visit_date: visitDate,
+      in_time: inTime,
+      out_time: outTime,
+      remarks: visitRemarks || "",
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      console.log("hi there");
+    } catch (err) {
+      console.error("Error submitting visit details:", err);
+      toast.error("Failed to submit visit details");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="grid grid-cols-3 items-center gap-6">
+        <CustomDropdown
+          label="Engineer Name"
+          placeholder="Select Engineer"
+          value={engineerId}
+          onChange={(val) => setEngineerId(val)}
+          options={engineerData}
+          required
+        />
+
+        <DatePicker
+          label="Visit Date"
+          // min="today"
+          // max={4}
+          value={visitDate}
+          onChange={setVisitDate}
+          required
+        />
+
+        <InputField
+          label="Remarks"
+          value={visitRemarks}
+          onChange={(e) => setVisitRemarks(e.target.value)}
+          required
+        />
+
+        <TimePicker
+          label="In Time"
+          value={inTime}
+          min={"09:00"}
+          max={"21:00"}
+          onChange={setInTime}
+          required
+        />
+        <TimePicker
+          label="Out Time"
+          value={outTime}
+          min={inTime}
+          max={"21:00"}
+          onChange={setOutTime}
+          required
+        />
+      </div>
+
+      <div className="mt-6 flex justify-end">
+        <Button disabled={isSubmitting} onClick={localSubmit}>
+          {isSubmitting ? "Submitting..." : "Submit details"}
+        </Button>
+      </div>
+    </>
   );
 }

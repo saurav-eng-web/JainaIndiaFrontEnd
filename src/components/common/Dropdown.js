@@ -101,16 +101,16 @@ export default function CustomDropdown({
     >
       {label && (
         <label
-          className={`mb-2 text-sm font-medium ${disabled ? "text-gray-700" : "text-gray-700"}`}
+          className={`mb-2 text-sm font-medium ${disabled ? "text-gray-700" : "text-[#714b67]"}`}
         >
-          {required && <span className="mr-1 text-red-500">*</span>}
           {label}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </label>
       )}
 
       {/* Dropdown button */}
       <div
-        className={`flex items-center justify-between rounded-lg border border-gray-400 bg-white px-3 py-2 ${disabled ? "cursor-not-allowed opacity-90" : "cursor-pointer"}`}
+        className={`flex items-center justify-between rounded-lg border border-[#a6829d] bg-white px-3 py-2 ${disabled ? "cursor-not-allowed opacity-90" : "cursor-pointer"}`}
         onClick={() => {
           if (disabled) return;
           setIsOpen(!isOpen);

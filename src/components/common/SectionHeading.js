@@ -8,7 +8,7 @@ export default function SectionHeading({ children }) {
   return (
     <div className="rounded-xl py-8">
       <h2
-        className="mb-6 rounded-lg p-2 text-[18px] font-semibold"
+        className="rounded-lg p-2 text-[18px] font-semibold"
         style={{
           color: colors.primary,
           border: `2px solid ${colors.primary}`,

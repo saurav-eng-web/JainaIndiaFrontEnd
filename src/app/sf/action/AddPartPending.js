@@ -158,9 +158,9 @@ export default function AddPartPending({ ticketNumber }) {
 
     try {
       const res = await axiosInstance.post("po-validation/check", {
-        PartCode: selectedPart.value,
-        Type: "stockcheck",
-        TicketNo: ticketNumber,
+        partcode: selectedPart.value,
+        type: "stockcheck",
+        ticket_no: ticketNumber,
       });
 
       const message = res.data?.statusMsg || "";
@@ -236,7 +236,6 @@ export default function AddPartPending({ ticketNumber }) {
             imageUploadRequired: itemToDelete.imageUploadRequired,
           },
         ];
-        // Optional: Sort options alphabetically by label so the restored item is in place
         return newOptions.sort((a, b) => a.label.localeCompare(b.label));
       });
     }
@@ -274,7 +273,6 @@ export default function AddPartPending({ ticketNumber }) {
     setSaveConfirmationOpen(true);
   }
 
-  // >>>>>>>>>>>>>>> UPLOAD FUNCTION <<<<<<<<<<<<<<<
   const handleUpload = async () => {
     try {
       let allSuccess = true;
@@ -287,12 +285,8 @@ export default function AddPartPending({ ticketNumber }) {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("Ticket_no", ticketNumber);
-            formData.append("DocumentType", "HVP Parts"); // Updated type
+            formData.append("DocumentType", "HVP Parts");
 
-            // Using axiosInstance or axios?
-            // The file uses axiosInstance generally.
-            // However, the user snippet used a specific path.
-            // I'll use axiosInstance and the path provided.
             try {
               await axios.post("/api/documents/upload", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -312,10 +306,7 @@ export default function AddPartPending({ ticketNumber }) {
   };
 
   async function onConfirmSave() {
-    // 1. Upload Images First
-
     const data = grid.flatMap((item) => {
-      // 1. Create the main part object
       const mainPart = {
         partCode: item.partCode,
         inventoryType: item.inventoryType,
@@ -327,7 +318,6 @@ export default function AddPartPending({ ticketNumber }) {
         imageupload: item.images.length > 0 ? "Uploaded" : null,
       };
 
-      // 2. Check for extra part
       if (item.extraPartCode && item.extraPartDescription) {
         const extraPart = {
           partCode: item.extraPartCode,

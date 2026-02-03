@@ -1,118 +1,180 @@
 "use client";
 
-import { Popover } from "@headlessui/react";
 import clsx from "clsx";
-import {
-  format,
-  addMonths,
-  subMonths,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-  isSameDay,
-  isToday,
-} from "date-fns";
-import { useState } from "react";
 
-const THEME = "#714b67";
+import { resolveRange } from "@/utils/dateRange";
 
-export default function CustomDatePicker({
+const sizeMap = {
+  sm: {
+    input: "h-8 px-2 text-sm",
+    label: "text-xs",
+  },
+  md: {
+    input: "h-10 px-3 text-sm",
+    label: "text-sm",
+  },
+  lg: {
+    input: "h-12 px-4 text-base",
+    label: "text-sm",
+  },
+  xl: {
+    input: "h-14 px-5 text-lg",
+    label: "text-base",
+  },
+};
+
+export default function DatePicker({
   label,
-  value, // "yyyy-MM-dd"
-  onChange, // returns "yyyy-MM-dd"
-  required = false,
-  error = "",
+  value,
+  onChange,
+  min,
+  max,
+  placeholder,
   size = "md",
-  className = "",
+  disabled = false,
+  error = "",
+  required = false,
+  name,
+  id,
+  className,
+  message,
 }) {
-  const [currentMonth, setCurrentMonth] = useState(value ? new Date(value) : new Date());
+  const styles = sizeMap[size] || sizeMap.md;
 
-  const days = eachDayOfInterval({
-    start: startOfMonth(currentMonth),
-    end: endOfMonth(currentMonth),
-  });
+  // 🔥 NEW RANGE LOGIC
+  const { min: resolvedMin, max: resolvedMax } = resolveRange(min, max);
 
-  const handleSelect = (date) => {
-    const apiValue = format(date, "yyyy-MM-dd");
-    onChange(apiValue);
+  const isAllowed = (date) => {
+    if (!date) return true;
+
+    if (resolvedMin && date < resolvedMin) return false;
+    if (resolvedMax && date > resolvedMax) return false;
+
+    return true;
   };
 
-  const displayValue = value ? format(new Date(value), "dd-MM-yyyy") : "";
+  const handleChange = (e) => {
+    const val = e.target.value;
+
+    // auto fix if out of range
+    if (!isAllowed(val)) {
+      const fixed =
+        resolvedMin && val < resolvedMin
+          ? resolvedMin
+          : resolvedMax && val > resolvedMax
+            ? resolvedMax
+            : val;
+
+      onChange?.(fixed);
+      return;
+    }
+
+    onChange?.(val);
+  };
 
   return (
     <div className={clsx("flex w-full flex-col gap-1", className)}>
+      {/* Label */}
       {label && (
-        <label className="text-sm font-medium text-[#714b67]">
+        <label
+          htmlFor={id || name}
+          className={clsx("font-medium text-[#714b67]", styles.label)}
+        >
           {label}
           {required && <span className="ml-1 text-red-500">*</span>}
+          {message && <span className="ml-2 text-xs text-gray-500">{message}</span>}
         </label>
       )}
 
-      <Popover className="relative">
-        <Popover.Button
-          className={clsx(
-            "flex h-10 w-full items-center justify-between rounded-lg border px-3 text-sm",
-            "border-[#a6829d] bg-white outline-none focus:ring-1 focus:ring-[#714b67]",
-            error && "border-red-500 focus:ring-red-500"
-          )}
-        >
-          <span className={displayValue ? "text-black" : "text-gray-400"}>
-            {displayValue || "Select date"}
-          </span>
-          <span className="text-[#714b67]">📅</span>
-        </Popover.Button>
+      {/* Input */}
+      <input
+        id={id || name}
+        name={name}
+        type="date"
+        value={value || ""}
+        onChange={handleChange}
+        placeholder={placeholder}
+        disabled={disabled}
+        min={resolvedMin || undefined}
+        max={resolvedMax || undefined}
+        className={clsx(
+          "rounded-lg border border-[#a6829d] transition-all outline-none",
+          "focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]",
+          !disabled ? "bg-white" : "cursor-not-allowed bg-gray-100 opacity-75",
+          error && "border-red-500 focus:border-red-500 focus:ring-red-500",
+          styles.input
+        )}
+      />
 
-        <Popover.Panel className="absolute z-20 mt-2 w-72 rounded-lg border bg-white p-3 shadow-xl">
-          {/* Header */}
-          <div className="mb-2 flex items-center justify-between">
-            <button
-              onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              className="rounded p-1 hover:bg-gray-100"
-            >
-              ◀
-            </button>
-            <span className="font-semibold text-[#714b67]">
-              {format(currentMonth, "MMMM yyyy")}
-            </span>
-            <button
-              onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-              className="rounded p-1 hover:bg-gray-100"
-            >
-              ▶
-            </button>
-          </div>
-
-          {/* Week Days */}
-          <div className="grid grid-cols-7 text-center text-xs text-gray-500">
-            {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
-              <div key={d}>{d}</div>
-            ))}
-          </div>
-
-          {/* Days */}
-          <div className="mt-1 grid grid-cols-7 gap-1">
-            {days.map((day) => {
-              const selected = value && isSameDay(day, new Date(value));
-              return (
-                <button
-                  key={day.toString()}
-                  onClick={() => handleSelect(day)}
-                  className={clsx(
-                    "h-9 rounded text-sm transition",
-                    selected && "bg-[#714b67] text-white",
-                    !selected && "hover:bg-[#f3e8f0]",
-                    isToday(day) && !selected && "border border-[#714b67]"
-                  )}
-                >
-                  {format(day, "d")}
-                </button>
-              );
-            })}
-          </div>
-        </Popover.Panel>
-      </Popover>
-
+      {/* Error */}
       {error && <span className="text-xs text-red-600">{error}</span>}
     </div>
   );
 }
+
+// "use client";
+
+// import clsx from "clsx";
+
+// const sizeMap = {
+//   sm: { input: "h-8 px-2 text-sm", label: "text-xs" },
+//   md: { input: "h-10 px-3 text-sm", label: "text-sm" },
+//   lg: { input: "h-12 px-4 text-base", label: "text-sm" },
+//   xl: { input: "h-14 px-5 text-lg", label: "text-base" },
+// };
+
+// export default function DatePicker({
+//   label,
+//   value,
+//   onChange,
+//   size = "md",
+//   required = false,
+//   disabled = false,
+//   error = "",
+//   name,
+//   id,
+//   className,
+//   min,
+//   max,
+//   message,
+//   ...rest
+// }) {
+//   const styles = sizeMap[size] || sizeMap.md;
+
+//   return (
+//     <div className={clsx("flex w-full flex-col gap-1", className)}>
+//       {/* Label (height preserved even if no label) */}
+//       <div className={styles.label}>
+//         {label ? (
+//           <label htmlFor={id || name} className="font-medium text-[#714b67]">
+//             {label}
+//             {required && <span className="ml-1 text-red-500">*</span>}
+//             {message && <span className="ml-2 text-xs text-gray-500">{message}</span>}
+//           </label>
+//         ) : (
+//           <div className="h-[18px]" />
+//         )}
+//       </div>
+
+//       <input
+//         id={id || name}
+//         name={name}
+//         type="date"
+//         value={value || ""}
+//         onChange={(e) => onChange?.(e.target.value)}
+//         disabled={disabled}
+//         min={min}
+//         max={max}
+//         className={clsx(
+//           "rounded-lg border border-[#a6829d] transition-all outline-none",
+//           "focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]",
+//           !disabled ? "bg-white" : "cursor-not-allowed bg-gray-100 opacity-75",
+//           error && "border-red-500 focus:border-red-500 focus:ring-red-500",
+//           styles.input
+//         )}
+//       />
+
+//       {error && <span className="text-xs text-red-600">{error}</span>}
+//     </div>
+//   );
+// }

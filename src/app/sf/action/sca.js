@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
@@ -133,7 +133,6 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
 
   // Optional: handle visit submit from child component if needed (e.g., to include ticketNo)
   async function handleVisitSubmit(payload) {
-    // If child calls onSubmit with a payload, enhance it with ticketNo and send to server
     const fullPayload = { ...payload, ticket_no: ticketNo };
     try {
       // Example: send to an API endpoint if required
@@ -261,13 +260,13 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
 
         <SectionHeading>Update Visit Details</SectionHeading>
 
-        <VisitDetails submitType={"visitDetails"} />
+        <VisitDetails submitType={"visitDetails"} ticketNo={ticketNo} />
       </div>
     </ModalSkeleton>
   );
 }
 
-function VisitDetails() {
+function VisitDetails({ ticketNo, ticketKey }) {
   const [engineerId, setEngineerId] = useState("");
   const [visitDate, setVisitDate] = useState("");
   const [inTime, setInTime] = useState("09:00");
@@ -303,21 +302,34 @@ function VisitDetails() {
     fetchEngineerData();
   }, [sfId]);
 
-  const localSubmit = async () => {
+  const fetchVisitDetails = useCallback(async () => {
+    if (!ticketKey) return; // Need ticketKey first
+
+    try {
+      const res = await axiosInstance.get(`visit/ticket/${ticketKey}`);
+      const data = res.data;
+      console.log("data: ", data);
+    } catch (err) {
+      console.error("Failed to fetch visit data:", err);
+    } //finally {
+    // }
+  }, [ticketKey]);
+
+  const handleSubmitVisit = async () => {
     if (!engineerId || !visitDate || !inTime || !outTime) {
       toast.error("Please fill all fields!");
       return;
     }
 
     const payload = {
-      type: "Insert",
-      ticket_no: undefined,
-      eng_id: engineerId,
-      visit_date: visitDate,
-      in_time: inTime,
-      out_time: outTime,
-      remarks: visitRemarks || "",
+      TicketNo: ticketNo,
+      EngName: engineerId,
+      VDate: visitDate,
+      VInTime: inTime,
+      VOutTime: outTime,
+      Remark: visitRemarks,
     };
+    console.log("p: ", payload);
 
     setIsSubmitting(true);
 
@@ -378,7 +390,7 @@ function VisitDetails() {
       </div>
 
       <div className="mt-6 flex justify-end">
-        <Button disabled={isSubmitting} onClick={localSubmit}>
+        <Button disabled={isSubmitting} onClick={handleSubmitVisit}>
           {isSubmitting ? "Submitting..." : "Submit details"}
         </Button>
       </div>

@@ -44,6 +44,8 @@ export default function AssignedPopup({
     tickeT_KEY: ticketKey,
   } = detail;
 
+  console.log("data: ", { formData, detail });
+
   const [updatedDOP, setUpdatedDOP] = useState(DOP);
   const [selectedCallType, setSelectedCallType] = useState(callType);
 
@@ -175,7 +177,7 @@ export default function AssignedPopup({
     };
 
     try {
-      await axiosInstance.post("/CallSchedule/create", callSchedulePayload);
+      await axiosInstance.post("CallSchedule/create", callSchedulePayload);
     } catch (error) {
       console.error("Unable to submit call schedule", error);
     }
@@ -212,7 +214,6 @@ export default function AssignedPopup({
             </label>
             <input
               type="date"
-              disabled={type !== "Assigned"}
               className="rounded-md border px-3 py-2"
               value={updatedDOP.split("T")[0]}
               onChange={(e) => {
@@ -221,6 +222,7 @@ export default function AssignedPopup({
                 setMinute("");
               }}
               max={todayStr}
+              disabled={complaintSubStatus === "WIP" ? true : false}
             />
           </div>
           <CustomDropdown
@@ -230,7 +232,7 @@ export default function AssignedPopup({
             onChange={(val) => setSelectedCallType(val)}
             options={callTypeOptions}
             required
-            disabled={type !== "Assigned"}
+            disabled={complaintSubStatus === "WIP" ? true : false}
           />
         </>
         {/* )} */}

@@ -160,7 +160,6 @@ export default function OKPopup({ ticketNo, onClose }) {
             } else {
               toast.error(res.data.statusMsg);
             }
-            return res.data.statusMsg;
           }
 
           throw new Error(res.data.statusMsg || "Failed to close call");

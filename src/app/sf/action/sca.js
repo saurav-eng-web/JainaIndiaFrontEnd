@@ -5,14 +5,74 @@ import { toast } from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
-import SectionHeading from "@/components/common/SectionHeading";
 import { Button } from "@/components/ui/button";
 import DatePicker from "@/components/ui/Datepicker";
 import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import TimePicker from "@/components/ui/timepicker";
 
-export default function SCAPopup({ ticketNo, onClose, productType }) {
+export default function SCAPopup({ ticketNo, ticketKey, onClose, productType }) {
+  const [step, setStep] = useState(1);
+
+  const goNext = () => setStep(2);
+  const goBack = () => setStep(1);
+
+  return (
+    <ModalSkeleton title="Symptom Cause Analysis / Update Visit Details" size="xl">
+      {/* STEP INDICATOR */}
+      <div className="mb-6 flex items-center gap-4">
+        <StepIndicator number={1} active={step === 1}>
+          SCA Details
+        </StepIndicator>
+
+        <div className="h-0.5 flex-1 bg-gray-300" />
+
+        <StepIndicator number={2} active={step === 2}>
+          Visit Details
+        </StepIndicator>
+      </div>
+
+      {/* STEP CONTENT */}
+      {step === 1 && (
+        <SCASection
+          ticketNo={ticketNo}
+          productType={productType}
+          onClose={onClose}
+          onNext={goNext}
+        />
+      )}
+
+      {step === 2 && (
+        <VisitDetails
+          submitType="visitDetails"
+          ticketNo={ticketNo}
+          ticketKey={ticketKey}
+          onBack={goBack}
+        />
+      )}
+    </ModalSkeleton>
+  );
+}
+
+function StepIndicator({ number, active, children }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${active ? "bg-[#714b67] text-white" : "bg-gray-200 text-gray-700"} `}
+      >
+        {number}
+      </div>
+
+      <span
+        className={`text-sm font-semibold ${active ? "text-[#714b67]" : "text-gray-500"} `}
+      >
+        {children}
+      </span>
+    </div>
+  );
+}
+
+function SCASection({ ticketNo, productType, onClose }) {
   const [jobAction, setJobAction] = useState("");
   const [remarks, setRemarks] = useState("");
   const [data, setData] = useState({});
@@ -131,20 +191,6 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
     }
   }, [selectedCause, cause]);
 
-  // Optional: handle visit submit from child component if needed (e.g., to include ticketNo)
-  async function handleVisitSubmit(payload) {
-    const fullPayload = { ...payload, ticket_no: ticketNo };
-    try {
-      // Example: send to an API endpoint if required
-      console.log("Submitting visit with payload:", fullPayload);
-      // await axiosInstance.post('Visit/insert', fullPayload);
-      toast.success("Visit submitted successfully");
-    } catch (err) {
-      console.error("Error submitting visit:", err);
-      toast.error("Failed to submit visit details");
-    }
-  }
-
   function changeSymptom(value) {
     setSelectedSymptom(value);
     const newCause = symptoms.find((item) => item.value === value);
@@ -212,57 +258,50 @@ export default function SCAPopup({ ticketNo, onClose, productType }) {
       toast.error("Failed to submit SCA data");
     }
   };
-
   return (
-    <ModalSkeleton title="Symptom Cause Analysis" size="xl">
-      <div className="flex min-h-full flex-col justify-center">
-        <div className="grid min-w-3xl grid-cols-3 items-center gap-6">
-          <CustomDropdown
-            label="Symptom"
-            value={selectedSymptom}
-            onChange={(e) => changeSymptom(e)}
-            options={symptoms}
-            placeholder="Select Symptom"
-            required
-          />
-          <CustomDropdown
-            label="Cause"
-            value={selectedCause}
-            onChange={(e) => changeCause(e)}
-            options={cause}
-            placeholder="Select Cause"
-            required
-          />
-          <CustomDropdown
-            label="Analysis"
-            value={selectedAnalysis}
-            onChange={(e) => setSelectedAnalysis(e)}
-            options={analysis}
-            placeholder="Select Analysis"
-            required
-          />
-          <InputField
-            label="Job Action"
-            value={jobAction}
-            onChange={(e) => setJobAction(e.target.value)}
-            required
-          />{" "}
-          <InputField
-            label="Remarks"
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            required={remarkMandatory}
-          />
-        </div>
-        <div className="mt-6 flex justify-end">
-          <Button onClick={handleSubmit}>Submit SCA</Button>
-        </div>
-
-        <SectionHeading>Update Visit Details</SectionHeading>
-
-        <VisitDetails submitType={"visitDetails"} ticketNo={ticketNo} />
+    <>
+      <div className="grid min-w-3xl grid-cols-3 items-center gap-6">
+        <CustomDropdown
+          label="Symptom"
+          value={selectedSymptom}
+          onChange={(e) => changeSymptom(e)}
+          options={symptoms}
+          placeholder="Select Symptom"
+          required
+        />
+        <CustomDropdown
+          label="Cause"
+          value={selectedCause}
+          onChange={(e) => changeCause(e)}
+          options={cause}
+          placeholder="Select Cause"
+          required
+        />
+        <CustomDropdown
+          label="Analysis"
+          value={selectedAnalysis}
+          onChange={(e) => setSelectedAnalysis(e)}
+          options={analysis}
+          placeholder="Select Analysis"
+          required
+        />
+        <InputField
+          label="Job Action"
+          value={jobAction}
+          onChange={(e) => setJobAction(e.target.value)}
+          required
+        />{" "}
+        <InputField
+          label="Remarks"
+          value={remarks}
+          onChange={(e) => setRemarks(e.target.value)}
+          required={remarkMandatory}
+        />
       </div>
-    </ModalSkeleton>
+      <div className="mt-6 flex justify-end">
+        <Button onClick={handleSubmit}>Next</Button>
+      </div>
+    </>
   );
 }
 
@@ -345,7 +384,7 @@ function VisitDetails({ ticketNo, ticketKey }) {
 
   return (
     <>
-      <div className="grid grid-cols-3 items-center gap-6">
+      <div className="grid min-w-3xl grid-cols-3 items-center gap-6">
         <CustomDropdown
           label="Engineer Name"
           placeholder="Select Engineer"

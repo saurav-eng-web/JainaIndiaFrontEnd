@@ -118,7 +118,7 @@ export default function TimePicker({
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-0.5">
         <select
           value={hour}
           onChange={handleHourChange}

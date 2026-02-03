@@ -1,5 +1,6 @@
 "use client";
 
+import { MoveLeft, MoveRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -12,7 +13,7 @@ import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import TimePicker from "@/components/ui/timepicker";
 
 export default function SCAPopup({ ticketNo, ticketKey, onClose, productType }) {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(2);
 
   const goNext = () => setStep(2);
   const goBack = () => setStep(1);
@@ -20,7 +21,7 @@ export default function SCAPopup({ ticketNo, ticketKey, onClose, productType }) 
   return (
     <ModalSkeleton title="Symptom Cause Analysis / Update Visit Details" size="xl">
       {/* STEP INDICATOR */}
-      <div className="mb-6 flex items-center gap-4">
+      <div className="mx-auto mb-6 flex w-xl items-center gap-4">
         <StepIndicator number={1} active={step === 1}>
           SCA Details
         </StepIndicator>
@@ -34,21 +35,36 @@ export default function SCAPopup({ ticketNo, ticketKey, onClose, productType }) 
 
       {/* STEP CONTENT */}
       {step === 1 && (
-        <SCASection
-          ticketNo={ticketNo}
-          productType={productType}
-          onClose={onClose}
-          onNext={goNext}
-        />
+        <>
+          <SCASection
+            ticketNo={ticketNo}
+            productType={productType}
+            onClose={onClose}
+            onNext={goNext}
+          />
+          <Button className="ml-auto" onClick={goNext}>
+            Next
+          </Button>
+        </>
       )}
 
       {step === 2 && (
-        <VisitDetails
-          submitType="visitDetails"
-          ticketNo={ticketNo}
-          ticketKey={ticketKey}
-          onBack={goBack}
-        />
+        <>
+          <VisitDetails
+            submitType="visitDetails"
+            ticketNo={ticketNo}
+            ticketKey={ticketKey}
+            onBack={goBack}
+          />
+          <div className="mt-10 flex">
+            <Button variant="outline" onClick={goBack}>
+              back
+            </Button>
+            <Button className="ml-auto" onClick={goBack}>
+              Submit
+            </Button>
+          </div>
+        </>
       )}
     </ModalSkeleton>
   );

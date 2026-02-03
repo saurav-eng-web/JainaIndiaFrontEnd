@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import axios from "axios";
 import { Eye } from "lucide-react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState, Suspense, useCallback } from "react";
+import { useEffect, useState, Suspense, useCallback, act } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -42,6 +42,7 @@ import Pagination from "@/components/Pagination";
 import SideBar from "@/components/SideBar";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/Modal";
+import StatusModal from "@/components/ui/StatusModal";
 import { useHistoryData } from "@/hooks/useHistoryData";
 import { setRouteData } from "@/redux/slices/routeDataSlice";
 import { parseStatusMessage } from "@/utils/historyUtils";
@@ -131,6 +132,8 @@ function HistoryPageContent() {
   const [WIPPopup, setWIPPopup] = useState(false);
   const [OkPopup, setOkPopup] = useState(false);
   const [openSCAPopup, setOpenSCAPopup] = useState(false);
+  const [DOATDPopup, setDOATDPopup] = useState(false);
+  const [DOATDData, setDOATDData] = useState({});
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -349,12 +352,60 @@ function HistoryPageContent() {
         setOpenSCAPopup(true);
         break;
 
+      case "DOA":
+        handleDOATD("DOAcheck");
+        break;
+
+      case "Special Doa Approval":
+        handleDOATD("specialDOAcheck");
+        break;
+
+      case "TD":
+        handleDOATD("TDcheck");
+        break;
+
       default:
         // This runs only if none of the above match
         setShowActionPopup(true);
         break;
     }
   };
+
+  async function handleDOATD(type) {
+    // const title = type === "DOAcheck" ? "Doa" :
+
+    const titles = {
+      DOAcheck: "DOA Request Submitted",
+      specialDOAcheck: "Special Doa Request Submitted",
+      TDcheck: "TD Request Submitted",
+    };
+
+    const title = titles[type] || "";
+    try {
+      const res = await axiosInstance.post("po-validation/validate", {
+        type: type,
+        ticket_no: activeTicket || formData.tickeT_NO,
+      });
+
+      if (res.data.statusCode === 200 && res.data.data.length > 0) {
+        setDOATDData({
+          title,
+          message: res.data.statusMsg,
+          type: "success",
+        });
+      } else {
+        setDOATDData({
+          message: "",
+          title: res.data.statusMsg,
+          type: "failure",
+        });
+      }
+      setDOATDPopup(true);
+    } catch (err) {
+      console.error("Error fetching engineer data:", err);
+      toast.error("Failed to submit request");
+    }
+  }
 
   async function fetchEngineerData() {
     try {
@@ -688,6 +739,17 @@ function HistoryPageContent() {
                 productType={detail.product}
               />
             </Modal>
+            <StatusModal
+              open={DOATDPopup}
+              type={DOATDData.type} // failure
+              title={DOATDData.title}
+              message={DOATDData.message}
+              onClose={() => {
+                setDOATDPopup(false);
+                setDOATDData({});
+                router.back();
+              }}
+            />
           </>
         )}
 

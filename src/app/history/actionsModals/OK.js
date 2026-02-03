@@ -144,19 +144,22 @@ export default function OKPopup({ ticketNo, onClose }) {
       const res = await toast.promise(axiosInstance.post("ok-call/process", payload), {
         loading: "Submitting request...",
         success: async (res) => {
-          if (
-            res.data.statusCode === 200 &&
-            res.data.statusMsg === "Record Inserted/Updated Successfully" &&
-            res.data?.data.length > 0
-          ) {
+          if (res.data.statusCode === 200 && res.data?.data.length > 0) {
             if (images.length > 0) {
               const uploadSuccess = await handleUpload();
               if (!uploadSuccess) {
                 toast.error("Some images failed to upload");
               }
             }
-
-            setTimeout(() => router.back(), 1000);
+            if (
+              res.data.data[0].COMPLAINT_STATUS === "OK" &&
+              res.data.data[0].Complaint_SubStatus === "OK"
+            ) {
+              toast.success("Call closed successfully");
+              router.back();
+            } else {
+              toast.error(res.data.statusMsg);
+            }
             return res.data.statusMsg;
           }
 
@@ -203,7 +206,7 @@ export default function OKPopup({ ticketNo, onClose }) {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const isUploadDisabled = !validHappyCode;
+  // const isUploadDisabled = !validHappyCode;
 
   // TODO: Valid serial no
   return (

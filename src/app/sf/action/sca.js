@@ -1,7 +1,6 @@
 "use client";
 
-import { MoveLeft, MoveRight } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
@@ -12,15 +11,191 @@ import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import TimePicker from "@/components/ui/timepicker";
 
-export default function SCAPopup({ ticketNo, ticketKey, onClose, productType }) {
-  const [step, setStep] = useState(2);
+export default function SCAPopup({
+  ticketNo,
+  ticketKey,
+  onClose,
+  productType,
+  subStatus,
+  sfId,
+}) {
+  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const goNext = () => setStep(2);
+  const [scaState, setScaState] = useState({
+    selectedSymptom: "",
+    selectedCause: "",
+    selectedAnalysis: "",
+    jobAction: "",
+    remarks: "",
+  });
+
+  const [initialScaData, setInitialScaData] = useState(null);
+  const [initialVisitData, setInitialVisitData] = useState(null);
+  const [symptomsData, setSymptomsData] = useState([]);
+  const [remarkMandatory, setRemarkMandatory] = useState(false);
+
+  const [visitState, setVisitState] = useState({
+    engineerId: "",
+    visitDate: "",
+    inTime: "09:00",
+    outTime: "",
+    visitRemarks: "",
+  });
+  const [engineers, setEngineers] = useState([]);
+
+  useEffect(() => {
+    async function fetchAllData() {
+      try {
+        const scaOptionsRes = await axiosInstance.post("symptom-cause/process", {
+          type: "GetSCA",
+          payload: productType || "",
+        });
+        if (scaOptionsRes.data.statusCode === 200 && scaOptionsRes.data.data.length > 0) {
+          const data = scaOptionsRes.data.data[0]["DataFlow"]["Symptoms"];
+          setSymptomsData(data);
+        }
+
+        // 2. Fetch Existing SCA Data for the ticket
+        const existingScaRes = await axiosInstance.post("symptom-cause/process", {
+          type: "GetSCATicketNo",
+          ticket_no: ticketNo,
+        });
+        if (
+          existingScaRes.data.statusCode === 200 &&
+          existingScaRes.data.data.length > 0
+        ) {
+          const data = existingScaRes.data.data[0];
+          const initial = {
+            selectedSymptom: data.syid,
+            selectedCause: data.cid,
+            selectedAnalysis: data.anid,
+            jobAction: data.JD_Workdone,
+            remarks: data.remarks,
+          };
+          setScaState(initial);
+          setInitialScaData(initial);
+        }
+
+        const engRes = await axiosInstance.post(
+          `Engineer/Manage`,
+          { Action: "SELECT_ACTIVE_BY_SFID", Eng_SFID: sfId },
+          { headers: { "Content-Type": "application/json" } }
+        );
+        if (engRes.data?.data) {
+          setEngineers(
+            engRes.data.data.map((item) => ({
+              value: item.Eng_Name, //item.Eng_ID,
+              label: item.Eng_Name,
+            }))
+          );
+        }
+
+        const visitRes = await axiosInstance.get(`visit/ticket/${ticketKey}`);
+        if (visitRes.status === 200) {
+          const vData = visitRes?.data;
+          const data = vData[vData.length - 1];
+          const initial = {
+            engineerId: data.engName,
+            visitDate: data.vDate.split("T")[0],
+            inTime: data.vInTime,
+            outTime: data.vOutTime,
+            visitRemarks: data.remark,
+          };
+          setInitialVisitData(initial);
+          setVisitState(initial);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load component data");
+      }
+    }
+
+    fetchAllData();
+  }, [ticketNo, productType, sfId, ticketKey]);
+
+  const goNext = () => {
+    // Validation for Step 1
+    if (
+      !scaState.selectedSymptom ||
+      !scaState.selectedCause ||
+      !scaState.selectedAnalysis
+    ) {
+      return toast.error("Please select all SCA fields!");
+    }
+    if (!scaState.jobAction) {
+      return toast.error("Please fill job action!");
+    }
+    if (remarkMandatory && !scaState.remarks) {
+      return toast.error("Please fill remarks!");
+    }
+    setStep(2);
+  };
+
   const goBack = () => setStep(1);
+
+  const handleFinalSubmit = async () => {
+    // Validation for Step 2
+    if (
+      !visitState.engineerId ||
+      !visitState.visitDate ||
+      !visitState.inTime ||
+      !visitState.outTime
+    ) {
+      return toast.error("Please fill all visit details!");
+    }
+
+    const scaPayload = {
+      type: "Insert",
+      ticket_no: ticketNo,
+      syid: scaState.selectedSymptom,
+      cid: scaState.selectedCause,
+      anid: scaState.selectedAnalysis,
+      jobaction: scaState.jobAction,
+      remarks: scaState.remarks,
+    };
+
+    const visitPayload = {
+      TicketNo: ticketNo,
+      EngName: visitState.engineerId,
+      VDate: visitState.visitDate,
+      VInTime: visitState.inTime,
+      VOutTime: visitState.outTime,
+      VStatus: subStatus,
+      Remark: visitState.visitRemarks,
+    };
+
+    const scaChanged =
+      !initialScaData ||
+      Object.keys(scaState).some((key) => scaState[key] !== initialScaData[key]);
+
+    const visitChanged =
+      !initialVisitData ||
+      Object.keys(visitState).some((key) => visitState[key] !== initialVisitData[key]);
+    const submitPromise = async () => {
+      const requests = [];
+
+      if (scaChanged) {
+        requests.push(axiosInstance.post("symptom-cause/process", scaPayload));
+      }
+
+      if (visitChanged) {
+        requests.push(axiosInstance.post("visit", visitPayload));
+      }
+
+      await Promise.all(requests);
+      onClose?.();
+    };
+
+    toast.promise(submitPromise(), {
+      loading: "Submitting details...",
+      success: "Details updated successfully!",
+      error: "Failed to submit details.",
+    });
+  };
 
   return (
     <ModalSkeleton title="Symptom Cause Analysis / Update Visit Details" size="xl">
-      {/* STEP INDICATOR */}
       <div className="mx-auto mb-6 flex w-xl items-center gap-4">
         <StepIndicator number={1} active={step === 1}>
           SCA Details
@@ -37,31 +212,35 @@ export default function SCAPopup({ ticketNo, ticketKey, onClose, productType }) 
       {step === 1 && (
         <>
           <SCASection
-            ticketNo={ticketNo}
-            productType={productType}
-            onClose={onClose}
-            onNext={goNext}
+            scaState={scaState}
+            setScaState={setScaState}
+            symptomsData={symptomsData}
+            remarkMandatory={remarkMandatory}
+            setRemarkMandatory={setRemarkMandatory}
           />
-          <Button className="ml-auto" onClick={goNext}>
-            Next
-          </Button>
+          <div className="mt-10 flex justify-end">
+            <Button onClick={goNext}>Next</Button>
+          </div>
         </>
       )}
 
       {step === 2 && (
         <>
           <VisitDetails
-            submitType="visitDetails"
-            ticketNo={ticketNo}
-            ticketKey={ticketKey}
-            onBack={goBack}
+            visitState={visitState}
+            setVisitState={setVisitState}
+            engineers={engineers}
           />
           <div className="mt-10 flex">
             <Button variant="outline" onClick={goBack}>
-              back
+              Back
             </Button>
-            <Button className="ml-auto" onClick={goBack}>
-              Submit
+            <Button
+              className="ml-auto"
+              disabled={isSubmitting}
+              onClick={handleFinalSubmit}
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
             </Button>
           </div>
         </>
@@ -88,82 +267,37 @@ function StepIndicator({ number, active, children }) {
   );
 }
 
-function SCASection({ ticketNo, productType, onClose }) {
-  const [jobAction, setJobAction] = useState("");
-  const [remarks, setRemarks] = useState("");
-  const [data, setData] = useState({});
-  const [remarkMandatory, setRemarkMandatory] = useState(false);
-
+function SCASection({
+  scaState,
+  setScaState,
+  symptomsData,
+  remarkMandatory,
+  setRemarkMandatory,
+}) {
   const [symptoms, setSymptoms] = useState([]);
-  const [selectedSymptom, setSelectedSymptom] = useState("");
-
   const [cause, setCause] = useState([]);
-  const [selectedCause, setSelectedCause] = useState("");
-
   const [analysis, setAnalysis] = useState([]);
-  const [selectedAnalysis, setSelectedAnalysis] = useState("");
-
-  // const sfId = useSelector((state) => state.auth.user.sfId);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await axiosInstance.post("symptom-cause/process", {
-          type: "GetSCA",
-          payload: productType || "",
-        });
-        if (
-          res.data.statusCode === 200 &&
-          res.data.statusMsg === "Records Found" &&
-          res.data.data.length > 0
-        ) {
-          const data = res.data.data[0]["DataFlow"]["Symptoms"];
-          setData(data);
-          setSymptoms(
-            data.map((item) => {
-              return { label: item.symptom, value: item.syid, data: item.CauseList };
-            })
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching SCA data:", error);
-        toast.error("Failed to fetch SCA options");
-      }
+    if (symptomsData.length > 0) {
+      setSymptoms(
+        symptomsData.map((item) => ({
+          label: item.symptom,
+          value: item.syid,
+          data: item.CauseList,
+        }))
+      );
+    }
+  }, [symptomsData]);
+
+  useEffect(() => {
+    if (!scaState.selectedSymptom || symptoms.length === 0) {
+      setCause([]);
+      setAnalysis([]);
+      return;
     }
 
-    fetchData();
-  }, [productType]);
-
-  useEffect(() => {
-    async function fetchSCAData() {
-      try {
-        const res = await axiosInstance.post("symptom-cause/process", {
-          type: "GetSCATicketNo",
-          ticket_no: ticketNo,
-        });
-        if (res.data.statusCode === 200 && res.data.data.length > 0) {
-          const data = res.data.data[0];
-          const { syid, cid, anid, JD_Workdone: jobaction, remarks } = data;
-
-          setSelectedSymptom(syid);
-          setSelectedCause(cid);
-          setSelectedAnalysis(anid);
-          setJobAction(jobaction);
-          setRemarks(remarks);
-        }
-      } catch (error) {
-        console.error("Error fetching SCA data:", error);
-        toast.error("Failed to fetch SCA data");
-      }
-    }
-
-    fetchSCAData();
-  }, [ticketNo]);
-
-  useEffect(() => {
-    if (!selectedSymptom || symptoms.length === 0) return;
-
-    const symptom = symptoms.find((s) => s.value === selectedSymptom);
+    const symptom = symptoms.find((s) => s.value === scaState.selectedSymptom);
     if (!symptom) return;
 
     const newCause = symptom.data.map((item) => ({
@@ -173,282 +307,134 @@ function SCASection({ ticketNo, productType, onClose }) {
     }));
     setCause(newCause);
 
-    if (selectedCause) {
-      const found = newCause.find((c) => c.value === selectedCause);
+    if (scaState.selectedCause) {
+      const found = newCause.find((c) => c.value === scaState.selectedCause);
       if (found) {
-        const newAnalysis = found.data.map((item) => ({
-          label: item.Aanalysis,
-          value: item.anid,
-        }));
-        setAnalysis(newAnalysis);
+        setAnalysis(
+          found.data.map((item) => ({
+            label: item.Aanalysis,
+            value: item.anid,
+          }))
+        );
       } else {
-        setSelectedCause("");
         setAnalysis([]);
-        setSelectedAnalysis("");
       }
     } else {
       setAnalysis([]);
-      setSelectedAnalysis("");
     }
-  }, [selectedSymptom, symptoms, selectedCause]);
+  }, [scaState.selectedSymptom, scaState.selectedCause, symptoms]);
 
-  useEffect(() => {
-    if (!selectedCause || cause.length === 0) return;
-    const found = cause.find((c) => c.value === selectedCause);
-    if (found) {
-      const newAnalysis = found.data.map((item) => ({
-        label: item.Aanalysis,
-        value: item.anid,
-      }));
-      setAnalysis(newAnalysis);
-    } else {
-      setAnalysis([]);
-      setSelectedAnalysis("");
-    }
-  }, [selectedCause, cause]);
-
-  function changeSymptom(value) {
-    setSelectedSymptom(value);
-    const newCause = symptoms.find((item) => item.value === value);
-    setCause(
-      newCause.data.map((item) => {
-        return { label: item.cause, value: item.cid, data: item.AnalysisList };
-      })
-    );
-  }
-
-  function changeCause(value) {
-    setSelectedCause(value);
-    const newAnalysis = cause.find((item) => item.value === value);
-    const label = newAnalysis.label;
-
-    if (label.includes("remarks")) {
-      setRemarkMandatory(true);
-    } else {
-      setRemarkMandatory(false);
-    }
-    setAnalysis(
-      newAnalysis.data.map((item) => {
-        return { label: item.Aanalysis, value: item.anid };
-      })
-    );
-  }
-
-  const handleSubmit = async () => {
-    if (!selectedAnalysis || !selectedCause || !selectedSymptom) {
-      toast.error("Please select all fields!");
-      return;
-    }
-
-    if (!jobAction) {
-      toast.error("Please fill job action!");
-      return;
-    }
-
-    if (remarkMandatory && !remarks) {
-      toast.error("Please fill remarks!");
-      return;
-    }
-
-    const payload = {
-      type: "Insert",
-      ticket_no: ticketNo,
-      syid: selectedSymptom,
-      cid: selectedCause,
-      anid: selectedAnalysis,
-      jobaction: jobAction,
-      remarks: remarks,
-    };
-
-    try {
-      const res = await axiosInstance.post("symptom-cause/process", payload);
-      if (
-        res.data.statusCode === 200 &&
-        res.data.statusMsg === "Record Inserted Successfully"
-      ) {
-        toast.success("SCA submitted Successfully");
-        onClose?.();
-      }
-    } catch (error) {
-      console.error("Error fetching SCA data:", error);
-      toast.error("Failed to submit SCA data");
-    }
+  const changeSymptom = (value) => {
+    setScaState((prev) => ({
+      ...prev,
+      selectedSymptom: value,
+      selectedCause: "",
+      selectedAnalysis: "",
+    }));
   };
+
+  const changeCause = (value) => {
+    const found = cause.find((item) => item.value === value);
+    if (found) {
+      setRemarkMandatory(found.label.toLowerCase().includes("remarks"));
+    }
+    setScaState((prev) => ({
+      ...prev,
+      selectedCause: value,
+      selectedAnalysis: "",
+    }));
+  };
+
+  const changeAnalysis = (value) => {
+    setScaState((prev) => ({ ...prev, selectedAnalysis: value }));
+  };
+
   return (
-    <>
-      <div className="grid min-w-3xl grid-cols-3 items-center gap-6">
-        <CustomDropdown
-          label="Symptom"
-          value={selectedSymptom}
-          onChange={(e) => changeSymptom(e)}
-          options={symptoms}
-          placeholder="Select Symptom"
-          required
-        />
-        <CustomDropdown
-          label="Cause"
-          value={selectedCause}
-          onChange={(e) => changeCause(e)}
-          options={cause}
-          placeholder="Select Cause"
-          required
-        />
-        <CustomDropdown
-          label="Analysis"
-          value={selectedAnalysis}
-          onChange={(e) => setSelectedAnalysis(e)}
-          options={analysis}
-          placeholder="Select Analysis"
-          required
-        />
-        <InputField
-          label="Job Action"
-          value={jobAction}
-          onChange={(e) => setJobAction(e.target.value)}
-          required
-        />{" "}
-        <InputField
-          label="Remarks"
-          value={remarks}
-          onChange={(e) => setRemarks(e.target.value)}
-          required={remarkMandatory}
-        />
-      </div>
-      <div className="mt-6 flex justify-end">
-        <Button onClick={handleSubmit}>Next</Button>
-      </div>
-    </>
+    <div className="grid min-w-3xl grid-cols-3 items-center gap-6">
+      <CustomDropdown
+        label="Symptom"
+        value={scaState.selectedSymptom}
+        onChange={changeSymptom}
+        options={symptoms}
+        placeholder="Select Symptom"
+        required
+      />
+      <CustomDropdown
+        label="Cause"
+        value={scaState.selectedCause}
+        onChange={changeCause}
+        options={cause}
+        placeholder="Select Cause"
+        required
+      />
+      <CustomDropdown
+        label="Analysis"
+        value={scaState.selectedAnalysis}
+        onChange={changeAnalysis}
+        options={analysis}
+        placeholder="Select Analysis"
+        required
+      />
+      <InputField
+        label="Job Action"
+        value={scaState.jobAction}
+        onChange={(e) => setScaState((prev) => ({ ...prev, jobAction: e.target.value }))}
+        required
+      />
+      <InputField
+        label="Remarks"
+        value={scaState.remarks}
+        onChange={(e) => setScaState((prev) => ({ ...prev, remarks: e.target.value }))}
+        required={remarkMandatory}
+      />
+    </div>
   );
 }
 
-function VisitDetails({ ticketNo, ticketKey }) {
-  const [engineerId, setEngineerId] = useState("");
-  const [visitDate, setVisitDate] = useState("");
-  const [inTime, setInTime] = useState("09:00");
-  const [outTime, setOutTime] = useState("");
-  const [visitRemarks, setVisitRemarks] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [engineerData, setEngineerData] = useState([]);
-
-  const sfId = 1420;
-
-  useEffect(() => {
-    async function fetchEngineerData() {
-      try {
-        const res = await axiosInstance.post(
-          `Engineer/Manage`,
-          {
-            Action: "SELECT_ACTIVE_BY_SFID",
-            Eng_SFID: sfId,
-          },
-          { headers: { "Content-Type": "application/json" } }
-        );
-        const data = res.data.data;
-        setEngineerData(
-          data.map((item) => ({
-            value: item.Eng_ID,
-            label: item.Eng_Name,
-          }))
-        );
-      } catch (err) {
-        console.error("Error fetching engineer data:", err);
-      }
-    }
-    fetchEngineerData();
-  }, [sfId]);
-
-  const fetchVisitDetails = useCallback(async () => {
-    if (!ticketKey) return; // Need ticketKey first
-
-    try {
-      const res = await axiosInstance.get(`visit/ticket/${ticketKey}`);
-      const data = res.data;
-      console.log("data: ", data);
-    } catch (err) {
-      console.error("Failed to fetch visit data:", err);
-    } //finally {
-    // }
-  }, [ticketKey]);
-
-  const handleSubmitVisit = async () => {
-    if (!engineerId || !visitDate || !inTime || !outTime) {
-      toast.error("Please fill all fields!");
-      return;
-    }
-
-    const payload = {
-      TicketNo: ticketNo,
-      EngName: engineerId,
-      VDate: visitDate,
-      VInTime: inTime,
-      VOutTime: outTime,
-      Remark: visitRemarks,
-    };
-    console.log("p: ", payload);
-
-    setIsSubmitting(true);
-
-    try {
-      console.log("hi there");
-    } catch (err) {
-      console.error("Error submitting visit details:", err);
-      toast.error("Failed to submit visit details");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
+function VisitDetails({ visitState, setVisitState, engineers }) {
   return (
-    <>
-      <div className="grid min-w-3xl grid-cols-3 items-center gap-6">
-        <CustomDropdown
-          label="Engineer Name"
-          placeholder="Select Engineer"
-          value={engineerId}
-          onChange={(val) => setEngineerId(val)}
-          options={engineerData}
-          required
-        />
+    <div className="grid min-w-3xl grid-cols-3 items-center gap-6">
+      <CustomDropdown
+        label="Engineer Name"
+        placeholder="Select Engineer"
+        value={visitState.engineerId}
+        onChange={(val) => setVisitState((prev) => ({ ...prev, engineerId: val }))}
+        options={engineers}
+        required
+      />
 
-        <DatePicker
-          label="Visit Date"
-          // min="today"
-          // max={4}
-          value={visitDate}
-          onChange={setVisitDate}
-          required
-        />
+      <DatePicker
+        label="Visit Date"
+        value={visitState.visitDate}
+        onChange={(val) => setVisitState((prev) => ({ ...prev, visitDate: val }))}
+        required
+      />
 
-        <InputField
-          label="Remarks"
-          value={visitRemarks}
-          onChange={(e) => setVisitRemarks(e.target.value)}
-          required
-        />
+      <InputField
+        label="Remarks"
+        value={visitState.visitRemarks}
+        onChange={(e) =>
+          setVisitState((prev) => ({ ...prev, visitRemarks: e.target.value }))
+        }
+        required
+      />
 
-        <TimePicker
-          label="In Time"
-          value={inTime}
-          min={"09:00"}
-          max={"21:00"}
-          onChange={setInTime}
-          required
-        />
-        <TimePicker
-          label="Out Time"
-          value={outTime}
-          min={inTime}
-          max={"21:00"}
-          onChange={setOutTime}
-          required
-        />
-      </div>
-
-      <div className="mt-6 flex justify-end">
-        <Button disabled={isSubmitting} onClick={handleSubmitVisit}>
-          {isSubmitting ? "Submitting..." : "Submit details"}
-        </Button>
-      </div>
-    </>
+      <TimePicker
+        label="In Time"
+        value={visitState.inTime}
+        min={"09:00"}
+        max={"21:00"}
+        onChange={(val) => setVisitState((prev) => ({ ...prev, inTime: val }))}
+        required
+      />
+      <TimePicker
+        label="Out Time"
+        value={visitState.outTime}
+        min={visitState.inTime}
+        max={"21:00"}
+        onChange={(val) => setVisitState((prev) => ({ ...prev, outTime: val }))}
+        required
+      />
+    </div>
   );
 }

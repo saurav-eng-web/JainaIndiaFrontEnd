@@ -737,6 +737,9 @@ function HistoryPageContent() {
                 ticketNo={activeTicket}
                 onClose={() => router.back()}
                 productType={detail.product}
+                ticketKey={detail?.tickeT_KEY}
+                subStatus={detail?.complaint_SubStatus}
+                sfId={detail?.sf_ID}
               />
             </Modal>
             <StatusModal
@@ -996,6 +999,13 @@ function HistoryPageContent() {
                     // Logic for consumption table if exists, else text
                     <Table
                       columns={[
+                        {
+                          label: "S. No",
+                          key: "id",
+                          size: "xs",
+                          render: (_v, _row, index) => index + 1,
+                        },
+
                         { label: "Symptom", key: "Jd_Symptom", size: "sm" },
                         { label: "Cause", key: "JD_Cause", size: "md" },
                         { label: "Analysis", key: "JD_Analysis", size: "md" },

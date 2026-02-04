@@ -119,7 +119,8 @@ export default function SCAPopup({
     if (
       !scaState.selectedSymptom ||
       !scaState.selectedCause ||
-      !scaState.selectedAnalysis
+      !scaState.selectedAnalysis ||
+      !scaState.jobAction
     ) {
       return toast.error("Please select all SCA fields!");
     }
@@ -135,12 +136,12 @@ export default function SCAPopup({
   const goBack = () => setStep(1);
 
   const handleFinalSubmit = async () => {
-    // Validation for Step 2
     if (
       !visitState.engineerId ||
       !visitState.visitDate ||
       !visitState.inTime ||
-      !visitState.outTime
+      !visitState.outTime ||
+      !visitState.visitRemarks
     ) {
       return toast.error("Please fill all visit details!");
     }

@@ -42,6 +42,7 @@ import Pagination from "@/components/Pagination";
 import SideBar from "@/components/SideBar";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/Modal";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import StatusModal from "@/components/ui/StatusModal";
 import { useHistoryData } from "@/hooks/useHistoryData";
 import { setRouteData } from "@/redux/slices/routeDataSlice";
@@ -134,6 +135,8 @@ function HistoryPageContent() {
   const [openSCAPopup, setOpenSCAPopup] = useState(false);
   const [DOATDPopup, setDOATDPopup] = useState(false);
   const [DOATDData, setDOATDData] = useState({});
+  const [doaTdConfirmOpen, setDoaTdConfirmOpen] = useState(false);
+  const [doaTdConfirmType, setDoaTdConfirmType] = useState("");
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -353,15 +356,15 @@ function HistoryPageContent() {
         break;
 
       case "DOA":
-        handleDOATD("DOAcheck");
+        requestDOATD("DOAcheck");
         break;
 
       case "Special Doa Approval":
-        handleDOATD("specialDOAcheck");
+        requestDOATD("specialDOAcheck");
         break;
 
       case "TD":
-        handleDOATD("TDcheck");
+        requestDOATD("TDcheck");
         break;
 
       default:
@@ -371,9 +374,13 @@ function HistoryPageContent() {
     }
   };
 
+  const requestDOATD = (type) => {
+    setDoaTdConfirmType(type);
+    setDoaTdConfirmOpen(true);
+  };
+
   async function handleDOATD(type) {
     // const title = type === "DOAcheck" ? "Doa" :
-
     const titles = {
       DOAcheck: "DOA Request Submitted",
       specialDOAcheck: "Special Doa Request Submitted",
@@ -750,7 +757,30 @@ function HistoryPageContent() {
               onClose={() => {
                 setDOATDPopup(false);
                 setDOATDData({});
-                router.back();
+                if (DOATDData.type === "success") {
+                  router.back();
+                }
+              }}
+            />
+            <ConfirmationModal
+              open={doaTdConfirmOpen}
+              title="Confirm Request"
+              message={
+                doaTdConfirmType === "DOAcheck"
+                  ? "Are you sure you want to submit a DOA request?"
+                  : doaTdConfirmType === "specialDOAcheck"
+                  ? "Are you sure you want to submit a Special DOA request?"
+                  : "Are you sure you want to submit a TD request?"
+              }
+              onCancel={() => {
+                setDoaTdConfirmOpen(false);
+                setDoaTdConfirmType("");
+              }}
+              onConfirm={async () => {
+                const type = doaTdConfirmType;
+                setDoaTdConfirmOpen(false);
+                setDoaTdConfirmType("");
+                await handleDOATD(type);
               }}
             />
           </>

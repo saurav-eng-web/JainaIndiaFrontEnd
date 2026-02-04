@@ -70,7 +70,6 @@ export default function AddPartPending({ ticketNumber }) {
           dispatchType: ticketNumber,
         });
 
-        // Ensure we filter out parts already in the grid if any (though grid starts empty usually)
         const gridPartCodes = new Set(grid.map((g) => g.partCode));
 
         const dropdownData = res.data.data
@@ -164,7 +163,6 @@ export default function AddPartPending({ ticketNumber }) {
       });
 
       const message = res.data?.statusMsg || "";
-      // Check for presence of key data fields to confirm success/data payload
       if (message.includes("Inventory Type") || message.includes("Price")) {
         const parts = message.split("|");
         // Assume the data object is after the first pipe
@@ -256,11 +254,11 @@ export default function AddPartPending({ ticketNumber }) {
         type: "partcodeserialno",
       });
 
-      if (res.data.message === "Valid serial no") {
+      if (res.data.statusMsg === "Valid serial no") {
         setIsValidSerialNumber(true);
         toast.success("Serial number is valid");
       } else {
-        toast.error(res.data.message);
+        toast.error(res.data.statusMsg);
         setIsValidSerialNumber(false);
       }
     } catch (error) {

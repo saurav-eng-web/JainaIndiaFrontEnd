@@ -157,7 +157,7 @@ export default function AddPartPending({ ticketNumber }) {
     }
 
     try {
-      const res = await axiosInstance.post("po-validation/check", {
+      const res = await axiosInstance.post("po-validation/validate", {
         partcode: selectedPart.value,
         type: "stockcheck",
         ticket_no: ticketNumber,

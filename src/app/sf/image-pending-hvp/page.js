@@ -142,7 +142,6 @@ function ComplaintTableInner() {
 
   return (
     <PageSkeleton title={"Pending Image for HVP"} rolesAllowed={["sf/ssd"]}>
-      {/* 🔍 SEARCH INPUT */}
       <input
         type="text"
         placeholder="Search complaints..."
@@ -170,7 +169,11 @@ function ComplaintTableInner() {
         </div>
       )}
 
-      <Modal open={openUploadPopup} onClose={() => setOpenUploadPopup(false)}>
+      <Modal
+        open={openUploadPopup}
+        onClose={() => setOpenUploadPopup(false)}
+        mode="strict"
+      >
         <PendingImageUploadPopup
           userId={userId}
           onClose={() => {

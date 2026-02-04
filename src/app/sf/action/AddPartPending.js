@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
+import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/Modal";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
@@ -18,7 +19,7 @@ import { updateJob } from "@/utils/commonApis";
 
 // ---- MOCK TICKET TABLE ----
 
-export default function AddPartPending({ ticketNumber }) {
+export default function AddPartPending({ ticketNumber, onClose }) {
   const { colors } = useTheme();
   const user = useSelector((state) => state.auth.user); // Adjust slice name if needed
 
@@ -607,21 +608,24 @@ export default function AddPartPending({ ticketNumber }) {
           <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
             <Table columns={gridColumns} rows={grid} />
           </div>
-
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={handleSaveClick}
-              className="cursor-pointer rounded-lg border px-8 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-105 active:scale-95"
-              style={{
-                background: colors.primary,
-                borderColor: colors.primary,
-              }}
-            >
-              Save Changes
-            </button>
-          </div>
         </div>
       )}
+
+      <div className="mt-auto flex justify-end gap-4">
+        <Button variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button
+          disabled={grid.length === 0}
+          onClick={handleSaveClick}
+          style={{
+            background: colors.primary,
+            borderColor: colors.primary,
+          }}
+        >
+          Save Changes
+        </Button>
+      </div>
 
       <Modal
         open={saveConfirmationOpen}

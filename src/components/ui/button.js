@@ -13,7 +13,7 @@ const VARIANT_CLASSES = {
 };
 
 const DISABLED_CLASSES =
-  "cursor-not-allowed opacity-60 bg-gray-300 text-gray-500 hover:bg-gray-300 focus:ring-0";
+  "cursor-not-allowed opacity-60 bg-gray-300 text-gray-100 hover:bg-gray-300 focus:ring-0";
 
 export function Button({
   children,

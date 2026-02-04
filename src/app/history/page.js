@@ -41,8 +41,8 @@ import ProductDetailsTab from "@/components/history/tabs/ProductDetailsTab";
 import Pagination from "@/components/Pagination";
 import SideBar from "@/components/SideBar";
 import { Button } from "@/components/ui/button";
-import Modal from "@/components/ui/Modal";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import Modal from "@/components/ui/Modal";
 import StatusModal from "@/components/ui/StatusModal";
 import { useHistoryData } from "@/hooks/useHistoryData";
 import { setRouteData } from "@/redux/slices/routeDataSlice";
@@ -52,6 +52,8 @@ import { logger } from "@/utils/logger";
 import OKPopup from "./actionsModals/OK";
 
 import SCAPopup from "../sf/action/sca";
+
+import DOATDModal from "./actionsModals/DOATD";
 // Custom Hooks & Components
 
 const tabs = [
@@ -376,43 +378,8 @@ function HistoryPageContent() {
 
   const requestDOATD = (type) => {
     setDoaTdConfirmType(type);
-    setDoaTdConfirmOpen(true);
+    setDOATDPopup(true);
   };
-
-  async function handleDOATD(type) {
-    // const title = type === "DOAcheck" ? "Doa" :
-    const titles = {
-      DOAcheck: "DOA Request Submitted",
-      specialDOAcheck: "Special Doa Request Submitted",
-      TDcheck: "TD Request Submitted",
-    };
-
-    const title = titles[type] || "";
-    try {
-      const res = await axiosInstance.post("po-validation/validate", {
-        type: type,
-        ticket_no: activeTicket || formData.tickeT_NO,
-      });
-
-      if (res.data.statusCode === 200 && res.data.data.length > 0) {
-        setDOATDData({
-          title,
-          message: res.data.statusMsg,
-          type: "success",
-        });
-      } else {
-        setDOATDData({
-          message: "",
-          title: res.data.statusMsg,
-          type: "failure",
-        });
-      }
-      setDOATDPopup(true);
-    } catch (err) {
-      console.error("Error fetching engineer data:", err);
-      toast.error("Failed to submit request");
-    }
-  }
 
   async function fetchEngineerData() {
     try {
@@ -693,8 +660,15 @@ function HistoryPageContent() {
               engineerData={engineerData}
               handleAssigned={handleAssigned}
             />
-            <Modal open={partPendingPopup} onClose={() => setPartPendingPopup(false)}>
-              <AddPartPending ticketNumber={activeTicket} />
+            <Modal
+              open={partPendingPopup}
+              onClose={() => setPartPendingPopup(false)}
+              mode="strict"
+            >
+              <AddPartPending
+                ticketNumber={activeTicket}
+                onClose={() => setPartPendingPopup(false)}
+              />
             </Modal>
             <Modal open={doaReceivePopup} onClose={() => setDoaReceivePopup(false)}>
               <ReceiveFGPO ticketNo={activeTicket} onClose={() => router.back()} />
@@ -762,27 +736,30 @@ function HistoryPageContent() {
                 }
               }}
             />
-            <ConfirmationModal
-              open={doaTdConfirmOpen}
-              title="Confirm Request"
-              message={
-                doaTdConfirmType === "DOAcheck"
-                  ? "Are you sure you want to submit a DOA request?"
-                  : doaTdConfirmType === "specialDOAcheck"
-                  ? "Are you sure you want to submit a Special DOA request?"
-                  : "Are you sure you want to submit a TD request?"
-              }
-              onCancel={() => {
-                setDoaTdConfirmOpen(false);
-                setDoaTdConfirmType("");
-              }}
-              onConfirm={async () => {
-                const type = doaTdConfirmType;
-                setDoaTdConfirmOpen(false);
-                setDoaTdConfirmType("");
-                await handleDOATD(type);
-              }}
-            />
+            <Modal open={DOATDPopup} onClose={() => setDOATDPopup(false)} mode="strict">
+              <DOATDModal
+                open={doaTdConfirmOpen}
+                type={doaTdConfirmType}
+                ticketNo={activeTicket}
+                title={
+                  doaTdConfirmType === "DOAcheck"
+                    ? "DOA Request"
+                    : doaTdConfirmType === "specialDOAcheck"
+                      ? "Special DOA Request"
+                      : "TD Request"
+                }
+                onClose={() => {
+                  setDOATDPopup(false);
+                  setDoaTdConfirmType("");
+                }}
+                // onConfirm={async () => {
+                //   const type = doaTdConfirmType;
+                //   setDoaTdConfirmOpen(false);
+                //   setDoaTdConfirmType("");
+                //   // await handleDOATD(type);
+                // }}
+              />
+            </Modal>
           </>
         )}
 

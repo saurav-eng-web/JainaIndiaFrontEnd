@@ -1100,25 +1100,22 @@ function HistoryPageContent() {
                     <table className="complaint-table">
                       <thead>
                         <tr>
+                          <th>Visit Date</th>
                           <th>Start Time</th>
                           <th>End Time</th>
-                          <th>Distance</th>
-                          <th>Duration</th>
-                          <th>Start Location</th>
-                          <th>End Location</th>
-                          <th>Map</th>
+                          <th>Remarks</th>
+                          <th>Engineer</th>
                         </tr>
                       </thead>
                       <tbody>
                         {visitDetails.map((visit, index) => (
                           <tr key={index}>
+                            <td>{visit.vDate.split("T")[0] || "-"}</td>
                             <td>{visit.vInTime || "-"}</td>
                             <td>{visit.vOutTime || "-"}</td>
-                            <td>{visit.distance || "0"} km</td>
-                            <td>{visit.duration || "-"}</td>
-                            <td>{visit.startLocation || "-"}</td>
-                            <td>{visit.endLocation || "-"}</td>
-                            <td>
+                            <td>{visit.remark || "-"}</td>
+                            <td>{visit.engName || "-"}</td>
+                            {/* <td>
                               {visit.startLat && visit.startLong ? (
                                 <a
                                   href={`https://www.google.com/maps?q=${visit.startLat},${visit.startLong}`}
@@ -1131,7 +1128,7 @@ function HistoryPageContent() {
                               ) : (
                                 "-"
                               )}
-                            </td>
+                            </td> */}
                           </tr>
                         ))}
                       </tbody>

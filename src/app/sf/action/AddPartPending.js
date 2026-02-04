@@ -3,6 +3,7 @@
 import axios from "axios";
 import { Trash2, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
@@ -30,6 +31,8 @@ export default function AddPartPending({ ticketNumber }) {
   const [saveConfirmationOpen, setSaveConfirmationOpen] = useState(false);
   const [images, setImages] = useState([]);
   const [showImageUpload, setShowImageUpload] = useState(false);
+
+  const router = useRouter();
 
   const normalizeBoolean = (value) => String(value).toLowerCase() === "true";
 
@@ -346,6 +349,7 @@ export default function AddPartPending({ ticketNumber }) {
         const status = parts[0]?.trim();
         const subStatus = parts[1]?.trim();
         const responseMessage = parts[2]?.trim() || "";
+
         await updateJob({
           status,
           subStatus,
@@ -356,10 +360,11 @@ export default function AddPartPending({ ticketNumber }) {
 
         const uploadSuccess = await handleUpload();
         if (!uploadSuccess) {
-          toast.error("Failed to upload some images. Please try again.");
+          toast.error("Failed to upload some images.");
           return;
         }
         toast.success("Request submitted successfully!");
+        router.back();
       }
     } catch (error) {
       console.error("Error submitting request:", error);

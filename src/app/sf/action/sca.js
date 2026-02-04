@@ -407,6 +407,7 @@ function VisitDetails({ visitState, setVisitState, engineers }) {
         label="Visit Date"
         value={visitState.visitDate}
         onChange={(val) => setVisitState((prev) => ({ ...prev, visitDate: val }))}
+        max={"today"}
         required
       />
 

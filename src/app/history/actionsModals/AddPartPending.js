@@ -3,6 +3,7 @@
 import axios from "axios";
 import { Trash2, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
@@ -30,6 +31,8 @@ export default function AddPartPending({ ticketNumber }) {
   const [saveConfirmationOpen, setSaveConfirmationOpen] = useState(false);
   const [images, setImages] = useState([]);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   const normalizeBoolean = (value) => String(value).toLowerCase() === "true";
 
@@ -274,7 +277,6 @@ export default function AddPartPending({ ticketNumber }) {
     setSaveConfirmationOpen(true);
   }
 
-  // >>>>>>>>>>>>>>> UPLOAD FUNCTION <<<<<<<<<<<<<<<
   const handleUpload = async () => {
     try {
       let allSuccess = true;
@@ -289,10 +291,6 @@ export default function AddPartPending({ ticketNumber }) {
             formData.append("Ticket_no", ticketNumber);
             formData.append("DocumentType", "HVP Parts"); // Updated type
 
-            // Using axiosInstance or axios?
-            // The file uses axiosInstance generally.
-            // However, the user snippet used a specific path.
-            // I'll use axiosInstance and the path provided.
             try {
               await axios.post("/api/documents/upload", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -313,7 +311,7 @@ export default function AddPartPending({ ticketNumber }) {
 
   async function onConfirmSave() {
     // 1. Upload Images First
-
+    setSubmitting(true);
     const data = grid.flatMap((item) => {
       // 1. Create the main part object
       const mainPart = {
@@ -372,16 +370,17 @@ export default function AddPartPending({ ticketNumber }) {
           return;
         }
         toast.success("Request submitted successfully!");
+        router.back();
       }
     } catch (error) {
       console.error("Error submitting request:", error);
       toast.error("Failed to submit request. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
 
     setSaveConfirmationOpen(false);
   }
-
-  /* ---------------- GRID TABLE CONFIG ---------------- */
 
   const gridColumns = [
     {

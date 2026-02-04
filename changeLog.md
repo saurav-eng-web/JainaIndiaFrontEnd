@@ -284,3 +284,4 @@
 - fix: add product details in history page
 - fix: PO request, fix message
 - fix: visit details: remove the future date selection
+- feat: add a confirmation modal for DOA,TD, Sp TD

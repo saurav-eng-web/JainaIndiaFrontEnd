@@ -8,15 +8,79 @@ import DOATDPopup from "../history/actionsModals/DOATD";
 import { Button } from "@/components/ui/button";
 import ConfirmModal from "@/components/ui/ConfirmationModal";
 import DatePicker from "@/components/ui/Datepicker";
+import ImageUpload from "@/components/ui/image/ImageUpload";
 import Modal from "@/components/ui/Modal";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import StatusModal from "@/components/ui/StatusModal";
 import TimePicker from "@/components/ui/timepicker";
+import UploadProgress from "@/components/ui/UploadProgress";
+import { uploadImage } from "@/utils/uploadImage";
 
 export default function Page() {
   const [showModal, setShowModal] = useState(false);
   const [popup, setPopup] = useState(false);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [videoFiles, setVideoFiles] = useState([]);
+  const [imageProgress, setImageProgress] = useState(0);
+  const [videoProgress, setVideoProgress] = useState(0);
+  const [imageFileInfo, setImageFileInfo] = useState(null);
+  const [videoFileInfo, setVideoFileInfo] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [videoUploading, setVideoUploading] = useState(false);
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    setImageFiles(files);
+    setImageProgress(0);
+    setImageFileInfo(null);
+  };
+
+  const handleVideoChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    setVideoFiles(files);
+    setVideoProgress(0);
+    setVideoFileInfo(null);
+  };
+
+  const runUpload = async ({
+    files,
+    documentType,
+    setProgress,
+    setFileInfo,
+    setUploading,
+  }) => {
+    if (!files || files.length === 0) {
+      toast.error("Please select at least one file.");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setProgress(0);
+      setFileInfo(null);
+
+      const result = await uploadImage({
+        files,
+        ticketNo: "TEST-001",
+        documentType,
+        onProgress: (progress, current, total) => {
+          setProgress(progress);
+          setFileInfo({ current, total });
+        },
+      });
+
+      if (result.success) {
+        toast.success(`Uploaded ${result.successCount}/${result.totalFiles} files.`);
+      } else {
+        toast.error("Upload finished with errors. Check logs.");
+      }
+    } catch (err) {
+      toast.error(err?.message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <PageSkeleton title="Test Admin">
@@ -26,6 +90,89 @@ export default function Page() {
         <Button onClick={() => toast.error("test")}>failure</Button>
         <Button onClick={() => setShowModal(true)}>open success</Button>
       </div>
+
+      <div className="mt-8 grid gap-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-gray-800">Upload Progress Demo</h2>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-3">
+            <ImageUpload
+              label="Upload Images"
+              name="test-image-upload"
+              accept="image/*"
+              multiple
+              maxFileAllowed={5}
+              maxFileSize={10}
+              onChange={handleImageChange}
+            />
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() =>
+                  runUpload({
+                    files: imageFiles,
+                    documentType: "TEST_IMAGE",
+                    setProgress: setImageProgress,
+                    setFileInfo: setImageFileInfo,
+                    setUploading: setImageUploading,
+                  })
+                }
+                disabled={imageUploading || imageFiles.length === 0}
+              >
+                {imageUploading ? "Uploading..." : "Upload Images"}
+              </Button>
+              {imageFiles.length > 0 && (
+                <span className="text-xs text-gray-500">
+                  {imageFiles.length} file(s) selected
+                </span>
+              )}
+            </div>
+            <UploadProgress
+              progress={imageProgress}
+              fileInfo={imageFileInfo}
+              variant="detailed"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <ImageUpload
+              label="Upload Videos"
+              name="test-video-upload"
+              accept="video/*"
+              multiple
+              maxFileAllowed={3}
+              maxFileSize={50}
+              onChange={handleVideoChange}
+            />
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() =>
+                  runUpload({
+                    files: videoFiles,
+                    documentType: "TEST_VIDEO",
+                    setProgress: setVideoProgress,
+                    setFileInfo: setVideoFileInfo,
+                    setUploading: setVideoUploading,
+                  })
+                }
+                disabled={videoUploading || videoFiles.length === 0}
+              >
+                {videoUploading ? "Uploading..." : "Upload Videos"}
+              </Button>
+              {videoFiles.length > 0 && (
+                <span className="text-xs text-gray-500">
+                  {videoFiles.length} file(s) selected
+                </span>
+              )}
+            </div>
+            <UploadProgress
+              progress={videoProgress}
+              fileInfo={videoFileInfo}
+              variant="detailed"
+            />
+          </div>
+        </div>
+      </div>
+
       <StatusModal
         open={showModal}
         type="success" // failure

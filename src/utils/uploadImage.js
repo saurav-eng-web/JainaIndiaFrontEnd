@@ -31,9 +31,11 @@ async function uploadImage({ files, ticketNo, documentType, onProgress = null })
         onUploadProgress: (progressEvent) => {
           if (onProgress) {
             // Calculate overall progress: (current file index + progress of current file) / total files
-            const fileProgress = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
+            const totalBytes = progressEvent.total || file.size || 0;
+            const fileProgress =
+              totalBytes > 0
+                ? Math.round((progressEvent.loaded * 100) / totalBytes)
+                : 0;
             const overallProgress = Math.round(
               ((i + fileProgress / 100) * 100) / fileArray.length
             );

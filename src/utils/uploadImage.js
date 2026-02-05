@@ -8,7 +8,6 @@ async function uploadImage({
   ticketNo,
   documentType,
   onProgress = null,
-  useProxy = false,
   uploadUrl,
 }) {
   if (!files) {
@@ -33,7 +32,13 @@ async function uploadImage({
       formData.append("Ticket_no", ticketNo);
       formData.append("DocumentType", documentType);
 
-      const endpoint = getDocumentsUploadUrl({ useProxy, uploadUrl });
+      const endpoint = getDocumentsUploadUrl({ uploadUrl });
+      if (!endpoint) {
+        return {
+          success: false,
+          error: "Missing NEXT_PUBLIC_DOC_BASE_URL for direct upload.",
+        };
+      }
 
       const res = await axios.post(endpoint, formData, {
         headers: { "Content-Type": "multipart/form-data" },

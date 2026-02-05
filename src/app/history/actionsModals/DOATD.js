@@ -102,6 +102,12 @@ export default function DOATDModal({ title, type, ticketNo, onClose }) {
       setVideoFile(null);
       return;
     }
+    console.log("file size: ", file.size);
+    if (file.size > MAX_VIDEO_SIZE * 1024 * 1024) {
+      toast.error(`Max video size allowed: ${MAX_VIDEO_SIZE}MB`);
+      setVideoFile(null);
+      return;
+    }
 
     setVideoFile(file);
   };

@@ -128,11 +128,18 @@ export function useHistoryData(activeTicket, user, roleName) {
 
     setLoadingTabs((prev) => ({ ...prev, documents: true }));
     try {
-      // const res = await axiosInstance.get(`DocumentUpload/ticket/${activeTicket}`);
-      const res = await axios.post("/api/documents/history-doc", {
+      const payload = {
         Ticket_no: activeTicket,
-        userName: user.userName,
-      });
+        UserName: process.env.NEXT_PUBLIC_DOC_USERNAME,
+        Password: process.env.NEXT_PUBLIC_DOC_PASSWORD,
+        AccessCode: process.env.NEXT_PUBLIC_DOC_ACCESSCODE,
+        AcessUser: user.userName,
+      };
+      const DOC_BASE_URL = process.env.NEXT_PUBLIC_DOC_BASE_URL;
+      const res = await axios.post(
+        `${DOC_BASE_URL}/DocumentUpload/get-documents`,
+        payload
+      );
       const data = res.data?.documents;
       setDocuments(Array.isArray(data) ? data : []);
     } catch (err) {

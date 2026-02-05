@@ -18,7 +18,7 @@ async function uploadImage({
     return { success: false, error: "ticketNo or documentType is missing" };
   }
 
-  const BASE_URL = process.env.NEXT_PUBLIC_DOC_BASE_URL;
+  const DOC_BASE_URL = process.env.NEXT_PUBLIC_DOC_BASE_URL;
   try {
     // Convert single file to array for uniform processing
     const fileArray = Array.isArray(files) ? files : [files];
@@ -45,7 +45,7 @@ async function uploadImage({
       formData.append("password", process.env.NEXT_PUBLIC_DOC_PASSWORD);
       formData.append("accessCode", process.env.NEXT_PUBLIC_DOC_ACCESSCODE);
 
-      const res = await axios.post(BASE_URL, formData, {
+      const res = await axios.post(`${DOC_BASE_URL}/DocumentUpload/upload`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         // Track upload progress for current file
         onUploadProgress: (progressEvent) => {

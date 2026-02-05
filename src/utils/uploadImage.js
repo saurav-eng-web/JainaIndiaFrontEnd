@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { getDocumentsUploadUrl } from "./documentsApi";
+// import { getDocumentsUploadUrl } from "./documentsApi";
 import { logger } from "./logger";
 
 async function uploadImage({
@@ -8,7 +8,7 @@ async function uploadImage({
   ticketNo,
   documentType,
   onProgress = null,
-  uploadUrl,
+  // uploadUrl,
 }) {
   if (!files) {
     return { success: false, error: "Please select a file" };
@@ -18,6 +18,7 @@ async function uploadImage({
     return { success: false, error: "ticketNo or documentType is missing" };
   }
 
+  const BASE_URL = process.env.NEXT_PUBLIC_DOC_BASE_URL;
   try {
     // Convert single file to array for uniform processing
     const fileArray = Array.isArray(files) ? files : [files];
@@ -32,19 +33,19 @@ async function uploadImage({
       formData.append("Ticket_no", ticketNo);
       formData.append("DocumentType", documentType);
 
-      const endpoint = getDocumentsUploadUrl({ uploadUrl });
-      if (!endpoint) {
-        return {
-          success: false,
-          error: "Missing NEXT_PUBLIC_DOC_BASE_URL for direct upload.",
-        };
-      }
+      // const endpoint = getDocumentsUploadUrl({ uploadUrl });
+      // if (!endpoint) {
+      //   return {
+      //     success: false,
+      //     error: "Missing NEXT_PUBLIC_DOC_BASE_URL for direct upload.",
+      //   };
+      // }
 
       formData.append("username", process.env.NEXT_PUBLIC_DOC_USERNAME);
       formData.append("password", process.env.NEXT_PUBLIC_DOC_PASSWORD);
       formData.append("accessCode", process.env.NEXT_PUBLIC_DOC_ACCESSCODE);
 
-      const res = await axios.post(endpoint, formData, {
+      const res = await axios.post(BASE_URL, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         // Track upload progress for current file
         onUploadProgress: (progressEvent) => {

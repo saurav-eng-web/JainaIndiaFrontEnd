@@ -1,51 +1,153 @@
+import clsx from "clsx";
+import { CheckCircle2, UploadCloud, Loader2 } from "lucide-react";
 import React from "react";
 
+import Modal from "@/components/ui/Modal";
+
 /**
- * UploadProgress Component
- * @param {number} progress - Progress percentage (0-100)
- * @param {object} fileInfo - Object with { current, total } file count
- * @param {string} variant - 'default' | 'compact' | 'detailed'
- * @param {string} className - Additional CSS classes
+ * THEME TOKENS – matching your app
+ */
+const theme = {
+  primary: "#714b67",
+  primaryLight: "#f1e9ef",
+  border: "#a6829d",
+  success: "#16a34a",
+};
+
+/**
+ * Inline Progress Card (non-blocking)
  */
 export default function UploadProgress({
   progress = 0,
   fileInfo = null,
-  variant = "default",
+  variant = "default", // default | compact | detailed | success
   className = "",
 }) {
-  if (progress === 0) return null;
+  if (progress === 0 && variant !== "success") return null;
+
+  const isComplete = progress >= 100 || variant === "success";
 
   return (
-    <div className={`rounded-lg border border-blue-200 bg-blue-50 p-4 ${className}`}>
-      {/* Header with label and percentage */}
+    <div
+      className={clsx(
+        "rounded-lg border p-4 transition-all",
+        isComplete ? "border-green-200 bg-green-50" : "border-[#a6829d] bg-[#faf6f9]",
+        className
+      )}
+    >
+      {/* HEADER */}
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Uploading...</span>
-        <span className="text-sm font-semibold text-blue-600">
-          {progress}%{fileInfo && ` (File ${fileInfo.current}/${fileInfo.total})`}
+        <div className="flex items-center gap-2">
+          {isComplete ? (
+            <CheckCircle2 size={18} className="text-green-600" />
+          ) : (
+            <UploadCloud size={18} style={{ color: theme.primary }} />
+          )}
+
+          <span className="text-sm font-semibold" style={{ color: theme.primary }}>
+            {isComplete ? "Upload Complete" : "Uploading..."}
+          </span>
+        </div>
+
+        <span className="text-sm font-semibold" style={{ color: theme.primary }}>
+          {progress}%{fileInfo && ` • ${fileInfo.current}/${fileInfo.total}`}
         </span>
       </div>
 
-      {/* Progress Bar */}
-      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+      {/* BAR */}
+      <div className="h-2.5 w-full overflow-hidden rounded-full bg-white ring-1 ring-[#a6829d]/20">
         <div
-          className="h-full bg-blue-500 transition-all duration-300"
-          style={{ width: `${progress}%` }}
-        ></div>
+          className="h-full rounded-full transition-all duration-300"
+          style={{
+            width: `${progress}%`,
+            background: isComplete ? theme.success : theme.primary,
+          }}
+        />
       </div>
 
-      {/* Optional: Detailed view with file info */}
-      {variant === "detailed" && fileInfo && (
+      {/* DETAILS */}
+      {variant === "detailed" && fileInfo && !isComplete && (
         <div className="mt-2 text-xs text-gray-600">
-          <p>
-            Uploading file {fileInfo.current} of {fileInfo.total}
-          </p>
+          Uploading file {fileInfo.current} of {fileInfo.total}
         </div>
       )}
 
-      {/* Compact variant - just bar with percentage */}
       {variant === "compact" && (
-        <div className="mt-1 text-right text-xs text-blue-600">{progress}%</div>
+        <div className="mt-1 text-right text-xs" style={{ color: theme.primary }}>
+          {progress}%
+        </div>
       )}
     </div>
+  );
+}
+
+/**
+ * BLOCKING MODAL VERSION – matches your ModalSkeleton style
+ */
+export function UploadProgressModal({
+  open = false,
+  progress = 0,
+  fileInfo = null,
+  title = "Uploading Files",
+  subtitle = "Please keep this window open while the upload completes.",
+  successMessage = "All files uploaded successfully",
+}) {
+  if (!open) return null;
+
+  const isComplete = progress >= 100;
+
+  return (
+    <Modal open={open} mode="strict">
+      <div className="w-[92vw] max-w-lg rounded-2xl bg-white px-7 py-6 shadow-lg sm:px-8 sm:py-7">
+        {/* HEADER */}
+        <div className="mb-6">
+          <div className="text-lg font-semibold" style={{ color: theme.primary }}>
+            {isComplete ? "Upload Complete" : title}
+          </div>
+
+          <div className="mt-2 text-sm leading-relaxed text-gray-600">
+            {isComplete ? successMessage : subtitle}
+          </div>
+        </div>
+
+        {/* PROGRESS LABEL */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {!isComplete && (
+              <Loader2
+                size={16}
+                className="animate-spin"
+                style={{ color: theme.primary }}
+              />
+            )}
+
+            <span className="text-sm font-medium text-gray-700">
+              Progress
+              {fileInfo && ` • File ${fileInfo.current}/${fileInfo.total}`}
+            </span>
+          </div>
+
+          <span className="text-base font-semibold" style={{ color: theme.primary }}>
+            {progress}%
+          </span>
+        </div>
+
+        {/* BAR */}
+        <div className="h-4 w-full overflow-hidden rounded-full bg-[#f1e9ef]">
+          <div
+            className="h-full rounded-full transition-all duration-300"
+            style={{
+              width: `${progress}%`,
+              background: isComplete ? theme.success : theme.primary,
+            }}
+          />
+        </div>
+
+        {/* FOOTER NOTE */}
+        <div className="mt-6 text-xs text-gray-500">
+          Do not refresh or close this page during upload.
+        </div>
+      </div>
+    </Modal>
   );
 }

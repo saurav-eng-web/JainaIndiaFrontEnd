@@ -43,7 +43,7 @@ export function Button({
     // auto release after 1 sec
     setTimeout(() => {
       lockRef.current = false;
-    }, 1000);
+    }, 3000);
   };
 
   const finalDisabled = disabled || isVerified;

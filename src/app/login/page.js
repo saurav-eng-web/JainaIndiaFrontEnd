@@ -32,6 +32,8 @@ export default function LoginPage() {
         router.push("/search-complaint");
       } else if (role === "zone") {
         router.push("/search-complaint");
+      } else if (role === "finance") {
+        router.push("/fin/dashboard");
       } else {
         router.push("/unauthorized");
       }

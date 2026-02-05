@@ -11,7 +11,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 import SpeicalApprovalPopup from "../nsp/special-approval/specialAllowancePopup";
 import SpeicalAllowancePopup from "../rsm/special-allowance/allowancePopup";
-import AddPartPending from "../sf/action/AddPartPending";
 import DOAClosure from "../sf/action/DOAClosure";
 import MSLConsume from "../sf/action/MSLConsume";
 import PartConsume from "../sf/action/PartConsume";
@@ -54,6 +53,7 @@ import OKPopup from "./actionsModals/OK";
 import SCAPopup from "../sf/action/sca";
 
 import DOATDModal from "./actionsModals/DOATD";
+import AddPartPending from "./actionsModals/AddPartPending";
 // Custom Hooks & Components
 
 const tabs = [

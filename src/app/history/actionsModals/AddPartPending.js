@@ -1,8 +1,6 @@
 "use client";
 
-import axios from "axios";
 import { Trash2, CheckCircle2 } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -11,14 +9,25 @@ import { useSelector } from "react-redux";
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
+import { Button } from "@/components/ui/button";
+import ImagePreview from "@/components/ui/image/ImagePreview";
+import ImageUpload from "@/components/ui/image/ImageUpload";
+import InputField from "@/components/ui/InputWithLabel";
 import Modal from "@/components/ui/Modal";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
+import { UploadProgressModal } from "@/components/ui/UploadProgress";
 import { useTheme } from "@/theme/ThemeContext";
 import { updateJob } from "@/utils/commonApis";
+import { uploadImage } from "@/utils/uploadImage";
+
+const MAX_IMAGES = 3;
+const MAX_IMAGE_SIZE_MB = 5;
+const MAX_VIDEOS = 1;
+const MAX_VIDEO_SIZE_MB = 30;
 
 // ---- MOCK TICKET TABLE ----
 
-export default function AddPartPending({ ticketNumber }) {
+export default function AddPartPending({ ticketNumber, onClose }) {
   const { colors } = useTheme();
   const user = useSelector((state) => state.auth.user); // Adjust slice name if needed
 
@@ -30,9 +39,21 @@ export default function AddPartPending({ ticketNumber }) {
   const [isValidSerialNumber, setIsValidSerialNumber] = useState(false);
   const [saveConfirmationOpen, setSaveConfirmationOpen] = useState(false);
   const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentFileInfo, setCurrentFileInfo] = useState(null);
   const router = useRouter();
+  const activeUpload = isUploading
+    ? {
+        title: "Uploading Files",
+        progress: uploadProgress,
+        fileInfo: currentFileInfo,
+      }
+    : null;
 
   const normalizeBoolean = (value) => String(value).toLowerCase() === "true";
 
@@ -101,6 +122,18 @@ export default function AddPartPending({ ticketNumber }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticketNumber]);
 
+  useEffect(() => {
+    if (!images || images.length === 0) {
+      setImagePreviews([]);
+      return;
+    }
+
+    const previews = images.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
+
+    return () => previews.forEach((url) => URL.revokeObjectURL(url));
+  }, [images]);
+
   const handlePartSelect = (selectedValue) => {
     const part = dropdownOptions.find((item) => item.value === selectedValue);
     if (!part) return;
@@ -118,31 +151,58 @@ export default function AddPartPending({ ticketNumber }) {
     setShowImageUpload(part.imageUploadRequired);
     setIsValidSerialNumber(false);
     setImages([]);
+    setVideos([]);
   };
 
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files || []);
 
     // Validate total count
-    if (images.length + files.length > 5) {
-      toast.error("Maximum 5 images allowed");
+    if (images.length + files.length > MAX_IMAGES) {
+      toast.error(`Maximum ${MAX_IMAGES} images allowed`);
       return;
     }
 
     // Validate each file size (5MB = 5 * 1024 * 1024 bytes)
-    const maxSize = 5 * 1024 * 1024;
+    const maxSize = MAX_IMAGE_SIZE_MB * 1024 * 1024;
     const invalidFiles = files.filter((file) => file.size > maxSize);
 
     if (invalidFiles.length > 0) {
-      toast.error("Each image must be less than 5MB");
+      toast.error(`Each image must be less than ${MAX_IMAGE_SIZE_MB}MB`);
       return;
     }
 
     setImages((prev) => [...prev, ...files]);
   };
 
+  const handleVideoSelect = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("video/")) {
+      toast.error("Please select a valid video file");
+      return;
+    }
+
+    if (videos.length + 1 > MAX_VIDEOS) {
+      toast.error(`Maximum ${MAX_VIDEOS} video allowed`);
+      return;
+    }
+
+    if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+      toast.error(`Video must be less than ${MAX_VIDEO_SIZE_MB}MB`);
+      return;
+    }
+
+    setVideos([file]);
+  };
+
   const handleRemoveImage = (index) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveVideo = (index) => {
+    setVideos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleAddToGrid = async () => {
@@ -187,6 +247,7 @@ export default function AddPartPending({ ticketNumber }) {
             serialNo: showSerial ? serialNo : "",
             isSerialised: selectedPart.serialCheck,
             images: [...images], // Store images in memory
+            videos: [...videos],
             extraPartCode: selectedPart.extraPartCode,
             extraPartDescription: selectedPart.extraPartDescription,
             imageUploadRequired: selectedPart.imageUploadRequired,
@@ -203,6 +264,7 @@ export default function AddPartPending({ ticketNumber }) {
         setShowImageUpload(false);
         setIsValidSerialNumber(false);
         setImages([]);
+        setVideos([]);
       } else {
         // Handle rejection or simple message cases
         const parts = message.includes("|") ? message.split("|") : [message];
@@ -260,11 +322,11 @@ export default function AddPartPending({ ticketNumber }) {
         type: "partcodeserialno",
       });
 
-      if (res.data.message === "Valid serial no") {
+      if (res.data.statusMsg === "Valid serial no") {
         setIsValidSerialNumber(true);
         toast.success("Serial number is valid");
       } else {
-        toast.error(res.data.message);
+        toast.error(res.data.statusMsg);
         setIsValidSerialNumber(false);
       }
     } catch (error) {
@@ -279,38 +341,45 @@ export default function AddPartPending({ ticketNumber }) {
 
   const handleUpload = async () => {
     try {
-      let allSuccess = true;
+      const allFiles = grid.flatMap((item) => [
+        ...(item.images || []),
+        ...(item.videos || []),
+      ]);
 
-      for (const item of grid) {
-        if (item.images && item.images.length > 0) {
-          for (const file of item.images) {
-            if (!file) continue;
+      if (allFiles.length === 0) return true;
 
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("Ticket_no", ticketNumber);
-            formData.append("DocumentType", "HVP Parts"); // Updated type
+      setIsUploading(true);
+      setUploadProgress(0);
+      setCurrentFileInfo({ current: 1, total: allFiles.length });
 
-            try {
-              await axios.post("/api/documents/upload", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-              });
-            } catch (err) {
-              console.error("Upload error for file", file.name, err);
-              allSuccess = false;
-            }
-          }
-        }
+      const result = await uploadImage({
+        files: allFiles,
+        ticketNo: ticketNumber,
+        documentType: "HVP Parts",
+        onProgress: (percent, current, total) => {
+          setUploadProgress(percent);
+          setCurrentFileInfo({ current, total });
+        },
+      });
+
+      if (!result.success) {
+        toast.error("File upload failed. Please try again.");
+        return false;
       }
-      return allSuccess;
+
+      return true;
     } catch (err) {
       console.error("Global Upload error", err);
       return false;
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+      setCurrentFileInfo(null);
     }
   };
 
   async function onConfirmSave() {
-    // 1. Upload Images First
+    // 1. Upload Media First
     setSubmitting(true);
     const data = grid.flatMap((item) => {
       // 1. Create the main part object
@@ -322,7 +391,7 @@ export default function AddPartPending({ ticketNumber }) {
         partDesc: item.desc,
         availableQty: item.availableQty,
         POQty: item.poQty,
-        imageupload: item.images.length > 0 ? "Uploaded" : null,
+        imageupload: item.images.length > 0 || item.videos.length > 0 ? "Uploaded" : null,
       };
 
       // 2. Check for extra part
@@ -349,6 +418,11 @@ export default function AddPartPending({ ticketNumber }) {
     };
 
     try {
+      const uploadSuccess = await handleUpload();
+      if (!uploadSuccess) {
+        toast.error("Failed to upload some files. Please try again.");
+        return;
+      }
       const res = await axiosInstance.post("po/request", payload);
       const message = res.data?.statusMsg || "";
       if (message.includes("PO Created")) {
@@ -364,17 +438,13 @@ export default function AddPartPending({ ticketNumber }) {
           loggedInUser: user.userName,
         });
 
-        const uploadSuccess = await handleUpload();
-        if (!uploadSuccess) {
-          toast.error("Failed to upload some images. Please try again.");
-          return;
-        }
         toast.success("Request submitted successfully!");
         router.back();
       }
     } catch (error) {
       console.error("Error submitting request:", error);
       toast.error("Failed to submit request. Please try again.");
+      setSaveConfirmationOpen(false);
     } finally {
       setSubmitting(false);
     }
@@ -464,6 +534,12 @@ export default function AddPartPending({ ticketNumber }) {
 
   return (
     <ModalSkeleton title="PO Request" rolesAllowed={["sf/ssd"]} size={"xl"}>
+      <UploadProgressModal
+        open={Boolean(activeUpload)}
+        title={activeUpload?.title}
+        progress={activeUpload?.progress || 0}
+        fileInfo={activeUpload?.fileInfo || null}
+      />
       {/* PART SELECTION */}
       <div className="mb-6 min-w-4xl rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 className="mb-4 text-sm font-semibold tracking-wide text-gray-900 uppercase">
@@ -481,44 +557,38 @@ export default function AddPartPending({ ticketNumber }) {
           </div>
 
           {showSerial && (
-            <>
-              <div className="min-w-[200px] flex-1">
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Serial Number <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    value={serialNo}
-                    onChange={(e) => {
-                      setSerialNo(e.target.value);
-                      setIsValidSerialNumber(false);
-                    }}
-                    className="h-11 w-full rounded-lg border p-2 pr-10 shadow-sm focus:border-[#714b67] focus:ring-[#714b67]"
-                    placeholder="Enter Serial Number"
-                    style={{
-                      borderColor: isValidSerialNumber ? "green" : colors.primary,
-                    }}
-                  />
-                  {isValidSerialNumber && (
-                    <div className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-green-500">
-                      <CheckCircle2 size={20} />
-                    </div>
-                  )}
-                </div>
+            <div className="min-w-[200px] flex-1">
+              <div className="relative">
+                <InputField
+                  label="Serial Number"
+                  value={serialNo}
+                  onChange={(e) => {
+                    setSerialNo(e.target.value);
+                    setIsValidSerialNumber(false);
+                  }}
+                  placeholder="Enter Serial Number"
+                  required
+                  onEnterKeyPressed={() => {}}
+                />
+                {isValidSerialNumber && (
+                  <div className="pointer-events-none absolute top-[2.6rem] right-3 -translate-y-1/2 text-green-500">
+                    <CheckCircle2 size={20} />
+                  </div>
+                )}
               </div>
-            </>
+            </div>
           )}
 
           {/* Unified Action Button Container */}
           <div className="w-24 flex-none">
             {showSerial && !isValidSerialNumber && (
-              <button
+              <Button
                 onClick={checkSerialNumber}
-                className="h-10 w-full cursor-pointer rounded-lg text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95"
+                // className="h-10 w-full cursor-pointer rounded-lg text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95"
                 style={{ background: colors.primary }}
               >
                 Check
-              </button>
+              </Button>
             )}
 
             {selectedPart &&
@@ -540,68 +610,84 @@ export default function AddPartPending({ ticketNumber }) {
         {/* Image Upload Section */}
         {showImageUpload && (!showSerial || (showSerial && isValidSerialNumber)) && (
           <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Upload Images <span className="text-red-500">*</span>
+            {/* <label className="mb-2 block text-sm font-medium text-gray-700">
+              Upload Media <span className="text-red-500">*</span>
               <p className="mt-1 text-xs font-normal text-gray-500">
-                Max 5 images allowed (upto 5MB each). At least one image is required.
+                Max {MAX_IMAGES} images (up to {MAX_IMAGE_SIZE_MB}MB each) and{" "}
+                {MAX_VIDEOS} video (up to {MAX_VIDEO_SIZE_MB}MB). At least one image is
+                required.
               </p>
-            </label>
+            </label> */}
 
-            <div className="flex items-start gap-4">
-              <label className="cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
+              <div className="space-y-4">
+                <ImageUpload
+                  label="Upload Images"
+                  variant="box"
                   multiple
+                  accept="image/*"
                   onChange={handleImageSelect}
-                  className="hidden"
-                  disabled={images.length >= 5}
+                  maxFileAllowed={MAX_IMAGES}
+                  maxFileSize={MAX_IMAGE_SIZE_MB}
+                  disabled={isSubmitting || isUploading || images.length >= MAX_IMAGES}
                 />
-                <div
-                  className="flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95"
-                  style={{
-                    background: images.length >= 5 ? "#ccc" : colors.primary,
-                    cursor: images.length >= 5 ? "not-allowed" : "pointer",
-                  }}
-                >
-                  Choose Files ({images.length}/5)
-                </div>
-              </label>
-
-              {images.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {images.map((file, index) => (
-                    <div
-                      key={index}
-                      className="group relative h-16 w-16 overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm"
-                    >
-                      {/* <img
-                        src={URL.createObjectURL(file)}
-                        alt={`Preview ${index + 1}`}
-                        className="h-full w-full object-cover"
-                      /> */}
-                      <Image
-                        src={URL.createObjectURL(file)}
-                        alt={`Preview ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                      <button
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute top-0 right-0 hidden h-5 w-5 items-center justify-center rounded-bl-lg bg-red-500 text-xs text-white transition-all group-hover:flex hover:bg-red-600"
-                        title="Remove"
-                      >
-                        ×
-                      </button>
-                      <div className="bg-opacity-50 absolute right-0 bottom-0 left-0 bg-black px-1 py-0.5 text-center text-[10px] text-white">
-                        {(file.size / 1024).toFixed(0)}KB
-                      </div>
+                {imagePreviews.length > 0 && (
+                  <div>
+                    <div className="text-xs font-semibold text-gray-700">
+                      Images ({imagePreviews.length}/{MAX_IMAGES})
                     </div>
-                  ))}
-                </div>
-              )}
+                    <ImagePreview images={imagePreviews} onRemove={handleRemoveImage} />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-4">
+                <ImageUpload
+                  label="Upload Video"
+                  variant="box"
+                  multiple={false}
+                  accept="video/*"
+                  onChange={handleVideoSelect}
+                  maxFileAllowed={MAX_VIDEOS}
+                  maxFileSize={MAX_VIDEO_SIZE_MB}
+                  disabled={isSubmitting || isUploading || videos.length >= MAX_VIDEOS}
+                />
+                {videos.length > 0 && (
+                  <div>
+                    <div className="text-xs font-semibold text-gray-700">
+                      Video ({videos.length}/{MAX_VIDEOS})
+                    </div>
+                    <ImagePreview
+                      images={videos.map(() => ({ type: "video" }))}
+                      onRemove={handleRemoveVideo}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
+
+            {/* {(imagePreviews.length > 0 || videos.length > 0) && (
+              <div className="mt-3 space-y-2">
+                {imagePreviews.length > 0 && (
+                  <div>
+                    <div className="text-xs font-semibold text-gray-700">
+                      Images ({imagePreviews.length}/{MAX_IMAGES})
+                    </div>
+                    <ImagePreview images={imagePreviews} onRemove={handleRemoveImage} />
+                  </div>
+                )}
+                {videos.length > 0 && (
+                  <div>
+                    <div className="text-xs font-semibold text-gray-700">
+                      Video ({videos.length}/{MAX_VIDEOS})
+                    </div>
+                    <ImagePreview
+                      images={videos.map(() => ({ type: "video" }))}
+                      onRemove={handleRemoveVideo}
+                    />
+                  </div>
+                )}
+              </div>
+            )} */}
           </div>
         )}
       </div>
@@ -613,21 +699,24 @@ export default function AddPartPending({ ticketNumber }) {
           <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
             <Table columns={gridColumns} rows={grid} />
           </div>
-
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={handleSaveClick}
-              className="cursor-pointer rounded-lg border px-8 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-105 active:scale-95"
-              style={{
-                background: colors.primary,
-                borderColor: colors.primary,
-              }}
-            >
-              Save Changes
-            </button>
-          </div>
         </div>
       )}
+
+      <div className="mt-4 flex justify-end gap-4">
+        <Button
+          variant="outline"
+          onClick={onClose}
+          disabled={isSubmitting || isUploading}
+        >
+          Close
+        </Button>
+        <Button
+          onClick={handleSaveClick}
+          disabled={isSubmitting || isUploading || grid.length === 0}
+        >
+          Save Changes
+        </Button>
+      </div>
 
       <Modal
         open={saveConfirmationOpen}
@@ -648,7 +737,8 @@ export default function AddPartPending({ ticketNumber }) {
             </button>
             <button
               onClick={onConfirmSave}
-              className="cursor-pointer rounded-lg px-4 py-2 text-white transition-transform hover:scale-105 active:scale-95"
+              disabled={isSubmitting || isUploading}
+              className="cursor-pointer rounded-lg px-4 py-2 text-white transition-transform hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
               style={{ background: colors.primary }}
             >
               Confirm
@@ -659,8 +749,3 @@ export default function AddPartPending({ ticketNumber }) {
     </ModalSkeleton>
   );
 }
-
-// message:
-// max 5 images, upto 5mb
-
-// new feature, after verifying the serial number, we have to upload

@@ -458,7 +458,7 @@ export default function AddPartPending({ ticketNumber, onClose }) {
   ];
 
   return (
-    <ModalSkeleton title="PO Request" rolesAllowed={["sf/ssd"]} size={"xl"}>
+    <ModalSkeleton title="PO Request sf/action" rolesAllowed={["sf/ssd"]} size={"xl"}>
       {/* PART SELECTION */}
       <div className="mb-6 min-w-4xl rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 className="mb-4 text-sm font-semibold tracking-wide text-gray-900 uppercase">

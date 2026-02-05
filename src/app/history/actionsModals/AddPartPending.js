@@ -219,6 +219,11 @@ export default function AddPartPending({ ticketNumber, onClose }) {
       return;
     }
 
+    if (showImageUpload && videos.length === 0) {
+      toast.error("Please upload video!");
+      return;
+    }
+
     try {
       const res = await axiosInstance.post("po-validation/validate", {
         partcode: selectedPart.value,
@@ -380,6 +385,7 @@ export default function AddPartPending({ ticketNumber, onClose }) {
 
   async function onConfirmSave() {
     // 1. Upload Media First
+
     setSubmitting(true);
     const data = grid.flatMap((item) => {
       // 1. Create the main part object
@@ -610,15 +616,6 @@ export default function AddPartPending({ ticketNumber, onClose }) {
         {/* Image Upload Section */}
         {showImageUpload && (!showSerial || (showSerial && isValidSerialNumber)) && (
           <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-            {/* <label className="mb-2 block text-sm font-medium text-gray-700">
-              Upload Media <span className="text-red-500">*</span>
-              <p className="mt-1 text-xs font-normal text-gray-500">
-                Max {MAX_IMAGES} images (up to {MAX_IMAGE_SIZE_MB}MB each) and{" "}
-                {MAX_VIDEOS} video (up to {MAX_VIDEO_SIZE_MB}MB). At least one image is
-                required.
-              </p>
-            </label> */}
-
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
               <div className="space-y-4">
                 <ImageUpload

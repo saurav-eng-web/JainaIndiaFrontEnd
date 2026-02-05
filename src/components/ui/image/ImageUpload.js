@@ -101,8 +101,8 @@ export default function ImageUpload({
             </span>
             <span className="text-xs text-gray-500">
               {accept.includes("video")
-                ? `Max ${maxFileAllowed} files. Videos (Max ${maxFileSize}MB)`
-                : `Max ${maxFileAllowed} images. Supported formats: JPG, PNG (Max ${maxFileSize}MB)`}
+                ? `Max ${maxFileAllowed} videos. (Max ${maxFileSize}MB per file)`
+                : `Max ${maxFileAllowed} images. (Max ${maxFileSize}MB per file)`}
             </span>
             <input
               id={id || name}

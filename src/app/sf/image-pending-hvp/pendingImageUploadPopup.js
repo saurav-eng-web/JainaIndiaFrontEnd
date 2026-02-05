@@ -129,7 +129,13 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
     <ModalSkeleton title={"Upload Image"} size="lg" onClose={onClose}>
       <div className="w-full min-w-xl space-y-4">
         {/* Input Section - Separated and Custom */}
-        <ImageUpload variant="box" onChange={handleFileChange} multiple={true} />
+        <ImageUpload
+          variant="box"
+          maxFileAllowed={MAX_FILES}
+          maxFileSize={MAX_SIZE_MB}
+          onChange={handleFileChange}
+          multiple={true}
+        />
 
         {/* Preview Section - Separated */}
         {previews.length > 0 && (

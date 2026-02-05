@@ -40,6 +40,10 @@ async function uploadImage({
         };
       }
 
+      formData.append("username", process.env.NEXT_PUBLIC_DOC_USERNAME);
+      formData.append("password", process.env.NEXT_PUBLIC_DOC_PASSWORD);
+      formData.append("accessCode", process.env.NEXT_PUBLIC_DOC_ACCESSCODE);
+
       const res = await axios.post(endpoint, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         // Track upload progress for current file
@@ -48,9 +52,7 @@ async function uploadImage({
             // Calculate overall progress: (current file index + progress of current file) / total files
             const totalBytes = progressEvent.total || file.size || 0;
             const fileProgress =
-              totalBytes > 0
-                ? Math.round((progressEvent.loaded * 100) / totalBytes)
-                : 0;
+              totalBytes > 0 ? Math.round((progressEvent.loaded * 100) / totalBytes) : 0;
             const overallProgress = Math.round(
               ((i + fileProgress / 100) * 100) / fileArray.length
             );

@@ -33,7 +33,7 @@ export default function Page() {
         message="Your request has been processed successfully."
         onClose={() => setShowModal(false)}
       />
-      <Modal open={popup} onClose={() => setPopup(false)}>
+      <Modal open={popup} onClose={() => setPopup(false)} mode="strict">
         <TestModal onClose={() => setPopup(false)} />
       </Modal>
     </PageSkeleton>
@@ -44,6 +44,9 @@ function TestModal({ onClose }) {
   return (
     <ModalSkeleton title={"test"} size="md">
       <div className="min-w-sm">hi there</div>
+      {/* <Button className="mt-20 ml-auto" variant="outline" onClick={onClose}>
+        Cancel
+      </Button> */}
       <Button className="mt-20 ml-auto" variant="outline" onClick={onClose}>
         Cancel
       </Button>

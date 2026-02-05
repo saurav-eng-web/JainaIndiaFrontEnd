@@ -1,7 +1,7 @@
 "use client";
 import clsx from "clsx";
 import { CheckCircle } from "lucide-react";
-import React from "react";
+import React, { useRef } from "react";
 
 const VARIANT_CLASSES = {
   primary:
@@ -9,7 +9,7 @@ const VARIANT_CLASSES = {
   outline:
     "border border-[#714b67] text-[#714b67] cursor-pointer hover:text-[#5e3f56] focus:border-[#dc3545]",
   verified:
-    " text-green-600 border border-green-600 cursor-not-allowed opacity-90 flex items-center gap-2",
+    "text-green-600 border border-green-600 cursor-not-allowed opacity-90 flex items-center gap-2",
 };
 
 const DISABLED_CLASSES =
@@ -20,18 +20,43 @@ export function Button({
   variant = "primary",
   className = "",
   disabled = false,
+  onClick,
   ...props
 }) {
   const isVerified = variant === "verified";
 
+  // ---- Anti Double Click Guard ----
+  const lockRef = useRef(false);
+
+  const handleClick = (e) => {
+    if (lockRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    lockRef.current = true;
+
+    // execute user handler
+    onClick?.(e);
+
+    // auto release after 1 sec
+    setTimeout(() => {
+      lockRef.current = false;
+    }, 1000);
+  };
+
+  const finalDisabled = disabled || isVerified;
+
   return (
     <button
-      disabled={disabled || isVerified}
+      disabled={finalDisabled}
+      onClick={handleClick}
       className={clsx(
         "flex h-10 min-w-25 items-center justify-center rounded px-4 py-2 text-sm font-semibold transition focus:outline-none",
         isVerified
           ? VARIANT_CLASSES.verified
-          : disabled
+          : finalDisabled
             ? DISABLED_CLASSES
             : VARIANT_CLASSES[variant],
         className
@@ -43,28 +68,3 @@ export function Button({
     </button>
   );
 }
-
-// "use client";
-// import React from "react";
-
-// const VARIANT_CLASSES = {
-//   primary: "bg-[#714b67] text-white hover:bg-[#5e3f56] focus:ring-[#714b67]",
-//   outline:
-//     "border-1 border-[#714b67] text-[#714b67] hover:text-[#5e3f56] focus:border-[#dc3545]",
-// };
-
-// export function Button({
-//   children,
-//   variant = "primary", // primary | simple
-//   className = "",
-//   ...props
-// }) {
-//   return (
-//     <button
-//       className={`h-10 min-w-25 cursor-pointer rounded px-4 py-2 text-sm font-semibold transition focus:ring-2 focus:ring-offset-2 focus:outline-none ${VARIANT_CLASSES[variant]} ${className} `}
-//       {...props}
-//     >
-//       {children}
-//     </button>
-//   );
-// }

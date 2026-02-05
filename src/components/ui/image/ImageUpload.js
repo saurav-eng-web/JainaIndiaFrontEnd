@@ -3,7 +3,6 @@
 import clsx from "clsx";
 import { Upload } from "lucide-react";
 
-// Mimicking InputWithLabel size map for 'input' variant consistency
 const sizeMap = {
   sm: {
     input: "h-8 px-2 text-sm",
@@ -98,7 +97,7 @@ export default function ImageUpload({
                 disabled ? "text-gray-400" : "text-[#714b67]"
               )}
             >
-              Click to upload files
+              Click to upload {accept.includes("video") ? "video" : "image"}
             </span>
             <span className="text-xs text-gray-500">
               {accept.includes("video")

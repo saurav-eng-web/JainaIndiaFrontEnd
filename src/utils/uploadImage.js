@@ -1,8 +1,16 @@
 import axios from "axios";
 
+import { getDocumentsUploadUrl } from "./documentsApi";
 import { logger } from "./logger";
 
-async function uploadImage({ files, ticketNo, documentType, onProgress = null }) {
+async function uploadImage({
+  files,
+  ticketNo,
+  documentType,
+  onProgress = null,
+  useProxy = false,
+  uploadUrl,
+}) {
   if (!files) {
     return { success: false, error: "Please select a file" };
   }
@@ -25,7 +33,9 @@ async function uploadImage({ files, ticketNo, documentType, onProgress = null })
       formData.append("Ticket_no", ticketNo);
       formData.append("DocumentType", documentType);
 
-      const res = await axios.post("/api/documents/upload", formData, {
+      const endpoint = getDocumentsUploadUrl({ useProxy, uploadUrl });
+
+      const res = await axios.post(endpoint, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         // Track upload progress for current file
         onUploadProgress: (progressEvent) => {

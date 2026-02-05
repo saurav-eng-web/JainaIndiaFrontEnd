@@ -158,21 +158,45 @@ export default function AddPartPending({ ticketNumber, onClose }) {
     const files = Array.from(e.target.files || []);
 
     // Validate total count
-    if (images.length + files.length > MAX_IMAGES) {
+    const existingKeys = new Set(
+      images.map((file) => `${file.name}-${file.size}-${file.lastModified}`)
+    );
+    const incomingKeys = new Set();
+    const uniqueFiles = [];
+    let hasDuplicate = false;
+
+    for (const file of files) {
+      const key = `${file.name}-${file.size}-${file.lastModified}`;
+      if (existingKeys.has(key) || incomingKeys.has(key)) {
+        hasDuplicate = true;
+        continue;
+      }
+      incomingKeys.add(key);
+      uniqueFiles.push(file);
+    }
+
+    if (hasDuplicate) {
+      toast.error("Image already selected");
+    }
+
+    // Validate total count
+    if (images.length + uniqueFiles.length > MAX_IMAGES) {
       toast.error(`Maximum ${MAX_IMAGES} images allowed`);
       return;
     }
 
     // Validate each file size (5MB = 5 * 1024 * 1024 bytes)
     const maxSize = MAX_IMAGE_SIZE_MB * 1024 * 1024;
-    const invalidFiles = files.filter((file) => file.size > maxSize);
+    const invalidFiles = uniqueFiles.filter((file) => file.size > maxSize);
 
     if (invalidFiles.length > 0) {
       toast.error(`Each image must be less than ${MAX_IMAGE_SIZE_MB}MB`);
       return;
     }
 
-    setImages((prev) => [...prev, ...files]);
+    if (uniqueFiles.length > 0) {
+      setImages((prev) => [...prev, ...uniqueFiles]);
+    }
   };
 
   const handleVideoSelect = (e) => {
@@ -600,15 +624,14 @@ export default function AddPartPending({ ticketNumber, onClose }) {
             {selectedPart &&
               (!selectedPart.serialCheck ||
                 (selectedPart.serialCheck && isValidSerialNumber)) &&
-              (!selectedPart.imageUploadRequired ||
-                (selectedPart.imageUploadRequired && images.length > 0)) && (
-                <button
+              !selectedPart.imageUploadRequired && (
+                <Button
                   onClick={handleAddToGrid}
-                  className="h-10 w-full cursor-pointer rounded-lg text-sm font-medium text-white shadow-md transition-transform hover:scale-105 active:scale-95"
-                  style={{ background: colors.primary }}
+                  // className="h-10 w-full cursor-pointer rounded-lg text-sm font-medium text-white shadow-md transition-transform hover:scale-105 active:scale-95"
+                  // style={{ background: colors.primary }}
                 >
                   Add
-                </button>
+                </Button>
               )}
           </div>
         </div>
@@ -661,6 +684,16 @@ export default function AddPartPending({ ticketNumber, onClose }) {
                 )}
               </div>
             </div>
+
+            {selectedPart &&
+              (!selectedPart.serialCheck ||
+                (selectedPart.serialCheck && isValidSerialNumber)) &&
+              images.length > 0 &&
+              videos.length > 0 && (
+                <div className="mt-4 flex justify-end">
+                  <Button onClick={handleAddToGrid}>Add</Button>
+                </div>
+              )}
 
             {/* {(imagePreviews.length > 0 || videos.length > 0) && (
               <div className="mt-3 space-y-2">

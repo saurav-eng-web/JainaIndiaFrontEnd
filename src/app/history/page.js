@@ -692,6 +692,7 @@ function HistoryPageContent() {
             <Modal
               open={MSLPartConsumePopup}
               onClose={() => setMSLPartConsumePopup(false)}
+              // mode="strict"
             >
               <MSLConsume ticketNumber={activeTicket} />
             </Modal>

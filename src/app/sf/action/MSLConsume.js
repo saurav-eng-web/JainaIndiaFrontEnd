@@ -240,38 +240,39 @@ export default function MSLConsume({ ticketNumber }) {
   }
 
   // >>>>>>>>>>>>>>> UPLOAD FUNCTION <<<<<<<<<<<<<<<
-  const handleUpload = async () => {
-    try {
-      let allSuccess = true;
+  // const handleUpload = async () => {
+  //   try {
+  //     let allSuccess = true;
 
-      for (const item of grid) {
-        if (item.images && item.images.length > 0) {
-          for (const file of item.images) {
-            if (!file) continue;
+  //     for (const item of grid) {
+  //       if (item.images && item.images.length > 0) {
+  //         for (const file of item.images) {
+  //           if (!file) continue;
 
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("Ticket_no", ticketNumber);
-            formData.append("DocumentType", "HVP Parts"); // Updated type
+  //           const formData = new FormData();
+  //           formData.append("file", file);
+  //           formData.append("Ticket_no", ticketNumber);
+  //           formData.append("DocumentType", "HVP Parts"); // Updated type
 
-            try {
-              await axios.post("/api/documents/upload", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-              });
-            } catch (err) {
-              console.error("Upload error for file", file.name, err);
-              allSuccess = false;
-            }
-          }
-        }
-      }
-      return allSuccess;
-    } catch (err) {
-      console.error("Global Upload error", err);
-      return false;
-    }
-  };
+  //           try {
+  //             await axios.post("/api/documents/upload", formData, {
+  //               headers: { "Content-Type": "multipart/form-data" },
+  //             });
+  //           } catch (err) {
+  //             console.error("Upload error for file", file.name, err);
+  //             allSuccess = false;
+  //           }
+  //         }
+  //       }
+  //     }
+  //     return allSuccess;
+  //   } catch (err) {
+  //     console.error("Global Upload error", err);
+  //     return false;
+  //   }
+  // };
 
+  console.log("grid: ", grid);
   async function handleSubmit() {
     const data = grid.map((item) => ({
       PartID: item.partId,
@@ -281,8 +282,9 @@ export default function MSLConsume({ ticketNumber }) {
       SFReceivePOID: item.sfPOReceiveId,
       freshFaulty: item.freshFaulty,
       consume: item.consume,
+      hvp: item.imageUploadRequired ? 1 : 0,
     }));
-
+    console.log("data: ", data);
     if (data.length === 0) {
       toast.error("No items to submit.");
       return;
@@ -302,11 +304,11 @@ export default function MSLConsume({ ticketNumber }) {
         message === "Record Inserted Successfully" &&
         data.length > 0
       ) {
-        const uploadSuccess = await handleUpload();
-        if (!uploadSuccess) {
-          toast.error("Failed to upload some images. Please try again.");
-          return;
-        }
+        // const uploadSuccess = await handleUpload();
+        // if (!uploadSuccess) {
+        //   toast.error("Failed to upload some images. Please try again.");
+        //   return;
+        // }
         toast.success("Request submitted successfully!");
         router.back();
       }

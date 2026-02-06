@@ -1,24 +1,25 @@
 "use client";
 
-import axios from "axios";
-import { Trash2, CheckCircle2 } from "lucide-react";
-import Image from "next/image";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
+import { Button } from "@/components/ui/button";
+import ImagePreview from "@/components/ui/image/ImagePreview";
+import ImageUpload from "@/components/ui/image/ImageUpload";
 import Modal from "@/components/ui/Modal";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import RadioOption from "@/components/ui/RadioOption";
+import { UploadProgressModal } from "@/components/ui/UploadProgress";
 import { useTheme } from "@/theme/ThemeContext";
+import { uploadImage } from "@/utils/uploadImage";
 
 export default function MSLConsume({ ticketNumber }) {
   const { colors } = useTheme();
-  const user = useSelector((state) => state.auth.user); // Adjust slice name if needed
   const router = useRouter();
 
   const [selectedPart, setSelectedPart] = useState(null);
@@ -26,8 +27,19 @@ export default function MSLConsume({ ticketNumber }) {
   const [dropdownOptions, setDropdownOptions] = useState([]);
   const [saveConfirmationOpen, setSaveConfirmationOpen] = useState(false);
   const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [videos, setVideos] = useState([]);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentFileInfo, setCurrentFileInfo] = useState(null);
+  const activeUpload = isUploading
+    ? {
+        title: "Uploading Files",
+        progress: uploadProgress,
+        fileInfo: currentFileInfo,
+      }
+    : null;
 
   // const normalizeBoolean = (value) => String(value).toLowerCase() === "true";
 
@@ -93,6 +105,18 @@ export default function MSLConsume({ ticketNumber }) {
     getDropdown();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticketNumber]);
+
+  useEffect(() => {
+    if (!images || images.length === 0) {
+      setImagePreviews([]);
+      return;
+    }
+
+    const previews = images.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
+
+    return () => previews.forEach((url) => URL.revokeObjectURL(url));
+  }, [images]);
 
   const validatePart = async (partCode) => {
     if (!partCode) {
@@ -271,37 +295,44 @@ export default function MSLConsume({ ticketNumber }) {
   }
 
   // >>>>>>>>>>>>>>> UPLOAD FUNCTION <<<<<<<<<<<<<<<
-  // const handleUpload = async () => {
-  //   try {
-  //     let allSuccess = true;
+  const handleUpload = async () => {
+    try {
+      const allFiles = grid.flatMap((item) => [
+        ...(item.images || []),
+        ...(item.videos || []),
+      ]);
 
-  //     for (const item of grid) {
-  //       if (item.images && item.images.length > 0) {
-  //         for (const file of item.images) {
-  //           if (!file) continue;
+      if (allFiles.length === 0) return true;
 
-  //           const formData = new FormData();
-  //           formData.append("file", file);
-  //           formData.append("Ticket_no", ticketNumber);
-  //           formData.append("DocumentType", "HVP Parts"); // Updated type
+      setIsUploading(true);
+      setUploadProgress(0);
+      setCurrentFileInfo({ current: 1, total: allFiles.length });
 
-  //           try {
-  //             await axios.post("/api/documents/upload", formData, {
-  //               headers: { "Content-Type": "multipart/form-data" },
-  //             });
-  //           } catch (err) {
-  //             console.error("Upload error for file", file.name, err);
-  //             allSuccess = false;
-  //           }
-  //         }
-  //       }
-  //     }
-  //     return allSuccess;
-  //   } catch (err) {
-  //     console.error("Global Upload error", err);
-  //     return false;
-  //   }
-  // };
+      const result = await uploadImage({
+        files: allFiles,
+        ticketNo: ticketNumber,
+        documentType: "HVP Parts",
+        onProgress: (percent, current, total) => {
+          setUploadProgress(percent);
+          setCurrentFileInfo({ current, total });
+        },
+      });
+
+      if (!result.success) {
+        toast.error("File upload failed. Please try again.");
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error("Global Upload error", err);
+      return false;
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+      setCurrentFileInfo(null);
+    }
+  };
 
   console.log("grid: ", grid);
   async function handleSubmit() {
@@ -327,6 +358,11 @@ export default function MSLConsume({ ticketNumber }) {
       data: data,
     };
     try {
+      const uploadSuccess = await handleUpload();
+      if (!uploadSuccess) {
+        toast.error("Failed to upload some files. Please try again.");
+        return;
+      }
       const res = await axiosInstance.post("consumption/process", payload);
       const message = res.data?.statusMsg || "";
       const data = res.data?.data;
@@ -336,6 +372,8 @@ export default function MSLConsume({ ticketNumber }) {
         data.length > 0
       ) {
         toast.success("Request submitted successfully!");
+        setSaveConfirmationOpen(false);
+
         router.back();
       }
     } catch (error) {
@@ -436,6 +474,12 @@ export default function MSLConsume({ ticketNumber }) {
 
   return (
     <ModalSkeleton title="MSL Part Consume" rolesAllowed={["sf/ssd"]} size={"xl"}>
+      <UploadProgressModal
+        open={Boolean(activeUpload)}
+        title={activeUpload?.title}
+        progress={activeUpload?.progress || 0}
+        fileInfo={activeUpload?.fileInfo || null}
+      />
       {/* PART SELECTION */}
       <div className="mb-6 min-w-4xl rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 className="mb-4 text-sm font-semibold tracking-wide text-gray-900 uppercase">
@@ -454,145 +498,53 @@ export default function MSLConsume({ ticketNumber }) {
 
           {/* Unified Action Button Container */}
           <div className="w-24 flex-none">
-            {selectedPart && (
-              <button
-                onClick={handleAddToTable}
-                className="h-10 w-full cursor-pointer rounded-lg text-sm font-medium text-white shadow-md transition-transform hover:scale-105 active:scale-95"
-                style={{ background: colors.primary }}
-              >
-                Add
-              </button>
-            )}
+            {selectedPart && <Button onClick={handleAddToTable}>Add</Button>}
           </div>
         </div>
 
         {/* Image Upload Section */}
         {showImageUpload && (
           <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Upload Images <span className="text-red-500">*</span>
-              <p className="mt-1 text-xs font-normal text-gray-500">
-                Max 5 images allowed (upto 5MB each). At least one image is required.
-              </p>
-            </label>
-
-            <div className="flex items-start gap-4">
-              <label className="cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
+              <div className="space-y-3">
+                <ImageUpload
+                  label="Upload Images"
+                  variant="box"
                   multiple
+                  accept="image/*"
                   onChange={handleImageSelect}
-                  className="hidden"
+                  maxFileAllowed={5}
+                  maxFileSize={5}
                   disabled={images.length >= 5}
+                  required
                 />
-                <div
-                  className="flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95"
-                  style={{
-                    background: images.length >= 5 ? "#ccc" : colors.primary,
-                    cursor: images.length >= 5 ? "not-allowed" : "pointer",
-                  }}
-                >
-                  Choose Files ({images.length}/5)
-                </div>
-              </label>
+                {imagePreviews.length > 0 && (
+                  <ImagePreview images={imagePreviews} onRemove={handleRemoveImage} />
+                )}
+              </div>
 
-              {images.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {images.map((file, index) => (
-                    <div
-                      key={index}
-                      className="group relative h-16 w-16 overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm"
-                    >
-                      {/* <img
-                        src={URL.createObjectURL(file)}
-                        alt={`Preview ${index + 1}`}
-                        className="h-full w-full object-cover"
-                      /> */}
-                      <Image
-                        src={URL.createObjectURL(file)}
-                        alt={`Preview ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                      <button
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute top-0 right-0 hidden h-5 w-5 items-center justify-center rounded-bl-lg bg-red-500 text-xs text-white transition-all group-hover:flex hover:bg-red-600"
-                        title="Remove"
-                      >
-                        ×
-                      </button>
-                      <div className="bg-opacity-50 absolute right-0 bottom-0 left-0 bg-black px-1 py-0.5 text-center text-[10px] text-white">
-                        {(file.size / 1024).toFixed(0)}KB
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="mt-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Upload Video
-                <p className="mt-1 text-xs font-normal text-gray-500">
-                  Max 1 video allowed (upto 30MB).
-                </p>
-              </label>
-
-              <div className="flex items-start gap-4">
-                <label className="cursor-pointer">
-                  <input
-                    type="file"
-                    accept="video/*"
-                    onChange={handleVideoSelect}
-                    className="hidden"
-                    disabled={videos.length >= 1}
-                  />
-                  <div
-                    className="flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95"
-                    style={{
-                      background: videos.length >= 1 ? "#ccc" : colors.primary,
-                      cursor: videos.length >= 1 ? "not-allowed" : "pointer",
-                    }}
-                  >
-                    Choose Video ({videos.length}/1)
-                  </div>
-                </label>
-
+              <div className="space-y-3">
+                <ImageUpload
+                  label="Upload Video"
+                  variant="box"
+                  multiple={false}
+                  accept="video/*"
+                  onChange={handleVideoSelect}
+                  maxFileAllowed={1}
+                  maxFileSize={30}
+                  disabled={videos.length >= 1}
+                />
                 {videos.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {videos.map((file, index) => (
-                      <div
-                        key={index}
-                        className="group relative h-16 w-28 overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm"
-                      >
-                        <video
-                          src={URL.createObjectURL(file)}
-                          className="h-full w-full object-cover"
-                          muted
-                          playsInline
-                        />
-                        <button
-                          onClick={() => handleRemoveVideo(index)}
-                          className="absolute top-0 right-0 hidden h-5 w-5 items-center justify-center rounded-bl-lg bg-red-500 text-xs text-white transition-all group-hover:flex hover:bg-red-600"
-                          title="Remove"
-                        >
-                          Ã—
-                        </button>
-                        <div className="bg-opacity-50 absolute right-0 bottom-0 left-0 bg-black px-1 py-0.5 text-center text-[10px] text-white">
-                          {(file.size / (1024 * 1024)).toFixed(1)}MB
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <ImagePreview
+                    images={videos.map(() => ({ type: "video" }))}
+                    onRemove={handleRemoveVideo}
+                  />
                 )}
               </div>
             </div>
           </div>
         )}
       </div>
-
       {/* GRID TABLE */}
       {grid.length > 0 && (
         <div className="animate-in fade-in slide-in-from-bottom-2 mb-8 duration-300">

@@ -1,3 +1,5 @@
+import { on } from "events";
+
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -103,7 +105,6 @@ export default function OKPopup({ ticketNo, onClose }) {
     try {
       if (!images || images.length === 0) return true;
 
-      // Use the generic uploadImage utility which supports multiple files
       const result = await uploadImage({
         file: images,
         ticketNo: ticketNo,
@@ -134,48 +135,118 @@ export default function OKPopup({ ticketNo, onClose }) {
     const payload = {
       type: "okcheck",
       ticket_no: ticketNo,
-      // happyCode: happyCode,
-      // remarks: remarks,
     };
+
+    // We use a manual loading toast so we can precisely control
+    // when to show Success vs Error based on your API's logic.
+    const toastId = toast.loading("Submitting request...");
 
     try {
       setIsSubmitting(true);
 
-      const res = await toast.promise(axiosInstance.post("ok-call/process", payload), {
-        loading: "Submitting request...",
-        success: async (res) => {
-          if (res.data.statusCode === 200 && res.data?.data.length > 0) {
-            if (images.length > 0) {
-              const uploadSuccess = await handleUpload();
-              if (!uploadSuccess) {
-                toast.error("Some images failed to upload");
-              }
-            }
-            if (
-              res.data.data[0].COMPLAINT_STATUS === "OK" &&
-              res.data.data[0].Complaint_SubStatus === "OK"
-            ) {
-              toast.success("Call closed successfully");
-              router.back();
-            } else {
-              toast.error(res.data.statusMsg);
-            }
-          }
+      const res = await axiosInstance.post("ok-call/process", payload);
+      const apiData = res.data;
+      const firstItem = apiData?.data?.[0];
 
-          throw new Error(res.data.statusMsg || "Failed to close call");
-        },
-        error: (err) =>
-          err?.response?.data?.statusMsg ||
-          err.message ||
-          "Something went wrong while closing the call",
-      });
+      // 1. Check for the specific "OK" success condition
+      if (
+        apiData.statusCode === 200 &&
+        firstItem?.COMPLAINT_STATUS === "OK" &&
+        firstItem?.Complaint_SubStatus === "OK"
+      ) {
+        // Handle images if any
+        if (images.length > 0) {
+          const uploadSuccess = await handleUpload();
+          if (!uploadSuccess) {
+            toast.error("Some images failed to upload");
+          }
+        }
+
+        toast.success("Call closed successfully", { id: toastId });
+        onClose();
+        router.back();
+      }
+      // 2. Handle Business Logic Errors (Status 200 but data says failed)
+      else {
+        const errorMsg = apiData.statusMsg || "Validation failed";
+        toast.error(errorMsg, { id: toastId });
+        onClose();
+      }
     } catch (error) {
-      // Already handled by toast.promise
+      // 3. Handle actual Network/Server Errors (400, 500)
+      const errorMsg =
+        error?.response?.data?.statusMsg ||
+        error.message ||
+        "Something went wrong while closing the call";
+
+      toast.error(errorMsg, { id: toastId });
       console.error("API Error:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // const handleSubmit = async () => {
+  //   if (!validHappyCode) {
+  //     toast.error("Please validate happy code.");
+  //     return;
+  //   }
+
+  //   if (isSubmitting) return;
+
+  //   const payload = {
+  //     type: "okcheck",
+  //     ticket_no: ticketNo,
+  //     // happyCode: happyCode,
+  //     // remarks: remarks,
+  //   };
+
+  //   try {
+  //     setIsSubmitting(true);
+
+  //     const resp = await toast.promise(axiosInstance.post("ok-call/process", payload), {
+  //       loading: "Submitting request...",
+  //       success: async (res) => {
+  //         console.log("res: ", res);
+  //         if (res.data.statusCode === 200 && res.data?.data.length > 0) {
+  //           console.log("inside data.leng if");
+  //           if (
+  //             res.data.data[0].COMPLAINT_STATUS === "OK" &&
+  //             res.data.data[0].Complaint_SubStatus === "OK"
+  //           ) {
+  //             console.log("inside ok status");
+
+  //             if (images.length > 0) {
+  //               const uploadSuccess = await handleUpload();
+  //               if (!uploadSuccess) {
+  //                 toast.error("Some images failed to upload");
+  //               }
+  //             }
+  //             toast.success("Call closed successfully");
+  //             router.back();
+  //           } else {
+  //             console.log("inside else");
+  //             // this not shown
+  //             toast.error(res.data.statusMsg);
+  //             onClose();
+  //           }
+  //         }
+  //         console.log("without if");
+  //         onClose();
+  //         throw new Error(res.data.statusMsg || "Failed to close call");
+  //       },
+  //       error: (err) =>
+  //         err?.response?.data?.statusMsg ||
+  //         err.message ||
+  //         "Something went wrong while closing the call",
+  //     });
+  //   } catch (error) {
+  //     // Already handled by toast.promise
+  //     console.error("API Error:", error);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
 
   const handleImageSelect = (e) => {
     const fileList = e.target.files;

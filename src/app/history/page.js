@@ -721,7 +721,7 @@ function HistoryPageContent() {
               <WIPPopupModal ticketNo={activeTicket} onClose={() => router.back()} />
             </Modal>{" "}
             <Modal open={OkPopup} onClose={() => setOkPopup(false)}>
-              <OKPopup ticketNo={activeTicket} onClose={() => router.back()} />
+              <OKPopup ticketNo={activeTicket} onClose={() => setOkPopup(false)} />
             </Modal>
             <Modal open={openSCAPopup} onClose={() => setOpenSCAPopup(false)}>
               <SCAPopup

@@ -20,11 +20,9 @@ async function uploadImage({
 
   const DOC_BASE_URL = process.env.NEXT_PUBLIC_DOC_BASE_URL;
   try {
-    // Convert single file to array for uniform processing
     const fileArray = Array.isArray(files) ? files : [files];
     const results = [];
 
-    // Upload files one by one
     for (let i = 0; i < fileArray.length; i++) {
       const file = fileArray[i];
       const formData = new FormData();
@@ -32,14 +30,6 @@ async function uploadImage({
       formData.append("file", file);
       formData.append("Ticket_no", ticketNo);
       formData.append("DocumentType", documentType);
-
-      // const endpoint = getDocumentsUploadUrl({ uploadUrl });
-      // if (!endpoint) {
-      //   return {
-      //     success: false,
-      //     error: "Missing NEXT_PUBLIC_DOC_BASE_URL for direct upload.",
-      //   };
-      // }
 
       formData.append("username", process.env.NEXT_PUBLIC_DOC_USERNAME);
       formData.append("password", process.env.NEXT_PUBLIC_DOC_PASSWORD);

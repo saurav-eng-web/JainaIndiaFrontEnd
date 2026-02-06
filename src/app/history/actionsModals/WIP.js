@@ -8,6 +8,7 @@ import ImagePreview from "@/components/ui/image/ImagePreview";
 import ImageUpload from "@/components/ui/image/ImageUpload";
 import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
+import { UploadProgressModal } from "@/components/ui/UploadProgress";
 import { updateJob } from "@/utils/commonApis";
 import { logger } from "@/utils/logger";
 import { uploadImage } from "@/utils/uploadImage";
@@ -19,7 +20,10 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
   const [invoiceFile, setInvoiceFile] = useState([]);
   const [invoicePreview, setInvoicePreview] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [validSerial, setValidSerial] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentFileInfo, setCurrentFileInfo] = useState(null);
   const imageUploaded = serialFile.length > 0 && invoiceFile.length > 0;
   console.log("serialFile: ", serialFile);
   console.log("invoiceFile: ", invoiceFile);
@@ -172,18 +176,41 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
 
       const [status, subStatus, responseMessage] = parts.map((s) => s?.trim());
 
-      const [serialRes, invoiceRes] = await Promise.all([
-        uploadImage({
-          files: serialFile,
-          documentType: "Serial Document",
-          ticketNo,
-        }),
-        uploadImage({
-          files: invoiceFile,
-          documentType: "Invoice Document",
-          ticketNo,
-        }),
-      ]);
+      const totalFiles = serialFile.length + invoiceFile.length;
+      setIsUploading(true);
+      setUploadProgress(0);
+      setCurrentFileInfo({ current: 1, total: totalFiles });
+
+      const serialCount = serialFile.length;
+      const invoiceCount = invoiceFile.length;
+
+      const serialRes = await uploadImage({
+        files: serialFile,
+        documentType: "Serial Document",
+        ticketNo,
+        onProgress: (percent, current) => {
+          const overallPercent = Math.round(
+            ((percent / 100) * serialCount * 100) / totalFiles
+          );
+          const overallCurrent = Math.min(current, totalFiles);
+          setUploadProgress(overallPercent);
+          setCurrentFileInfo({ current: overallCurrent, total: totalFiles });
+        },
+      });
+
+      const invoiceRes = await uploadImage({
+        files: invoiceFile,
+        documentType: "Invoice Document",
+        ticketNo,
+        onProgress: (percent, current) => {
+          const overallPercent = Math.round(
+            ((serialCount + (percent / 100) * invoiceCount) * 100) / totalFiles
+          );
+          const overallCurrent = Math.min(serialCount + current, totalFiles);
+          setUploadProgress(overallPercent);
+          setCurrentFileInfo({ current: overallCurrent, total: totalFiles });
+        },
+      });
 
       if (!serialRes.success) {
         logger.error("Failed to upload Serial Number image", "WIP submission", {
@@ -212,18 +239,27 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
       logger.error(`Submission Error: ${displayMsg}`, "WIP submission");
       toast.error(displayMsg);
     } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+      setCurrentFileInfo(null);
       setIsSubmitting(false);
     }
   }
 
   return (
     <ModalSkeleton title={"WIP"} size={"xl"} rolesAllowed={["sf/ssd"]}>
+      <UploadProgressModal
+        open={isUploading}
+        title="Uploading Images"
+        progress={uploadProgress}
+        fileInfo={currentFileInfo}
+      />
       <div className="min-w-xl space-y-6">
         <p className="font-semibold">
           Ticket Number: <span className="ml-4 text-gray-700">{ticketNo}</span>
         </p>
 
-        <div className="flex gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <ImageUpload
               variant="box"
@@ -290,8 +326,8 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
         </div>
 
         <div className="mt-8 flex justify-end gap-4">
-          <Button disabled={isSubmitting} onClick={handleSubmit}>
-            {isSubmitting ? "Submitting..." : "Submit"}
+          <Button disabled={isSubmitting || isUploading} onClick={handleSubmit}>
+            {isUploading ? "Uploading..." : isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </div>
       </div>

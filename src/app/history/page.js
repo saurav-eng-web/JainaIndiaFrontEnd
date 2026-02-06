@@ -55,6 +55,7 @@ import SCAPopup from "../sf/action/sca";
 import DOATDModal from "./actionsModals/DOATD";
 import AddPartPending from "./actionsModals/AddPartPending";
 import CancelReqModal from "./actionsModals/CancelReqModal";
+import PartIssueToEng from "./actionsModals/PartIssueToEng";
 // Custom Hooks & Components
 
 const tabs = [
@@ -141,6 +142,7 @@ function HistoryPageContent() {
   const [doaTdConfirmOpen, setDoaTdConfirmOpen] = useState(false);
   const [doaTdConfirmType, setDoaTdConfirmType] = useState("");
   const [cancelPopup, setCancelPopup] = useState(false);
+  const [partIssueToEngPopup, setPartIssueToEngPopup] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -371,6 +373,9 @@ function HistoryPageContent() {
         break;
       case "Request for cancellation":
         setCancelPopup(true);
+        break;
+      case "Part Issued To Engg":
+        setPartIssueToEngPopup(true);
         break;
 
       default:
@@ -771,6 +776,16 @@ function HistoryPageContent() {
                 onClose={() => router.back()}
                 ipAddress={formData?.userIP}
                 complaintSubStatus={detail?.complaint_SubStatus}
+              />
+            </Modal>
+            <Modal
+              open={partIssueToEngPopup}
+              onClose={() => setPartIssueToEngPopup(false)}
+            >
+              <PartIssueToEng
+                ticketNo={activeTicket}
+                sfId={detail?.sf_ID}
+                onClose={() => setPopup(false)}
               />
             </Modal>
           </>

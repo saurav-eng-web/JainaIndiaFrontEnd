@@ -105,7 +105,7 @@ export default function TimePicker({
   };
 
   return (
-    <div className={clsx("flex w-full flex-col gap-1", className)}>
+    <div className={clsx("flex w-full flex-col gap-2", className)}>
       <div className={styles.label}>
         {label ? (
           <label htmlFor={id || name} className="font-medium text-[#714b67]">
@@ -124,7 +124,7 @@ export default function TimePicker({
           onChange={handleHourChange}
           disabled={disabled || hours.length === 0}
           className={clsx(
-            "w-1/2 rounded-lg border border-[#a6829d] transition-all outline-none",
+            "h-10 w-1/2 rounded-lg border border-[#a6829d] transition-all outline-none",
             "focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]",
             disabled && "cursor-not-allowed bg-gray-100 opacity-75",
             error && "border-red-500",
@@ -145,7 +145,7 @@ export default function TimePicker({
           onChange={handleMinuteChange}
           disabled={disabled || minutes.length === 0}
           className={clsx(
-            "w-1/2 rounded-lg border border-[#a6829d] transition-all outline-none",
+            "h-10 w-1/2 rounded-lg border border-[#a6829d] transition-all outline-none",
             "focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]",
             disabled && "cursor-not-allowed bg-gray-100 opacity-75",
             error && "border-red-500",

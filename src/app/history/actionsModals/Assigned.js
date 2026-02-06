@@ -1,15 +1,16 @@
 import { useRouter } from "next/navigation";
-import { Input } from "postcss";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import { Button } from "@/components/ui/button";
+import DatePicker from "@/components/ui/Datepicker";
 import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import TextArea from "@/components/ui/Textarea";
-import { getAllowedHours, getAllowedMinutes, isToday } from "@/utils/historyUtils";
+import TimePicker from "@/components/ui/timepicker";
+import { getNearestValidMinute, isToday } from "@/utils/historyUtils";
 
 export default function AssignedPopup({
   selectedAction,
@@ -22,8 +23,7 @@ export default function AssignedPopup({
   const [engineerId, setEngineerId] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
   const [contactPerson, setContactPerson] = useState("");
-  const [hour, setHour] = useState("");
-  const [minute, setMinute] = useState("");
+  const [appointmentTime, setAppointmentTime] = useState("");
   const [customerRemark, setCustomerRemark] = useState("");
   const [engineerData, setEngineerData] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,18 +51,20 @@ export default function AssignedPopup({
 
   const todayStr = new Date().toISOString().split("T")[0];
 
-  const hourOptions = getAllowedHours(appointmentDate).map((h) => ({
-    value: h,
-    label: h.toString(),
-  }));
+  const getMinTime = () => {
+    if (!appointmentDate) return "09:00";
+    if (!isToday(appointmentDate)) return "09:00";
 
-  const minuteOptions = getAllowedMinutes(
-    formData.appointmentDate,
-    formData.appointmentHour
-  ).map((m) => ({
-    value: m,
-    label: m.toString(),
-  }));
+    const now = new Date();
+    const nextHour = now.getHours() + 1;
+    const nearestMinute = getNearestValidMinute(now.getMinutes());
+    const safeMinute = nearestMinute === null ? 0 : nearestMinute;
+    const clampedHour = Math.max(9, nextHour);
+    return `${String(clampedHour).padStart(2, "0")}:${String(safeMinute).padStart(
+      2,
+      "0"
+    )}`;
+  };
 
   useEffect(() => {
     async function fetchEngineerData() {
@@ -113,8 +115,7 @@ export default function AssignedPopup({
   async function handleSubmit() {
     if (
       !appointmentDate ||
-      !hour ||
-      !minute ||
+      !appointmentTime ||
       !engineerId ||
       !customerRemark ||
       !contactPerson ||
@@ -131,7 +132,7 @@ export default function AssignedPopup({
       data: [
         {
           apptDate: appointmentDate,
-          apptTime: `${hour}:${minute}:00`,
+          apptTime: `${appointmentTime}:00`,
           dop: DOP.split("T")[0],
           reallot: "",
           contactPerson,
@@ -168,7 +169,7 @@ export default function AssignedPopup({
       sfId: formData.sf_ID,
       engId: engineerId,
       appointmentDate: appointmentDate,
-      appointmentTime: `${hour}:${minute}:00`,
+      appointmentTime: `${appointmentTime}:00`,
       talkToWhomeAllot: talkToWhom, // ,
       ticketNo: ticketNo,
       ticketKey,
@@ -208,23 +209,16 @@ export default function AssignedPopup({
 
         {/* {type === "Assigned" && (  */}
         <>
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium text-gray-700">
-              DOP <span className="ml-1 text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              className="rounded-md border px-3 py-2"
-              value={updatedDOP.split("T")[0]}
-              onChange={(e) => {
-                setUpdatedDOP(e.target.value);
-                setHour("");
-                setMinute("");
-              }}
-              max={todayStr}
-              disabled={complaintSubStatus === "WIP" ? true : false}
-            />
-          </div>
+          <DatePicker
+            label="DOP"
+            value={updatedDOP.split("T")[0]}
+            onChange={(val) => {
+              setUpdatedDOP(val);
+            }}
+            max={todayStr}
+            disabled={complaintSubStatus === "WIP" ? true : false}
+            required
+          />
           <CustomDropdown
             label="Call Type"
             placeholder="Select Call Type"
@@ -239,36 +233,29 @@ export default function AssignedPopup({
       </div>
       <div className="mt-10 grid grid-cols-3 gap-6">
         {/* Appointment Date */}
-        <div className="flex flex-col">
-          <label className="mb-1 font-medium text-gray-700">
-            Appointment Date<span className="ml-1 text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            className="rounded-md border px-3 py-2"
-            value={appointmentDate}
-            onChange={(e) => {
-              setAppointmentDate(e.target.value);
-              // Reset time when date changes (handled by parent logic usually, but here just updating state)
-              setHour("");
-              setMinute("");
-            }}
-            min={todayStr}
-            max={new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]}
-          />
-        </div>
+        <DatePicker
+          label="Appointment Date"
+          value={appointmentDate}
+          onChange={(val) => {
+            setAppointmentDate(val);
+            setAppointmentTime("");
+          }}
+          min={todayStr}
+          max={new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]}
+          required
+        />
 
         {/* Hour */}
-        <CustomDropdown
+        {/* <CustomDropdown
           label="Hour"
           placeholder="--Hour--"
           value={hour}
-          onChange={(val) => setHour(val)} // Assuming CustomDropdown returns value
+          onChange={(val) => setHour(val)} 
           options={hourOptions}
           required={true}
         />
 
-        {/* Minute */}
+       
         <CustomDropdown
           label="Minute"
           placeholder="--Minute--"
@@ -276,6 +263,25 @@ export default function AssignedPopup({
           onChange={(val) => setMinute(val)}
           options={minuteOptions}
           required={true}
+        /> */}
+
+        <TimePicker
+          label="Time"
+          value={appointmentTime}
+          min={getMinTime()}
+          max="20:00"
+          minuteStep={15}
+          onChange={(val) => setAppointmentTime(val)}
+          required
+        />
+
+        <CustomDropdown
+          label="Engineer Name"
+          placeholder="Select Engineer"
+          value={engineerId}
+          onChange={(val) => setEngineerId(val)}
+          options={engineerData}
+          required
         />
 
         {/* Engineer Name */}
@@ -301,18 +307,8 @@ export default function AssignedPopup({
           onChange={(e) => setTalkToWhom(e.target.value)}
           required
         />
-
-        <CustomDropdown
-          label="Engineer Name"
-          placeholder="Select Engineer"
-          value={engineerId}
-          onChange={(val) => setEngineerId(val)}
-          options={engineerData}
-          required
-        />
       </div>
 
-      {/* Footer */}
       <div className="mt-8 flex justify-end gap-4">
         <Button onClick={handleSubmit} disabled={isSubmitting}>
           {isSubmitting ? "Submitting..." : "Submit"}

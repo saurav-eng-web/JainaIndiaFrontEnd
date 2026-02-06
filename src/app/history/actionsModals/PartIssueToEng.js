@@ -14,7 +14,7 @@ const partcodes = [
   { partcode: "P004", partdesc: "Crankshaft" },
 ];
 
-export default function PartIssueToEng({ ticketNo, sfId = "14", onClose }) {
+export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
   const [engineerData, setEngineerData] = useState([]);
   const [engineerId, setEngineerId] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);

@@ -1,6 +1,7 @@
 import Loading from "../ui/Loading";
 
 const sizeMap = {
+  xxs: "w-10 max-w-[5rem]", // 80px
   xs: "w-20 max-w-[5rem]", // 80px
   sm: "w-28 max-w-[7rem]", // 112px
   md: "w-36 max-w-[9rem]", // 144px

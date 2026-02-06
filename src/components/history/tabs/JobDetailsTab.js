@@ -12,11 +12,12 @@ export default function JobDetailsTab({ detail, firstEntry }) {
         <div>
           <strong>Ticket No:</strong> {detail.tickeT_NO || "-"}
         </div>
-        <div>
-          <strong>Complaint Sub-status:</strong> {detail.complaint_SubStatus || "-"}
-        </div>
+
         <div>
           <strong>Complaint Status:</strong> {detail.complainT_STATUS || "-"}
+        </div>
+        <div>
+          <strong>Complaint Sub-status:</strong> {detail.complaint_SubStatus || "-"}
         </div>
         <div>
           <strong>Remarks:</strong> {detail.email || "-"}

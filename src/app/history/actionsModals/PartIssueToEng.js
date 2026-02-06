@@ -45,6 +45,24 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
     fetchEngineerData();
   }, [sfId]);
 
+  useEffect(() => {
+    async function fetchPartCode() {
+      try {
+        const res = await axiosInstance.post(`po-receive/list`, {
+          type: "AssignEng",
+          ticket_no: ticketNo,
+        });
+        const data = res.data.data;
+        if (res.data.statusCode === 200 && res.data.data.length > 0) {
+          setPartData(data);
+        }
+      } catch (err) {
+        console.error("Error fetching engineer data:", err);
+      }
+    }
+    fetchPartCode();
+  }, [ticketNo]);
+
   function handleSelectItem(value) {
     console.log("value: ", value);
   }
@@ -73,14 +91,14 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
   }
 
   const columnConfig = [
-    { label: "S. No", key: "id", size: "xs", render: (_v, _row, index) => index + 1 },
+    { label: "S. No", key: "id", size: "xxs", render: (_v, _row, index) => index + 1 },
 
-    { label: "Part Desc", key: "partDesc", size: "md" },
-    { label: "Part Code", key: "partcode", size: "md" },
+    { label: "Part Code", key: "PartCode", size: "xs" },
+    { label: "Part Desc", key: "PartDesc", size: "md" },
     {
-      label: "Select Part",
+      label: "Select",
       key: "",
-      size: "xs",
+      size: "xxs",
       render: (value) => (
         <input
           type="checkbox"
@@ -89,7 +107,6 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
         />
       ),
     },
-    // { label: "Sub Status", key: "Complaint_SubStatus", size: "md" },
   ];
 
   return (

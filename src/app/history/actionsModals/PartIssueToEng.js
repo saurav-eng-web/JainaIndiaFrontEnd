@@ -67,10 +67,13 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
     console.log("value: ", value);
   }
 
-  async function submitCancelRequest() {
-    const apiCall = axiosInstance.post("cancellation-requests/request", {
-      type: "JobCancelRequest",
+  async function handleSubmit() {
+    const apiCall = axiosInstance.post("sflevel1/process", {
+      type: "Part Issued To Engg",
       ticket_no: ticketNo,
+      eng_id: engineerId,
+      engname: "",
+      partcode: selectedItem, //string, separated by comma
     });
 
     toast.promise(apiCall, {
@@ -124,7 +127,9 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
         </div>
         <Table rows={partData} columns={columnConfig} />
       </div>
-      <Button className="mt-8 ml-auto">Submit</Button>
+      <Button onClick={handleSubmit} className="mt-8 ml-auto">
+        Submit
+      </Button>
     </ModalSkeleton>
   );
 }

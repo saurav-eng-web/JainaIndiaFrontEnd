@@ -456,17 +456,17 @@ export default function AddPartPending({ ticketNumber, onClose }) {
       const res = await axiosInstance.post("po/request", payload);
       const message = res.data?.statusMsg || "";
       if (message.includes("PO Created")) {
-        const parts = message.split("|");
-        const status = parts[0]?.trim();
-        const subStatus = parts[1]?.trim();
-        const responseMessage = parts[2]?.trim() || "";
-        await updateJob({
-          status,
-          subStatus,
-          message: responseMessage,
-          ticketNumber,
-          loggedInUser: user.userName,
-        });
+        // const parts = message.split("|");
+        // const status = parts[0]?.trim();
+        // const subStatus = parts[1]?.trim();
+        // const responseMessage = parts[2]?.trim() || "";
+        // await updateJob({
+        //   status,
+        //   subStatus,
+        //   message: responseMessage,
+        //   ticketNumber,
+        //   loggedInUser: user.userName,
+        // });
 
         toast.success("Request submitted successfully!");
         router.back();

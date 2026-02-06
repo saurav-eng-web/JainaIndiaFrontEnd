@@ -26,6 +26,7 @@ export default function MSLConsume({ ticketNumber }) {
   const [dropdownOptions, setDropdownOptions] = useState([]);
   const [saveConfirmationOpen, setSaveConfirmationOpen] = useState(false);
   const [images, setImages] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [showImageUpload, setShowImageUpload] = useState(false);
 
   // const normalizeBoolean = (value) => String(value).toLowerCase() === "true";
@@ -149,6 +150,7 @@ export default function MSLConsume({ ticketNumber }) {
 
     setShowImageUpload(part.imageUploadRequired);
     setImages([]);
+    setVideos([]);
   };
 
   const handleImageSelect = (e) => {
@@ -176,6 +178,33 @@ export default function MSLConsume({ ticketNumber }) {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleVideoSelect = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("video/")) {
+      toast.error("Please select a valid video file");
+      return;
+    }
+
+    if (videos.length + 1 > 1) {
+      toast.error("Maximum 1 video allowed");
+      return;
+    }
+
+    const maxSize = 30 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error("Video must be less than 30MB");
+      return;
+    }
+
+    setVideos([file]);
+  };
+
+  const handleRemoveVideo = (index) => {
+    setVideos((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleAddToTable = async () => {
     if (!selectedPart) return;
     // Check if images are required but not uploaded
@@ -190,6 +219,7 @@ export default function MSLConsume({ ticketNumber }) {
         partCode: selectedPart.value,
         desc: selectedPart.label,
         images: [...images], // Store images in memory
+        videos: [...videos],
         imageUploadRequired: selectedPart.imageUploadRequired,
         sfPOReceiveId: selectedPart.sfPOReceiveId,
         inventoryType: selectedPart.inventoryType,
@@ -206,6 +236,7 @@ export default function MSLConsume({ ticketNumber }) {
     setSelectedPart(null);
     setShowImageUpload(false);
     setImages([]);
+    setVideos([]);
   };
 
   const handleDelete = (data) => {
@@ -304,11 +335,6 @@ export default function MSLConsume({ ticketNumber }) {
         message === "Record Inserted Successfully" &&
         data.length > 0
       ) {
-        // const uploadSuccess = await handleUpload();
-        // if (!uploadSuccess) {
-        //   toast.error("Failed to upload some images. Please try again.");
-        //   return;
-        // }
         toast.success("Request submitted successfully!");
         router.back();
       }
@@ -504,6 +530,64 @@ export default function MSLConsume({ ticketNumber }) {
                   ))}
                 </div>
               )}
+            </div>
+
+            <div className="mt-4">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Upload Video
+                <p className="mt-1 text-xs font-normal text-gray-500">
+                  Max 1 video allowed (upto 30MB).
+                </p>
+              </label>
+
+              <div className="flex items-start gap-4">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoSelect}
+                    className="hidden"
+                    disabled={videos.length >= 1}
+                  />
+                  <div
+                    className="flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-medium text-white shadow-sm transition-transform hover:scale-105 active:scale-95"
+                    style={{
+                      background: videos.length >= 1 ? "#ccc" : colors.primary,
+                      cursor: videos.length >= 1 ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Choose Video ({videos.length}/1)
+                  </div>
+                </label>
+
+                {videos.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {videos.map((file, index) => (
+                      <div
+                        key={index}
+                        className="group relative h-16 w-28 overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm"
+                      >
+                        <video
+                          src={URL.createObjectURL(file)}
+                          className="h-full w-full object-cover"
+                          muted
+                          playsInline
+                        />
+                        <button
+                          onClick={() => handleRemoveVideo(index)}
+                          className="absolute top-0 right-0 hidden h-5 w-5 items-center justify-center rounded-bl-lg bg-red-500 text-xs text-white transition-all group-hover:flex hover:bg-red-600"
+                          title="Remove"
+                        >
+                          Ã—
+                        </button>
+                        <div className="bg-opacity-50 absolute right-0 bottom-0 left-0 bg-black px-1 py-0.5 text-center text-[10px] text-white">
+                          {(file.size / (1024 * 1024)).toFixed(1)}MB
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

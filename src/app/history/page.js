@@ -54,6 +54,7 @@ import SCAPopup from "../sf/action/sca";
 
 import DOATDModal from "./actionsModals/DOATD";
 import AddPartPending from "./actionsModals/AddPartPending";
+import CancelReqModal from "./actionsModals/CancelReqModal";
 // Custom Hooks & Components
 
 const tabs = [
@@ -139,6 +140,7 @@ function HistoryPageContent() {
   const [DOATDData, setDOATDData] = useState({});
   const [doaTdConfirmOpen, setDoaTdConfirmOpen] = useState(false);
   const [doaTdConfirmType, setDoaTdConfirmType] = useState("");
+  const [cancelPopup, setCancelPopup] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -310,7 +312,6 @@ function HistoryPageContent() {
       dlcity: serialNumber ? `${message} - ${serialNumber}` : message,
     });
   }
-
   const handleActionClick = (action) => {
     // Always update the selected action first
     setSelectedAction(action);
@@ -367,6 +368,9 @@ function HistoryPageContent() {
 
       case "TD":
         requestDOATD("TDcheck");
+        break;
+      case "Request for cancellation":
+        setCancelPopup(true);
         break;
 
       default:
@@ -713,7 +717,7 @@ function HistoryPageContent() {
             </Modal>{" "}
             <Modal open={OkPopup} onClose={() => setOkPopup(false)}>
               <OKPopup ticketNo={activeTicket} onClose={() => router.back()} />
-            </Modal>{" "}
+            </Modal>
             <Modal open={openSCAPopup} onClose={() => setOpenSCAPopup(false)}>
               <SCAPopup
                 ticketNo={activeTicket}
@@ -759,6 +763,14 @@ function HistoryPageContent() {
                 //   setDoaTdConfirmType("");
                 //   // await handleDOATD(type);
                 // }}
+              />
+            </Modal>
+            <Modal open={cancelPopup} onClose={() => setCancelPopup(false)}>
+              <CancelReqModal
+                ticketNo={activeTicket}
+                onClose={() => router.back()}
+                ipAddress={formData?.userIP}
+                complaintSubStatus={detail?.complaint_SubStatus}
               />
             </Modal>
           </>

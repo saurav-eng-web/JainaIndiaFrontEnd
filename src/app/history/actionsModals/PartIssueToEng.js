@@ -17,9 +17,10 @@ const partcodes = [
 export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
   const [engineerData, setEngineerData] = useState([]);
   const [engineerId, setEngineerId] = useState("");
+  const [engineerName, setEngineerName] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const [partData, setPartData] = useState(partcodes);
-
+  console.log("selectedpart", selectedItem);
   useEffect(() => {
     async function fetchEngineerData() {
       try {
@@ -63,8 +64,15 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
     fetchPartCode();
   }, [ticketNo]);
 
-  function handleSelectItem(value) {
-    console.log("value: ", value);
+  function handleSelectItem(partCode) {
+    setSelectedItem((prev) => {
+      const current = prev ? prev.split(",").filter(Boolean) : [];
+      const exists = current.includes(partCode);
+      const next = exists
+        ? current.filter((code) => code !== partCode)
+        : [...current, partCode];
+      return next.join(",");
+    });
   }
 
   async function handleSubmit() {
@@ -72,7 +80,7 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
       type: "Part Issued To Engg",
       ticket_no: ticketNo,
       eng_id: engineerId,
-      engname: "",
+      engname: engineerName,
       partcode: selectedItem, //string, separated by comma
     });
 
@@ -102,11 +110,14 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
       label: "Select",
       key: "",
       size: "xxs",
-      render: (value) => (
+      render: (_value, row) => (
         <input
           type="checkbox"
           className={`} rounded-full px-3 py-1 text-xs font-semibold`}
-          onChange={() => handleSelectItem(value)}
+          checked={Boolean(
+            selectedItem && selectedItem.split(",").includes(row.PartCode)
+          )}
+          onChange={() => handleSelectItem(row.PartCode)}
         />
       ),
     },
@@ -120,7 +131,11 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
             label="Engineer Name"
             placeholder="Select Engineer"
             value={engineerId}
-            onChange={(val) => setEngineerId(val)}
+            onChange={(val) => {
+              setEngineerId(val);
+              const selected = engineerData.find((item) => item.value === val);
+              setEngineerName(selected?.label || "");
+            }}
             options={engineerData}
             required
           />

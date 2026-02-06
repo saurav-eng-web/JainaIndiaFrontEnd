@@ -454,8 +454,8 @@ export default function AddPartPending({ ticketNumber, onClose }) {
         return;
       }
       const res = await axiosInstance.post("po/request", payload);
-      const message = res.data?.statusMsg || "";
-      if (message.includes("PO Created")) {
+      // const message = res.data?.statusMsg || "";
+      if (res.data?.statusCode === 200 && res.data.data.length > 0) {
         // const parts = message.split("|");
         // const status = parts[0]?.trim();
         // const subStatus = parts[1]?.trim();

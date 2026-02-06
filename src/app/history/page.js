@@ -785,7 +785,7 @@ function HistoryPageContent() {
               <PartIssueToEng
                 ticketNo={activeTicket}
                 sfId={detail?.sf_ID}
-                onClose={() => setPopup(false)}
+                onClose={() => router.back()}
               />
             </Modal>
           </>

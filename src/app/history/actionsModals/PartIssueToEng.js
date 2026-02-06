@@ -7,20 +7,15 @@ import Table from "@/components/common/Table";
 import { Button } from "@/components/ui/button";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 
-const partcodes = [
-  { partcode: "P001", partdesc: "Engine Block" },
-  { partcode: "P002", partdesc: "Cylinder Head" },
-  { partcode: "P003", partdesc: "Piston" },
-  { partcode: "P004", partdesc: "Crankshaft" },
-];
-
 export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
   const [engineerData, setEngineerData] = useState([]);
   const [engineerId, setEngineerId] = useState("");
   const [engineerName, setEngineerName] = useState("");
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [partData, setPartData] = useState(partcodes);
-  console.log("selectedpart", selectedItem);
+  const [selectedItem, setSelectedItem] = useState("");
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [partData, setPartData] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     async function fetchEngineerData() {
       try {
@@ -64,18 +59,30 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
     fetchPartCode();
   }, [ticketNo]);
 
-  function handleSelectItem(partCode) {
-    setSelectedItem((prev) => {
-      const current = prev ? prev.split(",").filter(Boolean) : [];
-      const exists = current.includes(partCode);
-      const next = exists
-        ? current.filter((code) => code !== partCode)
-        : [...current, partCode];
-      return next.join(",");
+  function handleSelectItem(itemId) {
+    setSelectedIds((prev) => {
+      const exists = prev.includes(itemId);
+      const next = exists ? prev.filter((id) => id !== itemId) : [...prev, itemId];
+      const codes = partData
+        .filter((item) => next.includes(item.ID))
+        .map((item) => item.PartCode);
+      setSelectedItem(codes.join(","));
+      return next;
     });
   }
 
   async function handleSubmit() {
+    if (!engineerId) {
+      toast.error("Please select an engineer");
+      return;
+    }
+
+    if (!selectedItem) {
+      toast.error("Please select a part");
+      return;
+    }
+
+    setSubmitting(true);
     const apiCall = axiosInstance.post("sflevel1/process", {
       type: "Part Issued To Engg",
       ticket_no: ticketNo,
@@ -85,7 +92,7 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
     });
 
     toast.promise(apiCall, {
-      loading: "Submitting cancellation request...",
+      loading: "Submitting request...",
       success: (res) => {
         if (res.data.statusCode === 200 && res.data.data.length > 0) {
           onClose();
@@ -96,9 +103,10 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
       },
       error: (err) => {
         console.error("Error submitting cancel request:", err);
-        return "Failed to submit cancel request, try again";
+        return "Failed to submit request, try again";
       },
     });
+    setSubmitting(false);
   }
 
   const columnConfig = [
@@ -114,10 +122,8 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
         <input
           type="checkbox"
           className={`} rounded-full px-3 py-1 text-xs font-semibold`}
-          checked={Boolean(
-            selectedItem && selectedItem.split(",").includes(row.PartCode)
-          )}
-          onChange={() => handleSelectItem(row.PartCode)}
+          checked={selectedIds.includes(row.ID)}
+          onChange={() => handleSelectItem(row.ID)}
         />
       ),
     },
@@ -142,8 +148,8 @@ export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
         </div>
         <Table rows={partData} columns={columnConfig} />
       </div>
-      <Button onClick={handleSubmit} className="mt-8 ml-auto">
-        Submit
+      <Button disabled={submitting} onClick={handleSubmit} className="mt-8 ml-auto">
+        {submitting ? "Submitting..." : "Submit"}
       </Button>
     </ModalSkeleton>
   );

@@ -170,7 +170,7 @@ export default function OKPopup({ ticketNo, onClose }) {
       else {
         const errorMsg = apiData.statusMsg || "Validation failed";
         toast.error(errorMsg, { id: toastId });
-        onClose();
+        // onClose();
       }
     } catch (error) {
       // 3. Handle actual Network/Server Errors (400, 500)

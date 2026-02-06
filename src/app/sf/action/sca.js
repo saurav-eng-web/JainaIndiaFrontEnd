@@ -92,6 +92,11 @@ export default function SCAPopup({
         }
 
         const visitRes = await axiosInstance.get(`visit/ticket/${ticketKey}`);
+        if (visitRes.status === 200 && visitRes.data.length === 0) {
+          setVisitState({});
+          return;
+        }
+        console.log("visitRes: ", visitRes);
         if (visitRes.status === 200) {
           const vData = visitRes?.data;
           const data = vData[vData.length - 1];
@@ -107,7 +112,7 @@ export default function SCAPopup({
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("Failed to load component data");
+        toast.error("Failed to load visit data");
       }
     }
 
@@ -197,7 +202,7 @@ export default function SCAPopup({
 
   return (
     <ModalSkeleton title="Symptom Cause Analysis / Update Visit Details" size="xl">
-      <div className="mx-auto mb-6 flex w-xl items-center gap-4">
+      <div className="mx-auto mb-6 flex max-w-xl items-center gap-4">
         <StepIndicator number={1} active={step === 1}>
           SCA Details
         </StepIndicator>
@@ -351,7 +356,7 @@ function SCASection({
   };
 
   return (
-    <div className="grid min-w-3xl grid-cols-3 items-center gap-6">
+    <div className="grid w-3xl grid-cols-3 items-center gap-6">
       <CustomDropdown
         label="Symptom"
         value={scaState.selectedSymptom}

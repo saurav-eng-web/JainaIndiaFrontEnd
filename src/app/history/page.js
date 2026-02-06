@@ -327,7 +327,7 @@ function HistoryPageContent() {
         setDoaReceivePopup(true);
         break;
 
-      case "Consume Part":
+      case "Part Consume":
         setPartConsumePopup(true);
         break;
 

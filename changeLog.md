@@ -287,3 +287,4 @@
 - feat: add a confirmation modal for DOA,TD, Sp TD
 - feat: separate td, doa, sp doa request in a separate modal
 - fix: PO Request, add video option, fix images
+- feat: new cancel request page, now integrated with the latest cancel request api, improved UI and api handling

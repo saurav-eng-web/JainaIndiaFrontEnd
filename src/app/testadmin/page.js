@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 import CancelReqModal from "../history/actionsModals/CancelReqModal";
 import DOATDPopup from "../history/actionsModals/DOATD";
+import PartIssueToEng from "../history/actionsModals/PartIssueToEng";
 
 import { Button } from "@/components/ui/button";
 import ConfirmModal from "@/components/ui/ConfirmationModal";
@@ -239,8 +240,8 @@ export default function Page() {
         message="Your request has been processed successfully."
         onClose={() => setShowModal(false)}
       />
-      <Modal open={popup} onClose={() => setPopup(false)} mode="strict">
-        <TestModal onClose={() => setPopup(false)} />
+      <Modal open={popup} onClose={() => setPopup(false)}>
+        <PartIssueToEng onClose={() => setPopup(false)} />
       </Modal>
     </PageSkeleton>
   );

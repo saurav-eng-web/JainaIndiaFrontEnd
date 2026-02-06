@@ -304,7 +304,7 @@ function SendDefectivePageContent() {
     },
     {
       label: "Part Code",
-      key: "Part",
+      key: "part",
       size: "md",
     },
     {

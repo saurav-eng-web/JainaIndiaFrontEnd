@@ -18,7 +18,7 @@ import { logger } from "@/utils/logger";
 /* ---------------- COLUMN WIDTH CONFIG ---------------- */
 
 const tableHeaders = [
-  "Id",
+  "id",
   "Branch",
   "ASC Code",
   "Complaint Number",
@@ -117,8 +117,8 @@ function DetailsContent() {
           exportToExcel({
             data: challanData, // full dataset
             headers: excelColumns,
-            fileName: `pending-challans-${new Date().toISOString().slice(0, 10)}.xlsx`,
-            sheetName: "Pending Challans",
+            fileName: `Finance-pending-${new Date().toISOString().slice(0, 10)}.xlsx`,
+            sheetName: "pending",
           });
           resolve();
         } catch (err) {
@@ -160,10 +160,7 @@ function DetailsContent() {
   ];
 
   return (
-    <PageSkeleton
-      title={"Pending Challan at Warehouse"}
-      rolesAllowed={["ASM", "ZONE", "BR", "SF/SSD"]}
-    >
+    <PageSkeleton title={"Claim process"} rolesAllowed={["ASM", "ZONE", "BR", "SF/SSD"]}>
       <input
         type="text"
         placeholder="Search..."
@@ -190,7 +187,7 @@ function DetailsContent() {
       {!isDataLoading && challanData.length > 0 && (
         <button
           onClick={handleExcelDownload}
-          className="fixed right-6 bottom-6 z-50 rounded-full bg-[#714b67] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-[#57324d]"
+          className="fixed right-6 bottom-6 z-50 cursor-pointer rounded-full bg-[#714b67] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-[#57324d]"
         >
           Export to Excel
         </button>

@@ -174,7 +174,6 @@ export default function Page() {
       key: "PURCHASE_DATE",
       size: "sm",
       render: (val) => (val ? val.split("T")[0] : "-"),
-      // render: (val) => (val ? new Date(val).toLocaleDateString() : "-"),
     },
     {
       label: "Complaint Status",
@@ -186,17 +185,16 @@ export default function Page() {
       key: "Complaint_SubStatus",
       size: "md",
     },
-    // {
-    //   label: "TDate",
-    //   key: "TDATE",
-    //   size: "md",
-    //   render: (val) => (val ? new Date(val).toLocaleString() : "-"),
-    // },
+    {
+      label: "Login Date",
+      key: "TDATE",
+      size: "md",
+      render: (val) => (val ? val.split("T")[0] : "-"),
+    },
     {
       label: "OK Date",
       key: "OKDate",
       size: "sm",
-      // render: (val) => (val ? new Date(val).toLocaleString() : "-"),
       render: (val) => (val ? val.split("T")[0] : "-"),
     },
   ];

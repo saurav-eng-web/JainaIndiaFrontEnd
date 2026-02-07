@@ -2,6 +2,7 @@
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState, Suspense, useMemo } from "react";
 import toast from "react-hot-toast";
 
@@ -30,15 +31,36 @@ const tableHeaders = [
   "Assigned To",
   "ApprovedBy",
 ];
+const excelConfig = [
+  { label: "Id", value: "id" },
+  { label: "Branch", value: "Branch" },
+  { label: "ASC Code", value: "ASC Code" },
+  { label: "Complaint No.", value: "Complaint No." },
+  { label: "Serial No.", value: "Serial No." },
+  { label: "Call Type", value: "Call Type" },
+  { label: "Warranty", value: "Warranty" },
+  { label: "Claim Substatus", value: "Claim Substatus" },
+  { label: "OK Date", value: "OK Date" },
+  { label: "Assigned To", value: "ExecName" },
+  // { label: "ApprovedBy", value: "ApprovedBy" },
+];
 
-const excelColumns = tableHeaders.map((h) => ({
-  label: h,
-  key: h,
+const excelColumns = excelConfig.map((h) => ({
+  label: h.label,
+  key: h.value,
 }));
+// const excelColumns = tableHeaders.map((h) => ({
+//   label: h,
+//   key: h,
+// }));
+
+// console.log("excel: ", { excelColumns, excelColumns1 });
 
 function DetailsContent() {
   const userData = getUserFromLocalStorage();
   const userId = userData?.userID;
+
+  const router = useRouter();
 
   /* ---------------- DATA STATE ---------------- */
   const [challanData, setChallanData] = useState([]);
@@ -133,21 +155,33 @@ function DetailsContent() {
     );
   };
 
+  const handleViewHistory = (ticketNo) => {
+    sessionStorage.setItem("currentTicket", ticketNo);
+    router.push("/fin/history");
+  };
+
   const columns = [
     {
-      label: "S.No.",
-      key: "sr",
+      key: "history",
+      label: "History",
       size: "xs",
-      render: (_v, _row, index) => (currentPage - 1) * pageSize + index + 1,
+      render: (_, row) => (
+        <button
+          className="cursor-pointer rounded-md bg-[#714b67] px-3.5 py-2 text-[13px] text-white transition-colors hover:bg-[#5a3c52]"
+          onClick={() => handleViewHistory(row["Complaint No."])}
+        >
+          History
+        </button>
+      ),
     },
-    { label: "Id", key: "id", size: "md" },
-    { label: "NSP Name", key: "Branch", size: "md" },
+    { label: "Id", key: "id", size: "sm" },
+    { label: "NSP Name", key: "Branch", size: "xl" },
     { label: "ASC Code", key: "ASC Code", size: "md" },
-    { label: "Complaint No", key: "Complaint No.", size: "xl" },
+    { label: "Complaint No", key: "Complaint No.", size: "lg" },
     {
       label: "Serial No.",
       key: "Serial No.",
-      size: "sm",
+      size: "lg",
     },
     { label: "Call Type", key: "Call Type", size: "sm" },
     {
@@ -155,12 +189,12 @@ function DetailsContent() {
       key: "Warranty",
       size: "lg",
     },
-    { label: "Claim Substatus", key: "Claim Substatus", size: "md" },
+    { label: "Claim Substatus", key: "Claim Substatus", size: "lg" },
     { label: "OK Date", key: "OK Date", size: "md" },
   ];
 
   return (
-    <PageSkeleton title={"Claim process"} rolesAllowed={["ASM", "ZONE", "BR", "SF/SSD"]}>
+    <PageSkeleton title={"Claim process"} rolesAllowed={["FinanceExec"]}>
       <input
         type="text"
         placeholder="Search..."

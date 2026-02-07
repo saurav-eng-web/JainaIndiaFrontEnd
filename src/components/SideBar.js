@@ -139,6 +139,18 @@ export default function SideBar() {
       text: "Current Stock",
       roles: ["sf/ssd", "SF/SSD"],
     },
+    {
+      href: "/fin/search",
+      icon: "fa fa-search",
+      text: "Search",
+      roles: ["FinanceExec"],
+    },
+    {
+      href: "/fin/claim-process",
+      icon: "fa fa-cubes",
+      text: "Claim Details",
+      roles: ["FinanceExec"],
+    },
   ];
 
   const allowedBulkUsers = ["T284977"];

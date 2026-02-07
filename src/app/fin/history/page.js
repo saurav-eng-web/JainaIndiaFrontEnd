@@ -1,5 +1,4 @@
 "use client";
-import { set } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -12,8 +11,9 @@ import InputWithLabel from "@/components/ui/InputWithLabel";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 
 export default function Page() {
-  const ticketNo = sessionStorage.getItem("currentTicket");
-  const subStatus = sessionStorage.getItem("subStatus");
+  const [ticketNo, setTicketNo] = useState(null);
+  const [subStatus, setSubStatus] = useState(null);
+
   const router = useRouter();
 
   const [dropdownData, setDropdownData] = useState([]);
@@ -24,9 +24,20 @@ export default function Page() {
   const [selectedType, setSelectedType] = useState(null);
   const [selectedReason, setSelectedReason] = useState(null);
 
-  if (!ticketNo) {
-    router.push("/fin/search");
-  }
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setTicketNo(sessionStorage.getItem("currentTicket"));
+      setSubStatus(sessionStorage.getItem("subStatus"));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (ticketNo === null) return; // wait for initialization
+
+    if (!ticketNo) {
+      router.push("/fin/search");
+    }
+  }, [ticketNo, router]);
 
   useEffect(() => {
     const fetchDropdownData = async () => {
@@ -251,7 +262,6 @@ export default function Page() {
         </div>
       </div>
 
-      {/* otherClaim details: otherClaimDetails, this will be in tabular form, use the Table that we already built, for that we have to first create columnConfig */}
       <div className="mt-8">
         <h3 className="mb-4 text-lg font-semibold text-[#714b67]">
           Other jobs on the same serial number

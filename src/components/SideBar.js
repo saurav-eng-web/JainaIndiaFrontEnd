@@ -99,7 +99,6 @@ export default function SideBar() {
     {
       href: "/happy-code",
       icon: "fa fa-envelope",
-      // icon: "fa fa-paper-plane",
       text: "Send Happy Code",
       roles: ["SF/SSD", "ASM"],
     },
@@ -107,7 +106,7 @@ export default function SideBar() {
       href: "/sf/dispatch",
       icon: "fa fa-paper-plane",
       text: "Dispatch",
-      roles: ["SF/SSD", "ASM"],
+      roles: ["SF/SSD"],
     },
     {
       href: "/knowledge-portal",

@@ -1,5 +1,7 @@
 import React from "react";
 
+import { Button } from "../ui/button";
+
 export default function ActionButtons({ actions, onActionClick }) {
   if (!actions || actions.length === 0) {
     return <p className="mb-6 ml-6 text-gray-500">No actions available.</p>;
@@ -8,9 +10,9 @@ export default function ActionButtons({ actions, onActionClick }) {
   return (
     <div className="action-buttons mt-4 flex flex-wrap gap-4">
       {actions.map((action, index) => (
-        <button
+        <Button
           key={index}
-          className={`w-52 rounded-md px-2 py-2 font-medium text-white transition-colors duration-200 ${
+          className={`min-w-32 rounded-md px-2 py-2 text-white transition-colors duration-200 ${
             index === 0
               ? "bg-blue-600 hover:bg-blue-700"
               : index === 1
@@ -20,7 +22,7 @@ export default function ActionButtons({ actions, onActionClick }) {
           onClick={() => onActionClick(action)}
         >
           {action}
-        </button>
+        </Button>
       ))}
     </div>
   );

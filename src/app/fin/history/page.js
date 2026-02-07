@@ -288,17 +288,7 @@ export default function Page() {
   return (
     <PageSkeleton title={"History"}>
       <div className="mt-8 rounded-md border border-slate-300 bg-white p-4 shadow">
-        <div className="mb-6">
-          <h3
-            className="inline-block pb-1 text-[17px] font-medium"
-            style={{
-              color: colors.primary,
-              borderBottom: `2px solid ${colors.primary}`,
-            }}
-          >
-            Resolution Action
-          </h3>
-        </div>
+        <Subheading title={"Resolution Action"} variant="thin" marginTop={0} />
 
         <div className="mt-8 grid grid-cols-3 gap-4">
           <Dropdown
@@ -354,8 +344,6 @@ export default function Page() {
       </div>
 
       <div className="mt-8">
-        {/* <h3 className="mb-4 text-lg font-semibold text-[#714b67]"></h3> */}
-        {/* Other jobs on the same serial number */}
         <Subheading title={"Other jobs on the same serial number"} />
         <Table columns={columnConfig} rows={otherClaimDetails} />
       </div>

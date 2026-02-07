@@ -32,6 +32,7 @@ export default function ModalSkeleton({
         }}
       >
         <div className="flex-1 bg-white">
+          {/* <div className="flex-1 bg-blue-500"> */}
           <div className="rounded-xl p-8">
             {title && (
               <h2

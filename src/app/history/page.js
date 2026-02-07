@@ -41,6 +41,7 @@ import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Modal from "@/components/ui/Modal";
 import StatusModal from "@/components/ui/StatusModal";
+import Subheading from "@/components/ui/Subheading";
 import { useHistoryData } from "@/hooks/useHistoryData";
 import { setRouteData } from "@/redux/slices/routeDataSlice";
 import { parseStatusMessage } from "@/utils/historyUtils";
@@ -639,9 +640,12 @@ function HistoryPageContent() {
       <SideBar />
 
       <div className="content-area">
+        <h2 className="page-title"> Complaint Details</h2>
+
         {user?.roleName === "SF/SSD" && (
-          <>
-            <h2 className="page-title">👉 Action</h2>
+          <div className="rounded-lg border border-gray-300 p-4 shadow">
+            {/* <h2 className="page-title">👉 Action</h2> */}
+            <Subheading title="Actions" marginTop={2} variant="new" />
             <ActionButtons actions={actions} onActionClick={handleActionClick} />
             <ActionPopup
               isOpen={showActionPopup}
@@ -786,7 +790,7 @@ function HistoryPageContent() {
                 onClose={() => router.back()}
               />
             </Modal>
-          </>
+          </div>
         )}
 
         {/* Existing flow for Dashboard actions */}
@@ -810,12 +814,7 @@ function HistoryPageContent() {
         />
 
         {mounted && user?.roleName === "CC" && custDetail && (
-          <button
-            onClick={() => setEditCustomerPopupOpen(true)}
-            className="mb-6 h-12 w-32 rounded-lg bg-[#714b67] text-white"
-          >
-            Edit Customer
-          </button>
+          <Button onClick={() => setEditCustomerPopupOpen(true)}>Edit Customer</Button>
         )}
 
         <EditCustPopup
@@ -839,7 +838,8 @@ function HistoryPageContent() {
           setFormData={setFormData}
         />
 
-        <h2 className="page-title">📋 Complaint History</h2>
+        {/* <h2 className="page-title">📋 Complaint History</h2> */}
+        <Subheading title="Complaint History" marginTop={8} />
 
         {/* Special Allowance Logic */}
         {(prevPage === "special-approval" ||

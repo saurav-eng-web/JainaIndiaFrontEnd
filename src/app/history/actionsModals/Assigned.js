@@ -188,8 +188,9 @@ export default function AssignedPopup({
     <ModalSkeleton
       title={type === "Assigned" ? "Assign " : "Re-Allot "}
       rolesAllowed={["sf/ssd"]}
+      size="xl"
     >
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid min-w-4xl grid-cols-3 gap-6">
         <InputField label="Complaint No" value={detail.tickeT_NO || "-"} disabled />
         <InputField
           label="Promise Date"

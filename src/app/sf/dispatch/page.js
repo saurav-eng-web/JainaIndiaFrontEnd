@@ -10,9 +10,11 @@ import { useSelector } from "react-redux";
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
+import { Button } from "@/components/ui/button";
 import ConfirmModal from "@/components/ui/ConfirmationModal";
 import FormInput from "@/components/ui/FormInput";
 import PageSkeleton from "@/components/ui/PageSkeleton";
+import Subheading from "@/components/ui/Subheading";
 import TextArea from "@/components/ui/Textarea";
 import { useTheme } from "@/theme/ThemeContext";
 
@@ -365,13 +367,7 @@ function SendDefectivePageContent() {
         />
 
         <div className="flex items-end">
-          <button
-            onClick={handleSearch}
-            className="cursor-pointer rounded-lg px-6 py-2 shadow-md"
-            style={{ background: colors.primary, color: "#fff" }}
-          >
-            {isLoading ? "Loading..." : "Search"}
-          </button>
+          <Button onClick={handleSearch}>{isLoading ? "Loading..." : "Search"}</Button>
         </div>
       </div>
 
@@ -385,13 +381,9 @@ function SendDefectivePageContent() {
           {/* NEXT BUTTON */}
           {selectedItems.length > 0 && showDispatchForm === false && (
             <div className="mt-4 text-right">
-              <button
-                onClick={handleNext}
-                className="cursor-pointer rounded-lg px-6 py-2 shadow-md"
-                style={{ background: colors.primary, color: "#fff" }}
-              >
+              <Button onClick={handleNext} className="ml-auto">
                 Next →
-              </button>
+              </Button>
             </div>
           )}
         </>
@@ -401,9 +393,10 @@ function SendDefectivePageContent() {
       {/* ---------------- DISPATCH FORM ---------------- */}
       {showDispatchForm && (
         <div className="mt-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-2xl font-semibold" style={{ color: colors.primary }}>
+          {/* <h3 className="mb-4 text-2xl font-semibold" style={{ color: colors.primary }}>
             Dispatch Detail
-          </h3>
+          </h3> */}
+          <Subheading title={"Dispatch Details"} marginTop={0} />
 
           <div className="grid grid-cols-3 gap-6">
             {/* Type of Courier */}
@@ -483,13 +476,9 @@ function SendDefectivePageContent() {
 
           {/* >>>>>>>>>>> SUBMIT BUTTON ADDED HERE <<<<<<<<<<< */}
           <div className="mt-6 text-right">
-            <button
-              onClick={handleSubmitDispatch}
-              className="h-10 cursor-pointer rounded-lg px-8 py-3 text-center font-semibold text-white shadow-md"
-              style={{ background: colors.primary }}
-            >
+            <Button className="ml-auto" onClick={handleSubmitDispatch}>
               Dispatch
-            </button>
+            </Button>
           </div>
         </div>
       )}

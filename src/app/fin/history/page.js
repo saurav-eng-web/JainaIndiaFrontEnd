@@ -13,6 +13,7 @@ import PageSkeleton from "@/components/ui/PageSkeleton";
 
 export default function Page() {
   const ticketNo = sessionStorage.getItem("currentTicket");
+  const subStatus = sessionStorage.getItem("subStatus");
   const router = useRouter();
 
   const [dropdownData, setDropdownData] = useState([]);
@@ -113,6 +114,7 @@ export default function Page() {
         task: selectedType.value,
         dropdownaction: selectedReason.value,
         remarks: remarks,
+        substatus: subStatus,
       });
 
       console.log("res: ", res);

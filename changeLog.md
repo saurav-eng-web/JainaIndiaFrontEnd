@@ -289,3 +289,6 @@
 - fix: PO Request, add video option, fix images
 - feat: new cancel request page, now integrated with the latest cancel request api, improved UI and api handling
 - fix: image and video upload on MSL
+- feat: finance module
+- feat: search page for finance
+- feat: claim process, end to end

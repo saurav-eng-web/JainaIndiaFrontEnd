@@ -155,8 +155,9 @@ function DetailsContent() {
     );
   };
 
-  const handleViewHistory = (ticketNo) => {
+  const handleViewHistory = (ticketNo, subStatus) => {
     sessionStorage.setItem("currentTicket", ticketNo);
+    sessionStorage.setItem("subStatus", subStatus);
     router.push("/fin/history");
   };
 
@@ -168,7 +169,7 @@ function DetailsContent() {
       render: (_, row) => (
         <button
           className="cursor-pointer rounded-md bg-[#714b67] px-3.5 py-2 text-[13px] text-white transition-colors hover:bg-[#5a3c52]"
-          onClick={() => handleViewHistory(row["Complaint No."])}
+          onClick={() => handleViewHistory(row["Complaint No."], row["Claim Substatus"])}
         >
           History
         </button>

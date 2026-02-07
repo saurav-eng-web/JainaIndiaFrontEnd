@@ -292,3 +292,4 @@
 - feat: finance module
 - feat: search page for finance
 - feat: claim process, end to end
+- fix: UI

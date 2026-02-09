@@ -77,7 +77,7 @@ export default forwardRef(function InputField(
         disabled={disabled}
         onKeyDown={handleKeyPress}
         className={clsx(
-          "rounded-lg border border-[#a6829d] transition-all outline-none",
+          "h-10 rounded-lg border border-[#a6829d] transition-all outline-none",
           "focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]",
           !disabled ? "bg-white" : "cursor-not-allowed bg-gray-100 opacity-75",
           error && "border-red-500 focus:border-red-500 focus:ring-red-500",

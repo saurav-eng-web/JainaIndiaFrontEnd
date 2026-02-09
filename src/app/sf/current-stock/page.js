@@ -10,7 +10,6 @@ import Table from "@/components/common/Table";
 import Pagination from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import Dropdown from "@/components/ui/Dropdown";
-import ThemedDropdown from "@/components/ui/Dropdown";
 import InputField from "@/components/ui/InputWithLabel";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { getUserFromLocalStorage } from "@/redux/slices/authSlice";
@@ -68,8 +67,6 @@ function DetailsContent() {
           type: "InventoryType",
           dispatchType: "",
         });
-
-        // Ensure we filter out parts already in the grid if any (though grid starts empty usually)
 
         const dropdownData = res.data.data.map((item) => {
           return {
@@ -188,18 +185,6 @@ function DetailsContent() {
     { label: "Part Code", key: "PartCode", size: "md" },
     { label: "Description", key: "Part Description", size: "xl" },
     { label: "Qty", key: "TotalOKQty", size: "sm" },
-    // {
-    //   label: "Sf Price",
-    //   key: "sfPrice",
-    //   size: "sm",
-    //   render: (v) => `₹ ${Number(v).toFixed(2)}`,
-    // },
-    // {
-    //   label: "Customer Price",
-    //   key: "customerPrice",
-    //   size: "sm",
-    //   render: (v) => `₹ ${Number(v).toFixed(2)}`,
-    // },
   ];
 
   return (

@@ -15,8 +15,12 @@ export default function ChallanSearch() {
   const router = useRouter();
   const user = useSelector((state) => state.auth.user);
 
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState("");
+  const now = new Date();
+  const defaultMonth = String(now.getMonth() + 1).padStart(2, "0");
+  const defaultYear = String(now.getFullYear());
+
+  const [month, setMonth] = useState(defaultMonth);
+  const [year, setYear] = useState(defaultYear);
   const [challanType, setChallanType] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);

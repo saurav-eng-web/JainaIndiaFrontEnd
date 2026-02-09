@@ -13,11 +13,11 @@ export default function ActionMasterPage() {
   return (
     <PageSkeleton title="Action Master">
       <div className="mb-6">
-        <div className="flex items-end gap-1 border-b border-[#a6829d]/50">
+        <div className="flex items-end gap-1 border-b border-[#a6829d]/50 px-6">
           <button
             type="button"
             onClick={() => setActiveTab("create")}
-            className={`relative -mb-px rounded-t-lg px-5 py-2 text-sm font-semibold transition ${
+            className={`relative -mb-px h-8 min-w-32 rounded-t-lg px-5 py-2 text-sm font-semibold transition ${
               activeTab === "create"
                 ? "z-10 border border-[#a6829d] border-b-white bg-white text-[#4a2f45] shadow-[0_-1px_0_0_#a6829d,0_-2px_10px_rgba(0,0,0,0.06)]"
                 : "border border-transparent bg-[#f6f1f5] text-[#8b6f85] hover:text-[#4a2f45]"
@@ -28,7 +28,7 @@ export default function ActionMasterPage() {
           <button
             type="button"
             onClick={() => setActiveTab("update")}
-            className={`relative -mb-px rounded-t-lg px-5 py-2 text-sm font-semibold transition ${
+            className={`relative -mb-px h-8 min-w-32 rounded-t-lg px-5 py-2 text-sm font-semibold transition ${
               activeTab === "update"
                 ? "z-10 border border-[#a6829d] border-b-white bg-white text-[#4a2f45] shadow-[0_-1px_0_0_#a6829d,0_-2px_10px_rgba(0,0,0,0.06)]"
                 : "border border-transparent bg-[#f6f1f5] text-[#8b6f85] hover:text-[#4a2f45]"
@@ -60,7 +60,7 @@ function CreateAction() {
   });
   return (
     <div className="space-y-8">
-      <section className="rounded-lg border border-[#a6829d] p-6">
+      <section className="rounded-lg p-6 shadow">
         <Subheading title={"Payload"} />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -122,7 +122,7 @@ function CreateAction() {
       </section>
 
       {/* Section 2: Action Master */}
-      <section className="rounded-lg border border-[#a6829d] p-6">
+      <section className="rounded-lg p-6 shadow">
         <Subheading title={"Action"} />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -186,5 +186,3 @@ function CreateAction() {
 function UpdateAction() {
   return <div>Update Action</div>;
 }
-
-

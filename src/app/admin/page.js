@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import CustomDropdown from "@/components/common/Dropdown";
+import { Button } from "@/components/ui/button";
 import InputWithLabel from "@/components/ui/InputWithLabel";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import Subheading from "@/components/ui/Subheading";
@@ -177,6 +178,7 @@ function CreateAction() {
               { label: "Manual", value: "manual" },
             ]}
           />
+          <Button>submit</Button>
         </div>
       </section>
     </div>

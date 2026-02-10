@@ -1,4 +1,3 @@
-import { Upload } from "lucide-react"; // Importing an icon for the upload button
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -7,69 +6,97 @@ import { Button } from "@/components/ui/button";
 import ImagePreview from "@/components/ui/image/ImagePreview";
 import ImageUpload from "@/components/ui/image/ImageUpload";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
-import UploadProgress from "@/components/ui/UploadProgress";
+import { UploadProgressModal } from "@/components/ui/UploadProgress";
 import { logger } from "@/utils/logger";
 import { uploadImage } from "@/utils/uploadImage";
 
 export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
-  const [files, setFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentFileInfo, setCurrentFileInfo] = useState(null);
 
-  const MAX_SIZE_MB = 5;
-  const MAX_FILES = 5;
+  const MAX_IMAGE_SIZE_MB = 5;
+  const MAX_IMAGES = 3;
+  const MAX_VIDEO_SIZE_MB = 30;
+  const MAX_VIDEOS = 1;
 
   useEffect(() => {
-    if (!files || files.length === 0) {
-      setPreviews([]);
+    if (!images || images.length === 0) {
+      setImagePreviews([]);
       return;
     }
 
-    const newPreviews = files.map((file) => URL.createObjectURL(file));
-    setPreviews(newPreviews);
+    const newPreviews = images.map((file) => URL.createObjectURL(file));
+    setImagePreviews(newPreviews);
 
     return () => newPreviews.forEach((url) => URL.revokeObjectURL(url));
-  }, [files]);
+  }, [images]);
 
-  const handleFileChange = (e) => {
+  const handleImageChange = (e) => {
     const selectedFiles = Array.from(e.target.files || []);
 
-    // Total count validation
-    if (selectedFiles.length + files.length > MAX_FILES) {
-      toast.error(`Maximum ${MAX_FILES} images allowed`);
+    if (selectedFiles.length + images.length > MAX_IMAGES) {
+      toast.error(`Maximum ${MAX_IMAGES} images allowed`);
       return;
     }
 
-    // Size validation (per file)
     const oversizedFile = selectedFiles.find(
-      (file) => file.size > MAX_SIZE_MB * 1024 * 1024
+      (file) => file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024
     );
 
     if (oversizedFile) {
-      toast.error(`Each image must be less than ${MAX_SIZE_MB} MB`);
+      toast.error(`Each image must be less than ${MAX_IMAGE_SIZE_MB} MB`);
       return;
     }
 
-    // All validations passed
-    setFiles((prev) => [...prev, ...selectedFiles]);
+    setImages((prev) => [...prev, ...selectedFiles]);
   };
 
-  const handleRemove = (index) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+  const handleRemoveImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVideoChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("video/")) {
+      toast.error("Please select a valid video file");
+      return;
+    }
+
+    if (videos.length + 1 > MAX_VIDEOS) {
+      toast.error(`Maximum ${MAX_VIDEOS} video allowed`);
+      return;
+    }
+
+    if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+      toast.error(`Video must be less than ${MAX_VIDEO_SIZE_MB}MB`);
+      return;
+    }
+
+    setVideos([file]);
+  };
+
+  const handleRemoveVideo = (index) => {
+    setVideos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleUpload = async () => {
-    if (files.length === 0) {
-      toast.error("Please select at least one file");
+    if (images.length === 0 || videos.length === 0) {
+      toast.error("Please upload both images and video");
       return { success: false };
     }
 
     try {
-      // Upload all files one by one with progress tracking
+      const allFiles = [...images, ...videos];
+      setIsUploading(true);
       const res = await uploadImage({
-        files: files,
+        files: allFiles,
         ticketNo: userId || ticketNo,
         documentType: "HVP Parts",
         onProgress: (percent, current, total) => {
@@ -81,6 +108,8 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
     } catch (error) {
       console.error("Upload error:", error);
       return { success: false };
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -127,40 +156,75 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
 
   return (
     <ModalSkeleton title={"Upload Image"} size="lg" onClose={onClose}>
+      <UploadProgressModal
+        open={isUploading}
+        title="Uploading Files"
+        progress={uploadProgress}
+        fileInfo={currentFileInfo}
+      />
       <div className="w-full min-w-xl space-y-4">
         {/* Input Section - Separated and Custom */}
-        <ImageUpload
-          variant="box"
-          maxFileAllowed={MAX_FILES}
-          maxFileSize={MAX_SIZE_MB}
-          onChange={handleFileChange}
-          multiple={true}
-        />
-
-        {/* Preview Section - Separated */}
-        {previews.length > 0 && (
-          <div className="rounded-lg border border-gray-400 bg-white p-4">
-            <h4 className="mb-2 text-sm font-semibold text-gray-700">
-              Selected Images ({previews.length})
-            </h4>
-            <ImagePreview images={previews} onRemove={handleRemove} />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <ImageUpload
+              label="Upload Images"
+              variant="box"
+              maxFileAllowed={MAX_IMAGES}
+              maxFileSize={MAX_IMAGE_SIZE_MB}
+              onChange={handleImageChange}
+              multiple={true}
+              accept="image/*"
+              required
+              disabled={images.length >= MAX_IMAGES}
+            />
+            {imagePreviews.length > 0 && (
+              <div className="rounded-lg border border-gray-400 bg-white p-4">
+                <h4 className="mb-2 text-sm font-semibold text-gray-700">
+                  Selected Images ({imagePreviews.length})
+                </h4>
+                <ImagePreview images={imagePreviews} onRemove={handleRemoveImage} />
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Progress Bar Section */}
-        <UploadProgress
-          progress={uploadProgress}
-          fileInfo={currentFileInfo}
-          variant="default"
-        />
+          <div className="space-y-3">
+            <ImageUpload
+              label="Upload Video"
+              variant="box"
+              maxFileAllowed={MAX_VIDEOS}
+              maxFileSize={MAX_VIDEO_SIZE_MB}
+              onChange={handleVideoChange}
+              multiple={false}
+              accept="video/*"
+              required
+              disabled={videos.length >= MAX_VIDEOS}
+            />
+            {videos.length > 0 && (
+              <div className="rounded-lg border border-gray-400 bg-white p-4">
+                <h4 className="mb-2 text-sm font-semibold text-gray-700">
+                  Selected Video ({videos.length})
+                </h4>
+                <ImagePreview
+                  images={videos.map(() => ({ type: "video" }))}
+                  onRemove={handleRemoveVideo}
+                />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="mt-6 flex justify-end gap-2">
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={isDataLoading || files.length === 0}>
-          {isDataLoading ? "Uploading..." : "Upload"}
+        <Button
+          onClick={handleSubmit}
+          disabled={
+            isDataLoading || isUploading || images.length === 0 || videos.length === 0
+          }
+        >
+          {isUploading ? "Uploading..." : isDataLoading ? "Submitting..." : "Upload"}
         </Button>
       </div>
     </ModalSkeleton>

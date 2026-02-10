@@ -112,7 +112,7 @@ export default function ComplaintTable() {
 
   // <ProtectedRoute allowedRoles={["BR", "NSP"]}> Reject Claims call
   return (
-    <PageSkeleton title="Reject Claims Calls" rolesAllowed={["BR", "NSP", "SF/SSD"]}>
+    <PageSkeleton title="Rejected Claim Calls" rolesAllowed={["BR", "NSP", "SF/SSD"]}>
       {loading ? (
         <p className="text-gray-500">Loading complaints...</p>
       ) : error ? (

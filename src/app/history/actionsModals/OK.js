@@ -289,6 +289,8 @@ export default function OKPopup({ ticketNo, onClose }) {
               type={"number"}
               onChange={(e) => setHappyCode(e.target.value)}
               required={true}
+              min={1000}
+              max={9999}
             />
             <Button
               variant={validHappyCode ? "verified" : "primary"}

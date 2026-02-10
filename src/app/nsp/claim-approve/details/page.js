@@ -12,15 +12,25 @@ import { getUserFromLocalStorage } from "../../../../redux/slices/authSlice";
 
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
+import { Button } from "@/components/ui/button";
+import ImagePreview from "@/components/ui/image/ImagePreview";
+import ImageUpload from "@/components/ui/image/ImageUpload";
 import PageSkeleton from "@/components/ui/PageSkeleton";
+import Subheading from "@/components/ui/Subheading";
+import { UploadProgressModal } from "@/components/ui/UploadProgress";
 import { useTheme } from "@/theme/ThemeContext";
 import { logger } from "@/utils/logger";
+import { uploadImage } from "@/utils/uploadImage";
 
 // --- Main Content Component ---
 function DetailsContent() {
   // Form State
   const [remarks, setRemarks] = useState("");
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentFileInfo, setCurrentFileInfo] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [complaintData, setComplaintData] = useState({});
   const [isDataLoading, setIsDataLoading] = useState(false);
@@ -31,6 +41,8 @@ function DetailsContent() {
   const { colors } = useTheme();
   const userData = getUserFromLocalStorage();
   const userId = userData?.userID;
+  const MAX_FILES = 3;
+  const MAX_SIZE_MB = 5;
 
   // Redirect back if ticketNo is not available (e.g., page reload)
   useEffect(() => {
@@ -81,33 +93,70 @@ function DetailsContent() {
     };
   }, [ticketNo, userId]);
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+  useEffect(() => {
+    if (!files || files.length === 0) {
+      setPreviews([]);
+      return;
     }
+
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setPreviews(newPreviews);
+
+    return () => newPreviews.forEach((url) => URL.revokeObjectURL(url));
+  }, [files]);
+
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files || []);
+
+    if (selectedFiles.length + files.length > MAX_FILES) {
+      toast.error(`Maximum ${MAX_FILES} images allowed`);
+      return;
+    }
+
+    const oversizedFile = selectedFiles.find(
+      (file) => file.size > MAX_SIZE_MB * 1024 * 1024
+    );
+
+    if (oversizedFile) {
+      toast.error(`Each image must be less than ${MAX_SIZE_MB} MB`);
+      return;
+    }
+
+    setFiles((prev) => [...prev, ...selectedFiles]);
+  };
+
+  const handleRemove = (index) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleUpload = async () => {
     try {
-      if (!file) {
-        toast.error("Please select a file");
+      if (files.length === 0) {
+        toast.error("Please select at least one file");
         return { success: false };
       }
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("Ticket_no", ticketNo);
-      formData.append("DocumentType", "Claim Resubmit Document");
+      setIsUploading(true);
+      setUploadProgress(0);
+      setCurrentFileInfo({ current: 1, total: files.length });
 
-      const res = await axios.post("/api/documents/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const res = await uploadImage({
+        files,
+        ticketNo,
+        documentType: "Claim Resubmit Document",
+        onProgress: (percent, current, total) => {
+          setUploadProgress(percent);
+          setCurrentFileInfo({ current, total });
+        },
       });
 
-      return { success: true, data: res.data };
+      return res;
     } catch (err) {
       console.error("Upload error", err);
       logger.error(`Upload error ${err.message}`, "claim-approve/details");
       return { success: false, error: err };
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -141,7 +190,7 @@ function DetailsContent() {
     } catch (err) {
       console.error("Save error", err);
       logger.error(`Save error ${err.message}`, "claim-approve/details");
-      alert("Save failed. Please try again.");
+      toast.error("Save failed. Please try again.");
     }
 
     setIsDataLoading(false);
@@ -170,7 +219,7 @@ function DetailsContent() {
       window.URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error("Download failed:", error);
-      alert("Download failed");
+      toast.error("Download failed");
       logger.error(`Downloading image failed ${error.message}`, "claim-approve/details");
       // Fallback: Just open in new tab if the fetch fails (e.g. CORS error)
       window.open(url, "_blank");
@@ -221,7 +270,8 @@ function DetailsContent() {
   const complaintRows = Object.keys(complaintData).length > 0 ? [complaintData] : [];
 
   return (
-    <PageSkeleton title="Complaint Details" rolesAllowed={["BR", "NSP", "SF/SSD"]}>
+    <PageSkeleton title="Claim Details" rolesAllowed={["BR", "NSP", "SF/SSD"]}>
+      {/* <Subheading title="Cal" /> */}
       {isDataLoading ? (
         <div className="p-4 text-center text-slate-500">Loading...</div>
       ) : (
@@ -229,23 +279,28 @@ function DetailsContent() {
           <Table columns={complaintColumns} rows={complaintRows} />
         </div>
       )}
-
-      <h2 className="mt-16 mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
+      {/* <h2 className="mt-16 mb-8 rounded-md border-2 border-[#714b67] p-1.5 pl-2.5 text-left text-lg font-bold text-[#714b67]">
         Documents
-      </h2>
+      </h2> */}
+      <Subheading title="Documents" marginTop={8} />
 
       {isDataLoading ? (
         <div className="p-4 text-center text-slate-500">Loading...</div>
       ) : (
         <Table columns={documentsColumns} rows={documents} />
       )}
-
       {/* Section 3: Input Area (Remarks & Image Upload) */}
+      <UploadProgressModal
+        open={isUploading}
+        title="Uploading Files"
+        progress={uploadProgress}
+        fileInfo={currentFileInfo}
+      />
       <div className="mt-6 rounded-xl border border-slate-300 bg-white p-6 shadow-sm">
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-3">
           <div className="space-y-2">
             <label htmlFor="remarks" className="block text-sm font-bold text-[#714b67]">
-              Remarks:
+              Remarks <span className="text-sm text-red-500">*</span>
             </label>
             <textarea
               id="remarks"
@@ -259,44 +314,38 @@ function DetailsContent() {
 
           {/* Image Upload */}
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-[#714b67]">Image Upload</label>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <label className="group relative cursor-pointer">
-                <input
-                  type="file"
-                  className="sr-only"
-                  onChange={handleFileChange}
-                  accept="image/*"
-                />
-                <div className="flex items-center gap-2 rounded-md bg-[#714b67] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#5a3c52]">
-                  {/* <Upload className="h-4 w-4" /> */}
-                  <span className="whitespace-nowrap">Choose Files</span>
-                </div>
-              </label>
-              <span className="max-w-xs truncate text-sm text-slate-500 italic">
-                {file ? file.name : "No file chosen"}
-              </span>
-            </div>
+            <ImageUpload
+              label="Image Upload"
+              variant="box"
+              onChange={handleFileChange}
+              multiple
+              accept="image/*"
+              maxFileAllowed={MAX_FILES}
+              maxFileSize={MAX_SIZE_MB}
+              required
+            />
           </div>
+
+          {previews.length > 0 && (
+            <div className="rounded-lg bg-white">
+              <h4 className="mb-2 text-sm font-semibold text-gray-700">
+                Selected Images ({previews.length})
+              </h4>
+              <ImagePreview images={previews} onRemove={handleRemove} />
+            </div>
+          )}
         </div>
       </div>
-
       {/* Section 4: Actions */}
       <div className="flex flex-col gap-4 pt-4 sm:flex-row">
-        <button
-          onClick={() => router.back()}
-          className="inline-flex h-11 flex-1 items-center justify-center rounded-lg border border-slate-300 bg-white px-8 text-sm font-bold text-[#714b67] transition-colors hover:bg-[#714b67] hover:text-white focus:outline-none sm:flex-none"
-        >
+        <Button variant="outline" onClick={() => router.back()}>
           {/* <Save className="mr-2 h-4 w-4" /> */}
           Back
-        </button>
-        <button
-          onClick={handleSave}
-          className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-[#714b67] px-8 text-sm font-bold text-white transition-colors hover:bg-[#5a3c52] focus:outline-none sm:flex-none"
-        >
+        </Button>
+        <Button onClick={handleSave} disabled={isDataLoading || isUploading}>
           {/* <ArrowLeft className="mr-2 h-4 w-4" /> */}
-          Save
-        </button>
+          {isUploading ? "Uploading..." : isDataLoading ? "Saving..." : "Save"}
+        </Button>
       </div>
     </PageSkeleton>
   );

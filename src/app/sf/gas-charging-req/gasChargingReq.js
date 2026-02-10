@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
@@ -9,81 +9,56 @@ import ImagePreview from "@/components/ui/image/ImagePreview";
 import ImageUpload from "@/components/ui/image/ImageUpload";
 import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
-import UploadProgress from "@/components/ui/UploadProgress";
+import { UploadProgressModal } from "@/components/ui/UploadProgress";
 import { uploadImage } from "@/utils/uploadImage";
 
-export default function GasChargingReqModal({ ticketNo }) {
+export default function GasChargingReqModal({ ticketNo, onClose }) {
   const [remarks, setRemarks] = useState("");
   const [files, setFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentFileInfo, setCurrentFileInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const router = useRouter();
 
-  const MAX_IMAGES = 5;
-  const MAX_IMAGE_SIZE_MB = 5;
   const MAX_VIDEOS = 1;
-  const MAX_VIDEO_SIZE_MB = 20;
-
-  useEffect(() => {
-    if (!files || files.length === 0) {
-      setPreviews([]);
-      return;
-    }
-
-    const newPreviews = files.map((file) => URL.createObjectURL(file));
-    setPreviews(newPreviews);
-
-    return () => newPreviews.forEach((url) => URL.revokeObjectURL(url));
-  }, [files]);
+  const MAX_VIDEO_SIZE_MB = 30;
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files || []);
 
-    // Separate videos and images
     const existingVideos = files.filter((f) => f.type.startsWith("video/"));
-    const existingImages = files.filter((f) => f.type.startsWith("image/"));
-
     const newVideos = [];
-    const newImages = [];
     const errorMessages = [];
 
     selectedFiles.forEach((file) => {
-      if (file.type.startsWith("video/")) {
-        // Video validation
-        if (existingVideos.length + newVideos.length >= MAX_VIDEOS) {
-          errorMessages.push(
-            `Maximum ${MAX_VIDEOS} video allowed (you already have ${existingVideos.length})`
-          );
-        } else if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
-          errorMessages.push(`Video "${file.name}" exceeds ${MAX_VIDEO_SIZE_MB}MB limit`);
-        } else {
-          newVideos.push(file);
-        }
-      } else if (file.type.startsWith("image/")) {
-        // Image validation
-        if (existingImages.length + newImages.length >= MAX_IMAGES) {
-          errorMessages.push(
-            `Maximum ${MAX_IMAGES} images allowed (you already have ${existingImages.length})`
-          );
-        } else if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-          errorMessages.push(`Image "${file.name}" exceeds ${MAX_IMAGE_SIZE_MB}MB limit`);
-        } else {
-          newImages.push(file);
-        }
-      } else {
-        errorMessages.push(`File "${file.name}" is not a valid image or video`);
+      if (!file.type.startsWith("video/")) {
+        errorMessages.push(`File "${file.name}" is not a valid video`);
+        return;
       }
+
+      if (existingVideos.length + newVideos.length >= MAX_VIDEOS) {
+        errorMessages.push(
+          `Maximum ${MAX_VIDEOS} video allowed (you already have ${existingVideos.length})`
+        );
+        return;
+      }
+
+      if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+        errorMessages.push(`Video "${file.name}" exceeds ${MAX_VIDEO_SIZE_MB}MB limit`);
+        return;
+      }
+
+      newVideos.push(file);
     });
 
     if (errorMessages.length > 0) {
       errorMessages.forEach((msg) => toast.error(msg));
     }
 
-    if (newVideos.length > 0 || newImages.length > 0) {
-      setFiles((prev) => [...prev, ...newVideos, ...newImages]);
+    if (newVideos.length > 0) {
+      setFiles((prev) => [...prev, ...newVideos]);
     }
   };
 
@@ -94,6 +69,7 @@ export default function GasChargingReqModal({ ticketNo }) {
   const handleUpload = async () => {
     try {
       setUploadProgress(0);
+      setIsUploading(true);
 
       const result = await uploadImage({
         files: files,
@@ -116,6 +92,7 @@ export default function GasChargingReqModal({ ticketNo }) {
       toast.error("Upload failed. Please try again.");
       return false;
     } finally {
+      setIsUploading(false);
       setUploadProgress(0);
       setCurrentFileInfo(null);
     }
@@ -123,7 +100,7 @@ export default function GasChargingReqModal({ ticketNo }) {
 
   const handleSubmit = async () => {
     if (!files || files.length === 0) {
-      toast.error("Please select at least one file");
+      toast.error("Please select a video");
       return;
     }
 
@@ -166,28 +143,33 @@ export default function GasChargingReqModal({ ticketNo }) {
 
   return (
     <ModalSkeleton title="Gas Charging Request" size="lg" rolesAllowed={["sf/ssd"]}>
+      <UploadProgressModal
+        open={isUploading}
+        title="Uploading Video"
+        progress={uploadProgress}
+        fileInfo={currentFileInfo}
+      />
       <div className="min-w-xl space-y-6">
         <div className="w-full min-w-xl space-y-4">
           <ImageUpload
             variant="box"
             onChange={handleFileChange}
-            multiple={true}
-            accept="image/*,video/*"
-            label="Upload images or videos"
-            maxFileAllowed={"6"}
+            multiple={false}
+            accept="video/*"
+            label="Upload video"
+            maxFileAllowed={MAX_VIDEOS}
+            maxFileSize={MAX_VIDEO_SIZE_MB}
           />
 
-          {previews.length > 0 && (
+          {files.length > 0 && (
             <div className="h-14 px-2">
-              <ImagePreview images={previews} onRemove={handleRemove} size={"14"} />
+              <ImagePreview
+                images={files.map(() => ({ type: "video" }))}
+                onRemove={handleRemove}
+                size={"14"}
+              />
             </div>
           )}
-
-          <UploadProgress
-            progress={uploadProgress}
-            fileInfo={currentFileInfo}
-            variant="default"
-          />
         </div>
 
         <InputField
@@ -200,11 +182,11 @@ export default function GasChargingReqModal({ ticketNo }) {
       </div>
 
       <div className="mt-6 flex justify-end gap-2">
-        <Button variant="outline" onClick={() => router.back()} disabled={isLoading}>
+        <Button variant="outline" onClick={() => onClose()} disabled={isLoading}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={isLoading}>
-          {isLoading ? "Uploading..." : "Submit"}
+        <Button onClick={handleSubmit} disabled={isLoading || isUploading}>
+          {isUploading ? "Uploading..." : isLoading ? "Submitting..." : "Submit"}
         </Button>
       </div>
     </ModalSkeleton>

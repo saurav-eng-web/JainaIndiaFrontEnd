@@ -169,7 +169,10 @@ function ComplaintTableInner() {
       )}
 
       <Modal open={openUploadPopup} onClose={() => setOpenUploadPopup(false)}>
-        <GasChargingReqModal ticketNo={selectedTicket} />
+        <GasChargingReqModal
+          ticketNo={selectedTicket}
+          onClose={() => setOpenUploadPopup(false)}
+        />
       </Modal>
     </PageSkeleton>
   );

@@ -10,7 +10,8 @@ import { UploadProgressModal } from "@/components/ui/UploadProgress";
 import { logger } from "@/utils/logger";
 import { uploadImage } from "@/utils/uploadImage";
 
-export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
+export default function PendingImageUploadPopup({ onClose, data }) {
+  const { ticketNo, partcode, id } = data;
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [videos, setVideos] = useState([]);
@@ -97,7 +98,7 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
       setIsUploading(true);
       const res = await uploadImage({
         files: allFiles,
-        ticketNo: userId || ticketNo,
+        ticketNo: ticketNo,
         documentType: "HVP Parts",
         onProgress: (percent, current, total) => {
           setUploadProgress(percent);
@@ -133,7 +134,8 @@ export default function PendingImageUploadPopup({ userId, onClose, ticketNo }) {
       const res = await axiosInstance.post("PODetail/manage", {
         Action: "UPDATE",
         Status: "Part Pending Technical Approval",
-        Id: userId,
+        Id: id,
+        partcode,
       });
 
       if (

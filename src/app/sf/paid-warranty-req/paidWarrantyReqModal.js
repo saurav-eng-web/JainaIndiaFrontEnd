@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 
+// const dummyPartCode= ""
+
 export default function PaidWarrantyReqModal({ data, onClose }) {
   const [remarks, setRemarks] = useState("");
 
@@ -34,6 +36,7 @@ export default function PaidWarrantyReqModal({ data, onClose }) {
       }
     );
   }
+
   return (
     <ModalSkeleton title={"Paid Warranty Request"} rolesAllowed={["sf/ssd"]} size="lg">
       <div className="min-w-sm space-y-6">

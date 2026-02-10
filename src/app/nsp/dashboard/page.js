@@ -168,6 +168,7 @@ export default function Dashboard() {
       roleID: userInfo.roleID,
       firstID: getFirstID(userInfo),
     };
+    console.log("paydload dashboard: ", payload);
 
     const encoded = encodeRouteData(payload);
 

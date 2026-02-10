@@ -15,12 +15,14 @@ import { useTheme } from "@/theme/ThemeContext";
 function ComplaintTableInner() {
   const { colors } = useTheme();
   const { user } = useSelector((state) => state.auth);
-  const userId = user?.userID;
+  // const userId = user?.userID;
 
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(false);
   const [openUploadPopup, setOpenUploadPopup] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState(null);
+  // const [selectedTicket, setSelectedTicket] = useState(null);
+  // const [selectedPartcode, setSelectedPartcode] = useState(null);
+  const [payloadData, setPayloadData] = useState({});
 
   // 🔍 SEARCH STATE
   const [search, setSearch] = useState("");
@@ -108,7 +110,12 @@ function ComplaintTableInner() {
           style={{ background: colors.primary }}
           onClick={() => {
             setOpenUploadPopup(true);
-            setSelectedTicket(row.TICKET_NO);
+
+            setPayloadData({
+              ticketNo: row.TICKET_NO,
+              partcode: row.partcode,
+              id: row.id,
+            });
           }}
         >
           Upload image
@@ -175,12 +182,11 @@ function ComplaintTableInner() {
         mode="strict"
       >
         <PendingImageUploadPopup
-          userId={userId}
           onClose={() => {
             setOpenUploadPopup(false);
             fetchComplaints();
           }}
-          ticketNo={selectedTicket}
+          data={payloadData}
         />
       </Modal>
     </PageSkeleton>

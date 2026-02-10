@@ -39,6 +39,7 @@ function ComplaintTableInner() {
     if (!encoded) return null;
 
     try {
+      console.log("decoded Data: ", decodeRouteData(encoded));
       return decodeRouteData(encoded);
     } catch (err) {
       console.error("Invalid route data:", err);

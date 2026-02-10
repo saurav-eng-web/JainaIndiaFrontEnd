@@ -8,6 +8,7 @@ import PendingImageUploadPopup from "./pendingImageUploadPopup";
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
 import Pagination from "@/components/Pagination";
+import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/Modal";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
@@ -15,7 +16,7 @@ import { useTheme } from "@/theme/ThemeContext";
 function ComplaintTableInner() {
   const { colors } = useTheme();
   const { user } = useSelector((state) => state.auth);
-  // const userId = user?.userID;
+  const userId = user?.userID;
 
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -61,7 +62,7 @@ function ComplaintTableInner() {
     setLoading(true);
     try {
       const response = await axiosInstance.post("asc-pending-challan/list", {
-        Id: 50623,
+        Id: userId,
         Type: "ImagePendingHVPApproval",
       });
       setComplaints(response.data?.data || []);
@@ -103,9 +104,9 @@ function ComplaintTableInner() {
     {
       label: "",
       key: "upload", // dummy key
-      size: "sm",
+      size: "md",
       render: (_, row) => (
-        <button
+        <Button
           className="cursor-pointer rounded-md px-4 py-2 text-sm font-medium text-white"
           style={{ background: colors.primary }}
           onClick={() => {
@@ -119,7 +120,7 @@ function ComplaintTableInner() {
           }}
         >
           Upload image
-        </button>
+        </Button>
       ),
     },
     { label: "Complaint No.", key: "TICKET_NO", size: "md" },
@@ -130,12 +131,12 @@ function ComplaintTableInner() {
       //   render: (_, row) =>
       //     `${row.salutation || ""} ${row.firstname || ""} ${row.lastname || ""}`.trim(),
     },
-    { label: "Product", key: "PRODUCT", size: "md" },
-    { label: "Call Type", key: "CALL_TYPE", size: "md" },
+    { label: "Product", key: "PRODUCT", size: "sm" },
+    { label: "Call Type", key: "CALL_TYPE", size: "sm" },
     {
       label: "Status",
       key: "COMPLAINT_STATUS",
-      size: "md",
+      size: "xs",
       render: (value) => (
         <span
           className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(value)}`}
@@ -144,7 +145,7 @@ function ComplaintTableInner() {
         </span>
       ),
     },
-    { label: "Sub Status", key: "Complaint_SubStatus", size: "md" },
+    { label: "Sub Status", key: "Complaint_SubStatus", size: "xs" },
   ];
 
   return (

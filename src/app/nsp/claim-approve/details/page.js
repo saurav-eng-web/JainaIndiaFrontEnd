@@ -11,9 +11,7 @@ import { useSelector } from "react-redux";
 import { getUserFromLocalStorage } from "../../../../redux/slices/authSlice";
 
 import axiosInstance from "@/api/axiosInstance";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Table from "@/components/common/Table";
-import SideBar from "@/components/SideBar";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
 import { logger } from "@/utils/logger";
@@ -139,7 +137,7 @@ function DetailsContent() {
         Remarks: remarks,
       });
 
-      toast.error("Saved successfully");
+      toast.success("Saved successfully");
     } catch (err) {
       console.error("Save error", err);
       logger.error(`Save error ${err.message}`, "claim-approve/details");

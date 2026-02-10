@@ -184,9 +184,9 @@ function DetailsContent() {
     // { label: "Model", key: "model", size: "md" },
     { label: "Part Code", key: "PartCode", size: "md" },
     { label: "Description", key: "Part Description", size: "xl" },
-    { label: "Total Qty", key: "TotalOKQty", size: "sm" },
     { label: "MSL Qty", key: "MSLSTock", size: "sm" },
     { label: "PNA Qty", key: "PNASTock", size: "sm" },
+    { label: "Total Qty", key: "TotalOKQty", size: "sm" },
   ];
 
   return (

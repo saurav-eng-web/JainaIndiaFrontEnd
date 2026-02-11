@@ -339,7 +339,7 @@ function SendDefectivePageContent() {
             type="checkbox"
             checked={selectedItems.some((x) => x.ID === row.ID)}
             onChange={() => toggleSelection(row)}
-            className="size-5 cursor-pointer"
+            className="size-5 cursor-pointer accent-[#714b67]"
           />
         </div>
       ),
@@ -348,7 +348,6 @@ function SendDefectivePageContent() {
 
   return (
     <PageSkeleton title="Send Inventory to Warehouse" rolesAllowed={["sf/ssd"]}>
-      {/* ---------------- FILTER SECTION ---------------- */}
       <div className="mb-6 grid grid-cols-3 gap-6">
         <CustomDropdown
           label="Warehouse"
@@ -460,6 +459,7 @@ function SendDefectivePageContent() {
               name="box"
               value={dispatchForm.box}
               onChange={onDispatchChange}
+              type="number"
             />
 
             {/* Remark */}

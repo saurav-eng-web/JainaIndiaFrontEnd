@@ -8,6 +8,7 @@ export default function Pagination({
   pageSize,
   setPageSize,
   setCurrentPage,
+  allowedPageSizes = [15, 50, 100],
 }) {
   const totalRows = totalPages * pageSize;
 
@@ -20,7 +21,7 @@ export default function Pagination({
   //   setJumpPage("");
   // };
   // con
-  const allowedSizes = [15, 50, 100].filter((size) => size <= totalRows);
+  const allowedSizes = allowedPageSizes.filter((size) => size <= totalRows);
 
   // Always include max if all sizes > totalRows
   if (allowedSizes.length === 0) {
@@ -37,7 +38,7 @@ export default function Pagination({
           onChange={(e) => setPageSize(Number(e.target.value))}
           className="cursor-pointer rounded border px-2 py-1 text-sm"
         >
-          {[15, 50, 100].map((size) => (
+          {allowedPageSizes.map((size) => (
             <option key={size} value={size}>
               {size}
             </option>

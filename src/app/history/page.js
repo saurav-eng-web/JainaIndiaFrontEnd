@@ -931,6 +931,7 @@ function HistoryPageContent() {
                   pageSize={pageSize}
                   setPageSize={setPageSize}
                   setCurrentPage={setCurrentPage}
+                  allowedPageSizes={[25, 50, 100]}
                 />
               </div>
             )}

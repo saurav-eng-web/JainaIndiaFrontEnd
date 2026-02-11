@@ -16,6 +16,7 @@ export default function ReceiveFGPO({ ticketNo, onClose }) {
   const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   useEffect(() => {
     async function fetchData() {
       if (!ticketNo) {
@@ -70,6 +71,7 @@ export default function ReceiveFGPO({ ticketNo, onClose }) {
       const res = await axiosInstance.post("doa/process", payload);
       if (res.data.statusCode === 200 && res.data.statusMsg.includes("Unit Recieved")) {
         toast.success(`${res.data.statusMsg}`);
+        router.back();
         onClose();
       }
     } catch (error) {

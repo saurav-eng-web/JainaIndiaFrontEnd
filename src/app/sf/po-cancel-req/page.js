@@ -15,23 +15,23 @@ export default function POCancelReq() {
   const [payload, setPayload] = useState({});
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await axiosInstance.post("cancellation-requests/request", {
-          type: "POCancelListing",
-        });
-
-        if (res.data?.statusCode === 200 && res.data?.data.length > 0) {
-          setData(res.data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("Failed to load data, try again");
-      }
-    }
-
     fetchData();
   }, []);
+
+  async function fetchData() {
+    try {
+      const res = await axiosInstance.post("cancellation-requests/request", {
+        type: "POCancelListing",
+      });
+
+      if (res.data?.statusCode === 200 && res.data?.data.length > 0) {
+        setData(res.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Failed to load data, try again");
+    }
+  }
 
   function handleClick(row) {
     setPayload(row);
@@ -64,7 +64,13 @@ export default function POCancelReq() {
     <PageSkeleton title="PO Cancellation Request" rolesAllowed={["SF/SSD"]}>
       <Table columns={columns} rows={data} />
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
-        <RequestModal payload={payload} onClose={() => setOpenModal(false)} />
+        <RequestModal
+          payload={payload}
+          onClose={() => {
+            setOpenModal(false);
+            fetchData();
+          }}
+        />
       </Modal>
     </PageSkeleton>
   );

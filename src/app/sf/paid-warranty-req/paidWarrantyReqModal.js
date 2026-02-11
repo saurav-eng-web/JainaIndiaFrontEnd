@@ -9,7 +9,13 @@ import ModalSkeleton from "@/components/ui/ModalSkeleton";
 // const dummyPartCode= ""
 
 export default function PaidWarrantyReqModal({ data, onClose }) {
-  const { ["Serial No."]: serialNo, ["Complaint No."]: ticketNo } = data;
+  const {
+    ["Serial No."]: serialNo,
+    ["Complaint No."]: ticketNo,
+    Warranty: warranty,
+    dop,
+    Model: model,
+  } = data;
   const [remarks, setRemarks] = useState("");
   const [partDetails, setPartDetails] = useState([]);
   const [selectedPartCodes, setSelectedPartCodes] = useState([]);
@@ -44,26 +50,30 @@ export default function PaidWarrantyReqModal({ data, onClose }) {
       return;
     }
 
+    const payload = {
+      // ...data,
+      type: "PaidPartRequest",
+      ticket_no: ticketNo,
+      serial_no: serialNo,
+      warranty,
+      dop,
+      model,
+      part_code: selectedPartCodes,
+      remarks,
+    };
+
     // const
-    await toast.promise(
-      axiosInstance.post("paid-warranty/process", {
-        ...data,
-        type: "PaidPartRequest",
-        remarks,
-        part_code: selectedPartCodes,
-      }),
-      {
-        loading: "Submitting Request...",
-        success: (res) => {
-          toast.success("Request submitted successfully");
-          onClose();
-        },
-        error: () => {
-          toast.error("Failed to submit, try again!");
-          return null;
-        },
-      }
-    );
+    await toast.promise(axiosInstance.post("paid-warranty/process", payload), {
+      loading: "Submitting Request...",
+      success: (res) => {
+        toast.success("Request submitted successfully");
+        onClose();
+      },
+      error: () => {
+        toast.error("Failed to submit, try again!");
+        return null;
+      },
+    });
   }
 
   return (

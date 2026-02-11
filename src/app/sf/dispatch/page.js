@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import axios from "axios";
-import React, { Suspense, useEffect, useMemo, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
@@ -15,11 +15,21 @@ import ConfirmModal from "@/components/ui/ConfirmationModal";
 import FormInput from "@/components/ui/FormInput";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import Subheading from "@/components/ui/Subheading";
-import TextArea from "@/components/ui/Textarea";
-import { useTheme } from "@/theme/ThemeContext";
+
+const initialDispatchData = {
+  type: "",
+  warehouse: "",
+  courierCode: "",
+  doc: "",
+  remark: "",
+  dimensions: "",
+  weight: "",
+  box: "",
+  challanDate: "",
+  ipAddress: "",
+};
 
 function SendDefectivePageContent() {
-  const { colors } = useTheme();
   const user = useSelector((state) => state.auth.user);
   const [warehouseId, setWarehouseId] = useState("");
   const [challanType, setChallanType] = useState("");
@@ -34,22 +44,24 @@ function SendDefectivePageContent() {
   const [popupTitle, setPopupTitle] = useState("Confirm Action");
 
   const [showDispatchForm, setShowDispatchForm] = useState(false);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [totalWeight, setTotalWeight] = useState(0);
   const [pincode, setPincode] = useState(0);
-  const initialDispatchData = {
-    type: "",
-    warehouse: "",
-    courierCode: "",
-    doc: "",
-    remark: "",
-    dimensions: "",
-    weight: "",
-    box: "",
-    challanDate: "",
-    ipAddress: "",
-  };
   const [dispatchForm, setDispatchForm] = useState(initialDispatchData);
+  const selectedIdSet = useMemo(
+    () => new Set(selectedItems.map((item) => item.ID)),
+    [selectedItems]
+  );
+  const { totalPrice, totalWeight } = useMemo(
+    () =>
+      selectedItems.reduce(
+        (acc, item) => {
+          acc.totalPrice += Number(item.Price) || 0;
+          acc.totalWeight += Number(item.Weight) || 0;
+          return acc;
+        },
+        { totalPrice: 0, totalWeight: 0 }
+      ),
+    [selectedItems]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -171,21 +183,15 @@ function SendDefectivePageContent() {
     }
   };
 
-  const toggleSelection = (item) => {
-    if (selectedItems.some((x) => x.ID === item.ID)) {
-      setSelectedItems(selectedItems.filter((x) => x.ID !== item.ID));
-      setTotalPrice((prev) => prev - item.Price);
-      setTotalWeight((prev) => prev - item.Weight);
-    } else {
-      setSelectedItems([...selectedItems, item]);
-      setTotalPrice((prev) => prev + item.Price);
-      setTotalWeight((prev) => prev + item.Weight);
-      // setTotalPrice(selectedItems.reduce((acc, curr) => acc + curr.TotalPrice, 0));
-      // setTotalWeight(selectedItems.reduce((acc, curr) => acc + curr.TotalWeight, 0));
-    }
+  const toggleSelection = useCallback((item) => {
+    setSelectedItems((prev) => {
+      const exists = prev.some((x) => x.ID === item.ID);
+      if (exists) return prev.filter((x) => x.ID !== item.ID);
+      return [...prev, item];
+    });
     setDispatchForm(initialDispatchData);
     setShowDispatchForm(false);
-  };
+  }, []);
 
   const handleNext = async () => {
     if (selectedItems.length === 0) {
@@ -207,11 +213,11 @@ function SendDefectivePageContent() {
         } else {
           setPoptype("submit");
         }
-        setDispatchForm({
-          ...dispatchForm,
+        setDispatchForm((prev) => ({
+          ...prev,
           warehouse: warehouseId,
           type: challanType,
-        });
+        }));
         setShowConfirm(true);
 
         await fetchAscDetails();
@@ -221,9 +227,10 @@ function SendDefectivePageContent() {
       console.error(error);
     }
   };
-  const onDispatchChange = (e) => {
-    setDispatchForm({ ...dispatchForm, [e.target.name]: e.target.value });
-  };
+  const onDispatchChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setDispatchForm((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
   // >>>>>>>>>>>>>>> ADD THIS NEW FUNCTION <<<<<<<<<<<<<<<
   const handleSubmitDispatch = async () => {
@@ -252,8 +259,6 @@ function SendDefectivePageContent() {
         setShowConfirm(true);
         setPoptype("success");
         setSelectedItems([]);
-        setTotalPrice(0);
-        setTotalWeight(0);
         // setServerMessage("");
         // setShowConfirm(false);
         // handleSearch();
@@ -298,53 +303,56 @@ function SendDefectivePageContent() {
     setShowConfirm(false);
   };
 
-  const columns = [
-    {
-      label: "Ticket No",
-      key: "ticket_no",
-      size: "md",
-    },
-    {
-      label: "Part Code",
-      key: "part",
-      size: "md",
-    },
-    {
-      label: "Description",
-      key: "Part desc.",
-      size: "xxl",
-    },
-    {
-      label: "Quantity",
-      key: "QTY",
-      size: "xs",
-    },
-    {
-      label: "Price",
-      key: "Price",
-      size: "sm",
-    },
-    {
-      label: "Aging",
-      key: "Ageing",
-      size: "sm",
-    },
-    {
-      label: "Select",
-      key: "select",
-      size: "xs",
-      render: (_value, row) => (
-        <div className="flex justify-center">
-          <input
-            type="checkbox"
-            checked={selectedItems.some((x) => x.ID === row.ID)}
-            onChange={() => toggleSelection(row)}
-            className="size-5 cursor-pointer accent-[#714b67]"
-          />
-        </div>
-      ),
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        label: "Ticket No",
+        key: "ticket_no",
+        size: "md",
+      },
+      {
+        label: "Part Code",
+        key: "part",
+        size: "md",
+      },
+      {
+        label: "Description",
+        key: "Part desc.",
+        size: "xxl",
+      },
+      {
+        label: "Quantity",
+        key: "QTY",
+        size: "xs",
+      },
+      {
+        label: "Price",
+        key: "Price",
+        size: "sm",
+      },
+      {
+        label: "Aging",
+        key: "Ageing",
+        size: "sm",
+      },
+      {
+        label: "Select",
+        key: "select",
+        size: "xs",
+        render: (_value, row) => (
+          <div className="flex justify-center">
+            <input
+              type="checkbox"
+              checked={selectedIdSet.has(row.ID)}
+              onChange={() => toggleSelection(row)}
+              className="size-5 cursor-pointer accent-[#714b67]"
+            />
+          </div>
+        ),
+      },
+    ],
+    [selectedIdSet, toggleSelection]
+  );
 
   return (
     <PageSkeleton title="Send Inventory to Warehouse" rolesAllowed={["sf/ssd"]}>

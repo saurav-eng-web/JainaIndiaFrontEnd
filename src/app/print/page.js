@@ -177,7 +177,8 @@ export default function ChallanSearch() {
             </thead>
 
             <tbody>
-              {results.map((item, index) => (
+              {[...results].reverse().map((item, index) => (
+                // {results.map((item, index) => (
                 <tr
                   key={index}
                   className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100`}

@@ -55,6 +55,8 @@ import DOATDModal from "./actionsModals/DOATD";
 import AddPartPending from "./actionsModals/AddPartPending";
 import CancelReqModal from "./actionsModals/CancelReqModal";
 import PartIssueToEng from "./actionsModals/PartIssueToEng";
+
+import WarrantyVoidPopup from "../sf/action/WarrantyVoid";
 // Custom Hooks & Components
 
 const tabs = [
@@ -142,6 +144,7 @@ function HistoryPageContent() {
   const [doaTdConfirmType, setDoaTdConfirmType] = useState("");
   const [cancelPopup, setCancelPopup] = useState(false);
   const [partIssueToEngPopup, setPartIssueToEngPopup] = useState(false);
+  const [underWarranty, setUnderWarranty] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -375,6 +378,9 @@ function HistoryPageContent() {
         break;
       case "Part Issued To Engg":
         setPartIssueToEngPopup(true);
+        break;
+      case "Mark Under Warranty Void":
+        setUnderWarranty(true);
         break;
 
       default:
@@ -787,6 +793,13 @@ function HistoryPageContent() {
               <PartIssueToEng
                 ticketNo={activeTicket}
                 sfId={detail?.sf_ID}
+                onClose={() => router.back()}
+              />
+            </Modal>
+            <Modal open={underWarranty} onClose={() => setUnderWarranty(false)}>
+              <WarrantyVoidPopup
+                ticketNo={activeTicket}
+                // sfId={detail?.sf_ID}
                 onClose={() => router.back()}
               />
             </Modal>

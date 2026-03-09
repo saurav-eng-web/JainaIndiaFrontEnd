@@ -331,7 +331,7 @@ function SendDefectivePageContent() {
         size: "sm",
       },
       {
-        label: "Aging",
+        label: "Ageing",
         key: "Ageing",
         size: "sm",
       },

@@ -7,7 +7,6 @@ import toast from "react-hot-toast";
 import axiosInstance from "@/api/axiosInstance";
 import { Button } from "@/components/ui/button";
 import PageSkeleton from "@/components/ui/PageSkeleton";
-import { logger } from "@/utils/logger";
 
 export default function SendHappyCode() {
   const router = useRouter();
@@ -70,7 +69,6 @@ export default function SendHappyCode() {
     return results;
   }
 
-  // ------------------ Main Handler ------------------
   const handleSend = async () => {
     if (!complaintNo || complaintNo.length < 10) {
       toast.error("Enter a valid Complaint Number");

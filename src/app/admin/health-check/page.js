@@ -176,7 +176,8 @@ export default function HealthCheckPage() {
   }
 
   return (
-    <ProtectedRoute>
+    <>
+      {/* <ProtectedRoute> */}
       <div className="flex min-h-screen bg-[#f5f7fa]">
         <SideBar />
         <div className="ml-[60px] flex-1 p-8 transition-all duration-300">
@@ -411,6 +412,7 @@ export default function HealthCheckPage() {
           </div>
         </div>
       </div>
-    </ProtectedRoute>
+    </>
+    // </ProtectedRoute>
   );
 }

@@ -23,7 +23,7 @@ export default function AssignedPopup({
   const [engineerId, setEngineerId] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
   const [contactPerson, setContactPerson] = useState("");
-  const [appointmentTime, setAppointmentTime] = useState("");
+  const [appointmentTime, setAppointmentTime] = useState(getMinTime());
   const [customerRemark, setCustomerRemark] = useState("");
   const [engineerData, setEngineerData] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,8 +43,6 @@ export default function AssignedPopup({
     product,
     tickeT_KEY: ticketKey,
   } = detail;
-
-  console.log("data: ", { formData, detail });
 
   const [updatedDOP, setUpdatedDOP] = useState(DOP);
   const [selectedCallType, setSelectedCallType] = useState(callType);

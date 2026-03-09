@@ -22,9 +22,8 @@ export default function DashboardCard({
         <CircularProgressbarWithChildren
           value={percentage}
           styles={buildStyles({
-            pathColor: iconColor.replace("text-", ""),
+            pathColor: colors.primary || iconColor.replace("text-", ""),
             trailColor: "#eee",
-            pathColor: colors.primary,
           })}
         >
           <div className="text-xl font-bold text-gray-800">{value}</div>

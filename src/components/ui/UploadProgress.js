@@ -81,9 +81,6 @@ export default function UploadProgress({
   );
 }
 
-/**
- * BLOCKING MODAL VERSION – matches your ModalSkeleton style
- */
 export function UploadProgressModal({
   open = false,
   progress = 0,
@@ -99,7 +96,6 @@ export function UploadProgressModal({
   return (
     <Modal open={open} mode="strict">
       <div className="w-[92vw] max-w-lg rounded-2xl bg-white px-7 py-6 shadow-lg sm:px-8 sm:py-7">
-        {/* HEADER */}
         <div className="mb-6">
           <div className="text-lg font-semibold" style={{ color: theme.primary }}>
             {isComplete ? "Upload Complete" : title}
@@ -132,7 +128,6 @@ export function UploadProgressModal({
           </span>
         </div>
 
-        {/* BAR */}
         <div className="h-4 w-full overflow-hidden rounded-full bg-[#f1e9ef]">
           <div
             className="h-full rounded-full transition-all duration-300"
@@ -143,7 +138,6 @@ export function UploadProgressModal({
           />
         </div>
 
-        {/* FOOTER NOTE */}
         <div className="mt-6 text-xs text-gray-500">
           Do not refresh or close this page during upload.
         </div>

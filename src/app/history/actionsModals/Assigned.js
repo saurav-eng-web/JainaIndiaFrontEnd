@@ -49,7 +49,7 @@ export default function AssignedPopup({
 
   const todayStr = new Date().toISOString().split("T")[0];
 
-  const getMinTime = () => {
+  function getMinTime() {
     if (!appointmentDate) return "09:00";
     if (!isToday(appointmentDate)) return "09:00";
 
@@ -62,7 +62,7 @@ export default function AssignedPopup({
       2,
       "0"
     )}`;
-  };
+  }
 
   useEffect(() => {
     async function fetchEngineerData() {

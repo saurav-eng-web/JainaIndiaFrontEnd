@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 // import { useSelector } from "react-redux";
 
+import { isRoleAllowedForDeployment } from "@/utils/roleAccess";
+
 /**
  * ProtectedRoute
  * @param {JSX.Element} children - The protected page content
@@ -25,6 +27,11 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
       const user = JSON.parse(userData);
       const role = user.roleName?.toLowerCase();
       const allowed = allowedRoles.map((x) => x.toLowerCase());
+
+      if (!isRoleAllowedForDeployment(role)) {
+        router.replace("/login");
+        return;
+      }
 
       if (allowed.length === 0 || allowed.includes(role)) {
         setAuthorized(true);

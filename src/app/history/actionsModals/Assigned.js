@@ -1,3 +1,5 @@
+import { get } from "http";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -119,7 +121,7 @@ export default function AssignedPopup({
       !contactPerson ||
       !talkToWhom
     ) {
-      toast.error("Please fill all required fields");
+      toast.error(`Please fill all required fields`);
       return;
     }
     const payload = {
@@ -237,7 +239,7 @@ export default function AssignedPopup({
           value={appointmentDate}
           onChange={(val) => {
             setAppointmentDate(val);
-            setAppointmentTime("");
+            setAppointmentTime(getMinTime());
           }}
           min={todayStr}
           max={new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]}

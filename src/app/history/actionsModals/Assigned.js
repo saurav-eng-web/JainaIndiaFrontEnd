@@ -17,11 +17,7 @@ import {
 } from "@/utils/formValidation";
 import { getNearestValidMinute, isToday } from "@/utils/historyUtils";
 
-export default function AssignedPopup({
-  detail,
-  formData,
-  type,
-}) {
+export default function AssignedPopup({ detail, formData, type }) {
   const [engineerId, setEngineerId] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
   const [contactPerson, setContactPerson] = useState("");
@@ -193,7 +189,7 @@ export default function AssignedPopup({
         {
           apptDate: appointmentDate,
           apptTime: `${appointmentTime}:00`,
-          dop: DOP.split("T")[0],
+          dop: updatedDOP.split("T")[0] || DOP.split("T")[0],
           reallot: "",
           contactPerson,
           customerRemark,
@@ -272,6 +268,7 @@ export default function AssignedPopup({
             label="DOP"
             value={updatedDOP.split("T")[0]}
             onChange={(val) => {
+              console.log("selected DOP", val);
               setUpdatedDOP(val);
             }}
             max={todayStr}

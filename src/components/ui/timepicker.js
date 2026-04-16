@@ -120,6 +120,7 @@ export default function TimePicker({
 
       <div className="flex items-center gap-0.5">
         <select
+          id={id || name}
           value={hour}
           onChange={handleHourChange}
           disabled={disabled || hours.length === 0}
@@ -127,7 +128,7 @@ export default function TimePicker({
             "h-10 w-1/2 rounded-lg border border-[#a6829d] transition-all outline-none",
             "focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]",
             disabled && "cursor-not-allowed bg-gray-100 opacity-75",
-            error && "border-red-500",
+            error && "border-red-500 focus:border-red-500 focus:ring-red-500",
             styles.input
           )}
         >
@@ -148,7 +149,7 @@ export default function TimePicker({
             "h-10 w-1/2 rounded-lg border border-[#a6829d] transition-all outline-none",
             "focus:border-[#714b67] focus:ring-1 focus:ring-[#714b67]",
             disabled && "cursor-not-allowed bg-gray-100 opacity-75",
-            error && "border-red-500",
+            error && "border-red-500 focus:border-red-500 focus:ring-red-500",
             styles.input
           )}
         >

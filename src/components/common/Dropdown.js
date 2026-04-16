@@ -12,6 +12,9 @@ export default function CustomDropdown({
   placeholder,
   required = false,
   disabled = false,
+  error = "",
+  id,
+  name,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -94,6 +97,7 @@ export default function CustomDropdown({
 
   return (
     <div
+      id={id || name}
       className="relative flex w-full flex-col"
       ref={dropdownRef}
       tabIndex={disabled ? -1 : 0}
@@ -110,7 +114,7 @@ export default function CustomDropdown({
 
       {/* Dropdown button */}
       <div
-        className={`flex h-10 items-center justify-between rounded-lg border border-[#a6829d] bg-white px-3 py-2 ${disabled ? "cursor-not-allowed opacity-90" : "cursor-pointer"}`}
+        className={`flex h-10 items-center justify-between rounded-lg border border-[#a6829d] bg-white px-3 py-2 transition-all ${disabled ? "cursor-not-allowed opacity-90" : "cursor-pointer"} ${error ? "border-red-500 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500" : ""}`}
         onClick={() => {
           if (disabled) return;
           setIsOpen(!isOpen);
@@ -174,6 +178,8 @@ export default function CustomDropdown({
           </ul>
         </div>
       )}
+
+      {error && <span className="mt-1 text-xs text-red-600">{error}</span>}
     </div>
   );
 }

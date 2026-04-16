@@ -1,5 +1,3 @@
-import { get } from "http";
-
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -12,14 +10,16 @@ import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import TextArea from "@/components/ui/Textarea";
 import TimePicker from "@/components/ui/timepicker";
+import {
+  buildRequiredFieldsMessage,
+  clearFieldError,
+  validateRequiredFields,
+} from "@/utils/formValidation";
 import { getNearestValidMinute, isToday } from "@/utils/historyUtils";
 
 export default function AssignedPopup({
-  selectedAction,
-  onClose,
   detail,
   formData,
-  setFormData,
   type,
 }) {
   const [engineerId, setEngineerId] = useState("");
@@ -31,9 +31,10 @@ export default function AssignedPopup({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [callTypeOptions, setCallTypeOptions] = useState([]);
   const [talkToWhom, setTalkToWhom] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
   const router = useRouter();
 
-  const { DOP, loggedInUserId: userId, promiseDate } = formData;
+  const { DOP, promiseDate } = formData;
   const {
     calL_TYPE: callType,
     call_TypeID: callTypeId,
@@ -65,6 +66,10 @@ export default function AssignedPopup({
       "0"
     )}`;
   }
+
+  useEffect(() => {
+    setContactPerson(detail?.contactPerson || "");
+  }, [detail?.contactPerson]);
 
   useEffect(() => {
     async function fetchEngineerData() {
@@ -112,18 +117,73 @@ export default function AssignedPopup({
     fetch();
   }, [product]);
 
+  function handleFieldChange(fieldKey, setter) {
+    return (valueOrEvent) => {
+      setValidationErrors((prev) => clearFieldError(prev, fieldKey));
+
+      if (valueOrEvent?.target) {
+        setter(valueOrEvent.target.value);
+        return;
+      }
+
+      setter(valueOrEvent);
+    };
+  }
+
+  function validateForm() {
+    const validation = validateRequiredFields([
+      {
+        key: "appointmentDate",
+        label: "Appointment Date",
+        value: appointmentDate,
+        id: "appointment-date",
+      },
+      {
+        key: "appointmentTime",
+        label: "Time",
+        value: appointmentTime,
+        id: "appointment-time",
+      },
+      {
+        key: "engineerId",
+        label: "Engineer Name",
+        value: engineerId,
+        id: "engineer-name",
+      },
+      {
+        key: "contactPerson",
+        label: "Contact Person",
+        value: contactPerson,
+        id: "contact-person",
+      },
+      {
+        key: "customerRemark",
+        label: "Customer Remark",
+        value: customerRemark,
+        id: "customer-remark",
+      },
+      {
+        key: "talkToWhom",
+        label: "Talk To Whom",
+        value: talkToWhom,
+        id: "talk-to-whom",
+      },
+    ]);
+
+    setValidationErrors(validation.errors);
+
+    if (!validation.isValid) {
+      toast.error(buildRequiredFieldsMessage(validation.missingFields));
+    }
+
+    return validation.isValid;
+  }
+
   async function handleSubmit() {
-    if (
-      !appointmentDate ||
-      !appointmentTime ||
-      !engineerId ||
-      !customerRemark ||
-      !contactPerson ||
-      !talkToWhom
-    ) {
-      toast.error(`Please fill all required fields`);
+    if (!validateForm()) {
       return;
     }
+
     const payload = {
       type: type === "Assigned" ? "assigned" : "Re-Allot", //
       ticket_no: ticketNo,
@@ -161,8 +221,6 @@ export default function AssignedPopup({
       setIsSubmitting(false);
     }
   }
-
-  console.log("details: ", { formData, detail });
 
   async function submitCallSchedule() {
     const callSchedulePayload = {
@@ -235,15 +293,17 @@ export default function AssignedPopup({
       <div className="mt-10 grid grid-cols-3 gap-6">
         {/* Appointment Date */}
         <DatePicker
+          id="appointment-date"
           label="Appointment Date"
           value={appointmentDate}
-          onChange={(val) => {
+          onChange={handleFieldChange("appointmentDate", (val) => {
             setAppointmentDate(val);
             setAppointmentTime(getMinTime());
-          }}
+          })}
           min={todayStr}
           max={new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString().split("T")[0]}
           required
+          error={validationErrors.appointmentDate}
         />
 
         {/* Hour */}
@@ -267,46 +327,56 @@ export default function AssignedPopup({
         /> */}
 
         <TimePicker
+          id="appointment-time"
           label="Time"
           value={appointmentTime}
           min={getMinTime()}
           max="20:00"
           minuteStep={15}
-          onChange={(val) => setAppointmentTime(val)}
+          onChange={handleFieldChange("appointmentTime", setAppointmentTime)}
           required
+          error={validationErrors.appointmentTime}
         />
 
         <CustomDropdown
+          id="engineer-name"
           label="Engineer Name"
           placeholder="Select Engineer"
           value={engineerId}
-          onChange={(val) => setEngineerId(val)}
+          onChange={handleFieldChange("engineerId", setEngineerId)}
           options={engineerData}
           required
+          error={validationErrors.engineerId}
         />
 
         {/* Engineer Name */}
 
         <InputField
+          id="contact-person"
           label="Contact Person"
-          value={detail?.contactPerson}
-          onChange={(e) => setContactPerson(e.target.value)}
+          value={contactPerson}
+          onChange={handleFieldChange("contactPerson", setContactPerson)}
           required
+          error={validationErrors.contactPerson}
         />
 
         {/* Address + Remark */}
         <InputField
+          id="customer-remark"
           label="Customer Remark"
           value={customerRemark}
-          onChange={(e) => setCustomerRemark(e.target.value)}
+          onChange={handleFieldChange("customerRemark", setCustomerRemark)}
           required
+          error={validationErrors.customerRemark}
         />
 
         <InputField
+          id="talk-to-whom"
           label="Talk To Whom"
           value={talkToWhom}
-          onChange={(e) => setTalkToWhom(e.target.value)}
+          onChange={handleFieldChange("talkToWhom", setTalkToWhom)}
           required
+          error={validationErrors.talkToWhom}
         />
       </div>
 

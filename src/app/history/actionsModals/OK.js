@@ -102,6 +102,7 @@ export default function OKPopup({ ticketNo, onClose }) {
   // };
 
   const handleUpload = async () => {
+    console.log("uploading images...");
     try {
       if (!images || images.length === 0) return true;
 
@@ -157,6 +158,7 @@ export default function OKPopup({ ticketNo, onClose }) {
         // Handle images if any
         if (images.length > 0) {
           const uploadSuccess = await handleUpload();
+          console.log("upload success: ", uploadSuccess);
           if (!uploadSuccess) {
             toast.error("Some images failed to upload");
           }
@@ -250,10 +252,11 @@ export default function OKPopup({ ticketNo, onClose }) {
 
   const handleImageSelect = (e) => {
     const fileList = e.target.files;
+    console.log("fileList: ", fileList);
     if (!fileList || fileList.length === 0) return;
 
     const files = Array.from(fileList);
-
+    console.log("files: ", files);
     // Validate total count
     if (images.length + files.length > 5) {
       toast.error("Maximum 5 images allowed");

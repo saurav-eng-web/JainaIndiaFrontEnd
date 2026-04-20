@@ -10,6 +10,60 @@ import DatePicker from "@/components/ui/Datepicker";
 import InputField from "@/components/ui/InputWithLabel";
 import ModalSkeleton from "@/components/ui/ModalSkeleton";
 import TimePicker from "@/components/ui/timepicker";
+import {
+  buildRequiredFieldsMessage,
+  clearFieldError,
+  validateRequiredFields,
+} from "@/utils/formValidation";
+import { getNearestValidMinute, isToday } from "@/utils/historyUtils";
+
+const defaultVisitState = {
+  engineerId: "",
+  visitDate: "",
+  inTime: "09:00",
+  outTime: "09:01",
+  visitRemarks: "",
+};
+
+function getVisitMinTime(visitDate) {
+  if (!visitDate || !isToday(visitDate)) return "09:00";
+
+  const now = new Date();
+  const currentHour = now.getHours();
+  const nearestMinute = getNearestValidMinute(now.getMinutes());
+
+  if (nearestMinute !== null) {
+    return `${String(Math.max(9, currentHour)).padStart(2, "0")}:${String(
+      nearestMinute
+    ).padStart(2, "0")}`;
+  }
+
+  return `${String(Math.max(9, currentHour + 1)).padStart(2, "0")}:00`;
+}
+
+function getAdjustedOutTime(nextInTime, currentOutTime) {
+  const minimumOutTime = addOneMinute(nextInTime);
+
+  if (!currentOutTime || currentOutTime < minimumOutTime) {
+    return minimumOutTime;
+  }
+
+  return currentOutTime;
+}
+
+function normalizeTime(value = "") {
+  if (!value) return "";
+  return value.split(":").slice(0, 2).join(":");
+}
+
+function addOneMinute(value = "09:00") {
+  const [hours = "09", minutes = "00"] = value.split(":");
+  const totalMinutes = Number(hours) * 60 + Number(minutes) + 1;
+  const safeMinutes = Math.min(totalMinutes, 21 * 60);
+  const nextHours = String(Math.floor(safeMinutes / 60)).padStart(2, "0");
+  const nextMinutes = String(safeMinutes % 60).padStart(2, "0");
+  return `${nextHours}:${nextMinutes}`;
+}
 
 export default function SCAPopup({
   ticketNo,
@@ -34,14 +88,10 @@ export default function SCAPopup({
   const [initialVisitData, setInitialVisitData] = useState(null);
   const [symptomsData, setSymptomsData] = useState([]);
   const [remarkMandatory, setRemarkMandatory] = useState(false);
+  const [scaErrors, setScaErrors] = useState({});
+  const [visitErrors, setVisitErrors] = useState({});
 
-  const [visitState, setVisitState] = useState({
-    engineerId: "",
-    visitDate: "",
-    inTime: "09:00",
-    outTime: "",
-    visitRemarks: "",
-  });
+  const [visitState, setVisitState] = useState(defaultVisitState);
   const [engineers, setEngineers] = useState([]);
 
   useEffect(() => {
@@ -93,18 +143,20 @@ export default function SCAPopup({
 
         const visitRes = await axiosInstance.get(`visit/ticket/${ticketKey}`);
         if (visitRes.status === 200 && visitRes.data.length === 0) {
-          setVisitState({});
+          setVisitState(defaultVisitState);
           return;
         }
-        console.log("visitRes: ", visitRes);
         if (visitRes.status === 200) {
           const vData = visitRes?.data;
           const data = vData[vData.length - 1];
+          const normalizedInTime = normalizeTime(data.vInTime) || defaultVisitState.inTime;
+          const normalizedOutTime =
+            normalizeTime(data.vOutTime) || getAdjustedOutTime(normalizedInTime);
           const initial = {
             engineerId: data.engName,
             visitDate: data.vDate.split("T")[0],
-            inTime: data.vInTime,
-            outTime: data.vOutTime,
+            inTime: normalizedInTime,
+            outTime: normalizedOutTime,
             visitRemarks: data.remark,
           };
           setInitialVisitData(initial);
@@ -119,36 +171,132 @@ export default function SCAPopup({
     fetchAllData();
   }, [ticketNo, productType, sfId, ticketKey]);
 
+  const updateScaField = (field, value) => {
+    setScaErrors((prev) => clearFieldError(prev, field));
+    setScaState((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateVisitField = (field, value) => {
+    setVisitErrors((prev) => clearFieldError(prev, field));
+    setVisitState((prev) => ({ ...prev, [field]: value }));
+  };
+
+  useEffect(() => {
+    if (!remarkMandatory) {
+      setScaErrors((prev) => clearFieldError(prev, "remarks"));
+    }
+  }, [remarkMandatory]);
+
+  const validateScaStep = () => {
+    const validation = validateRequiredFields([
+      {
+        key: "selectedSymptom",
+        label: "Symptom",
+        value: scaState.selectedSymptom,
+        id: "sca-symptom",
+      },
+      {
+        key: "selectedCause",
+        label: "Cause",
+        value: scaState.selectedCause,
+        id: "sca-cause",
+      },
+      {
+        key: "selectedAnalysis",
+        label: "Analysis",
+        value: scaState.selectedAnalysis,
+        id: "sca-analysis",
+      },
+      {
+        key: "jobAction",
+        label: "Job Action",
+        value: scaState.jobAction,
+        id: "sca-job-action",
+      },
+      ...(remarkMandatory
+        ? [
+            {
+              key: "remarks",
+              label: "Remarks",
+              value: scaState.remarks,
+              id: "sca-remarks",
+            },
+          ]
+        : []),
+    ]);
+
+    setScaErrors(validation.errors);
+
+    if (!validation.isValid) {
+      toast.error(buildRequiredFieldsMessage(validation.missingFields));
+    }
+
+    return validation.isValid;
+  };
+
+  const validateVisitStep = () => {
+    const validation = validateRequiredFields([
+      {
+        key: "engineerId",
+        label: "Engineer Name",
+        value: visitState.engineerId,
+        id: "visit-engineer",
+      },
+      {
+        key: "visitDate",
+        label: "Visit Date",
+        value: visitState.visitDate,
+        id: "visit-date",
+      },
+      {
+        key: "inTime",
+        label: "In Time",
+        value: visitState.inTime,
+        id: "visit-in-time",
+      },
+      {
+        key: "outTime",
+        label: "Out Time",
+        value: visitState.outTime,
+        id: "visit-out-time",
+      },
+      {
+        key: "visitRemarks",
+        label: "Remarks",
+        value: visitState.visitRemarks,
+        id: "visit-remarks",
+      },
+    ]);
+
+    setVisitErrors(validation.errors);
+
+    if (!validation.isValid) {
+      toast.error(buildRequiredFieldsMessage(validation.missingFields));
+      return false;
+    }
+
+    if (visitState.outTime <= visitState.inTime) {
+      setVisitErrors({ outTime: "Out Time must be greater than In Time" });
+      toast.error("Out Time must be greater than In Time");
+      return false;
+    }
+
+    return true;
+  };
+
   const goNext = () => {
-    // Validation for Step 1
-    if (
-      !scaState.selectedSymptom ||
-      !scaState.selectedCause ||
-      !scaState.selectedAnalysis ||
-      !scaState.jobAction
-    ) {
-      return toast.error("Please select all SCA fields!");
+    if (!validateScaStep()) {
+      return;
     }
-    if (!scaState.jobAction) {
-      return toast.error("Please fill job action!");
-    }
-    if (remarkMandatory && !scaState.remarks) {
-      return toast.error("Please fill remarks!");
-    }
+
     setStep(2);
   };
 
   const goBack = () => setStep(1);
 
   const handleFinalSubmit = async () => {
-    if (
-      !visitState.engineerId ||
-      !visitState.visitDate ||
-      !visitState.inTime ||
-      !visitState.outTime ||
-      !visitState.visitRemarks
-    ) {
-      return toast.error("Please fill all visit details!");
+    if (!validateVisitStep()) {
+      return;
     }
 
     const scaPayload = {
@@ -178,7 +326,9 @@ export default function SCAPopup({
     const visitChanged =
       !initialVisitData ||
       Object.keys(visitState).some((key) => visitState[key] !== initialVisitData[key]);
+
     const submitPromise = async () => {
+      setIsSubmitting(true);
       const requests = [];
 
       if (scaChanged) {
@@ -193,11 +343,15 @@ export default function SCAPopup({
       onClose?.();
     };
 
-    toast.promise(submitPromise(), {
-      loading: "Submitting details...",
-      success: "Details updated successfully!",
-      error: "Failed to submit details.",
-    });
+    try {
+      await toast.promise(submitPromise(), {
+        loading: "Submitting details...",
+        success: "Details updated successfully!",
+        error: "Failed to submit details.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -217,13 +371,14 @@ export default function SCAPopup({
       {/* STEP CONTENT */}
       {step === 1 && (
         <>
-          <SCASection
-            scaState={scaState}
-            setScaState={setScaState}
-            symptomsData={symptomsData}
-            remarkMandatory={remarkMandatory}
-            setRemarkMandatory={setRemarkMandatory}
-          />
+        <SCASection
+          scaState={scaState}
+          updateScaField={updateScaField}
+          symptomsData={symptomsData}
+          remarkMandatory={remarkMandatory}
+          setRemarkMandatory={setRemarkMandatory}
+          scaErrors={scaErrors}
+        />
           <div className="mt-10 flex justify-end">
             <Button onClick={goNext}>Next</Button>
           </div>
@@ -234,8 +389,9 @@ export default function SCAPopup({
         <>
           <VisitDetails
             visitState={visitState}
-            setVisitState={setVisitState}
+            updateVisitField={updateVisitField}
             engineers={engineers}
+            visitErrors={visitErrors}
           />
           <div className="mt-10 flex">
             <Button variant="outline" onClick={goBack}>
@@ -275,10 +431,11 @@ function StepIndicator({ number, active, children }) {
 
 function SCASection({
   scaState,
-  setScaState,
+  updateScaField,
   symptomsData,
   remarkMandatory,
   setRemarkMandatory,
+  scaErrors,
 }) {
   const [symptoms, setSymptoms] = useState([]);
   const [cause, setCause] = useState([]);
@@ -331,116 +488,145 @@ function SCASection({
   }, [scaState.selectedSymptom, scaState.selectedCause, symptoms]);
 
   const changeSymptom = (value) => {
-    setScaState((prev) => ({
-      ...prev,
-      selectedSymptom: value,
-      selectedCause: "",
-      selectedAnalysis: "",
-    }));
+    setRemarkMandatory(false);
+    updateScaField("selectedSymptom", value);
+    updateScaField("selectedCause", "");
+    updateScaField("selectedAnalysis", "");
   };
 
   const changeCause = (value) => {
     const found = cause.find((item) => item.value === value);
-    if (found) {
-      setRemarkMandatory(found.label.toLowerCase().includes("remarks"));
-    }
-    setScaState((prev) => ({
-      ...prev,
-      selectedCause: value,
-      selectedAnalysis: "",
-    }));
+    const nextRemarkMandatory = found
+      ? found.label.toLowerCase().includes("remarks")
+      : false;
+
+    setRemarkMandatory(nextRemarkMandatory);
+    updateScaField("selectedCause", value);
+    updateScaField("selectedAnalysis", "");
   };
 
   const changeAnalysis = (value) => {
-    setScaState((prev) => ({ ...prev, selectedAnalysis: value }));
+    updateScaField("selectedAnalysis", value);
   };
 
   return (
     <div className="grid w-3xl grid-cols-3 items-center gap-6">
       <CustomDropdown
+        id="sca-symptom"
         label="Symptom"
         value={scaState.selectedSymptom}
         onChange={changeSymptom}
         options={symptoms}
         placeholder="Select Symptom"
         required
+        error={scaErrors.selectedSymptom}
       />
       <CustomDropdown
+        id="sca-cause"
         label="Cause"
         value={scaState.selectedCause}
         onChange={changeCause}
         options={cause}
         placeholder="Select Cause"
         required
+        error={scaErrors.selectedCause}
       />
       <CustomDropdown
+        id="sca-analysis"
         label="Analysis"
         value={scaState.selectedAnalysis}
         onChange={changeAnalysis}
         options={analysis}
         placeholder="Select Analysis"
         required
+        error={scaErrors.selectedAnalysis}
       />
       <InputField
+        id="sca-job-action"
         label="Job Action"
         value={scaState.jobAction}
-        onChange={(e) => setScaState((prev) => ({ ...prev, jobAction: e.target.value }))}
+        onChange={(e) => updateScaField("jobAction", e.target.value)}
         required
+        error={scaErrors.jobAction}
       />
       <InputField
+        id="sca-remarks"
         label="Remarks"
         value={scaState.remarks}
-        onChange={(e) => setScaState((prev) => ({ ...prev, remarks: e.target.value }))}
+        onChange={(e) => updateScaField("remarks", e.target.value)}
         required={remarkMandatory}
+        error={scaErrors.remarks}
       />
     </div>
   );
 }
 
-function VisitDetails({ visitState, setVisitState, engineers }) {
+function VisitDetails({ visitState, updateVisitField, engineers, visitErrors }) {
+  const visitMinTime = getVisitMinTime(visitState.visitDate);
+  const safeInTime = visitState.inTime || visitMinTime;
+  const normalizedInTime = safeInTime < visitMinTime ? visitMinTime : safeInTime;
+  const outTimeMin = addOneMinute(normalizedInTime);
+
   return (
     <div className="grid min-w-3xl grid-cols-3 items-center gap-6">
       <CustomDropdown
+        id="visit-engineer"
         label="Engineer Name"
         placeholder="Select Engineer"
         value={visitState.engineerId}
-        onChange={(val) => setVisitState((prev) => ({ ...prev, engineerId: val }))}
+        onChange={(val) => updateVisitField("engineerId", val)}
         options={engineers}
         required
+        error={visitErrors.engineerId}
       />
 
       <DatePicker
+        id="visit-date"
         label="Visit Date"
         value={visitState.visitDate}
-        onChange={(val) => setVisitState((prev) => ({ ...prev, visitDate: val }))}
+        onChange={(val) => {
+          const nextInTime = getVisitMinTime(val);
+
+          updateVisitField("visitDate", val);
+          updateVisitField("inTime", nextInTime);
+          updateVisitField("outTime", getAdjustedOutTime(nextInTime, visitState.outTime));
+        }}
         max={"today"}
         required
+        error={visitErrors.visitDate}
       />
 
       <InputField
+        id="visit-remarks"
         label="Remarks"
         value={visitState.visitRemarks}
-        onChange={(e) =>
-          setVisitState((prev) => ({ ...prev, visitRemarks: e.target.value }))
-        }
+        onChange={(e) => updateVisitField("visitRemarks", e.target.value)}
         required
+        error={visitErrors.visitRemarks}
       />
 
       <TimePicker
+        id="visit-in-time"
         label="In Time"
-        value={visitState.inTime}
-        min={"09:00"}
-        max={"21:00"}
-        onChange={(val) => setVisitState((prev) => ({ ...prev, inTime: val }))}
+        value={normalizedInTime}
+        min={visitMinTime}
+        max={"20:59"}
+        onChange={(val) => {
+          updateVisitField("inTime", val);
+          updateVisitField("outTime", getAdjustedOutTime(val, visitState.outTime));
+        }}
         required
+        error={visitErrors.inTime}
       />
       <TimePicker
+        id="visit-out-time"
         label="Out Time"
         value={visitState.outTime}
-        min={visitState.inTime}
+        min={outTimeMin}
         max={"21:00"}
-        onChange={(val) => setVisitState((prev) => ({ ...prev, outTime: val }))}
+        onChange={(val) => updateVisitField("outTime", val)}
         required
+        error={visitErrors.outTime}
       />
     </div>
   );

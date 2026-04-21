@@ -1,5 +1,3 @@
-import { on } from "events";
-
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -107,7 +105,7 @@ export default function OKPopup({ ticketNo, onClose }) {
       if (!images || images.length === 0) return true;
 
       const result = await uploadImage({
-        file: images,
+        files: images,
         ticketNo: ticketNo,
         documentType: "Call Closure",
       });

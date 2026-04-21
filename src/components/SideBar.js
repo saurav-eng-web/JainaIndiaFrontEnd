@@ -30,6 +30,10 @@ export default function SideBar() {
     router.push("/login");
   };
 
+  const handleResetPassword = () => {
+    router.push("/reset-password");
+  };
+
   if (!mounted) {
     return (
       <div className="flex h-screen w-15 items-center justify-center bg-neutral-900">
@@ -204,7 +208,7 @@ export default function SideBar() {
           })}
       </ul>
 
-      <div className="h-24 border-t border-neutral-700 bg-neutral-800 px-3">
+      <div className="border-t border-neutral-700 bg-neutral-800 px-3 py-3">
         <div className="flex h-full items-center gap-3">
           <Image
             src="/avatar.png"
@@ -222,12 +226,23 @@ export default function SideBar() {
               {roleName ? `Logged in as ${roleName}` : ""}
             </p>
 
-            <button
-              onClick={handleLogout}
-              className="mt-2 cursor-pointer rounded bg-[#714b67] px-2 py-1 text-center text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#5a3c52] hover:text-white"
-            >
-              Sign Out
-            </button>
+            <div className="mt-3 flex items-center gap-3">
+              <button
+                onClick={handleResetPassword}
+                className="cursor-pointer text-[11px] font-semibold text-neutral-300 transition-colors duration-300 hover:text-white"
+              >
+                Reset Password
+              </button>
+
+              <span className="text-neutral-600">|</span>
+
+              <button
+                onClick={handleLogout}
+                className="cursor-pointer rounded bg-[#714b67] px-2.5 py-0.5 text-[12px] font-semibold text-white transition-colors duration-300 hover:bg-[#5a3c52] hover:text-white"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
       </div>

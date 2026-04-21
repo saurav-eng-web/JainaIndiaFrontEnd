@@ -1,7 +1,11 @@
+// const DEFAULT_ALLOWED_ROLES = ["cc"];
+// const DEFAULT_ALLOWED_ROLES = ["cc"];
 const DEFAULT_ALLOWED_ROLES = ["sf/ssd"];
 
 export function normalizeRole(role) {
-  return String(role || "").trim().toLowerCase();
+  return String(role || "")
+    .trim()
+    .toLowerCase();
 }
 
 export function getDeploymentAllowedRoles() {

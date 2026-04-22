@@ -15,7 +15,7 @@ import {
   clearFieldError,
   validateRequiredFields,
 } from "@/utils/formValidation";
-import { getNearestValidMinute, isToday } from "@/utils/historyUtils";
+import { isToday } from "@/utils/historyUtils";
 
 const defaultVisitState = {
   engineerId: "",
@@ -26,19 +26,27 @@ const defaultVisitState = {
 };
 
 function getVisitMinTime(visitDate) {
-  if (!visitDate || !isToday(visitDate)) return "09:00";
+  return "09:00";
+}
+
+function getVisitMaxTime(visitDate, fallback = "21:00") {
+  if (!visitDate || !isToday(visitDate)) return fallback;
 
   const now = new Date();
-  const currentHour = now.getHours();
-  const nearestMinute = getNearestValidMinute(now.getMinutes());
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const [fallbackHour = "21", fallbackMinute = "00"] = fallback.split(":");
+  const fallbackMinutes = Number(fallbackHour) * 60 + Number(fallbackMinute);
+  const safeMinutes = Math.min(currentMinutes, fallbackMinutes);
+  const nextHours = String(Math.floor(safeMinutes / 60)).padStart(2, "0");
+  const nextMinutes = String(safeMinutes % 60).padStart(2, "0");
 
-  if (nearestMinute !== null) {
-    return `${String(Math.max(9, currentHour)).padStart(2, "0")}:${String(
-      nearestMinute
-    ).padStart(2, "0")}`;
-  }
+  return `${nextHours}:${nextMinutes}`;
+}
 
-  return `${String(Math.max(9, currentHour + 1)).padStart(2, "0")}:00`;
+function getDefaultInTime(visitDate) {
+  if (!visitDate || !isToday(visitDate)) return "09:00";
+
+  return subtractOneMinute(getVisitMaxTime(visitDate, "20:59"));
 }
 
 function getAdjustedOutTime(nextInTime, currentOutTime) {
@@ -60,6 +68,15 @@ function addOneMinute(value = "09:00") {
   const [hours = "09", minutes = "00"] = value.split(":");
   const totalMinutes = Number(hours) * 60 + Number(minutes) + 1;
   const safeMinutes = Math.min(totalMinutes, 21 * 60);
+  const nextHours = String(Math.floor(safeMinutes / 60)).padStart(2, "0");
+  const nextMinutes = String(safeMinutes % 60).padStart(2, "0");
+  return `${nextHours}:${nextMinutes}`;
+}
+
+function subtractOneMinute(value = "09:01") {
+  const [hours = "09", minutes = "01"] = value.split(":");
+  const totalMinutes = Number(hours) * 60 + Number(minutes) - 1;
+  const safeMinutes = Math.max(totalMinutes, 9 * 60);
   const nextHours = String(Math.floor(safeMinutes / 60)).padStart(2, "0");
   const nextMinutes = String(safeMinutes % 60).padStart(2, "0");
   return `${nextHours}:${nextMinutes}`;
@@ -279,6 +296,22 @@ export default function SCAPopup({
       setVisitErrors({ outTime: "Out Time must be greater than In Time" });
       toast.error("Out Time must be greater than In Time");
       return false;
+    }
+
+    if (visitState.visitDate && isToday(visitState.visitDate)) {
+      const now = new Date();
+      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+        now.getMinutes()
+      ).padStart(2, "0")}`;
+
+      if (visitState.inTime >= currentTime || visitState.outTime > currentTime) {
+        setVisitErrors({
+          inTime: "Today visit time must be in the past",
+          outTime: "Today visit time must be in the past",
+        });
+        toast.error("For today, visit time must be in the past");
+        return false;
+      }
     }
 
     return true;
@@ -563,9 +596,23 @@ function SCASection({
 
 function VisitDetails({ visitState, updateVisitField, engineers, visitErrors }) {
   const visitMinTime = getVisitMinTime(visitState.visitDate);
-  const safeInTime = visitState.inTime || visitMinTime;
-  const normalizedInTime = safeInTime < visitMinTime ? visitMinTime : safeInTime;
+  const visitInMaxTime = getVisitMaxTime(visitState.visitDate, "20:59");
+  const visitOutMaxTime = getVisitMaxTime(visitState.visitDate, "21:00");
+  const safeInTime = visitState.inTime || getDefaultInTime(visitState.visitDate);
+  const normalizedInTime =
+    safeInTime < visitMinTime
+      ? visitMinTime
+      : safeInTime > visitInMaxTime
+        ? visitInMaxTime
+        : safeInTime;
   const outTimeMin = addOneMinute(normalizedInTime);
+  const safeOutTime = visitState.outTime || outTimeMin;
+  const normalizedOutTime =
+    safeOutTime < outTimeMin
+      ? outTimeMin
+      : safeOutTime > visitOutMaxTime
+        ? visitOutMaxTime
+        : safeOutTime;
 
   return (
     <div className="grid min-w-3xl grid-cols-3 items-center gap-6">
@@ -585,7 +632,7 @@ function VisitDetails({ visitState, updateVisitField, engineers, visitErrors }) 
         label="Visit Date"
         value={visitState.visitDate}
         onChange={(val) => {
-          const nextInTime = getVisitMinTime(val);
+          const nextInTime = getDefaultInTime(val);
 
           updateVisitField("visitDate", val);
           updateVisitField("inTime", nextInTime);
@@ -610,7 +657,7 @@ function VisitDetails({ visitState, updateVisitField, engineers, visitErrors }) 
         label="In Time"
         value={normalizedInTime}
         min={visitMinTime}
-        max={"20:59"}
+        max={visitInMaxTime}
         onChange={(val) => {
           updateVisitField("inTime", val);
           updateVisitField("outTime", getAdjustedOutTime(val, visitState.outTime));
@@ -621,9 +668,9 @@ function VisitDetails({ visitState, updateVisitField, engineers, visitErrors }) 
       <TimePicker
         id="visit-out-time"
         label="Out Time"
-        value={visitState.outTime}
+        value={normalizedOutTime}
         min={outTimeMin}
-        max={"21:00"}
+        max={visitOutMaxTime}
         onChange={(val) => updateVisitField("outTime", val)}
         required
         error={visitErrors.outTime}

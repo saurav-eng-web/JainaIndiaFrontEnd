@@ -117,7 +117,7 @@ export default function LoginPage() {
         <div className="w-[28rem] p-6">
           <h2 className="mb-3 text-xl font-semibold text-gray-900">Access Restricted</h2>
           <p className="text-sm leading-6 text-gray-600">
-            This deployment is currently available only for the SF/SSD role. Please
+            This deployment is currently available only for the NSP/ASM/RSM roles. Please
             use the appropriate CRM portal for your account.
           </p>
           <div className="mt-6 flex justify-end">

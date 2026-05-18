@@ -77,10 +77,10 @@ export default function PrintASC({ searchParams }) {
   const ascMobile = invoiceDetail.mobileno || "-";
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="print-asc-page min-h-screen bg-gray-50 p-6">
       <button
         onClick={() => window.print()}
-        className="mb-4 rounded border bg-white px-4 py-2 shadow-sm"
+        className="no-print mb-4 rounded border bg-white px-4 py-2 shadow-sm"
       >
         Print ASC
       </button>
@@ -198,7 +198,7 @@ export default function PrintASC({ searchParams }) {
             <div className="mt-1"><strong>Mobile:</strong> {ascMobile}</div>
           </div> */}
 
-          <div className="col-span-3 border p-2 text-xs">
+          <div className="barcode-panel col-span-3 border p-2 text-xs">
             <div>
               <strong>LSP Name:</strong> {invoiceDetail.defPO_Crname || "-"}
             </div>
@@ -213,21 +213,21 @@ export default function PrintASC({ searchParams }) {
               <strong>Docket No:</strong> {invoiceDetail.defPO_SFDocNo || "-"}
             </div>
 
-            <div className="mt-2">
+            <div className="barcode-wrap mt-2">
               <Barcode
                 value={invoiceDetail.defPO_SFDocNo || "NA"}
-                width={1.2}
-                height={48}
+                width={1.05}
+                height={58}
                 format="CODE128"
               />
             </div>
 
             {invoiceDetail.po && (
-              <div className="mt-2">
+              <div className="barcode-wrap mt-2">
                 <Barcode
                   value={invoiceDetail.po}
-                  width={1.2}
-                  height={48}
+                  width={1.05}
+                  height={58}
                   format="CODE128"
                 />
               </div>
@@ -236,7 +236,18 @@ export default function PrintASC({ searchParams }) {
         </section>
 
         {/* Items Table */}
-        <table className="mb-2 w-full border-collapse text-sm">
+        <table className="items-table mb-2 w-full table-fixed border-collapse text-sm">
+          <colgroup>
+            <col className="w-[5%]" />
+            <col className="w-[18%]" />
+            <col className="w-[17%]" />
+            <col className="w-[26%]" />
+            <col className="w-[9%]" />
+            <col className="w-[5%]" />
+            <col className="w-[8%]" />
+            <col className="w-[8%]" />
+            <col className="w-[4%]" />
+          </colgroup>
           <thead>
             <tr className="bg-gray-100">
               <th className="border px-2 py-1">Sr</th>
@@ -253,15 +264,15 @@ export default function PrintASC({ searchParams }) {
           <tbody>
             {items.map((it, i) => (
               <tr key={i}>
-                <td className="border px-2 py-1">{i + 1}</td>
-                <td className="border px-2 py-1">{it.ticket_no}</td>
-                <td className="border px-2 py-1">{it.def_Partcode}</td>
-                <td className="border px-2 py-1">{it.def_PartDesc}</td>
-                <td className="border px-2 py-1">{it.hsn}</td>
-                <td className="border px-2 py-1">{it.qty}</td>
-                <td className="border px-2 py-1 text-right">{formatMoney(it.price)}</td>
-                <td className="border px-2 py-1 text-right">{formatMoney(it.amount)}</td>
-                <td className="border px-2 py-1">{it.tax}%</td>
+                <td className="border px-1 py-1 text-center">{i + 1}</td>
+                <td className="border px-1 py-1 break-words">{it.ticket_no}</td>
+                <td className="border px-1 py-1 break-words">{it.def_Partcode}</td>
+                <td className="border px-1 py-1 break-words">{it.def_PartDesc}</td>
+                <td className="border px-1 py-1 break-words">{it.hsn}</td>
+                <td className="border px-1 py-1 text-center">{it.qty}</td>
+                <td className="border px-1 py-1 text-right">{formatMoney(it.price)}</td>
+                <td className="border px-1 py-1 text-right">{formatMoney(it.amount)}</td>
+                <td className="border px-1 py-1 text-center">{it.tax}%</td>
               </tr>
             ))}
           </tbody>
@@ -271,6 +282,7 @@ export default function PrintASC({ searchParams }) {
                 Total Quantity: {invoiceDetail.total}
               </td>
               <td className="border px-2 py-1 text-right">{formatMoney(totals.total)}</td>
+              <td className="border px-2 py-1" />
             </tr>
             <tr>
               <td colSpan="7" className="border px-2 py-1 text-right">
@@ -279,6 +291,7 @@ export default function PrintASC({ searchParams }) {
               <td className="border px-2 py-1 text-right">
                 {formatMoney(totals.totalTax)}
               </td>
+              <td className="border px-2 py-1" />
             </tr>
             <tr>
               <td colSpan="7" className="border px-2 py-1 text-right font-bold">
@@ -287,12 +300,13 @@ export default function PrintASC({ searchParams }) {
               <td className="border px-2 py-1 text-right font-bold">
                 {formatMoney(totals.grandTotal)}
               </td>
+              <td className="border px-2 py-1" />
             </tr>
           </tfoot>
         </table>
 
         {/* Terms */}
-        <div className="mt-4 grid grid-cols-12 border text-xs">
+        <div className="terms-section mt-4 grid grid-cols-12 border text-xs">
           <div className="col-span-4 border-r p-3">
             <div className="mb-2 font-bold">Terms & Conditions:</div>
             {HARD_TERMS.map((t, idx) => (
@@ -331,6 +345,113 @@ export default function PrintASC({ searchParams }) {
           This is Computer Generated Challan.
         </div>
       </article>
+
+      <style jsx global>{`
+        .print-asc-page,
+        .print-asc-page * {
+          box-sizing: border-box;
+        }
+
+        .print-asc-page .challan {
+          width: min(100%, 190mm);
+          margin: 0 auto;
+          overflow: hidden;
+        }
+
+        .print-asc-page .barcode-panel {
+          min-width: 0;
+          overflow: hidden;
+        }
+
+        .print-asc-page .barcode-wrap {
+          width: 100%;
+          overflow: hidden;
+          text-align: center;
+        }
+
+        .print-asc-page .barcode-wrap svg {
+          display: block;
+          max-width: 100%;
+          height: auto;
+          margin: 0 auto;
+        }
+
+        .print-asc-page .items-table {
+          page-break-inside: auto;
+        }
+
+        .print-asc-page .items-table th,
+        .print-asc-page .items-table td {
+          overflow-wrap: anywhere;
+          word-break: break-word;
+          vertical-align: middle;
+        }
+
+        .print-asc-page .items-table tr {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+
+        .print-asc-page .items-table thead {
+          display: table-header-group;
+        }
+
+        .print-asc-page .items-table tfoot {
+          display: table-row-group;
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+
+        .print-asc-page .terms-section {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+
+        @media print {
+          @page {
+            size: A4;
+            margin: 8mm;
+          }
+
+          html,
+          body {
+            background: #fff !important;
+          }
+
+          .print-asc-page {
+            min-height: auto !important;
+            padding: 0 !important;
+            background: #fff !important;
+          }
+
+          .print-asc-page .no-print {
+            display: none !important;
+          }
+
+          .print-asc-page .challan {
+            width: 100%;
+            max-width: none;
+            border-color: #000 !important;
+            box-shadow: none !important;
+            padding: 8mm !important;
+            overflow: visible;
+          }
+
+          .print-asc-page .items-table {
+            font-size: 10px;
+          }
+
+          .print-asc-page .items-table th,
+          .print-asc-page .items-table td {
+            border-color: #000 !important;
+            padding: 3px 4px !important;
+          }
+
+          .print-asc-page .barcode-wrap svg {
+            max-width: 100% !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

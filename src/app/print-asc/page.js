@@ -119,7 +119,7 @@ export default function PrintASC({ searchParams }) {
           </div>
 
           {/* ===== COPY TYPE SECTION (TOP-RIGHT) ===== */}
-          <div className="absolute top-0 right-0 flex flex-col items-end space-y-1 text-xs">
+          <div className="copy-type-panel absolute top-0 right-0 flex flex-col items-end space-y-1 text-xs">
             <div className="w-48 border border-gray-400 bg-gray-50 px-3 py-1 text-center font-medium">
               Original for Recipient
             </div>
@@ -134,7 +134,7 @@ export default function PrintASC({ searchParams }) {
           </div>
 
           {/* ===== RIGHT SIDE BOX ===== */}
-          <div className="mt-28 ml-4 w-64 border p-2 text-sm">
+          <div className="header-info-box mt-28 ml-4 w-64 border p-2 text-sm">
             <div>
               <strong>GSTIN:</strong> {invoiceDetail.ascgSt || "-"}
             </div>
@@ -305,44 +305,52 @@ export default function PrintASC({ searchParams }) {
           </tfoot>
         </table>
 
-        {/* Terms */}
-        <div className="terms-section mt-4 grid grid-cols-12 border text-xs">
-          <div className="col-span-4 border-r p-3">
-            <div className="mb-2 font-bold">Terms & Conditions:</div>
-            {HARD_TERMS.map((t, idx) => (
-              <div key={idx} className={idx ? "mt-2" : ""}>
-                {t}
+        <div className="challan-footer">
+          {/* Terms */}
+          <div className="terms-section mt-4 grid grid-cols-12 border text-xs">
+            <div className="col-span-4 border-r p-3">
+              <div className="mb-2 font-bold">Terms & Conditions:</div>
+              {HARD_TERMS.map((t, idx) => (
+                <div key={idx} className={idx ? "mt-2" : ""}>
+                  {t}
+                </div>
+              ))}
+            </div>
+            <div className="col-span-4 border-r p-3">
+              <div className="footer-line mb-2">
+                <strong>LSP Name</strong>
+                <span />
               </div>
-            ))}
+              <div className="footer-line mb-2">
+                <strong>Pickup Boy Name</strong>
+                <span />
+              </div>
+              <div className="footer-line mb-2">
+                <strong>Pickup Boy Mobile number</strong>
+                <span />
+              </div>
+              <div className="footer-line mb-2">
+                <strong>Number of Boxes Received</strong>
+                <span />
+              </div>
+              <div className="footer-line mb-2">
+                <strong>Pickup Date</strong>
+                <span />
+              </div>
+              <div className="footer-line mb-2">
+                <strong>Pickup Boy Signature</strong>
+                <span />
+              </div>
+            </div>
+            <div className="col-span-4 p-3 text-center text-xs">
+              <div className="mb-2 font-bold">{ascName}</div>
+              <div className="mt-30 font-semibold">(Authorized Signatory)</div>
+            </div>
           </div>
-          <div className="col-span-4 border-r p-3">
-            <div className="mb-2">
-              <strong>LSP Name</strong> ..................................................
-            </div>
-            <div className="mb-2">
-              <strong>Pickup Boy Name</strong> ......................................
-            </div>
-            <div className="mb-2">
-              <strong>Pickup Boy Mobile number</strong> .......................
-            </div>
-            <div className="mb-2">
-              <strong>Number of Boxes Received</strong> ..................
-            </div>
-            <div className="mb-2">
-              <strong>Pickup Date</strong> ..........................................
-            </div>
-            <div className="mb-2">
-              <strong>Pickup Boy Signature</strong> ......................
-            </div>
-          </div>
-          <div className="col-span-4 p-3 text-center text-xs">
-            <div className="mb-2 font-bold">{ascName}</div>
-            <div className="mt-30 font-semibold">(Authorized Signatory)</div>
-          </div>
-        </div>
 
-        <div className="mt-3 text-center text-xs font-medium">
-          This is Computer Generated Challan.
+          <div className="challan-note mt-3 text-center text-xs font-medium">
+            This is Computer Generated Challan.
+          </div>
         </div>
       </article>
 
@@ -402,9 +410,24 @@ export default function PrintASC({ searchParams }) {
           break-inside: avoid;
         }
 
+        .print-asc-page .challan-footer,
         .print-asc-page .terms-section {
           page-break-inside: avoid;
           break-inside: avoid;
+        }
+
+        .print-asc-page .footer-line {
+          display: flex;
+          align-items: baseline;
+          gap: 4px;
+          min-height: 16px;
+          white-space: nowrap;
+        }
+
+        .print-asc-page .footer-line span {
+          flex: 1;
+          border-bottom: 1px dotted #555;
+          min-width: 24px;
         }
 
         @media print {
@@ -429,26 +452,113 @@ export default function PrintASC({ searchParams }) {
           }
 
           .print-asc-page .challan {
+            display: flex;
+            min-height: calc(297mm - 16mm);
+            flex-direction: column;
             width: 100%;
             max-width: none;
             border-color: #000 !important;
             box-shadow: none !important;
-            padding: 8mm !important;
+            padding: 5mm 6mm !important;
             overflow: visible;
+          }
+
+          .print-asc-page .challan header {
+            margin-bottom: 4px !important;
+            padding-bottom: 4px !important;
+          }
+
+          .print-asc-page .challan header > div:first-child > div:last-child {
+            margin-top: 56px !important;
+            font-size: 11px !important;
+            line-height: 1.25 !important;
+          }
+
+          .print-asc-page .copy-type-panel {
+            row-gap: 3px !important;
+          }
+
+          .print-asc-page .copy-type-panel > div {
+            padding-top: 3px !important;
+            padding-bottom: 3px !important;
+            line-height: 1.15 !important;
+          }
+
+          .print-asc-page .copy-type-panel > div:nth-child(2),
+          .print-asc-page .copy-type-panel > div:nth-child(4) {
+            padding: 0 !important;
+            height: 1px !important;
+          }
+
+          .print-asc-page .header-info-box {
+            margin-top: 104px !important;
+            padding: 5px !important;
+            font-size: 11px !important;
+            line-height: 1.25 !important;
+          }
+
+          .print-asc-page section.grid {
+            gap: 8px !important;
+            margin-bottom: 6px !important;
+            line-height: 1.2 !important;
+          }
+
+          .print-asc-page section.grid > div {
+            padding: 5px !important;
+          }
+
+          .print-asc-page .barcode-wrap {
+            margin-top: 5px !important;
           }
 
           .print-asc-page .items-table {
             font-size: 10px;
+            margin-bottom: 6px !important;
           }
 
           .print-asc-page .items-table th,
           .print-asc-page .items-table td {
             border-color: #000 !important;
-            padding: 3px 4px !important;
+            padding: 2px 3px !important;
+            line-height: 1.18 !important;
           }
 
           .print-asc-page .barcode-wrap svg {
             max-width: 100% !important;
+          }
+
+          .print-asc-page .terms-section {
+            margin-top: 6px !important;
+            font-size: 10px !important;
+            line-height: 1.35 !important;
+          }
+
+          .print-asc-page .terms-section > div {
+            padding: 7px !important;
+          }
+
+          .print-asc-page .terms-section .mb-2 {
+            margin-bottom: 5px !important;
+          }
+
+          .print-asc-page .terms-section .mt-2 {
+            margin-top: 4px !important;
+          }
+
+          .print-asc-page .terms-section .mt-30 {
+            margin-top: 58px !important;
+          }
+
+          .print-asc-page .challan-footer {
+            margin-top: auto !important;
+            padding-top: 6px !important;
+          }
+
+          .print-asc-page .challan-note {
+            margin-top: 5px !important;
+            font-size: 9px !important;
+            page-break-before: avoid;
+            break-before: avoid;
           }
         }
       `}</style>

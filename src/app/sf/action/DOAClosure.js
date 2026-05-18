@@ -51,14 +51,14 @@ export default function DOAClosure({ ticketNo, oldSerialNumber, model }) {
         type: "DOASerialNo",
       };
       const res = await axiosInstance.post("CheckSerialNo/CheckSerial", payload);
-      const message = res?.data?.message?.trim() || "";
+      const message = res?.data?.statusMsg?.trim() || res?.data?.message?.trim() || "";
 
       if (message === "Valid serial no") {
         // router.back();
         toast.success("Serial number is valid");
         setValidSerial(true);
       } else {
-        toast.error(message);
+        toast.error("Unable to verify the serial number");
         setValidSerial(false);
       }
     } catch (error) {

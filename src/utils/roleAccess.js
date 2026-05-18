@@ -1,6 +1,6 @@
 // const DEFAULT_ALLOWED_ROLES = ["cc"];
-// const DEFAULT_ALLOWED_ROLES = ["sf/ssd"];
-const DEFAULT_ALLOWED_ROLES = ["zone", "asm", "br"];
+const DEFAULT_ALLOWED_ROLES = ["sf/ssd"];
+// const DEFAULT_ALLOWED_ROLES = ["zone", "asm", "br"];
 
 export function normalizeRole(role) {
   return String(role || "")

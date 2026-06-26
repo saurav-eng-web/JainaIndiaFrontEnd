@@ -1,5 +1,7 @@
 // const DEFAULT_ALLOWED_ROLES = ["cc"];
-const DEFAULT_ALLOWED_ROLES = ["sf/ssd"];
+// const DEFAULT_ALLOWED_ROLES = ["sf/ssd"];
+const DEFAULT_ALLOWED_ROLES = ["financeexec", "zone", "sf/ssd", "asm", "br", "finance"];
+// const DEFAULT_ALLOWED_ROLES = ["sf/ssd", "FinanceExec"];
 // const DEFAULT_ALLOWED_ROLES = ["zone", "asm", "br"];
 
 export function normalizeRole(role) {
@@ -24,6 +26,5 @@ export function getDeploymentAllowedRoles() {
 export function isRoleAllowedForDeployment(role) {
   const normalizedRole = normalizeRole(role);
   const allowedRoles = getDeploymentAllowedRoles();
-
   return allowedRoles.length === 0 || allowedRoles.includes(normalizedRole);
 }

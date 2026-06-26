@@ -2,7 +2,7 @@
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 
@@ -11,24 +11,41 @@ import { setRouteData } from "../../../redux/slices/routeDataSlice";
 
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
+import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import PageSkeleton from "@/components/ui/PageSkeleton";
+import Subheading from "@/components/ui/Subheading";
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function ComplaintTable() {
+  const tabs = ["NSP", "ASC"];
+
   const { colors } = useTheme();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [dasboardData, setDashboardData] = useState([]);
-  const [activeTab, setActiveTab] = useState("ASC");
+  const [activeTab, setActiveTab] = useState(tabs[0]);
   const [ascData, setAscData] = useState([]);
+  const [search, setSearch] = useState("");
   const router = useRouter();
   const dispatch = useDispatch();
   const userData = getUserFromLocalStorage();
   const userId = userData?.userID;
 
-  const tabs = ["NSP", "ASC"];
+  const filteredData = useMemo(() => {
+    if (!search.trim()) return complaints;
+
+    const query = search.toLowerCase();
+
+    return complaints.filter((row) =>
+      Object.values(row).some((value) =>
+        String(value ?? "")
+          .toLocaleLowerCase()
+          .includes(query)
+      )
+    );
+  });
 
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
@@ -215,21 +232,32 @@ export default function ComplaintTable() {
         <p className="text-red-500">{error}</p>
       ) : (
         <>
+          <Subheading title="ASC / NSP Stats" marginTop={8} />
+
           <div className="mb-6 overflow-x-auto rounded-md">
-            <div className="ml-2 flex">
-              <p className="ml bg-primary text-lg">test</p>
-              <button
-                className={`bg-primary h-8 cursor-pointer rounded-t-md px-6 text-white ${activeTab === "ASC" ? "bg-gray-800 " : ""}`}
-                onClick={() => setActiveTab("ASC")}
-              >
-                ASC
-              </button>
-              <button
-                onClick={() => setActiveTab("ASC")}
-                className={`h-8 cursor-pointer rounded-t-md bg-gray-600 px-6 text-white ${activeTab === "NSP" ? "bg-gray-800 " : ""}`}
-              >
-                NSP
-              </button>
+            <div
+              className="ml-2 flex gap-1"
+              role="tablist"
+              aria-label="Claim summary view"
+            >
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab;
+
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setActiveTab(tab)}
+                    className={`h-8 min-w-20 cursor-pointer rounded-t-md px-8 text-sm font-semibold text-white transition-colors ${
+                      isActive ? "bg-primary" : "bg-primary/70 hover:bg-primary/85"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                );
+              })}
             </div>
             {ascData.length > 0 ? (
               activeTab === "NSP" ? (
@@ -241,8 +269,23 @@ export default function ComplaintTable() {
               <span>Loading</span>
             )}
           </div>
+          <Subheading title="Rejected Calls" marginTop={8} />
+
           <div className="overflow-x-auto rounded-md">
-            <Table columns={columns} rows={complaints} />
+            <div className="flex">
+              <input
+                type="text"
+                placeholder="Search by complaints, call type or ASC"
+                value={search}
+                // className="mb-3 w-72 rounded border px-3 py-2 text-sm focus:outline-none"
+                className="focus:border-primary border-primary focus:ring-primary mb-6 h-11 w-72 rounded-lg border-2 bg-white px-3 py-2 transition-all outline-none focus:ring-1"
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <p className="ml-3 flex h-11 items-center justify-center text-sm text-gray-500">
+                showing {filteredData.length} complaints
+              </p>
+            </div>
+            <Table columns={columns} rows={filteredData} />
           </div>
         </>
       )}

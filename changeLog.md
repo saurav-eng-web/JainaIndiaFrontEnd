@@ -293,3 +293,14 @@
 - feat: search page for finance
 - feat: claim process, end to end
 - fix: UI
+
+---
+
+### 26-06-2026
+
+- reject claim page
+  - integrate the new api, handle the fetch
+  - make the tabular data for nsp and asc
+  - implement the search feature
+  - handle the UI, while loading the asc, nsp stats properly
+  - added loader

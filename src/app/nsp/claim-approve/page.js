@@ -11,8 +11,7 @@ import { setRouteData } from "../../../redux/slices/routeDataSlice";
 
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
-import Loader from "@/components/Loader";
-import { Button } from "@/components/ui/button";
+import Loading from "@/components/ui/Loading";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import Subheading from "@/components/ui/Subheading";
 import { useTheme } from "@/theme/ThemeContext";
@@ -25,6 +24,7 @@ export default function ComplaintTable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [dasboardData, setDashboardData] = useState([]);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [ascData, setAscData] = useState([]);
   const [search, setSearch] = useState("");
@@ -85,18 +85,26 @@ export default function ComplaintTable() {
     };
 
     const fetchDashboardData = async () => {
-      const payload = {
-        type: "nsp",
-      };
-      const data = await axiosInstance.post("FinanceClaimCount/claim-counts", payload);
-      if (!data?.data?.datasets) {
+      try {
+        setStatsLoading(true);
+        const payload = {
+          type: "nsp",
+        };
+        const data = await axiosInstance.post("FinanceClaimCount/claim-counts", payload);
+        if (!data?.data?.datasets) {
+          toast.error("Unable to load dashboard data");
+          return;
+        }
+        const [aData, dashData] = data.data.datasets;
+        setAscData(aData?.data || []);
+        setDashboardData(dashData?.data || []);
+        console.log("data: ", data.data);
+      } catch (err) {
+        console.error("Dashboard API Error:", err);
         toast.error("Unable to load dashboard data");
-        return;
+      } finally {
+        setStatsLoading(false);
       }
-      const [aData, dashData] = data.data.datasets;
-      setAscData(aData?.data);
-      setDashboardData(dashData?.data);
-      console.log("data: ", data.data);
     };
 
     fetchClaimData();
@@ -104,6 +112,12 @@ export default function ComplaintTable() {
   }, [userId]);
 
   const NSPColumns = [
+    {
+      label: "S. No",
+      key: "serialNumber",
+      size: "xxs",
+      render: (_value, _row, rowIndex) => rowIndex + 1,
+    },
     {
       label: "NSP",
       key: "NSP",
@@ -144,6 +158,12 @@ export default function ComplaintTable() {
 
   const ASCColumns = [
     {
+      label: "S. No",
+      key: "serialNumber",
+      size: "xxs",
+      render: (_value, _row, rowIndex) => rowIndex + 1,
+    },
+    {
       label: "ASC",
       key: "ASC_NAME",
       size: "lg",
@@ -172,6 +192,12 @@ export default function ComplaintTable() {
   ];
 
   const columns = [
+    {
+      label: "S. No",
+      key: "serialNumber",
+      size: "xxs",
+      render: (_value, _row, rowIndex) => rowIndex + 1,
+    },
     {
       label: "Action",
       key: "action",
@@ -227,7 +253,9 @@ export default function ComplaintTable() {
   return (
     <PageSkeleton title="Rejected Claim Calls" rolesAllowed={["BR", "NSP", "SF/SSD"]}>
       {loading ? (
-        <p className="text-gray-500">Loading complaints...</p>
+        <div className="flex min-h-40 items-center justify-center rounded-md bg-white">
+          <Loading label="Loading complaints" showLabel />
+        </div>
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : (
@@ -259,14 +287,10 @@ export default function ComplaintTable() {
                 );
               })}
             </div>
-            {ascData.length > 0 ? (
-              activeTab === "NSP" ? (
-                <Table columns={NSPColumns} rows={ascData} />
-              ) : (
-                <Table columns={ASCColumns} rows={dasboardData} />
-              )
+            {activeTab === "NSP" ? (
+              <Table columns={NSPColumns} rows={ascData} isLoading={statsLoading} />
             ) : (
-              <span>Loading</span>
+              <Table columns={ASCColumns} rows={dasboardData} isLoading={statsLoading} />
             )}
           </div>
           <Subheading title="Rejected Calls" marginTop={8} />

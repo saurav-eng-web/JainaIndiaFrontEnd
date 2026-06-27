@@ -154,6 +154,12 @@ export default function SideBar() {
       text: "Claim Details",
       roles: ["FinanceExec"],
     },
+    {
+      href: "/nsp/ticket",
+      icon: "fa fa-book",
+      text: "Ticket",
+      roles: ["BR"],
+    },
   ];
 
   const allowedBulkUsers = ["T284977"];

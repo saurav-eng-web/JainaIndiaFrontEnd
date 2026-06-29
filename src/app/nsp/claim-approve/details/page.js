@@ -12,12 +12,12 @@ import { getUserFromLocalStorage } from "../../../../redux/slices/authSlice";
 
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
-import { Button } from "@/components/ui/button";
-import ImagePreview from "@/components/ui/image/ImagePreview";
-import ImageUpload from "@/components/ui/image/ImageUpload";
-import PageSkeleton from "@/components/ui/PageSkeleton";
-import Subheading from "@/components/ui/Subheading";
-import { UploadProgressModal } from "@/components/ui/UploadProgress";
+import { Button } from "@/components/customui/button";
+import ImagePreview from "@/components/customui/image/ImagePreview";
+import ImageUpload from "@/components/customui/image/ImageUpload";
+import PageSkeleton from "@/components/customui/PageSkeleton";
+import Subheading from "@/components/customui/Subheading";
+import { UploadProgressModal } from "@/components/customui/UploadProgress";
 import { useTheme } from "@/theme/ThemeContext";
 import { logger } from "@/utils/logger";
 import { uploadImage } from "@/utils/uploadImage";

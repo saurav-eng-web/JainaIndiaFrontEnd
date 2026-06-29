@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import { Button } from "@/components/ui/button";
-import ImagePreview from "@/components/ui/image/ImagePreview";
-import ImageUpload from "@/components/ui/image/ImageUpload";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
-import { UploadProgressModal } from "@/components/ui/UploadProgress";
+import { Button } from "@/components/customui/button";
+import ImagePreview from "@/components/customui/image/ImagePreview";
+import ImageUpload from "@/components/customui/image/ImageUpload";
+import ModalSkeleton from "@/components/customui/ModalSkeleton";
+import { UploadProgressModal } from "@/components/customui/UploadProgress";
 import { logger } from "@/utils/logger";
 import { uploadImage } from "@/utils/uploadImage";
 

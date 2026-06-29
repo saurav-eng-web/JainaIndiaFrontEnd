@@ -5,11 +5,11 @@ import { toast } from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
-import { Button } from "@/components/ui/button";
-import DatePicker from "@/components/ui/Datepicker";
-import InputField from "@/components/ui/InputWithLabel";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
-import TimePicker from "@/components/ui/timepicker";
+import { Button } from "@/components/customui/button";
+import DatePicker from "@/components/customui/Datepicker";
+import InputField from "@/components/customui/InputWithLabel";
+import ModalSkeleton from "@/components/customui/ModalSkeleton";
+import TimePicker from "@/components/customui/timepicker";
 import {
   buildRequiredFieldsMessage,
   clearFieldError,
@@ -166,7 +166,8 @@ export default function SCAPopup({
         if (visitRes.status === 200) {
           const vData = visitRes?.data;
           const data = vData[vData.length - 1];
-          const normalizedInTime = normalizeTime(data.vInTime) || defaultVisitState.inTime;
+          const normalizedInTime =
+            normalizeTime(data.vInTime) || defaultVisitState.inTime;
           const normalizedOutTime =
             normalizeTime(data.vOutTime) || getAdjustedOutTime(normalizedInTime);
           const initial = {
@@ -404,14 +405,14 @@ export default function SCAPopup({
       {/* STEP CONTENT */}
       {step === 1 && (
         <>
-        <SCASection
-          scaState={scaState}
-          updateScaField={updateScaField}
-          symptomsData={symptomsData}
-          remarkMandatory={remarkMandatory}
-          setRemarkMandatory={setRemarkMandatory}
-          scaErrors={scaErrors}
-        />
+          <SCASection
+            scaState={scaState}
+            updateScaField={updateScaField}
+            symptomsData={symptomsData}
+            remarkMandatory={remarkMandatory}
+            setRemarkMandatory={setRemarkMandatory}
+            scaErrors={scaErrors}
+          />
           <div className="mt-10 flex justify-end">
             <Button onClick={goNext}>Next</Button>
           </div>

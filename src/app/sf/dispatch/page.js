@@ -10,11 +10,11 @@ import { useSelector } from "react-redux";
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
-import { Button } from "@/components/ui/button";
-import ConfirmModal from "@/components/ui/ConfirmationModal";
-import FormInput from "@/components/ui/FormInput";
-import PageSkeleton from "@/components/ui/PageSkeleton";
-import Subheading from "@/components/ui/Subheading";
+import { Button } from "@/components/customui/button";
+import ConfirmModal from "@/components/customui/ConfirmationModal";
+import FormInput from "@/components/customui/FormInput";
+import PageSkeleton from "@/components/customui/PageSkeleton";
+import Subheading from "@/components/customui/Subheading";
 
 const initialDispatchData = {
   type: "",

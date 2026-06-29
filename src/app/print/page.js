@@ -6,8 +6,8 @@ import { useSelector } from "react-redux";
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
-import { Button } from "@/components/ui/button";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import { Button } from "@/components/customui/button";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function ChallanSearch() {

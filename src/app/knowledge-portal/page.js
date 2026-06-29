@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import Table from "@/components/common/Table";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { logger } from "@/utils/logger";
 
 const KnowledgePortal = () => {

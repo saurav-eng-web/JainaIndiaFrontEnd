@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Button } from "../ui/button";
+import { Button } from "../customui/button";
 
 export default function ActionButtons({ actions, onActionClick }) {
   if (!actions || actions.length === 0) {

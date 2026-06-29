@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import { Button } from "@/components/ui/button";
-import InputField from "@/components/ui/InputWithLabel";
-import Loading from "@/components/ui/Loading";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
-import RadioOption from "@/components/ui/RadioOption";
+import { Button } from "@/components/customui/button";
+import InputField from "@/components/customui/InputWithLabel";
+import Loading from "@/components/customui/Loading";
+import ModalSkeleton from "@/components/customui/ModalSkeleton";
+import RadioOption from "@/components/customui/RadioOption";
 
 export default function ReceiveFGPO({ ticketNo, onClose }) {
   const [receivedStatus, setReceivedStatus] = useState("");

@@ -1,4 +1,4 @@
-import Loading from "../ui/Loading";
+import Loading from "../customui/Loading";
 
 const sizeMap = {
   xxs: "w-10 max-w-[5rem]", // 80px

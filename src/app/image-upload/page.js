@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import axiosInstance from "@/api/axiosInstance"; // adjust if your instance path differs
-import ImageUpload from "@/components/ui/image/ImageUpload";
+import ImageUpload from "@/components/customui/image/ImageUpload";
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function TestUploadPage() {

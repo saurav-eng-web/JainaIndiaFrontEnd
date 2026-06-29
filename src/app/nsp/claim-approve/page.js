@@ -11,9 +11,9 @@ import { setRouteData } from "../../../redux/slices/routeDataSlice";
 
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
-import Loading from "@/components/ui/Loading";
-import PageSkeleton from "@/components/ui/PageSkeleton";
-import Subheading from "@/components/ui/Subheading";
+import Loading from "@/components/customui/Loading";
+import PageSkeleton from "@/components/customui/PageSkeleton";
+import Subheading from "@/components/customui/Subheading";
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function ComplaintTable() {

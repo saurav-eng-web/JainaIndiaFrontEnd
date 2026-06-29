@@ -6,9 +6,9 @@ import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
-import Loading from "@/components/ui/Loading";
-import PageSkeleton from "@/components/ui/PageSkeleton";
-import RadioOption from "@/components/ui/RadioOption";
+import Loading from "@/components/customui/Loading";
+import PageSkeleton from "@/components/customui/PageSkeleton";
+import RadioOption from "@/components/customui/RadioOption";
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function ReceivePO() {

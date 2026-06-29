@@ -4,8 +4,8 @@ import toast from "react-hot-toast";
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import Table from "@/components/common/Table";
-import { Button } from "@/components/ui/button";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
+import { Button } from "@/components/customui/button";
+import ModalSkeleton from "@/components/customui/ModalSkeleton";
 
 export default function PartIssueToEng({ ticketNo, sfId, onClose }) {
   const [engineerData, setEngineerData] = useState([]);

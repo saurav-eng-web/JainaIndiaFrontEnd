@@ -3,8 +3,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Button } from "@/components/ui/button";
-import Modal from "@/components/ui/Modal";
+import { Button } from "@/components/customui/button";
+import Modal from "@/components/customui/Modal";
 import { loginUser, logout } from "@/redux/slices/authSlice";
 import { isRoleAllowedForDeployment } from "@/utils/roleAccess";
 

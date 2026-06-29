@@ -3,9 +3,9 @@ import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
-import { Button } from "@/components/ui/button";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
-import RadioOption from "@/components/ui/RadioOption";
+import { Button } from "@/components/customui/button";
+import ModalSkeleton from "@/components/customui/ModalSkeleton";
+import RadioOption from "@/components/customui/RadioOption";
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function PartConsume({ ticketNo, onClose }) {

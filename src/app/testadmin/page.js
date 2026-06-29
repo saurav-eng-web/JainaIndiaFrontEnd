@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import InputWithLabel from "@/components/ui/InputWithLabel";
-import Modal from "@/components/ui/Modal";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import { Button } from "@/components/customui/button";
+import InputWithLabel from "@/components/customui/InputWithLabel";
+import Modal from "@/components/customui/Modal";
+import ModalSkeleton from "@/components/customui/ModalSkeleton";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 
 export default function Page() {
   const [open, setOpen] = useState(false);

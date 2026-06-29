@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import SideBar from "@/components/SideBar";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
 import { logger } from "@/utils/logger";
 

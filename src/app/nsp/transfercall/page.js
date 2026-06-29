@@ -5,7 +5,7 @@ import { useSelector } from "react-redux"; // Redux
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
 import { updateJob } from "@/utils/commonApis";
 

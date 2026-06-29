@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import { Button } from "@/components/ui/button";
-import ImagePreview from "@/components/ui/image/ImagePreview";
-import ImageUpload from "@/components/ui/image/ImageUpload";
-import InputField from "@/components/ui/InputWithLabel";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
+import { Button } from "@/components/customui/button";
+import ImagePreview from "@/components/customui/image/ImagePreview";
+import ImageUpload from "@/components/customui/image/ImageUpload";
+import InputField from "@/components/customui/InputWithLabel";
+import ModalSkeleton from "@/components/customui/ModalSkeleton";
 import { uploadImage } from "@/utils/uploadImage";
 
 export default function OKPopup({ ticketNo, onClose }) {

@@ -14,7 +14,7 @@
       <change beforePath="$PROJECT_DIR$/src/app/search-complaint/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/search-complaint/page.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/sf/gas-charging-req/gasChargingReq.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/sf/gas-charging-req/gasChargingReq.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/testadmin/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/testadmin/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/button.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/button.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/customui/button.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/customui/button.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import { Button } from "@/components/ui/button";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import { Button } from "@/components/customui/button";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 
 export default function SendHappyCode() {
   const router = useRouter();

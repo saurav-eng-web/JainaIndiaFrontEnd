@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import SideBar from "@/components/SideBar";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/customui/button";
 
 export default function Unauthorized() {
   const router = useRouter();

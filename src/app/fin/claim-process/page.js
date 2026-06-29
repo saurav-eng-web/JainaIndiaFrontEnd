@@ -11,7 +11,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Table from "@/components/common/Table";
 import Pagination from "@/components/Pagination";
 import SideBar from "@/components/SideBar";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { getUserFromLocalStorage } from "@/redux/slices/authSlice";
 import { exportToExcel } from "@/utils/exportToExcel";
 import { logger } from "@/utils/logger";

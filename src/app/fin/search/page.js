@@ -8,10 +8,10 @@ import { useDispatch } from "react-redux";
 
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
-import { Button } from "@/components/ui/button";
-import InputField from "@/components/ui/InputWithLabel";
-import PageSkeleton from "@/components/ui/PageSkeleton";
-// import Modal from "@/components/ui/Modal";
+import { Button } from "@/components/customui/button";
+import InputField from "@/components/customui/InputWithLabel";
+import PageSkeleton from "@/components/customui/PageSkeleton";
+// import Modal from "@/components/customui/Modal";
 // import { setRouteData } from "@/redux/slices/routeDataSlice";
 import { logger } from "@/utils/logger";
 

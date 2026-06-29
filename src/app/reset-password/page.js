@@ -5,9 +5,9 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 
 import axiosInstance from "@/api/axiosInstance";
-import { Button } from "@/components/ui/button";
-import InputWithLabel from "@/components/ui/InputWithLabel";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import { Button } from "@/components/customui/button";
+import InputWithLabel from "@/components/customui/InputWithLabel";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { logout } from "@/redux/slices/authSlice";
 
 export default function Page() {

@@ -4,9 +4,9 @@ import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
-import { Button } from "@/components/ui/button";
-import InputWithLabel from "@/components/ui/InputWithLabel";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
+import { Button } from "@/components/customui/button";
+import InputWithLabel from "@/components/customui/InputWithLabel";
+import ModalSkeleton from "@/components/customui/ModalSkeleton";
 
 export default function CancelReqModal({
   ticketNo,

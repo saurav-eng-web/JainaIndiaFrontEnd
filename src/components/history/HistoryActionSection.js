@@ -13,7 +13,7 @@ import PartConsume from "@/app/history/actionsModals/PartConsume";
 import ReceiveFGPO from "@/app/history/actionsModals/ReceiveFGPO";
 import ActionButtons from "@/components/history/ActionButtons";
 import ActionPopup from "@/components/history/ActionPopup";
-import Modal from "@/components/ui/Modal";
+import Modal from "@/components/customui/Modal";
 import { logger } from "@/utils/logger";
 
 export default function HistoryActionSection() {

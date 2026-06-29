@@ -12,14 +12,14 @@ import CustomerDetailTab from "@/components/history/tabs/CustomerDetailTab";
 import JobDetailsTab from "@/components/history/tabs/JobDetailsTab";
 import ProductDetailsTab from "@/components/history/tabs/ProductDetailsTab";
 import Pagination from "@/components/Pagination";
-import { Button } from "@/components/ui/button";
-import Dropdown from "@/components/ui/Dropdown";
-import InputWithLabel from "@/components/ui/InputWithLabel";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import { Button } from "@/components/customui/button";
+import Dropdown from "@/components/customui/Dropdown";
+import InputWithLabel from "@/components/customui/InputWithLabel";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { useHistoryData } from "@/hooks/useHistoryData";
 import "./../../history/history.css";
 import { useTheme } from "@/theme/ThemeContext";
-import Subheading from "@/components/ui/Subheading";
+import Subheading from "@/components/customui/Subheading";
 
 export default function Page() {
   const { colors } = useTheme();

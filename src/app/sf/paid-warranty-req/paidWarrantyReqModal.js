@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import { Button } from "@/components/ui/button";
-import InputField from "@/components/ui/InputWithLabel";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
+import { Button } from "@/components/customui/button";
+import InputField from "@/components/customui/InputWithLabel";
+import ModalSkeleton from "@/components/customui/ModalSkeleton";
 
 // const dummyPartCode= ""
 

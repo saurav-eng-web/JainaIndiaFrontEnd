@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
-import PageSkeleton from "@/components/ui/PageSkeleton";
-import Subheading from "@/components/ui/Subheading";
+import PageSkeleton from "@/components/customui/PageSkeleton";
+import Subheading from "@/components/customui/Subheading";
 
 export default function Page() {
   const [complaints, setComplaints] = useState([]);

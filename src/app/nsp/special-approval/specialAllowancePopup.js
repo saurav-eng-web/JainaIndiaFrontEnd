@@ -8,9 +8,9 @@ import { useSelector } from "react-redux";
 import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import CustomDropdown from "@/components/common/Dropdown";
-import { Button } from "@/components/ui/button";
-import InputField from "@/components/ui/InputWithLabel";
-import TextArea from "@/components/ui/Textarea";
+import { Button } from "@/components/customui/button";
+import InputField from "@/components/customui/InputWithLabel";
+import TextArea from "@/components/customui/Textarea";
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function SpeicalApprovalPopup({ ticketNo }) {

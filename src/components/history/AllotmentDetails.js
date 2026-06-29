@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 import SectionHeading from "../common/SectionHeading";
 import Table from "../common/Table";
-import { Button } from "../ui/button";
+import { Button } from "../customui/button";
 
 import axiosInstance from "@/api/axiosInstance";
 import { useTheme } from "@/theme/ThemeContext";

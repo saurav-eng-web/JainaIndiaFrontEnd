@@ -8,8 +8,8 @@ import GasChargingReqModal from "./gasChargingReq";
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
 import Pagination from "@/components/Pagination";
-import Modal from "@/components/ui/Modal";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import Modal from "@/components/customui/Modal";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
 
 function ComplaintTableInner() {

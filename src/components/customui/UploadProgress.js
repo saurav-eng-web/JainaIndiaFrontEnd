@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { CheckCircle2, UploadCloud, Loader2 } from "lucide-react";
 import React from "react";
 
-import Modal from "@/components/ui/Modal";
+import Modal from "@/components/customui/Modal";
 
 /**
  * THEME TOKENS – matching your app

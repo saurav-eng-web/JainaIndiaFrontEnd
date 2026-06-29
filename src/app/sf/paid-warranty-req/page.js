@@ -6,8 +6,8 @@ import PaidWarrantyReqModal from "./paidWarrantyReqModal";
 
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
-import Modal from "@/components/ui/Modal";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import Modal from "@/components/customui/Modal";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { formatIndianDate } from "@/utils/formatDate";
 
 export default function PaidWarrantyRequest() {

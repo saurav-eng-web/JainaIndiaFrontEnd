@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
 import SideBar from "@/components/SideBar";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
 
 export default function ComplaintTable() {

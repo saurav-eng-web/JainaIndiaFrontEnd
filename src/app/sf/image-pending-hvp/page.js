@@ -8,9 +8,9 @@ import PendingImageUploadPopup from "./pendingImageUploadPopup";
 import axiosInstance from "@/api/axiosInstance";
 import Table from "@/components/common/Table";
 import Pagination from "@/components/Pagination";
-import { Button } from "@/components/ui/button";
-import Modal from "@/components/ui/Modal";
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import { Button } from "@/components/customui/button";
+import Modal from "@/components/customui/Modal";
+import PageSkeleton from "@/components/customui/PageSkeleton";
 import { useTheme } from "@/theme/ThemeContext";
 
 function ComplaintTableInner() {

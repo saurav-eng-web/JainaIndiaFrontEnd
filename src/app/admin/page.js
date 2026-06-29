@@ -3,10 +3,10 @@
 import { useState } from "react";
 
 import CustomDropdown from "@/components/common/Dropdown";
-import { Button } from "@/components/ui/button";
-import InputWithLabel from "@/components/ui/InputWithLabel";
-import PageSkeleton from "@/components/ui/PageSkeleton";
-import Subheading from "@/components/ui/Subheading";
+import { Button } from "@/components/customui/button";
+import InputWithLabel from "@/components/customui/InputWithLabel";
+import PageSkeleton from "@/components/customui/PageSkeleton";
+import Subheading from "@/components/customui/Subheading";
 
 export default function ActionMasterPage() {
   // tabs: Create, Update

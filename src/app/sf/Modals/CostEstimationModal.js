@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import ModalSkeleton from "@/components/ui/ModalSkeleton";
+import ModalSkeleton from "@/components/customui/ModalSkeleton";
 
 export default function CostEstimationModal({ ticketNumber }) {
   const [poData, setPoData] = useState([]);

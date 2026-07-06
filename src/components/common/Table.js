@@ -12,7 +12,7 @@ const sizeMap = {
   full: "",
 };
 
-export default function Table({ columns, rows, isLoading = false }) {
+export default function Table({ columns, rows, isLoading = false, onRowClick }) {
   return (
     <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
@@ -45,7 +45,11 @@ export default function Table({ columns, rows, isLoading = false }) {
               </tr>
             ) : (
               rows.map((row, rowIndex) => (
-                <tr key={rowIndex} className="transition-colors hover:bg-slate-100">
+                <tr 
+                  key={rowIndex} 
+                  className={`transition-colors hover:bg-slate-100 ${onRowClick ? "cursor-pointer" : ""}`}
+                  onClick={() => onRowClick && onRowClick(row)}
+                >
                   {columns.map((col) => (
                     <Td
                       key={col.key}

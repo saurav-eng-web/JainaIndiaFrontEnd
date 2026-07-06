@@ -15,6 +15,7 @@ import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
 import { UploadProgressModal } from "@/components/customui/UploadProgress";
 import { uploadImage } from "@/utils/uploadImage";
+import TicketHistoryView from "./TicketHistoryView";
 
 const toDropdownOptions = (data) =>
   Array.isArray(data)
@@ -42,6 +43,10 @@ export default function Page() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tickets, setTickets] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const [selectedHistoryTicket, setSelectedHistoryTicket] = useState(null);
+  const [ticketHistory, setTicketHistory] = useState([]);
+  const [isFetchingHistory, setIsFetchingHistory] = useState(false);
 
   const MAX_IMAGES = 5;
   const MAX_IMAGE_SIZE_MB = 5;
@@ -255,6 +260,29 @@ export default function Page() {
     }
   }
 
+  const handleRowClick = async (row) => {
+    setSelectedHistoryTicket(row);
+    setIsFetchingHistory(true);
+    setTicketHistory([]);
+    try {
+      const payload = {
+        type: "GetTicketDetail",
+        TicketNumber: row.Ticket_No,
+      };
+      const res = await axiosInstance.post("Ticket/process", payload);
+      if (res.data?.statusCode === 200) {
+        setTicketHistory(res.data.data || []);
+      } else {
+        toast.error("Failed to fetch ticket history");
+      }
+    } catch (error) {
+      console.error("Error fetching ticket history", error);
+      toast.error("An error occurred while fetching ticket history");
+    } finally {
+      setIsFetchingHistory(false);
+    }
+  };
+
   const columns = [
     { label: "Ticket Number", key: "Ticket_No", size: "md" },
     { label: "Complaint No", key: "ComplaintNo", size: "md" },
@@ -314,7 +342,10 @@ export default function Page() {
               <button
                 key={url}
                 type="button"
-                onClick={() => setSelectedImage(url)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage(url);
+                }}
                 className="cursor-pointer rounded focus:ring-2 focus:ring-[#714b67] focus:ring-offset-2 focus:outline-none"
                 aria-label={`Open ticket attachment ${index + 1}`}
               >
@@ -333,97 +364,108 @@ export default function Page() {
 
   return (
     <PageSkeleton title="Ticket Portal" rolesAllowed={["BR", "NSP"]}>
-      <UploadProgressModal
-        open={Boolean(activeUpload)}
-        title={activeUpload?.title}
-        progress={activeUpload?.progress || 0}
-        fileInfo={activeUpload?.fileInfo || null}
-      />
-      <Modal open={Boolean(selectedImage)} onClose={() => setSelectedImage(null)}>
-        <div className="flex max-h-[90vh] max-w-[90vw] items-center justify-center p-4 pt-12">
-          {selectedImage && (
-            <img
-              src={selectedImage}
-              alt="Ticket attachment preview"
-              className="max-h-[80vh] max-w-[85vw] rounded object-contain"
-            />
-          )}
-        </div>
-      </Modal>
-      <Subheading title="Raise Ticket" marginTop={8} />
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <CustomDropdown
-          options={complaints}
-          value={selectedComplaint}
-          label="Select Complaints"
-          onChange={setSelectedComplaint}
-          placeholder="----Select----"
+      {selectedHistoryTicket ? (
+        <TicketHistoryView
+          ticket={selectedHistoryTicket}
+          history={ticketHistory}
+          isLoading={isFetchingHistory}
+          onBack={() => setSelectedHistoryTicket(null)}
         />
-        <CustomDropdown
-          options={issueList}
-          value={selectedIssue}
-          label="Select Issue"
-          onChange={setSelectedIssue}
-          placeholder="----Select----"
-        />
-        <CustomDropdown
-          options={assignToList}
-          value={selectedAssignee}
-          label="Assign To"
-          onChange={setSelectedAssignee}
-          placeholder="----Select----"
-        />
-
-        <InputField
-          label="Remarks"
-          value={remarks}
-          onChange={(e) => {
-            setRemarks(e.target.value);
-          }}
-          placeholder="Enter Remarks"
-          required
-          onEnterKeyPressed={() => { }}
-        />
-      </div>
-
-      <div className="mt-6 flex w-full max-w-4xl flex-col gap-6 md:flex-row">
-        <div className="w-full md:w-1/2">
-          <ImageUpload
-            label="Upload Images"
-            variant="box"
-            maxFileAllowed={MAX_IMAGES}
-            maxFileSize={MAX_IMAGE_SIZE_MB}
-            onChange={handleImageChange}
-            multiple={true}
-            accept="image/*"
-            disabled={images.length >= MAX_IMAGES || isUploading || isSubmitting}
-          />
-        </div>
-        {imagePreviews.length > 0 && (
-          <div className="w-full rounded-lg p-4 md:w-1/2">
-            <h4 className="mb-3 text-sm font-semibold text-gray-700">
-              Selected Images ({imagePreviews.length})
-            </h4>
-            <ImagePreview images={imagePreviews} onRemove={handleRemoveImage} />
-          </div>
-        )}
-      </div>
-
-      <Button
-        className="mt-6 ml-auto w-32"
-        onClick={submitRequest}
-        disabled={isUploading || isSubmitting}
-      >
-        {isSubmitting ? "Submitting..." : "Raise Ticket"}
-      </Button>
-
-      <Subheading title="Ticket Details" marginTop={8} />
-      {tickets.length > 0 ? (
-        <div className="mt-4 overflow-hidden rounded-lg border border-gray-200 shadow-sm">
-          <Table columns={columns} rows={tickets} />
-        </div>
       ) : (
-        <div className="mt-4 text-gray-500">No tickets found.</div>
+        <>
+          <UploadProgressModal
+            open={Boolean(activeUpload)}
+            title={activeUpload?.title}
+            progress={activeUpload?.progress || 0}
+            fileInfo={activeUpload?.fileInfo || null}
+          />
+          <Modal open={Boolean(selectedImage)} onClose={() => setSelectedImage(null)}>
+            <div className="flex max-h-[90vh] max-w-[90vw] items-center justify-center p-4 pt-12">
+              {selectedImage && (
+                <img
+                  src={selectedImage}
+                  alt="Ticket attachment preview"
+                  className="max-h-[80vh] max-w-[85vw] rounded object-contain"
+                />
+              )}
+            </div>
+          </Modal>
+          <Subheading title="Raise Ticket" marginTop={8} />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <CustomDropdown
+              options={complaints}
+              value={selectedComplaint}
+              label="Select Complaints"
+              onChange={setSelectedComplaint}
+              placeholder="----Select----"
+            />
+            <CustomDropdown
+              options={issueList}
+              value={selectedIssue}
+              label="Select Issue"
+              onChange={setSelectedIssue}
+              placeholder="----Select----"
+            />
+            <CustomDropdown
+              options={assignToList}
+              value={selectedAssignee}
+              label="Assign To"
+              onChange={setSelectedAssignee}
+              placeholder="----Select----"
+            />
+
+            <InputField
+              label="Remarks"
+              value={remarks}
+              onChange={(e) => {
+                setRemarks(e.target.value);
+              }}
+              placeholder="Enter Remarks"
+              required
+              onEnterKeyPressed={() => { }}
+            />
+          </div>
+
+          <div className="mt-6 flex w-full max-w-4xl flex-col gap-6 md:flex-row">
+            <div className="w-full md:w-1/2">
+              <ImageUpload
+                label="Upload Images"
+                variant="box"
+                maxFileAllowed={MAX_IMAGES}
+                maxFileSize={MAX_IMAGE_SIZE_MB}
+                onChange={handleImageChange}
+                multiple={true}
+                accept="image/*"
+                disabled={images.length >= MAX_IMAGES || isUploading || isSubmitting}
+              />
+            </div>
+            {imagePreviews.length > 0 && (
+              <div className="w-full rounded-lg p-4 md:w-1/2">
+                <h4 className="mb-3 text-sm font-semibold text-gray-700">
+                  Selected Images ({imagePreviews.length})
+                </h4>
+                <ImagePreview images={imagePreviews} onRemove={handleRemoveImage} />
+              </div>
+            )}
+          </div>
+
+          <Button
+            className="mt-6 ml-auto w-32"
+            onClick={submitRequest}
+            disabled={isUploading || isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Raise Ticket"}
+          </Button>
+
+          <Subheading title="Ticket Details" marginTop={8} />
+          {tickets.length > 0 ? (
+            <div className="mt-4 overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+              <Table columns={columns} rows={tickets} onRowClick={handleRowClick} />
+            </div>
+          ) : (
+            <div className="mt-4 text-gray-500">No tickets found.</div>
+          )}
+        </>
       )}
     </PageSkeleton>
   );

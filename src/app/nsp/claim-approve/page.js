@@ -260,7 +260,7 @@ export default function ComplaintTable() {
         <p className="text-red-500">{error}</p>
       ) : (
         <>
-          <Subheading title="ASC / NSP Stats" marginTop={8} />
+          {/* <Subheading title="ASC / NSP Stats" marginTop={8} />
 
           <div className="mb-6 overflow-x-auto rounded-md">
             <div
@@ -292,7 +292,7 @@ export default function ComplaintTable() {
             ) : (
               <Table columns={ASCColumns} rows={dasboardData} isLoading={statsLoading} />
             )}
-          </div>
+          </div> */}
           <Subheading title="Rejected Calls" marginTop={8} />
 
           <div className="overflow-x-auto rounded-md">

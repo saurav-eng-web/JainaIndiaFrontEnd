@@ -31,6 +31,25 @@ import { useTheme } from "@/theme/ThemeContext";
 import { encodeRouteData } from "@/utils/secureRoute";
 // import "../../../components/Sidebar.css";
 
+// Some buckets have a dedicated count API instead of using the shared
+// DashboardBucket/aggregation numbers. Keys are the bucket title returned by
+// DashboardBucket/role, lowercased (aliases allowed). Each fetcher resolves to
+// a number, or null to fall back to the aggregation count.
+async function fetchRejectedClaimCount(firstID) {
+  const res = await axiosInstance.post("claim-process-v1/process", {
+    type: "ClaimDashboardCount",
+    sfid: firstID,
+  });
+
+  if (res.data?.statusCode !== 200) return null;
+  return res.data?.data?.[0]?.RejectClaimCount ?? null;
+}
+
+const CUSTOM_COUNT_FETCHERS = {
+  "claims rejected": fetchRejectedClaimCount,
+  "rejected claim calls": fetchRejectedClaimCount,
+};
+
 export default function Dashboard() {
   const { colors } = useTheme();
   const userInfo = useSelector((state) => state.auth?.user);
@@ -128,7 +147,27 @@ export default function Dashboard() {
           };
         });
 
-        const sorted = formatted.sort((a, b) => a.order - b.order);
+        // ---------------------------
+        //  Override counts that come from a dedicated API
+        // ---------------------------
+        const withCustomCounts = await Promise.all(
+          formatted.map(async (card) => {
+            const fetcher = CUSTOM_COUNT_FETCHERS[card.title?.trim().toLowerCase()];
+            if (!fetcher) return card;
+
+            try {
+              const count = await fetcher(firstID);
+              return count === null ? card : { ...card, value: count };
+            } catch (err) {
+              // Keep the aggregation count so one failing endpoint
+              // cannot blank out the whole dashboard.
+              console.error(`Count API failed for "${card.title}":`, err);
+              return card;
+            }
+          })
+        );
+
+        const sorted = withCustomCounts.sort((a, b) => a.order - b.order);
 
         setDashboardData(sorted);
       } catch (error) {

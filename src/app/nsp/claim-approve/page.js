@@ -84,112 +84,112 @@ export default function ComplaintTable() {
       }
     };
 
-    const fetchDashboardData = async () => {
-      try {
-        setStatsLoading(true);
-        const payload = {
-          type: "nsp",
-        };
-        const data = await axiosInstance.post("FinanceClaimCount/claim-counts", payload);
-        if (!data?.data?.datasets) {
-          toast.error("Unable to load dashboard data");
-          return;
-        }
-        const [aData, dashData] = data.data.datasets;
-        setAscData(aData?.data || []);
-        setDashboardData(dashData?.data || []);
-        console.log("data: ", data.data);
-      } catch (err) {
-        console.error("Dashboard API Error:", err);
-        toast.error("Unable to load dashboard data");
-      } finally {
-        setStatsLoading(false);
-      }
-    };
+    // const fetchDashboardData = async () => {
+    //   try {
+    //     setStatsLoading(true);
+    //     const payload = {
+    //       type: "nsp",
+    //     };
+    //     const data = await axiosInstance.post("FinanceClaimCount/claim-counts", payload);
+    //     if (!data?.data?.datasets) {
+    //       toast.error("Unable to load dashboard data");
+    //       return;
+    //     }
+    //     const [aData, dashData] = data.data.datasets;
+    //     setAscData(aData?.data || []);
+    //     setDashboardData(dashData?.data || []);
+    //     console.log("data: ", data.data);
+    //   } catch (err) {
+    //     console.error("Dashboard API Error:", err);
+    //     toast.error("Unable to load dashboard data");
+    //   } finally {
+    //     setStatsLoading(false);
+    //   }
+    // };
 
     fetchClaimData();
-    fetchDashboardData();
+    // fetchDashboardData();
   }, [userId]);
 
-  const NSPColumns = [
-    {
-      label: "S. No",
-      key: "serialNumber",
-      size: "xxs",
-      render: (_value, _row, rowIndex) => rowIndex + 1,
-    },
-    {
-      label: "NSP",
-      key: "NSP",
-      size: "lg",
-    },
-    {
-      label: "Pending for approval",
-      key: "PendingForApproval",
-      size: "sm",
-    },
+  // const NSPColumns = [
+  //   {
+  //     label: "S. No",
+  //     key: "serialNumber",
+  //     size: "xxs",
+  //     render: (_value, _row, rowIndex) => rowIndex + 1,
+  //   },
+  //   {
+  //     label: "NSP",
+  //     key: "NSP",
+  //     size: "lg",
+  //   },
+  //   {
+  //     label: "Pending for approval",
+  //     key: "PendingForApproval",
+  //     size: "sm",
+  //   },
 
-    {
-      label: "Resubmit for claim",
-      key: "ReSubmitForClaim",
-      size: "sm",
-    },
-    {
-      label: "Pending at asc nsp",
-      key: "PendingAtAscNsp",
-      size: "sm",
-    },
-    {
-      label: "Claim Hold",
-      key: "ClaimHold",
-      size: "sm",
-    },
-    {
-      label: "Claim Approve",
-      key: "ClaimApprove",
-      size: "sm",
-    },
-    {
-      label: "Claim Rejected",
-      key: "ClaimRejected",
-      size: "sm",
-    },
-  ];
+  //   {
+  //     label: "Resubmit for claim",
+  //     key: "ReSubmitForClaim",
+  //     size: "sm",
+  //   },
+  //   {
+  //     label: "Pending at asc nsp",
+  //     key: "PendingAtAscNsp",
+  //     size: "sm",
+  //   },
+  //   {
+  //     label: "Claim Hold",
+  //     key: "ClaimHold",
+  //     size: "sm",
+  //   },
+  //   {
+  //     label: "Claim Approve",
+  //     key: "ClaimApprove",
+  //     size: "sm",
+  //   },
+  //   {
+  //     label: "Claim Rejected",
+  //     key: "ClaimRejected",
+  //     size: "sm",
+  //   },
+  // ];
 
-  const ASCColumns = [
-    {
-      label: "S. No",
-      key: "serialNumber",
-      size: "xxs",
-      render: (_value, _row, rowIndex) => rowIndex + 1,
-    },
-    {
-      label: "ASC",
-      key: "ASC_NAME",
-      size: "lg",
-    },
-    {
-      label: "ASC CODE",
-      key: "ASC_CODE",
-      size: "sm",
-    },
+  // const ASCColumns = [
+  //   {
+  //     label: "S. No",
+  //     key: "serialNumber",
+  //     size: "xxs",
+  //     render: (_value, _row, rowIndex) => rowIndex + 1,
+  //   },
+  //   {
+  //     label: "ASC",
+  //     key: "ASC_NAME",
+  //     size: "lg",
+  //   },
+  //   {
+  //     label: "ASC CODE",
+  //     key: "ASC_CODE",
+  //     size: "sm",
+  //   },
 
-    {
-      label: "Resubmit for claim",
-      key: "ReSubmitForClaim",
-      size: "sm",
-    },
-    {
-      label: "Pending at ASC",
-      key: "PendingAtAsc",
-      size: "sm",
-    },
-    {
-      label: "Total Pending",
-      key: "TotalPending",
-      size: "sm",
-    },
-  ];
+  //   {
+  //     label: "Resubmit for claim",
+  //     key: "ReSubmitForClaim",
+  //     size: "sm",
+  //   },
+  //   {
+  //     label: "Pending at ASC",
+  //     key: "PendingAtAsc",
+  //     size: "sm",
+  //   },
+  //   {
+  //     label: "Total Pending",
+  //     key: "TotalPending",
+  //     size: "sm",
+  //   },
+  // ];
 
   const columns = [
     {

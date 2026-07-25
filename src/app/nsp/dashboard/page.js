@@ -111,8 +111,7 @@ export default function Dashboard() {
           // Types to fetch from JobnOtherDetailNew/get
           const bucketTypes = [
             "RejectedClaimCalls",
-            "Pending Challan at Warehouse",
-            "Pending Challans at Warehouse"
+            "PendingChallanatWarehouse",
           ];
 
           const bucketResults = await Promise.allSettled(

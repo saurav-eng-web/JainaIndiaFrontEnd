@@ -1,8 +1,7 @@
 // const DEFAULT_ALLOWED_ROLES = ["cc"];
-// const DEFAULT_ALLOWED_ROLES = ["sf/ssd"];
-// const DEFAULT_ALLOWED_ROLES = ["sf/ssd", "FinanceExec"];
-const DEFAULT_ALLOWED_ROLES = ["zone", "asm", "br"];
-// const DEFAULT_ALLOWED_ROLES = ["financeexec", "zone", "sf/ssd", "asm", "br", "finance"];
+const DEFAULT_ALLOWED_ROLES = ["sf/ssd"]; // ASC
+// const DEFAULT_ALLOWED_ROLES = ["zone", "asm", "br"]; // NRA
+// const DEFAULT_ALLOWED_ROLES = ["financeexec", "zone", "sf/ssd", "asm", "br", "finance"]; // TESTING 
 
 export function normalizeRole(role) {
   return String(role || "")

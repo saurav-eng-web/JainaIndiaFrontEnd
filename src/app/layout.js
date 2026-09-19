@@ -6,6 +6,7 @@ import ToastProvider from "./ToastProvider";
 
 import Loader from "@/components/Loader";
 import NavigationLoader from "@/components/NavigationLoader";
+import SessionSync from "@/components/auth/SessionSync";
 import ReduxProvider from "@/redux/ReduxProvider"; // ✅ Import client provider
 import { ThemeProvider } from "@/theme/ThemeContext";
 
@@ -51,6 +52,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ReduxProvider>
+          <SessionSync />
           <Loader />
           <NavigationLoader />
           <ThemeProvider>

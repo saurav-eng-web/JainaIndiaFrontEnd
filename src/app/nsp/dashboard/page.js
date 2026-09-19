@@ -81,6 +81,8 @@ export default function Dashboard() {
     "Claims Rejected": { Icon: MdBlock, iconColor: "text-red-500" },
   };
 
+  useEffect(() => { });
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       if (!userInfo?.roleID) return;
@@ -117,6 +119,49 @@ export default function Dashboard() {
         }
 
         // ---------------------------
+        //  Fetch extra bucket counts for BR role
+        // ---------------------------
+        const bucketCount = {};
+        const role = userInfo.roleName?.toUpperCase();
+
+        if (role === "BR") {
+          const branchId = userInfo.branch_ID || 0;
+
+          // Types to fetch from JobnOtherDetailNew/get
+          const bucketTypes = [
+            "RejectedClaimCalls",
+            "PendingChallanatWarehouse",
+          ];
+
+          const bucketResults = await Promise.allSettled(
+            bucketTypes.map((type) =>
+              axiosInstance.post("JobnOtherDetailNew/get", {
+                type,
+                ticket_no: String(branchId),
+              })
+            )
+          );
+
+          for (const result of bucketResults) {
+            if (
+              result.status === "fulfilled" &&
+              result.value?.data?.statusCode === 200 &&
+              result.value?.data?.data?.[0]
+            ) {
+              const row = result.value.data.data[0];
+              // Extract the count — the key in the response object
+              // is the display name (e.g. "Rejected Claim Calls", "Pending Challans at Warehouse")
+              // We pick every key except "bid" as the count value
+              for (const [key, value] of Object.entries(row)) {
+                if (key !== "bid" && typeof value === "number") {
+                  bucketCount[key] = value;
+                }
+              }
+            }
+          }
+        }
+
+        // ---------------------------
         //  Format dashboard cards
         // ---------------------------
         const formatted = roleBuckets.map((bucket) => {
@@ -130,7 +175,11 @@ export default function Dashboard() {
           } = bucket;
 
           const key = `${complaintStatus}::${complaintSubStatus}`;
-          const count = countMap[key] ?? 0;
+          // Use bucketCount (from extra API) if available, else fallback to aggregation count
+          const count =
+            bucketCount[title] !== undefined
+              ? bucketCount[title]
+              : countMap[key] ?? 0;
 
           const mapItem = iconMap[title] || { Icon: MdOutlineHelpOutline };
 

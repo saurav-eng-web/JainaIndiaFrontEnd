@@ -151,6 +151,14 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
       toast.error("Please upload both images");
       return;
     }
+    if (serialFile.length < 1) {
+      toast.error("It is mandatory to upload the serial no doc");
+      return;
+    }
+    //   if (serialFile.length < 2) {
+    //   toast.error("It is mandatory to upload the serial no doc and carton image.");
+    //   return;
+    // }
     if (!validSerial) {
       toast.error("Please validate serial number");
       return;
@@ -284,6 +292,7 @@ export default function WIPPopupModal({ ticketNo, onClose, pinCode }) {
               onChange={(e) => handleFileChange(e, "serial")}
               multiple={true}
               label={"Serial No Doc"}
+              // label={"Serial No Doc & Carton Image"}
               maxFileAllowed={"3"}
               maxFileSize={"5"}
             />

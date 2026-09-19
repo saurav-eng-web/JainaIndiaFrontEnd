@@ -37,6 +37,18 @@ axiosInstance.interceptors.request.use((config) => {
     const userData = localStorage.getItem("userData");
     if (userData) {
       const parsed = JSON.parse(userData);
+      
+      // Defense in depth: check if the Redux user matches the stored user
+      const reduxUser = store.getState().auth.user;
+      const oldUserId = reduxUser?.userID;
+      const newUserId = parsed?.userID;
+
+      if (oldUserId && newUserId && oldUserId !== newUserId) {
+         // The user changed in another tab, but the request was fired from this tab.
+         // Abort the request to prevent actions from executing under the wrong identity.
+         return Promise.reject(new Error("Session mismatch detected. Request aborted to prevent data corruption."));
+      }
+
       if (parsed.token) {
         config.headers.Authorization = `Bearer ${parsed.token}`;
       }

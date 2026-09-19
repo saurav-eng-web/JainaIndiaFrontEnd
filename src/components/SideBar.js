@@ -169,7 +169,7 @@ export default function SideBar() {
     },
     {
       href: "/nsp/ticket",
-      icon: "fa fa-book",
+      icon: "fa fa-exclamation-circle",
       text: "Ticket",
       roles: ["BR"],
     },

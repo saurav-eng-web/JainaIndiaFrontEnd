@@ -8,7 +8,6 @@ const DEFAULT_ALLOWED_ROLES = [
   "asm",
   "br",
   "finance",
-  "cc", // TESTING
   "distributor",
   "logistic",
 ];

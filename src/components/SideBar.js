@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Loader from "./common/LoaderComponent";
 
 import { logout } from "@/redux/slices/authSlice";
+import { normalizeRole } from "@/utils/roleAccess";
 
 export default function SideBar() {
   const router = useRouter();
@@ -55,7 +56,19 @@ export default function SideBar() {
       href: "/search-complaint",
       icon: "fa fa-search",
       text: "Call Search",
-      roles: ["CC", "BR", "ASM", "ZONE", "SF/SSD"],
+      roles: ["CC", "BR", "ASM", "ZONE", "SF/SSD", "Distributor", "Logistic"],
+    },
+    {
+      href: "/distributor/doapickup",
+      icon: "fa fa-truck",
+      text: "TD / DOA / CN Pickup",
+      roles: ["Distributor"],
+    },
+    {
+      href: "/logistic/doapickup",
+      icon: "fa fa-truck",
+      text: "TD / DOA / CN Dispatch",
+      roles: ["Logistic"],
     },
     {
       href: "/warrantyregisteration",
@@ -183,7 +196,10 @@ export default function SideBar() {
 
         {menuItems
           .filter((item) => {
-            if (!roleName || !item.roles.includes(roleName)) return false;
+            const currentRole = normalizeRole(roleName);
+            if (!currentRole) return false;
+            if (!item.roles.some((role) => normalizeRole(role) === currentRole))
+              return false;
             if (item.href === "/bulk-uploader" && !allowedBulkUsers.includes(userName))
               return false;
             return true;

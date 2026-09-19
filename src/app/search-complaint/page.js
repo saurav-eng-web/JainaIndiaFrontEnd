@@ -328,7 +328,7 @@ export default function SearchComplaintPage() {
   return (
     <PageSkeleton
       title="Search Complaint"
-      rolesAllowed={["cc", "br", "asm", "zone", "sf/ssd"]}
+      rolesAllowed={["cc", "br", "asm", "zone", "sf/ssd", "distributor", "logistic"]}
     >
       {/* Search Box Section */}
       <div className="flex gap-4">

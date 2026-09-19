@@ -1,6 +1,15 @@
 // const DEFAULT_ALLOWED_ROLES = ["cc"];
 // const DEFAULT_ALLOWED_ROLES = ["sf/ssd"];
-const DEFAULT_ALLOWED_ROLES = ["financeexec", "zone", "sf/ssd", "asm", "br", "finance"];
+const DEFAULT_ALLOWED_ROLES = [
+  "financeexec",
+  "zone",
+  "sf/ssd",
+  "asm",
+  "br",
+  "finance",
+  "distributor",
+  "logistic",
+];
 // const DEFAULT_ALLOWED_ROLES = ["sf/ssd", "FinanceExec"];
 // const DEFAULT_ALLOWED_ROLES = ["zone", "asm", "br"];
 

@@ -30,7 +30,7 @@ export default function DoaPickupPage() {
       setIsLoading(true);
 
       const res = await axiosInstance.post("TDDOAPickup/process", {
-        Action: "DISTSELECT",
+        action: "DISTSELECT",
       });
 
       const body = res.data || {};
@@ -54,7 +54,7 @@ export default function DoaPickupPage() {
       setIsExporting(true);
 
       const res = await axiosInstance.post("TDDOAPickup/process", {
-        Action: "DISTSELECT",
+        action: "DISTSELECT",
       });
 
       const body = res.data || {};
@@ -132,7 +132,7 @@ export default function DoaPickupPage() {
 
       const res = await axiosInstance.post("TDDOAPickup/process", {
         SerialNumber: checkResult.serialNo,
-        Action: "INSERT",
+        action: "INSERT",
       });
 
       const body = res.data || {};

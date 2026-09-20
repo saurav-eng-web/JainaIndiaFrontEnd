@@ -80,6 +80,55 @@ export function buildPickupExport(rows = []) {
   return { headers, data };
 }
 
+// The buckets the logistics dashboard reports on, in display order
+export const PICKUP_STATUS_BUCKETS = [
+  { key: "pickupawaited", label: "Pickup Awaited" },
+  { key: "scheduled", label: "Scheduled" },
+  { key: "intransit", label: "In Transit" },
+];
+
+export function normaliseStatus(status) {
+  return String(status || "")
+    .toLowerCase()
+    .replace(/[\s-]+/g, "");
+}
+
+export function emptyPickupTotals() {
+  return PICKUP_STATUS_BUCKETS.reduce((acc, bucket) => ({ ...acc, [bucket.key]: 0 }), {
+    total: 0,
+  });
+}
+
+// Maps the "distwisecount1" rows — one row per Status with its own Total —
+// onto the bucket keys the cards render.
+export function mapStatusTotals(rows = []) {
+  const totals = emptyPickupTotals();
+
+  for (const row of rows) {
+    const bucket = normaliseStatus(pickColumn(row, "Status"));
+    const count = Number(pickColumn(row, "Total") ?? 0);
+
+    if (Number.isNaN(count)) continue;
+    if (bucket in totals) totals[bucket] = count;
+
+    // every status counts toward the overall volume, even ones without a card
+    totals.total += count;
+  }
+
+  return totals;
+}
+
+// Maps the "distwisecount" rows — already pivoted per CreatedBy by the SP
+export function mapDistributorCounts(rows = []) {
+  return rows.map((row) => ({
+    createdBy: pickColumn(row, "CreatedBy") || "Unknown",
+    pickupawaited: Number(pickColumn(row, "PickupAwaited") ?? 0) || 0,
+    scheduled: Number(pickColumn(row, "Scheduled") ?? 0) || 0,
+    intransit: Number(pickColumn(row, "InTransit") ?? 0) || 0,
+    total: Number(pickColumn(row, "Total") ?? 0) || 0,
+  }));
+}
+
 // Maps the DOTDCNDISTPICKUP columns returned by the DISTSELECT / LOGSELECT actions
 export function mapPickupRequest(row) {
   return {

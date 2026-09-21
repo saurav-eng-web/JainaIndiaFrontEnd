@@ -105,7 +105,8 @@ export function mapStatusTotals(rows = []) {
   const totals = emptyPickupTotals();
 
   for (const row of rows) {
-    const bucket = normaliseStatus(pickColumn(row, "Status"));
+    // the SP returns the status column as docStatus
+    const bucket = normaliseStatus(pickColumn(row, "docStatus", "Status"));
     const count = Number(pickColumn(row, "Total") ?? 0);
 
     if (Number.isNaN(count)) continue;
@@ -138,6 +139,6 @@ export function mapPickupRequest(row) {
     requestDate: formatApiDate(pickColumn(row, "RequestDate")),
     ageingDays: Number(pickColumn(row, "Ageing Days") ?? NaN),
     createdBy: pickColumn(row, "CreatedBy") || "",
-    status: pickColumn(row, "Status") || "",
+    status: pickColumn(row, "docStatus", "Status") || "",
   };
 }

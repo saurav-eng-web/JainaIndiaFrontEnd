@@ -65,6 +65,12 @@ export default function SideBar() {
       roles: ["Distributor"],
     },
     {
+      href: "/repaircenter/doareceive",
+      icon: "fa fa-barcode",
+      text: "Receive TD / DOA / CN",
+      roles: ["RepairCenter"],
+    },
+    {
       href: "/logistic/doapickup",
       icon: "fa fa-truck",
       text: "TD / DOA / CN Dispatch",

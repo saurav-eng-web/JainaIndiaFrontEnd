@@ -50,6 +50,8 @@ export default function LoginPage() {
         router.push("/search-complaint");
       } else if (role === "logistic") {
         router.push("/search-complaint");
+      } else if (role === "repaircenter") {
+        router.push("/repaircenter/doareceive");
       } else {
         router.push("/unauthorized");
       }

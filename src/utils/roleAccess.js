@@ -10,6 +10,7 @@ const DEFAULT_ALLOWED_ROLES = [
   "finance",
   "distributor",
   "logistic",
+  "repaircenter",
 ];
 // const DEFAULT_ALLOWED_ROLES = ["sf/ssd", "FinanceExec"];
 // const DEFAULT_ALLOWED_ROLES = ["zone", "asm", "br"];

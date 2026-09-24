@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
+import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import { Button } from "@/components/customui/button";
 import InputField from "@/components/customui/InputWithLabel";
@@ -22,27 +24,31 @@ const STATUS_OPTIONS = [
   { label: "Pending", value: "Pending" },
 ];
 
-// Accessory checklist - every item is a Yes / No pair
+// Keys match the JSON_VALUE paths the SP reads - these are case-sensitive
 const ACCESSORIES = [
-  { key: "wallMount", label: "WALL MOUNT" },
-  { key: "remote", label: "REMOTE" },
-  { key: "stand", label: "STAND" },
-  { key: "battery", label: "BATTERY" },
-  { key: "powerCode", label: "POWER CODE" },
-  { key: "avCable", label: "AV CABLE" },
-  { key: "screw", label: "SCREW" },
-  { key: "irKey", label: "IR/KEY" },
-  { key: "tCon", label: "T-CON" },
-  { key: "ffc", label: "FFC" },
-  { key: "speaker", label: "SPEAKER" },
-  { key: "board", label: "BOARD" },
+  { key: "PANEL_TV", label: "PANEL TV" },
+  { key: "GLASS", label: "GLASS" },
+  { key: "WALLMOUNT", label: "WALL MOUNT" },
+  { key: "REMOTE", label: "REMOTE" },
+  { key: "STAND", label: "STAND" },
+  { key: "BATTERY", label: "BATTERY" },
+  { key: "POWERCODE", label: "POWER CODE" },
+  { key: "AV_CODE", label: "AV CABLE" },
+  { key: "SCREW", label: "SCREW" },
+  { key: "IR_KEY", label: "IR/KEY" },
+  { key: "T_CON", label: "T-CON" },
+  { key: "FFC", label: "FFC" },
+  { key: "SPEAKER", label: "SPEAKER" },
+  { key: "BOARD", label: "BOARD" },
 ];
 
 function defaultAccessories() {
   return ACCESSORIES.reduce((acc, item) => ({ ...acc, [item.key]: "Yes" }), {});
 }
 
-export default function ElsModal({ detail, onClose }) {
+export default function ElsModal({ detail, onClose, onSaved }) {
+  const user = useSelector((state) => state.auth.user);
+
   const [issue, setIssue] = useState("Installation");
   const [problem, setProblem] = useState("");
   const [status, setStatus] = useState("");
@@ -62,23 +68,42 @@ export default function ElsModal({ detail, onClose }) {
       return;
     }
 
+    // Every key below matches a JSON_VALUE path in the SP's UPDATE branch exactly
     const payload = {
+      action: "UPDATE",
       SerialNumber: detail?.serialNo,
-      ticketNo: detail?.ticketNo,
-      issueReportedInService: issue,
-      problem,
-      status,
-      boxSrNo,
-      ocPcbSrNo,
-      problemRemark,
+      ticketno: detail?.ticketNo,
+      BOX_SR_NO: boxSrNo,
+      OC_PCB_SR_NO: ocPcbSrNo,
+      Issue_Reported_In_Service: issue,
+      Problem: problem,
+      Problem_Remarks: problemRemark,
+      STATUS: status,
+      ModifiedBy: user?.userName || "",
       ...accessories,
     };
 
-    // TODO: the save action for this modal has not been provided yet
-    console.log("ELS payload ready to submit:", payload);
-    setIsSaving(true);
-    toast.error("Save endpoint not configured yet");
-    setIsSaving(false);
+    try {
+      setIsSaving(true);
+
+      const res = await axiosInstance.post("TDDOAPickup/process", payload);
+      const body = res.data || {};
+      const statusMsg = String(body.statusMsg || "");
+
+      if (body.statusCode !== 200) {
+        toast.error(statusMsg || "Failed to update DOA details");
+        return;
+      }
+
+      toast.success(statusMsg || "Updated Successfully");
+      onSaved?.(detail);
+      onClose?.();
+    } catch (error) {
+      console.error("Error updating DOA details:", error);
+      toast.error(error?.response?.data?.statusMsg || "Failed to update DOA details");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (

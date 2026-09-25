@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 import ElsModal from "./ElsModal";
@@ -28,6 +28,7 @@ export default function RepairCenterReceivePage() {
   const [serialNo, setSerialNo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [receivedRows, setReceivedRows] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [elsDetail, setElsDetail] = useState(null);
   const serialInputRef = useRef(null);
 
@@ -40,16 +41,28 @@ export default function RepairCenterReceivePage() {
     setTimeout(() => serialInputRef.current?.focus(), 50);
   }
 
-  // Only called once a serial has actually been received
-  async function fetchReceived(serial) {
-    const res = await axiosInstance.post("TDDOAPickup/process", {
-      SerialNumber: serial,
-      action: "RECEIVED",
-    });
+  // Listing of received units. Omitting SerialNumber asks for the full list.
+  const fetchReceived = useCallback(async () => {
+    try {
+      setIsLoading(true);
 
-    const rows = res.data?.data || res.data?.Data || [];
-    return rows.map(mapReceivedRow);
-  }
+      const res = await axiosInstance.post("TDDOAPickup/process", {
+        action: "RECEIVED",
+      });
+
+      const rows = res.data?.data || res.data?.Data || [];
+      setReceivedRows(rows.map(mapReceivedRow));
+    } catch (error) {
+      console.error("Error loading received list:", error);
+      toast.error("Failed to load received list");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchReceived();
+  }, [fetchReceived]);
 
   async function handleReceive() {
     const serial = serialNo.trim().toUpperCase();
@@ -79,14 +92,9 @@ export default function RepairCenterReceivePage() {
 
       toast.success(statusMsg || "Received Successfully");
 
-      const rows = await fetchReceived(serial);
-
-      setReceivedRows((prev) => [
-        ...rows,
-        ...prev.filter((row) => row.serialNo !== serial),
-      ]);
-
       setSerialNo("");
+
+      await fetchReceived();
     } catch (error) {
       console.error("Error receiving serial number:", error);
       toast.error(error?.response?.data?.statusMsg || "Failed to receive serial number");
@@ -152,32 +160,31 @@ export default function RepairCenterReceivePage() {
         The box stays focused - scan the next unit straight after the previous one.
       </p>
 
-      {receivedRows.length > 0 && (
-        <div className="mt-8">
-          <div className="flex items-center justify-between gap-4">
-            <Subheading title="Received" />
+      <div className="mt-8">
+        <div className="flex items-center justify-between gap-4">
+          <Subheading title="Pending for ELS" />
 
-            <div className="flex items-center gap-4">
-              <span className="text-xs font-medium text-gray-500">
-                {receivedRows.length} item(s)
-              </span>
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-medium text-gray-500">
+              {receivedRows.length} pending
+            </span>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setReceivedRows([]);
-                  focusSerialInput();
-                }}
-                className="cursor-pointer rounded-full border border-[#714b67] px-3 py-1 text-xs font-semibold text-[#714b67] transition-colors duration-300 hover:bg-[#714b67] hover:text-white"
-              >
-                Clear list
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                fetchReceived();
+                focusSerialInput();
+              }}
+              disabled={isLoading}
+              className="cursor-pointer rounded-full border border-[#714b67] px-3 py-1 text-xs font-semibold text-[#714b67] transition-colors duration-300 hover:bg-[#714b67] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isLoading ? "Refreshing..." : "Refresh"}
+            </button>
           </div>
-
-          <Table columns={columns} rows={receivedRows} />
         </div>
-      )}
+
+        <Table columns={columns} rows={receivedRows} isLoading={isLoading} />
+      </div>
 
       <Modal
         open={Boolean(elsDetail)}
@@ -188,6 +195,7 @@ export default function RepairCenterReceivePage() {
       >
         <ElsModal
           detail={elsDetail}
+          onSaved={fetchReceived}
           onClose={() => {
             setElsDetail(null);
             focusSerialInput();

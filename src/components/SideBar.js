@@ -71,6 +71,12 @@ export default function SideBar() {
       roles: ["RepairCenter"],
     },
     {
+      href: "/repaircenter/elsdone",
+      icon: "fa fa-wrench",
+      text: "ELS Done Calls",
+      roles: ["RepairCenter"],
+    },
+    {
       href: "/logistic/doapickup",
       icon: "fa fa-truck",
       text: "TD / DOA / CN Dispatch",

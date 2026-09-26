@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import { FileText, Video } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -39,6 +40,19 @@ function pickUrl(doc) {
 
 function pickName(doc, index) {
   return pickKey(doc, "fileName", "documentType", "name") || `Document ${index + 1}`;
+}
+
+const VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "avi", "mkv", "3gp", "ogv"];
+const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg", "heic"];
+
+// Uploads are not all images - videos rendered in an <img> show as a broken icon
+function kindOf(url) {
+  const path = String(url).split("?")[0].split("#")[0];
+  const ext = path.split(".").pop().toLowerCase();
+
+  if (VIDEO_EXTENSIONS.includes(ext)) return "video";
+  if (IMAGE_EXTENSIONS.includes(ext)) return "image";
+  return "file";
 }
 
 export default function UpdateModal({ detail, onClose, onSaved }) {
@@ -94,7 +108,10 @@ export default function UpdateModal({ detail, onClose, onSaved }) {
 
       setDocuments(
         list
-          .map((doc, index) => ({ url: pickUrl(doc), name: pickName(doc, index) }))
+          .map((doc, index) => {
+            const url = pickUrl(doc);
+            return { url, name: pickName(doc, index), kind: kindOf(url) };
+          })
           .filter((doc) => doc.url)
       );
     } catch (error) {
@@ -178,7 +195,7 @@ export default function UpdateModal({ detail, onClose, onSaved }) {
         {/* IMAGES FOR THIS TICKET */}
         <div className="mt-6">
           <p className="mb-2 text-sm font-medium text-[#714b67]">
-            Images
+            Attachments
             {documents.length > 0 && (
               <span className="ml-2 text-xs font-normal text-gray-500">
                 {documents.length} file(s)
@@ -187,9 +204,9 @@ export default function UpdateModal({ detail, onClose, onSaved }) {
           </p>
 
           {isLoadingDocs ? (
-            <p className="text-sm text-gray-500">Loading images...</p>
+            <p className="text-sm text-gray-500">Loading attachments...</p>
           ) : documents.length === 0 ? (
-            <p className="text-sm text-gray-500">No images found for this ticket.</p>
+            <p className="text-sm text-gray-500">No attachments found for this ticket.</p>
           ) : (
             <div className="flex flex-wrap gap-4">
               {documents.map((doc, index) => (
@@ -198,12 +215,30 @@ export default function UpdateModal({ detail, onClose, onSaved }) {
                   className="w-28 rounded-lg border border-gray-200 p-2 transition-shadow duration-300 hover:shadow-md"
                 >
                   <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={doc.url}
-                      alt={doc.name}
-                      className="h-20 w-full cursor-pointer rounded object-cover"
-                    />
+                    {doc.kind === "image" ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={doc.url}
+                        alt={doc.name}
+                        onError={(e) => {
+                          // a dead link would otherwise show the broken-image icon
+                          e.currentTarget.style.display = "none";
+                          e.currentTarget.nextSibling.style.display = "flex";
+                        }}
+                        className="h-20 w-full cursor-pointer rounded object-cover"
+                      />
+                    ) : null}
+
+                    <div
+                      style={{ display: doc.kind === "image" ? "none" : "flex" }}
+                      className="h-20 w-full cursor-pointer items-center justify-center rounded bg-[#714b67]/10 text-[#714b67]"
+                    >
+                      {doc.kind === "video" ? (
+                        <Video size={22} />
+                      ) : (
+                        <FileText size={22} />
+                      )}
+                    </div>
                   </a>
 
                   <p className="mt-1 truncate text-[11px] text-gray-600" title={doc.name}>

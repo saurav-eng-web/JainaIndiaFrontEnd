@@ -26,6 +26,11 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 # COPY --from=builder /app/next.config.js ./next.config.mjs
+
+# NOTE: server-side vars (DOC_BASE_URL, DOC_USERNAME, DOC_PASSWORD, DOC_ACCESSCODE)
+# are read at request time and are NOT baked into the image. The container must be
+# started with `--env-file .env` (see the deploy Makefile) or they will be undefined
+# and /api/documents/* will return 500.
  
 RUN mkdir -p .next/cache/images && chown -R nodeuser:nodegroup .next
 

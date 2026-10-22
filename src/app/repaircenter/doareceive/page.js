@@ -1,5 +1,7 @@
 "use client";
 
+import axios from "axios";
+import { Download } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -13,6 +15,59 @@ import Modal from "@/components/customui/Modal";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
 import { formatApiDate } from "@/utils/pickupUtils";
+
+// The documents service uses documentURL (capital URL); match keys ignoring case
+// so a rename on their side cannot silently break the download.
+function pickKey(doc, ...names) {
+  const keys = Object.keys(doc || {});
+
+  for (const name of names) {
+    const match = keys.find((key) => key.toLowerCase() === name.toLowerCase());
+    if (match && doc[match]) return doc[match];
+  }
+
+  return "";
+}
+
+function pickUrl(doc) {
+  return pickKey(
+    doc,
+    "documentURL",
+    "documentURL1",
+    "docurl",
+    "fileUrl",
+    "url",
+    "filePath"
+  );
+}
+
+const HVP_DOCUMENT_TYPE = "hvp parts";
+const VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "avi", "mkv", "3gp", "ogv"];
+
+function isVideoUrl(url) {
+  const path = String(url).split("?")[0].split("#")[0];
+  const ext = path.split(".").pop().toLowerCase();
+  return VIDEO_EXTENSIONS.includes(ext);
+}
+
+function fileNameFromUrl(url) {
+  const path = String(url).split("?")[0].split("#")[0];
+  return path.split("/").pop() || "video";
+}
+
+// Same-origin proxy that streams the file back with an attachment header
+function downloadUrl(url) {
+  return `/api/documents/download-kp?url=${encodeURIComponent(url)}`;
+}
+
+function triggerDownload(url) {
+  const link = document.createElement("a");
+  link.href = downloadUrl(url);
+  link.download = fileNameFromUrl(url);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 // Maps the columns returned by the RECEIVED action
 function mapReceivedRow(row) {
@@ -30,6 +85,7 @@ export default function RepairCenterReceivePage() {
   const [receivedRows, setReceivedRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [elsDetail, setElsDetail] = useState(null);
+  const [downloadingTicket, setDownloadingTicket] = useState(null);
   const serialInputRef = useRef(null);
 
   // Keep the box focused so a barcode scanner types straight into it
@@ -104,6 +160,51 @@ export default function RepairCenterReceivePage() {
     }
   }
 
+  // Documents are looked up only when the button is clicked, so the pending
+  // list does not fire one documents call per ticket on load.
+  const handleDownloadVideo = useCallback(async (ticketNo) => {
+    if (!ticketNo) {
+      toast.error("Ticket number missing");
+      return;
+    }
+
+    try {
+      setDownloadingTicket(ticketNo);
+
+      const res = await axios.post("/api/documents/list", { Ticket_no: ticketNo });
+      const list = res.data?.documents || res.data?.Documents || [];
+
+      const videos = list
+        .filter(
+          (doc) =>
+            String(pickKey(doc, "documentType", "docType", "type")).toLowerCase() ===
+            HVP_DOCUMENT_TYPE
+        )
+        .map(pickUrl)
+        .filter((url) => url && isVideoUrl(url));
+
+      if (videos.length === 0) {
+        toast.error("No video found");
+        return;
+      }
+
+      // Browsers drop anchors clicked in the same tick; space them out a little
+      videos.forEach((url, index) => {
+        setTimeout(() => triggerDownload(url), index * 300);
+      });
+
+      toast.success(
+        videos.length === 1 ? "Downloading video" : `Downloading ${videos.length} videos`
+      );
+    } catch (error) {
+      console.error("Error downloading HVP video:", error);
+      toast.error("Failed to fetch video");
+    } finally {
+      setDownloadingTicket(null);
+      setTimeout(() => serialInputRef.current?.focus(), 50);
+    }
+  }, []);
+
   const columns = useMemo(
     () => [
       {
@@ -130,8 +231,29 @@ export default function RepairCenterReceivePage() {
           </button>
         ),
       },
+      {
+        label: "HVP Video",
+        key: "hvpVideo",
+        size: "sm",
+        render: (_data, row) => {
+          const isBusy = downloadingTicket === row.ticketNo;
+
+          return (
+            <button
+              type="button"
+              onClick={() => handleDownloadVideo(row.ticketNo)}
+              disabled={isBusy}
+              title="Download HVP part approval video"
+              className="-ml-2 flex cursor-pointer items-center gap-1 rounded-full border border-[#714b67] px-3 py-1 text-xs font-semibold text-[#714b67] transition-colors duration-300 hover:bg-[#714b67] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Download size={14} />
+              {isBusy ? "Fetching..." : "Download"}
+            </button>
+          );
+        },
+      },
     ],
-    []
+    [downloadingTicket, handleDownloadVideo]
   );
 
   return (

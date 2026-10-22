@@ -1,15 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
 import axiosInstance from "@/api/axiosInstance";
 import CustomDropdown from "@/components/common/Dropdown";
 import { Button } from "@/components/customui/button";
+import ImagePreview from "@/components/customui/image/ImagePreview";
+import ImageUpload from "@/components/customui/image/ImageUpload";
 import InputField from "@/components/customui/InputWithLabel";
 import ModalSkeleton from "@/components/customui/ModalSkeleton";
 import RadioOption from "@/components/customui/RadioOption";
+import { UploadProgressModal } from "@/components/customui/UploadProgress";
+import { uploadImage } from "@/utils/uploadImage";
+
+// Label the attachments carry in the documents service
+const DOCUMENT_TYPE = "ELS Document";
+const MAX_FILES = 5;
 
 // TODO: confirm the real option sources with the backend team
 const ISSUE_OPTIONS = [
@@ -58,8 +66,41 @@ export default function ElsModal({ detail, onClose, onSaved }) {
   const [accessories, setAccessories] = useState(defaultAccessories);
   const [isSaving, setIsSaving] = useState(false);
 
+  const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentFileInfo, setCurrentFileInfo] = useState(null);
+
+  // Object URLs are only valid until revoked - clean them up with the modal
+  useEffect(() => {
+    return () => previews.forEach((p) => URL.revokeObjectURL(p.src));
+  }, [previews]);
+
   function setAccessory(key, value) {
     setAccessories((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handleImageSelect(e) {
+    const picked = Array.from(e.target.files || []);
+    if (picked.length === 0) return;
+
+    if (files.length + picked.length > MAX_FILES) {
+      toast.error(`You can attach at most ${MAX_FILES} images`);
+      return;
+    }
+
+    setFiles((prev) => [...prev, ...picked]);
+    setPreviews((prev) => [
+      ...prev,
+      ...picked.map((file) => ({ type: "image", src: URL.createObjectURL(file) })),
+    ]);
+  }
+
+  function handleRemoveImage(index) {
+    URL.revokeObjectURL(previews[index]?.src);
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
   }
 
   async function handleSave() {
@@ -86,6 +127,30 @@ export default function ElsModal({ detail, onClose, onSaved }) {
     try {
       setIsSaving(true);
 
+      // Attach the evidence first - if it fails the record is left untouched
+      if (files.length > 0) {
+        setIsUploading(true);
+        setUploadProgress(0);
+        setCurrentFileInfo({ current: 1, total: files.length });
+
+        const uploadRes = await uploadImage({
+          files,
+          ticketNo: detail?.ticketNo,
+          documentType: DOCUMENT_TYPE,
+          onProgress: (percent, current, total) => {
+            setUploadProgress(percent);
+            setCurrentFileInfo({ current, total });
+          },
+        });
+
+        setIsUploading(false);
+
+        if (!uploadRes.success) {
+          toast.error("Image upload failed. Please try again.");
+          return;
+        }
+      }
+
       const res = await axiosInstance.post("TDDOAPickup/process", payload);
       const body = res.data || {};
       const statusMsg = String(body.statusMsg || "");
@@ -102,6 +167,7 @@ export default function ElsModal({ detail, onClose, onSaved }) {
       console.error("Error updating DOA details:", error);
       toast.error(error?.response?.data?.statusMsg || "Failed to update DOA details");
     } finally {
+      setIsUploading(false);
       setIsSaving(false);
     }
   }
@@ -181,15 +247,42 @@ export default function ElsModal({ detail, onClose, onSaved }) {
         ))}
       </div>
 
+      <div className="my-8 border-t border-gray-200" />
+
+      {/* Attachments */}
+      <div className="max-w-md">
+        <ImageUpload
+          label="Attach Images"
+          variant="box"
+          multiple
+          accept="image/*"
+          maxFileAllowed={MAX_FILES}
+          disabled={isUploading || isSaving}
+          onChange={handleImageSelect}
+          message={files.length > 0 ? `${files.length} selected` : ""}
+        />
+
+        {previews.length > 0 && (
+          <ImagePreview images={previews} onRemove={handleRemoveImage} />
+        )}
+      </div>
+
       <div className="mt-10 flex justify-end gap-4">
-        <Button onClick={handleSave} disabled={isSaving}>
-          {isSaving ? "Saving..." : "Save"}
+        <Button onClick={handleSave} disabled={isSaving || isUploading}>
+          {isUploading ? "Uploading..." : isSaving ? "Saving..." : "Save"}
         </Button>
 
-        <Button variant="outline" onClick={onClose}>
+        <Button variant="outline" onClick={onClose} disabled={isSaving || isUploading}>
           Cancel
         </Button>
       </div>
+
+      <UploadProgressModal
+        open={isUploading}
+        progress={uploadProgress}
+        fileInfo={currentFileInfo}
+        title="Uploading Images"
+      />
     </ModalSkeleton>
   );
 }

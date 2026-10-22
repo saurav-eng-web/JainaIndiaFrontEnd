@@ -137,24 +137,37 @@ export default function UpdateModal({ detail, onClose, onSaved }) {
       return;
     }
 
-    if (partCodes.length === 0) {
-      toast.error("Please select at least one Part Code");
-      return;
-    }
-
+    // Keys match the JSON_VALUE paths the SP reads: $.action, $.SerialNumber,
+    // $.ticketno, $.Problem_Remarks, $.PartCodes ($.userid comes from the token)
     const payload = {
+      action: "update_els",
       SerialNumber: detail?.serialNo,
       ticketno: detail?.ticketNo,
       Problem_Remarks: problemRemarks,
       PartCodes: partCodes.join(","),
     };
 
-    // TODO: the submit action for this modal has not been provided yet
-    console.log("Update payload ready to submit:", payload);
-    setIsSaving(true);
-    toast.error("Submit action not configured yet");
-    setIsSaving(false);
-    onSaved?.(detail);
+    try {
+      setIsSaving(true);
+
+      const res = await axiosInstance.post("TDDOAPickup/process", payload);
+      const body = res.data || {};
+      const statusMsg = String(body.statusMsg || "");
+
+      if (body.statusCode !== 200) {
+        toast.error(statusMsg || "Failed to update");
+        return;
+      }
+
+      toast.success(statusMsg || "Updated successfully");
+      onSaved?.(detail);
+      onClose?.();
+    } catch (error) {
+      console.error("Error updating ELS record:", error);
+      toast.error(error?.response?.data?.statusMsg || "Failed to update");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -182,13 +195,12 @@ export default function UpdateModal({ detail, onClose, onSaved }) {
             value={partCodes}
             onChange={setPartCodes}
             isLoading={isLoadingParts}
-            required
           />
 
           <p className="mt-1 text-xs text-gray-500">
             {partCodes.length > 0
               ? `${partCodes.length} part(s) selected`
-              : "You can select more than one part"}
+              : "Optional - you can select more than one part"}
           </p>
         </div>
 

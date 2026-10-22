@@ -77,6 +77,30 @@ export default function SideBar() {
       roles: ["RepairCenter"],
     },
     {
+      href: "/repaircenter/partrequested",
+      icon: "fa fa-list-alt",
+      text: "ELS Part Requested Calls",
+      roles: ["RepairCenter"],
+    },
+    {
+      href: "/repaircenter/partapproved",
+      icon: "fa fa-check-square-o",
+      text: "ELS Part Approved Calls",
+      roles: ["RepairCenter"],
+    },
+    {
+      href: "/repaircenter/qcpending",
+      icon: "fa fa-search-plus",
+      text: "QC Pending Part Calls",
+      roles: ["RepairCenter"],
+    },
+    {
+      href: "/repaircenter/qcpassed",
+      icon: "fa fa-thumbs-up",
+      text: "QC Passed Part Calls",
+      roles: ["RepairCenter"],
+    },
+    {
       href: "/logistic/doapickup",
       icon: "fa fa-truck",
       text: "TD / DOA / CN Dispatch",

@@ -1,3 +1,11 @@
+/**
+ * Modification History:
+ * -----------------------------------------------------------------------------
+ * Date         Author   Purpose
+ * -----------------------------------------------------------------------------
+ * 26-Oct-2026  Saurav   Added role redirection for 'logistic' & 'logistic1' for Logistic Module
+ * -----------------------------------------------------------------------------
+ */
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -48,8 +56,11 @@ export default function LoginPage() {
         router.push("/fin/search");
       } else if (role === "distributor") {
         router.push("/search-complaint");
+      // Modified/Added by Saurav Date: 26-Oct-2026 for Logistic Module (Redirect to Logistic views)
       } else if (role === "logistic") {
-        router.push("/search-complaint");
+        router.push("/logistic/search-history");
+      } else if (role === "logistic1") {
+        router.push("/logistic/invoice-uploads");
       } else if (role === "repaircenter") {
         router.push("/repaircenter/doareceive");
       } else {

@@ -1,3 +1,11 @@
+/**
+ * Modification History:
+ * -----------------------------------------------------------------------------
+ * Date         Author   Purpose
+ * -----------------------------------------------------------------------------
+ * 26-Oct-2026  Saurav   Added backHref="/logistic/dashboard" for Logistic Module navigation
+ * -----------------------------------------------------------------------------
+ */
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -427,7 +435,8 @@ export default function LogisticPickupPage() {
   }
 
   return (
-    <PageSkeleton title="TD / DOA / CN Pickup Dispatch" rolesAllowed={["logistic"]}>
+    // Modified by Saurav Date: 26-Oct-2026 for Logistic Module (Added backHref)
+    <PageSkeleton title="TD / DOA / CN Pickup Dispatch" rolesAllowed={["logistic"]} backHref="/logistic/dashboard">
       {/* UPLOAD */}
       <Subheading title="Upload dispatch file" />
 

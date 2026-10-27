@@ -1,3 +1,11 @@
+/**
+ * Modification History:
+ * -----------------------------------------------------------------------------
+ * Date         Author   Purpose
+ * -----------------------------------------------------------------------------
+ * 26-Oct-2026  Saurav   Added Logistic and Logistic1 navigation menu items for Logistic Module
+ * -----------------------------------------------------------------------------
+ */
 "use client";
 
 import Image from "next/image";
@@ -43,13 +51,20 @@ export default function SideBar() {
     );
   }
 
-  const menuItems = [
+    const menuItems = [
     { href: "/cc/home", icon: "fa fa-home", text: "Dashboard", roles: ["CC"] },
     {
-      href: "/nsp/dashboard", // Naviation_Url
-      icon: "fa fa-home", // Icon
-      text: "Dashboard", // Menu_Name
-      roles: ["BR", "ASM", "ZONE", "SF/SSD"], // Menu_Role
+      href: "/nsp/dashboard",
+      icon: "fa fa-home",
+      text: "Dashboard",
+      roles: ["BR", "ASM", "ZONE", "SF/SSD"],
+    },
+    {
+      // Added by Saurav Date: 26-Oct-2026 for Logistic Module (Dashboard)
+      href: "/logistic/dashboard",
+      icon: "fa fa-home",
+      text: "Dashboard",
+      roles: ["Logistic"],
     },
     { href: "/cc/call", icon: "fa fa-phone", text: "Call Registration", roles: ["CC"] },
     {
@@ -57,6 +72,19 @@ export default function SideBar() {
       icon: "fa fa-search",
       text: "Call Search",
       roles: ["CC", "BR", "ASM", "ZONE", "SF/SSD", "Distributor", "Logistic"],
+    },
+    {
+      // Added by Saurav Date: 26-Oct-2026 for Logistic Module (Reports Hub & Print)
+      href: "/logistic/reports-hub",
+      icon: "fa fa-file-text",
+      text: "Reports",
+      roles: ["Logistic"],
+    },
+    {
+      href: "/logistic/print",
+      icon: "fa fa-print",
+      text: "Print",
+      roles: ["Logistic"],
     },
     {
       href: "/distributor/doapickup",
@@ -101,10 +129,35 @@ export default function SideBar() {
       roles: ["RepairCenter"],
     },
     {
-      href: "/logistic/doapickup",
-      icon: "fa fa-truck",
-      text: "TD / DOA / CN Dispatch",
+      // Added by Saurav Date: 26-Oct-2026 for Logistic Module (Uploaders, Docket Search, Courier Master, Delete, Invoices)
+      href: "/logistic/uploaders",
+      icon: "fa fa-upload",
+      text: "Uploaders",
       roles: ["Logistic"],
+    },
+    {
+      href: "/logistic/search-history",
+      icon: "fa fa-search",
+      text: "Docket Search",
+      roles: ["Logistic"],
+    },
+    {
+      href: "/logistic/courier-add",
+      icon: "fa fa-truck",
+      text: "Courier Master",
+      roles: ["Logistic"],
+    },
+    {
+      href: "/logistic/delete-docket",
+      icon: "fa fa-trash",
+      text: "Delete Docket",
+      roles: ["Logistic"],
+    },
+    {
+      href: "/logistic/invoice-uploads",
+      icon: "fa fa-upload",
+      text: "Invoice Uploaders",
+      roles: ["Logistic1"],
     },
     {
       href: "/warrantyregisteration",
@@ -131,7 +184,10 @@ export default function SideBar() {
       roles: ["BR"],
     },
     {
+      // Changed by Saurav dt: 13-Oct-2026 - menu stays on the OLD Reports page until the new one is signed off.
+      // New page is tested directly by URL: /nsp/reports-new . To go live with it, swap the two href lines below.
       href: "/nsp/reports",
+      // href: "/nsp/reports-new",
       icon: "fa fa-file-text",
       text: "Reports",
       roles: ["BR", "ZONE", "SF/SSD", "NSP", "ASM", "RSM", "HOuser"],
@@ -208,7 +264,7 @@ export default function SideBar() {
       icon: "fa fa-exclamation-circle",
       text: "Ticket",
       roles: ["BR"],
-    },
+    }
   ];
 
   const allowedBulkUsers = ["T284977"];

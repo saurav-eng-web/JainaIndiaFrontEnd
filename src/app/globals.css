@@ -3,3 +3,13 @@
 @theme {
   --color-primary: #714b67;
 }
+
+/* Added by Saurav Date: 26-Oct-2026 for Logistic Module */
+@theme {
+  --color-jaina-navy: #0f172a;
+  --color-jaina-blue: #1e3a8a;
+  --color-jaina-lightBlue: #eff6ff;
+  --color-jaina-primary: #2563eb;
+  --color-jaina-hover: #1d4ed8;
+  --color-jaina-border: #e2e8f0;
+}

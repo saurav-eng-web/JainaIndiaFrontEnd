@@ -154,6 +154,12 @@ export default function SideBar() {
       roles: ["Logistic"],
     },
     {
+      href: "/logistic/doapickup",
+      icon: "fa fa-truck",
+      text: "TD / DOA / CN Dispatch",
+      roles: ["Logistic"],
+    },
+    {
       href: "/logistic/invoice-uploads",
       icon: "fa fa-upload",
       text: "Invoice Uploaders",

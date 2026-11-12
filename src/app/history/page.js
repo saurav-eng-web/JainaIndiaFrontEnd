@@ -77,7 +77,9 @@ function HistoryPageContent() {
   const dispatch = useDispatch();
 
   const fromPage = searchParams.get("fromPage");
-  const storedTicket = sessionStorage.getItem("currentTicket");
+  // Check window to avoid SSR ReferenceError ("sessionStorage is not defined") in Next.js
+  const storedTicket =
+    typeof window !== "undefined" ? sessionStorage.getItem("currentTicket") : null;
   const activeTicket = ticketNo || storedTicket;
 
   const { user } = useSelector((state) => state.auth);
@@ -648,7 +650,8 @@ function HistoryPageContent() {
       <div className="content-area">
         <h2 className="page-title"> Complaint Details</h2>
 
-        {user?.roleName === "SF/SSD" && (
+        {/* Use mounted to prevent Next.js SSR hydration mismatch with Redux user state */}
+        {mounted && user?.roleName === "SF/SSD" && (
           <div className="rounded-lg border border-gray-300 p-4 shadow">
             {/* <h2 className="page-title">👉 Action</h2> */}
             <Subheading title="Actions" marginTop={2} variant="new" />
@@ -807,7 +810,8 @@ function HistoryPageContent() {
         )}
 
         {/* Existing flow for Dashboard actions */}
-        {fromPage === "dashboardcall" &&
+        {mounted &&
+          fromPage === "dashboardcall" &&
           user?.roleName === "ASM" &&
           detail.complainT_STATUS === "Open" &&
           detail.complaint_SubStatus === "Request for re-allot" && (
@@ -872,7 +876,8 @@ function HistoryPageContent() {
         )}
 
         {/* Remark Sections for ASM/ZONE */}
-        {fromPage === "dashboardcall" &&
+        {mounted &&
+          fromPage === "dashboardcall" &&
           user?.roleName === "ASM" &&
           detail.complainT_STATUS === "Open" &&
           detail.complaint_SubStatus === "Cancellation Request to ASM" && (
@@ -884,7 +889,8 @@ function HistoryPageContent() {
             />
           )}
 
-        {fromPage === "dashboardcall" &&
+        {mounted &&
+          fromPage === "dashboardcall" &&
           user?.roleName === "ZONE" &&
           detail.complainT_STATUS === "Open" &&
           detail.complaint_SubStatus === "Cancellation Request moved to RSM" && (

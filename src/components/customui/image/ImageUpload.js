@@ -38,6 +38,7 @@ export default function ImageUpload({
   maxFileSize = 5,
   maxFileAllowed = 5,
   message = "",
+  helperText = "",
 }) {
   const styles = sizeMap[size] || sizeMap.md;
 
@@ -100,9 +101,10 @@ export default function ImageUpload({
               Click to upload {accept.includes("video") ? "video" : "image"}
             </span>
             <span className="text-xs text-gray-500">
-              {accept.includes("video")
-                ? `Max ${maxFileAllowed} videos. (Max ${maxFileSize}MB per file)`
-                : `Max ${maxFileAllowed} images. (Max ${maxFileSize}MB per file)`}
+              {helperText ||
+                (accept.includes("video")
+                  ? `Max ${maxFileAllowed} videos. (Max ${maxFileSize}MB per file)`
+                  : `Max ${maxFileAllowed} images. (Max ${maxFileSize}MB per file)`)}
             </span>
             <input
               id={id || name}

@@ -36,13 +36,19 @@ import { encodeRouteData } from "@/utils/secureRoute";
 // DashboardBucket/role, lowercased (aliases allowed). Each fetcher resolves to
 // a number, or null to fall back to the aggregation count.
 async function fetchRejectedClaimCount(firstID) {
-  const res = await axiosInstance.post("claim-process-v1/process", {
-    type: "ClaimDashboardCount",
-    sfid: firstID,
-  });
+  try {
+    const res = await axiosInstance.post("claim-process-v1/process", {
+      type: "ClaimDashboardCount",
+      sfid: firstID,
+    });
 
-  if (res.data?.statusCode !== 200) return null;
-  return res.data?.data?.[0]?.RejectClaimCount ?? null;
+    if (res.data?.statusCode !== 200) return null;
+    return res.data?.data?.[0]?.RejectClaimCount ?? null;
+  } catch (error) {
+    // Graceful fallback to null if endpoint fails, using warn so Next.js dev overlay is not triggered
+    console.warn("ClaimDashboardCount unavailable, falling back to aggregate count:", error?.message);
+    return null;
+  }
 }
 
 const CUSTOM_COUNT_FETCHERS = {

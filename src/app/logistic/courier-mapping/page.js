@@ -14,7 +14,6 @@ import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
 
 import axiosInstance from "@/api/axiosInstance";
-import Table from "@/components/common/Table";
 import { Button } from "@/components/customui/button";
 import ImageUpload from "@/components/customui/image/ImageUpload";
 import PageSkeleton from "@/components/customui/PageSkeleton";
@@ -36,10 +35,6 @@ export default function CourierMappingPage() {
   const [isLoadingGrids, setIsLoadingGrids] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadErrors, setUploadErrors] = useState({ title: "", items: [] });
-  
-  const [activeTab, setActiveTab] = useState(""); 
-  const [gridData, setGridData] = useState([]);
-  const [gridColumns, setGridColumns] = useState([]);
 
   function handleSampleDownload() {
     try {
@@ -56,7 +51,9 @@ export default function CourierMappingPage() {
     }
   }
 
-  function handleFileSelect(selectedFile) {
+  // ImageUpload calls onChange with the change EVENT (not the File), so read the file from the event.
+  function handleFileSelect(event) {
+    const selectedFile = event?.target?.files?.[0] ?? (event instanceof File ? event : null);
     if (!selectedFile) return;
 
     if (!ALLOWED_FILE_TYPES.includes(selectedFile.type)) {
@@ -99,11 +96,12 @@ export default function CourierMappingPage() {
 
           while (headers.length > 0 && !headers[headers.length - 1]) headers.pop();
 
+          // Legacy bulk copy mapped the columns BY NAME, so the column order does not matter (extra columns are ignored)
+          const lowerHeaders = headers.map((h) => h.toLowerCase());
           const problems = [];
-          EXPECTED_HEADERS.forEach((expected, index) => {
-            const actual = headers[index] || "";
-            if (actual.toLowerCase() !== expected.toLowerCase()) {
-              problems.push(`Column ${index + 1} should be "${expected}" but was "${actual}"`);
+          EXPECTED_HEADERS.forEach((expected) => {
+            if (!lowerHeaders.includes(expected.toLowerCase())) {
+              problems.push(`Column "${expected}" is missing`);
             }
           });
 
@@ -115,7 +113,11 @@ export default function CourierMappingPage() {
             return;
           }
 
-          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+          // Accept the headers in any case / order: rename them to the canonical names
+          const canon = Object.fromEntries(EXPECTED_HEADERS.map((h) => [h.toLowerCase(), h]));
+          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" }).map((r) =>
+            Object.fromEntries(Object.entries(r).map(([k, v]) => [canon[k.trim().toLowerCase()] || k, v]))
+          );
           const rows = jsonData.map((row) => ({
             CourierCode: String(row["CourierCode"] || "").trim(),
             Pincode: String(row["Pincode"] || "").trim(),
@@ -169,9 +171,6 @@ export default function CourierMappingPage() {
       setFile(null);
       setFileName("");
       
-      if (activeTab === "MAPPED") fetchMapped();
-      if (activeTab === "UNMAPPED") fetchUnmapped();
-      
     } catch (error) {
       if (error?.title) {
         setUploadErrors({ title: error.title, items: error.items || [] });
@@ -189,11 +188,8 @@ export default function CourierMappingPage() {
   async function fetchMapped() {
     try {
       setIsLoadingGrids(true);
-      setActiveTab("MAPPED");
       const res = await axiosInstance.get("logistic/couriers/mappings");
-      const data = res.data || [];
-      
-      setGridColumns([
+      downloadList(res.data, "Courier Mapping", [
         { key: "courierCode", label: "Courier Code" },
         { key: "courierName", label: "Courier Name" },
         { key: "pincode", label: "Pincode" },
@@ -201,7 +197,6 @@ export default function CourierMappingPage() {
         { key: "priority", label: "Priority" },
         { key: "date", label: "Date" },
       ]);
-      setGridData(data);
     } catch (error) {
       toast.error("Failed to load mapped couriers");
     } finally {
@@ -212,11 +207,8 @@ export default function CourierMappingPage() {
   async function fetchUnmapped() {
     try {
       setIsLoadingGrids(true);
-      setActiveTab("UNMAPPED");
       const res = await axiosInstance.get("logistic/couriers/mappings/unmapped");
-      const data = res.data || [];
-      
-      setGridColumns([
+      downloadList(res.data, "Courier Not Mapped", [
         { key: "courierCode", label: "Courier Code" },
         { key: "pincode", label: "Pincode" },
         { key: "slab", label: "Slab" },
@@ -224,7 +216,6 @@ export default function CourierMappingPage() {
         { key: "action", label: "Action" },
         { key: "date", label: "Date" },
       ]);
-      setGridData(data);
     } catch (error) {
       toast.error("Failed to load unmapped data");
     } finally {
@@ -232,22 +223,22 @@ export default function CourierMappingPage() {
     }
   }
 
-  // Legacy pages downloaded these lists as Excel files; export the grid currently shown.
-  function handleExportGrid() {
-    if (!gridData || gridData.length === 0) {
-      toast.error("No data to export");
+  // Like the legacy buttons: the list is downloaded straight away as an Excel file (no grid on the page).
+  function downloadList(rows, fileName, columns) {
+    if (!rows || rows.length === 0) {
+      toast.error(`No data found for ${fileName}`);
       return;
     }
-    const fileNames = { MAPPED: "Courier Mapping", UNMAPPED: "Courier Not Mapped" };
     try {
       exportToExcel({
-        data: gridData,
-        headers: gridColumns.map((c) => ({ label: c.label, key: c.key })),
-        fileName: `${fileNames[activeTab] || "Export"}.xlsx`,
+        data: rows,
+        headers: columns.map((c) => ({ label: c.label, key: c.key })),
+        fileName: `${fileName}.xlsx`,
         sheetName: "Sheet1",
       });
+      toast.success(`${fileName} downloaded`);
     } catch (error) {
-      toast.error("Export failed");
+      toast.error("Download failed");
     }
   }
 
@@ -318,29 +309,14 @@ export default function CourierMappingPage() {
       <div className="mt-10">
         <Subheading title="Courier Mapping Data" />
         <div className="flex gap-4 mt-4">
-           <Button variant={activeTab === "MAPPED" ? "default" : "outline"} onClick={fetchMapped} disabled={isLoadingGrids}>
-             Courier Mapping Download
+           <Button variant="outline" onClick={fetchMapped} disabled={isLoadingGrids}>
+             {isLoadingGrids ? "Downloading..." : "Courier Mapping Download"}
            </Button>
-           <Button variant={activeTab === "UNMAPPED" ? "default" : "outline"} onClick={fetchUnmapped} disabled={isLoadingGrids}>
+           <Button variant="outline" onClick={fetchUnmapped} disabled={isLoadingGrids}>
              Mapping Not Uploaded
            </Button>
         </div>
       </div>
-
-      {activeTab && (
-         <div className="mt-6 transition-opacity duration-300">
-            <div className="mb-3 flex justify-end">
-              <Button variant="outline" onClick={handleExportGrid} disabled={isLoadingGrids || gridData.length === 0}>
-                Export to Excel
-              </Button>
-            </div>
-            <Table
-               columns={gridColumns}
-               rows={gridData}
-               isLoading={isLoadingGrids}
-            />
-         </div>
-      )}
     </PageSkeleton>
   );
 }

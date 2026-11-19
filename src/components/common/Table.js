@@ -12,12 +12,13 @@ const sizeMap = {
   full: "",
 };
 
-export default function Table({ columns, rows, isLoading = false, onRowClick }) {
+// maxHeightClass (optional, e.g. "max-h-[60vh]"): makes the table body scroll inside the box with a sticky header.
+export default function Table({ columns, rows, isLoading = false, onRowClick, maxHeightClass = "" }) {
   return (
     <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
-      <div className="overflow-x-auto">
+      <div className={maxHeightClass ? `overflow-auto ${maxHeightClass}` : "overflow-x-auto"}>
         <table className="w-full table-auto text-left text-sm">
-          <thead className="h-12 truncate border-b border-slate-200 bg-[#714b67] text-slate-100">
+          <thead className={`h-12 truncate border-b border-slate-200 bg-[#714b67] text-slate-100 ${maxHeightClass ? "sticky top-0 z-10" : ""}`}>
             <tr>
               {columns.map((col) => (
                 <Th

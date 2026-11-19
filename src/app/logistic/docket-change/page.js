@@ -50,7 +50,9 @@ export default function DocketChangePage() {
     }
   }
 
-  function handleFileSelect(selectedFile) {
+  // ImageUpload calls onChange with the change EVENT (not the File), so read the file from the event.
+  function handleFileSelect(event) {
+    const selectedFile = event?.target?.files?.[0] ?? (event instanceof File ? event : null);
     if (!selectedFile) return;
 
     if (!ALLOWED_FILE_TYPES.includes(selectedFile.type)) {
@@ -93,11 +95,12 @@ export default function DocketChangePage() {
 
           while (headers.length > 0 && !headers[headers.length - 1]) headers.pop();
 
+          // Legacy bulk copy mapped the columns BY NAME, so the column order does not matter (extra columns are ignored)
+          const lowerHeaders = headers.map((h) => h.toLowerCase());
           const problems = [];
-          EXPECTED_HEADERS.forEach((expected, index) => {
-            const actual = headers[index] || "";
-            if (actual.toLowerCase() !== expected.toLowerCase()) {
-              problems.push(`Column ${index + 1} should be "${expected}" but was "${actual}"`);
+          EXPECTED_HEADERS.forEach((expected) => {
+            if (!lowerHeaders.includes(expected.toLowerCase())) {
+              problems.push(`Column "${expected}" is missing`);
             }
           });
 
@@ -109,7 +112,11 @@ export default function DocketChangePage() {
             return;
           }
 
-          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+          // Accept the headers in any case / order: rename them to the canonical names
+          const canon = Object.fromEntries(EXPECTED_HEADERS.map((h) => [h.toLowerCase(), h]));
+          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" }).map((r) =>
+            Object.fromEntries(Object.entries(r).map(([k, v]) => [canon[k.trim().toLowerCase()] || k, v]))
+          );
           const rows = jsonData.map((row) => ({
             ChallanNo: String(row["ChallanNo"] || "").trim(),
             CourierCode: String(row["CourierCode"] || "").trim(),
@@ -194,6 +201,9 @@ export default function DocketChangePage() {
 
           <p className="mt-1 text-xs text-gray-500">
             Columns in order: {EXPECTED_HEADERS.join(", ")}
+          </p>
+          <p className="mt-1 text-xs text-gray-500">
+            Type must be one of: Defective Part, Defective DOA, Good Part, Good Machine, Mismatch Part, Mismatch Machine
           </p>
         </div>
 

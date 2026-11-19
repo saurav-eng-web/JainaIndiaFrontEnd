@@ -58,7 +58,7 @@ export default function LoginPage() {
         router.push("/search-complaint");
       // Modified/Added by Saurav Date: 26-Oct-2026 for Logistic Module (Redirect to Logistic views)
       } else if (role === "logistic") {
-        router.push("/logistic/search-history");
+        router.push("/logistic/dashboard");
       } else if (role === "logistic1") {
         router.push("/logistic/invoice-uploads");
       } else if (role === "repaircenter") {

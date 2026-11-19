@@ -62,6 +62,7 @@ function StatusViewContent() {
     { key: "typeOfChallan", label: "Type Of Challan" },
     { key: "pickupBoy", label: "Pickup Boy" },
     { key: "pickupMobile", label: "Pickup Mobile" },
+    { key: "challanStatus", label: "Challan Status", render: (val) => val || "-" },
     { key: "docketStatus", label: "Docket Status" },
   ];
 

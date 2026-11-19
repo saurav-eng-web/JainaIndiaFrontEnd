@@ -87,6 +87,13 @@ export default function SideBar() {
       roles: ["Logistic"],
     },
     {
+      // Old Mobile > Print (Mob/PrintDefectiveChallanho.aspx): direct entry in the Print section
+      href: "/logistic/mobile/print-challan",
+      icon: "fa fa-mobile",
+      text: "Mobile Print Challan",
+      roles: ["Logistic"],
+    },
+    {
       href: "/distributor/doapickup",
       icon: "fa fa-truck",
       text: "TD / DOA / CN Pickup",
@@ -142,17 +149,31 @@ export default function SideBar() {
       roles: ["Logistic"],
     },
     {
+      // Old Mobile > Search Complaint (it used to be a link banner on the Search History page)
+      href: "/logistic/mobile/complaint-search",
+      icon: "fa fa-search-plus",
+      text: "Mobile Complaint Search",
+      roles: ["Logistic"],
+    },
+    {
       href: "/logistic/courier-add",
       icon: "fa fa-truck",
       text: "Courier Master",
       roles: ["Logistic"],
     },
     {
-      href: "/logistic/delete-docket",
-      icon: "fa fa-trash",
-      text: "Delete Docket",
+      href: "/logistic/courier-mapping",
+      icon: "fa fa-map-marker",
+      text: "Courier Mapping",
       roles: ["Logistic"],
     },
+    // Delete Docket menu is hidden for now (13/16-Nov-2026 request). The page /logistic/delete-docket still exists.
+    // {
+    //   href: "/logistic/delete-docket",
+    //   icon: "fa fa-trash",
+    //   text: "Delete Docket",
+    //   roles: ["Logistic"],
+    // },
     {
       href: "/logistic/doapickup",
       icon: "fa fa-truck",

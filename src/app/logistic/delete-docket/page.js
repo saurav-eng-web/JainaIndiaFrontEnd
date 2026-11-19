@@ -17,6 +17,7 @@ import axiosInstance from "@/api/axiosInstance";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
 import Table from "@/components/common/Table";
+import { previewNote, previewRows } from "@/components/logistic/rowUtils";
 import { Button } from "@/components/customui/button";
 
 export default function DeleteDocketPage() {
@@ -73,14 +74,10 @@ export default function DeleteDocketPage() {
   }
 
   const columns = [
+    // DocMaster_Proc SELECT returns only [ID], [Courier Name], [Docket No] (same as the legacy grid)
     { label: "ID", key: "id", size: "sm" },
+    { label: "Courier Name", key: "courierCode", size: "md" },
     { label: "Docket No", key: "docketNo", size: "md" },
-    { label: "Challan No", key: "challanNo", size: "md" },
-    { label: "Type", key: "type", size: "sm" },
-    { label: "Courier Code", key: "courierCode", size: "md" },
-    { label: "Pickup Date", key: "pickupDate", size: "md" },
-    { label: "Delivery Date", key: "deliveryDate", size: "md" },
-    { label: "Status", key: "docStatus", size: "sm" },
     {
       label: "Action",
       key: "action",
@@ -103,7 +100,7 @@ export default function DeleteDocketPage() {
         <form onSubmit={handleSearch} className="mt-4 flex flex-col md:flex-row gap-4 items-end">
           <div className="w-full md:w-1/2 lg:w-1/3">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Docket Number / Challan Number <span className="text-red-500">*</span>
+              Docket Number
             </label>
             <input
               type="text"
@@ -125,7 +122,12 @@ export default function DeleteDocketPage() {
         <div>
           <Subheading title="Search Results" />
           <div className="mt-4">
-            <Table columns={columns} rows={data} isLoading={isLoading} />
+            {previewNote(data) && (
+              <p className="mb-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                {previewNote(data).replace('Use "Export to Excel" to get all rows.', "Search by docket number to narrow the list.")}
+              </p>
+            )}
+            <Table columns={columns} rows={previewRows(data)} isLoading={isLoading} />
           </div>
         </div>
       )}

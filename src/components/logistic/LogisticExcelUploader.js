@@ -68,7 +68,9 @@ export default function LogisticExcelUploader({
     }
   }
 
-  function handleFileSelect(selectedFile) {
+  // ImageUpload calls onChange with the change EVENT (not the File), so read the file from the event.
+  function handleFileSelect(event) {
+    const selectedFile = event?.target?.files?.[0] ?? (event instanceof File ? event : null);
     if (!selectedFile) return;
     if (!ALLOWED_FILE_TYPES.includes(selectedFile.type)) {
       toast.error("Only Excel (.xlsx or .xls) files are supported");
@@ -107,11 +109,12 @@ export default function LogisticExcelUploader({
           }
           while (headers.length > 0 && !headers[headers.length - 1]) headers.pop();
 
+          // Legacy bulk copy mapped the columns BY NAME: order does not matter, extra columns are ignored
+          const lowerHeaders = headers.map((h) => h.toLowerCase());
           const problems = [];
-          expectedHeaders.forEach((expected, index) => {
-            const actual = headers[index] || "";
-            if (actual.toLowerCase() !== expected.toLowerCase()) {
-              problems.push(`Column ${index + 1} should be "${expected}" but was "${actual}"`);
+          expectedHeaders.forEach((expected) => {
+            if (!lowerHeaders.includes(expected.toLowerCase())) {
+              problems.push(`Column "${expected}" is missing`);
             }
           });
           if (problems.length > 0) {

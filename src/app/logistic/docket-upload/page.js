@@ -14,7 +14,6 @@ import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
 
 import axiosInstance from "@/api/axiosInstance";
-import Table from "@/components/common/Table";
 import { Button } from "@/components/customui/button";
 import ImageUpload from "@/components/customui/image/ImageUpload";
 import PageSkeleton from "@/components/customui/PageSkeleton";
@@ -36,10 +35,6 @@ export default function DocketUploadPage() {
   const [isLoadingGrids, setIsLoadingGrids] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadErrors, setUploadErrors] = useState({ title: "", items: [] });
-  
-  const [activeTab, setActiveTab] = useState(""); 
-  const [gridData, setGridData] = useState([]);
-  const [gridColumns, setGridColumns] = useState([]);
 
   function handleSampleDownload() {
     try {
@@ -56,7 +51,9 @@ export default function DocketUploadPage() {
     }
   }
 
-  function handleFileSelect(selectedFile) {
+  // ImageUpload calls onChange with the change EVENT (not the File), so read the file from the event.
+  function handleFileSelect(event) {
+    const selectedFile = event?.target?.files?.[0] ?? (event instanceof File ? event : null);
     if (!selectedFile) return;
 
     if (!ALLOWED_FILE_TYPES.includes(selectedFile.type)) {
@@ -99,11 +96,12 @@ export default function DocketUploadPage() {
 
           while (headers.length > 0 && !headers[headers.length - 1]) headers.pop();
 
+          // Legacy bulk copy mapped the columns BY NAME, so the column order does not matter (extra columns are ignored)
+          const lowerHeaders = headers.map((h) => h.toLowerCase());
           const problems = [];
-          EXPECTED_HEADERS.forEach((expected, index) => {
-            const actual = headers[index] || "";
-            if (actual.toLowerCase() !== expected.toLowerCase()) {
-              problems.push(`Column ${index + 1} should be "${expected}" but was "${actual}"`);
+          EXPECTED_HEADERS.forEach((expected) => {
+            if (!lowerHeaders.includes(expected.toLowerCase())) {
+              problems.push(`Column "${expected}" is missing`);
             }
           });
 
@@ -115,7 +113,11 @@ export default function DocketUploadPage() {
             return;
           }
 
-          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+          // Accept the headers in any case / order: rename them to the canonical names
+          const canon = Object.fromEntries(EXPECTED_HEADERS.map((h) => [h.toLowerCase(), h]));
+          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" }).map((r) =>
+            Object.fromEntries(Object.entries(r).map(([k, v]) => [canon[k.trim().toLowerCase()] || k, v]))
+          );
           const rows = jsonData.map((row) => ({
             CourierCode: String(row["CourierCode"] || "").trim(),
             DocketNo: String(row["DocketNo"] || "").trim(),
@@ -166,10 +168,6 @@ export default function DocketUploadPage() {
       setFile(null);
       setFileName("");
       
-      // Auto refresh grids if one is open
-      if (activeTab === "DOWNLOADS") fetchDownloads();
-      if (activeTab === "NOT_UPLOADED") fetchNotUploaded();
-      
     } catch (error) {
       if (error?.title) {
         setUploadErrors({ title: error.title, items: error.items || [] });
@@ -187,11 +185,8 @@ export default function DocketUploadPage() {
   async function fetchDownloads() {
     try {
       setIsLoadingGrids(true);
-      setActiveTab("DOWNLOADS");
       const res = await axiosInstance.get("logistic/dockets/downloads");
-      const data = res.data || [];
-      
-      setGridColumns([
+      downloadList(res.data, "Docket", [
         { key: "courierCode", label: "Courier Code" },
         { key: "courier", label: "Courier" },
         { key: "docketNo", label: "Docket No" },
@@ -199,7 +194,6 @@ export default function DocketUploadPage() {
         { key: "inventoryType", label: "Inventory Type" },
         { key: "date", label: "Date" },
       ]);
-      setGridData(data);
     } catch (error) {
       toast.error("Failed to load docket downloads");
     } finally {
@@ -210,17 +204,13 @@ export default function DocketUploadPage() {
   async function fetchNotUploaded() {
     try {
       setIsLoadingGrids(true);
-      setActiveTab("NOT_UPLOADED");
       const res = await axiosInstance.get("logistic/dockets/not-uploaded");
-      const data = res.data || [];
-      
-      setGridColumns([
+      downloadList(res.data, "Docket Not Uploaded", [
         { key: "courierCode", label: "Courier Code" },
         { key: "docketNo", label: "Docket No" },
         { key: "isUpload", label: "Is Upload" },
         { key: "date", label: "Date" },
       ]);
-      setGridData(data);
     } catch (error) {
       toast.error("Failed to load not uploaded dockets");
     } finally {
@@ -228,22 +218,22 @@ export default function DocketUploadPage() {
     }
   }
 
-  // Legacy pages downloaded these lists as Excel files; export the grid currently shown.
-  function handleExportGrid() {
-    if (!gridData || gridData.length === 0) {
-      toast.error("No data to export");
+  // Like the legacy buttons: the list is downloaded straight away as an Excel file (no grid on the page).
+  function downloadList(rows, fileName, columns) {
+    if (!rows || rows.length === 0) {
+      toast.error(`No data found for ${fileName}`);
       return;
     }
-    const fileNames = { DOWNLOADS: "Docket", NOT_UPLOADED: "Docket Not Uploaded" };
     try {
       exportToExcel({
-        data: gridData,
-        headers: gridColumns.map((c) => ({ label: c.label, key: c.key })),
-        fileName: `${fileNames[activeTab] || "Export"}.xlsx`,
+        data: rows,
+        headers: columns.map((c) => ({ label: c.label, key: c.key })),
+        fileName: `${fileName}.xlsx`,
         sheetName: "Sheet1",
       });
+      toast.success(`${fileName} downloaded`);
     } catch (error) {
-      toast.error("Export failed");
+      toast.error("Download failed");
     }
   }
 
@@ -314,29 +304,14 @@ export default function DocketUploadPage() {
       <div className="mt-10">
         <Subheading title="Docket History & Reports" />
         <div className="flex gap-4 mt-4">
-           <Button variant={activeTab === "DOWNLOADS" ? "default" : "outline"} onClick={fetchDownloads} disabled={isLoadingGrids}>
-             Docket Download
+           <Button variant="outline" onClick={fetchDownloads} disabled={isLoadingGrids}>
+             {isLoadingGrids ? "Downloading..." : "Docket Download"}
            </Button>
-           <Button variant={activeTab === "NOT_UPLOADED" ? "default" : "outline"} onClick={fetchNotUploaded} disabled={isLoadingGrids}>
+           <Button variant="outline" onClick={fetchNotUploaded} disabled={isLoadingGrids}>
              Docket Not Uploaded
            </Button>
         </div>
       </div>
-
-      {activeTab && (
-         <div className="mt-6 transition-opacity duration-300">
-            <div className="mb-3 flex justify-end">
-              <Button variant="outline" onClick={handleExportGrid} disabled={isLoadingGrids || gridData.length === 0}>
-                Export to Excel
-              </Button>
-            </div>
-            <Table
-               columns={gridColumns}
-               rows={gridData}
-               isLoading={isLoadingGrids}
-            />
-         </div>
-      )}
 
     </PageSkeleton>
   );

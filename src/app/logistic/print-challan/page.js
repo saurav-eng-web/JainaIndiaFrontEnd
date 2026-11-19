@@ -6,6 +6,8 @@
  * Date         Author   Purpose
  * -----------------------------------------------------------------------------
  * 26-Oct-2026  Saurav   Created for Logistic Module
+ * 16-Nov-2026           ASC Copy / NSP Copy moved to separate buttons in a right-side "Print" column; the challan list
+ *                       scrolls inside the page (Table maxHeightClass) instead of scrolling the whole page.
  * -----------------------------------------------------------------------------
  */
 
@@ -168,22 +170,30 @@ export default function PrintChallanPage() {
       key,
       label,
       size: "md",
-      render: (val) =>
-        val ? (
-          <div className="flex flex-col gap-1">
-            <span className="font-semibold text-gray-800">{val}</span>
-            <div className="flex gap-3 text-xs">
-              <button type="button" onClick={() => openPrint("asc", val)} className="text-blue-600 hover:underline">
-                ASC Copy
-              </button>
-              <button type="button" onClick={() => openPrint("nsp", val)} className="text-blue-600 hover:underline">
-                NSP Copy
-              </button>
-            </div>
+      render: (val) => (val ? <span className="font-semibold text-gray-800">{val}</span> : "-"),
+    };
+  }
+
+  // Right-side action column: one button per copy (opens the print page in a new tab, same as before)
+  function printColumn(key) {
+    return {
+      key: "printActions",
+      label: "Print",
+      size: "lg",
+      render: (_, row) => {
+        const challanNo = row?.[key];
+        if (!challanNo) return "-";
+        return (
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={() => openPrint("asc", challanNo)}>
+              ASC Copy
+            </Button>
+            <Button type="button" variant="outline" onClick={() => openPrint("nsp", challanNo)}>
+              NSP Copy
+            </Button>
           </div>
-        ) : (
-          "-"
-        ),
+        );
+      },
     };
   }
 
@@ -240,7 +250,10 @@ export default function PrintChallanPage() {
     }
   }
 
-  const columns = getColumns(resultMeta.type);
+  // Field that holds the challan number for each page (used by the Print buttons)
+  const CHALLAN_KEY = { defective: "poNumber", doa: "poNumber", good: "gudNo", goodmachine: "poNo", mis: "misNo", misfg: "poNo" };
+  const baseColumns = getColumns(resultMeta.type);
+  const columns = baseColumns.length ? [...baseColumns, printColumn(CHALLAN_KEY[resultMeta.type])] : baseColumns;
 
   return (
     <PageSkeleton title="Print Challan" rolesAllowed={["logistic"]} backHref="/logistic/print">
@@ -315,7 +328,7 @@ export default function PrintChallanPage() {
         <div>
           <Subheading title="Challan List" />
           <div className="mt-4">
-            <Table columns={columns} rows={data} isLoading={isLoading} />
+            <Table columns={columns} rows={data} isLoading={isLoading} maxHeightClass="max-h-[60vh]" />
           </div>
         </div>
       )}

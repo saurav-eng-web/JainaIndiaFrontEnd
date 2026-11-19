@@ -91,7 +91,7 @@ export default function LogisticMobileComplaintSearchPage() {
   ];
 
   return (
-    <PageSkeleton title="Mobile Complaint Search" rolesAllowed={["logistic"]} backHref="/logistic/search-history">
+    <PageSkeleton title="Mobile Complaint Search" rolesAllowed={["logistic"]} backHref="/logistic/dashboard">
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
         <Subheading title="Search Complaint" />
         <form onSubmit={handleSearch} className="mt-4 flex flex-col sm:flex-row gap-4 items-end">

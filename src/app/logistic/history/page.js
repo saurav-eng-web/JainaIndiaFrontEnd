@@ -16,7 +16,7 @@ import { useSearchParams } from "next/navigation";
 import axiosInstance from "@/api/axiosInstance";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
-import Table from "@/components/common/Table";
+import LogisticTable from "@/components/logistic/LogisticTable";
 
 function HistoryContent() {
   const searchParams = useSearchParams();
@@ -135,7 +135,7 @@ function HistoryContent() {
           {/* HISTORY TABLE */}
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Status History</h3>
-            <Table 
+            <LogisticTable
               columns={historyCols} 
               rows={detail.history || []} 
               isLoading={false} 

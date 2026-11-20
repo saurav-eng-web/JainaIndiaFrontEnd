@@ -37,6 +37,12 @@ export default function LogisticUploadersHub() {
       link: "/logistic/docket-change-status",
     },
     {
+      title: "Forward Logistic Docket Uploader",
+      description: "Upload ChallanNo, DocketNo, DOCStatus (In-Transit / Delivered), TransDate, UploadType and ChallanType to update forward dockets.",
+      icon: <UploadCloud className="w-10 h-10 text-teal-600" />,
+      link: "/logistic/forward-docket-uploader",
+    },
+    {
       title: "Courier Mapping",
       description: "Upload courier to pincode mapping (CourierCode, Pincode, Slab, Priority, Action).",
       icon: <UploadCloud className="w-10 h-10 text-purple-600" />,

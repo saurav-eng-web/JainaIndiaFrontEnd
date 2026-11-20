@@ -14,7 +14,7 @@ import { MdEventAvailable, MdHourglassEmpty, MdLocalShipping } from "react-icons
 import * as XLSX from "xlsx";
 
 import axiosInstance from "@/api/axiosInstance";
-import Table from "@/components/common/Table";
+import LogisticTable from "@/components/logistic/LogisticTable";
 import { Button } from "@/components/customui/button";
 import ImageUpload from "@/components/customui/image/ImageUpload";
 import PageSkeleton from "@/components/customui/PageSkeleton";
@@ -448,7 +448,7 @@ export default function LogisticPickupPage() {
             variant="input"
             onChange={handleFileSelect}
             disabled={isUploading}
-            message={fileName ? `Selected: ${fileName}` : ""}
+            message={fileName ? <span className="inline-block max-w-[11rem] truncate align-bottom" title={fileName}>{`Selected: ${fileName}`}</span> : ""}
             required
           />
 
@@ -605,7 +605,7 @@ export default function LogisticPickupPage() {
         </div>
 
         <div className="transition-opacity duration-300">
-          <Table
+          <LogisticTable
             columns={breakdownColumns}
             rows={visibleBreakdown}
             isLoading={isLoading}

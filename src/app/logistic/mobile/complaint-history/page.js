@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import { useSearchParams } from "next/navigation";
 
 import axiosInstance from "@/api/axiosInstance";
-import Table from "@/components/common/Table";
+import LogisticTable from "@/components/logistic/LogisticTable";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
 import { columnsFromRows } from "@/components/logistic/rowUtils";
@@ -80,7 +80,7 @@ function ComplaintHistoryContent() {
               <div key={section.key}>
                 <Subheading title={section.title} />
                 <div className="mt-3">
-                  <Table columns={columnsFromRows(rows)} rows={rows} isLoading={false} />
+                  <LogisticTable columns={columnsFromRows(rows)} rows={rows} isLoading={false} />
                 </div>
               </div>
             );

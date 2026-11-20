@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 import axiosInstance from "@/api/axiosInstance";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
-import Table from "@/components/common/Table";
+import LogisticTable from "@/components/logistic/LogisticTable";
 import { Button } from "@/components/customui/button";
 
 /*
@@ -328,7 +328,7 @@ export default function PrintChallanPage() {
         <div>
           <Subheading title="Challan List" />
           <div className="mt-4">
-            <Table columns={columns} rows={data} isLoading={isLoading} maxHeightClass="max-h-[60vh]" />
+            <LogisticTable columns={columns} rows={data} isLoading={isLoading} maxHeightClass="max-h-[60vh]" />
           </div>
         </div>
       )}

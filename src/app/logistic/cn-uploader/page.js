@@ -13,8 +13,9 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import Table from "@/components/common/Table";
+import LogisticTable from "@/components/logistic/LogisticTable";
 import { Button } from "@/components/customui/button";
+import InputField from "@/components/customui/InputWithLabel";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
 import LogisticExcelUploader from "@/components/logistic/LogisticExcelUploader";
@@ -92,29 +93,29 @@ export default function CnUploaderPage() {
 
       <div className="mt-10">
         <Subheading title="Search" />
-        <form onSubmit={handleSearch} className="mt-4 flex flex-col sm:flex-row gap-4 items-end">
-          <div className="flex-1 w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Enter Job</label>
-            <input
-              type="text"
-              value={ticketNo}
-              onChange={(e) => setTicketNo(e.target.value)}
-              placeholder="Ticket number (leave blank to list all uploaded CNs)"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
-          <Button type="submit" disabled={isLoading}>
+        {/* Compact search row (same look as the upload row above and the Call Search page) */}
+        <div className="flex flex-wrap items-start gap-6">
+          <InputField
+            label="Enter Job"
+            type="text"
+            placeholder="Ticket no. (blank = all CNs)"
+            className="w-xs"
+            value={ticketNo}
+            onChange={(e) => setTicketNo(e.target.value)}
+            onEnterKeyPressed={handleSearch}
+          />
+          <Button className="mt-6" onClick={handleSearch} disabled={isLoading}>
             {isLoading ? "Searching..." : "Search"}
           </Button>
-          <Button type="button" variant="outline" onClick={handleExport} disabled={isLoading || rows.length === 0}>
+          <Button className="mt-6" variant="outline" onClick={handleExport} disabled={isLoading || rows.length === 0}>
             Export To Excel
           </Button>
-        </form>
+        </div>
       </div>
 
       {hasSearched && (
         <div className="mt-6">
-          <Table columns={columns.length ? columns : [{ key: "_", label: "Result" }]} rows={rows} isLoading={isLoading} />
+          <LogisticTable columns={columns.length ? columns : [{ key: "_", label: "Result" }]} rows={rows} isLoading={isLoading} />
         </div>
       )}
     </PageSkeleton>

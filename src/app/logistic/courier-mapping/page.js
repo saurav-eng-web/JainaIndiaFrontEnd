@@ -254,7 +254,7 @@ export default function CourierMappingPage() {
             variant="input"
             onChange={handleFileSelect}
             disabled={isUploading}
-            message={fileName ? `Selected: ${fileName}` : ""}
+            message={fileName ? <span className="inline-block max-w-[11rem] truncate align-bottom" title={fileName}>{`Selected: ${fileName}`}</span> : ""}
             required
           />
 

@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import Table from "@/components/common/Table";
+import LogisticTable from "@/components/logistic/LogisticTable";
 import { Button } from "@/components/customui/button";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
@@ -122,7 +122,7 @@ export default function CourierAddPage() {
         <div>
           <Subheading title="Existing Couriers" />
           <div className="mt-4 max-h-[26rem] overflow-y-auto rounded-md">
-            <Table columns={columns} rows={couriers} isLoading={isLoading} />
+            <LogisticTable columns={columns} rows={couriers} isLoading={isLoading} />
           </div>
         </div>
 

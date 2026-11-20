@@ -15,7 +15,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import Table from "@/components/common/Table";
+import LogisticTable from "@/components/logistic/LogisticTable";
 import { Button } from "@/components/customui/button";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
@@ -149,7 +149,7 @@ export default function LogisticSearchHistoryPage() {
       <div>
         <Subheading title="History" />
         <div className="mt-4">
-          <Table columns={HISTORY_COLUMNS} rows={detail?.history || []} isLoading={isLoading} />
+          <LogisticTable columns={HISTORY_COLUMNS} rows={detail?.history || []} isLoading={isLoading} />
           {!isLoading && notFound && (
             <div className="mt-4 rounded border border-dashed p-4 text-center text-gray-500">No result found</div>
           )}

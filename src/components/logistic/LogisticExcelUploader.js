@@ -201,7 +201,7 @@ export default function LogisticExcelUploader({
             variant="input"
             onChange={handleFileSelect}
             disabled={isUploading}
-            message={fileName ? `Selected: ${fileName}` : ""}
+            message={fileName ? <span className="inline-block max-w-[11rem] truncate align-bottom" title={fileName}>{`Selected: ${fileName}`}</span> : ""}
             required
           />
           <p className="mt-1 text-xs text-gray-500">Columns in order: {expectedHeaders.join(", ")}</p>

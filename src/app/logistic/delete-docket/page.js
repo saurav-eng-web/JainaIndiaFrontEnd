@@ -16,8 +16,7 @@ import { Trash2 } from "lucide-react";
 import axiosInstance from "@/api/axiosInstance";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
-import Table from "@/components/common/Table";
-import { previewNote, previewRows } from "@/components/logistic/rowUtils";
+import LogisticTable from "@/components/logistic/LogisticTable";
 import { Button } from "@/components/customui/button";
 
 export default function DeleteDocketPage() {
@@ -122,12 +121,7 @@ export default function DeleteDocketPage() {
         <div>
           <Subheading title="Search Results" />
           <div className="mt-4">
-            {previewNote(data) && (
-              <p className="mb-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                {previewNote(data).replace('Use "Export to Excel" to get all rows.', "Search by docket number to narrow the list.")}
-              </p>
-            )}
-            <Table columns={columns} rows={previewRows(data)} isLoading={isLoading} />
+            <LogisticTable columns={columns} rows={data} isLoading={isLoading} />
           </div>
         </div>
       )}

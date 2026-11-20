@@ -11,13 +11,14 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import axiosInstance from "@/api/axiosInstance";
-import Table from "@/components/common/Table";
 import { Button } from "@/components/customui/button";
+import InputField from "@/components/customui/InputWithLabel";
 import PageSkeleton from "@/components/customui/PageSkeleton";
-import Subheading from "@/components/customui/Subheading";
+import LogisticTable from "@/components/logistic/LogisticTable";
 import { pick } from "@/components/logistic/rowUtils";
 
 /*
@@ -32,8 +33,7 @@ export default function LogisticMobileComplaintSearchPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  async function handleSearch(e) {
-    e.preventDefault();
+  async function handleSearch() {
     if (!text.trim()) {
       toast.error("Please enter a search value");
       return;
@@ -92,33 +92,28 @@ export default function LogisticMobileComplaintSearchPage() {
 
   return (
     <PageSkeleton title="Mobile Complaint Search" rolesAllowed={["logistic"]} backHref="/logistic/dashboard">
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
-        <Subheading title="Search Complaint" />
-        <form onSubmit={handleSearch} className="mt-4 flex flex-col sm:flex-row gap-4 items-end">
-          <div className="flex-1 w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Complaint no. / mobile no. / serial no."
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Searching..." : "Search"}
-          </Button>
-        </form>
+      {/* Search box: same design as the Call Search (Search Complaint) page */}
+      <div className="flex gap-4">
+        <InputField
+          type="text"
+          placeholder="Complaint No / Mobile No / Serial No"
+          className="w-xs"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onEnterKeyPressed={handleSearch}
+        />
+        <Button disabled={isLoading} className="mt-6" onClick={handleSearch}>
+          {isLoading ? "Searching..." : "Search"}
+          <Search size={20} className="ml-2" />
+        </Button>
       </div>
 
       {(message || isLoading) && (
-        <div>
+        <div className="mt-8">
           {message && (
             <p className={`mb-3 text-sm font-semibold ${rows.length > 0 ? "text-blue-700" : "text-red-600"}`}>{message}</p>
           )}
-          <Table columns={columns} rows={rows} isLoading={isLoading} />
+          <LogisticTable columns={columns} rows={rows} isLoading={isLoading} />
         </div>
       )}
     </PageSkeleton>

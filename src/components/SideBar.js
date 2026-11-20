@@ -86,13 +86,7 @@ export default function SideBar() {
       text: "Print",
       roles: ["Logistic"],
     },
-    {
-      // Old Mobile > Print (Mob/PrintDefectiveChallanho.aspx): direct entry in the Print section
-      href: "/logistic/mobile/print-challan",
-      icon: "fa fa-mobile",
-      text: "Mobile Print Challan",
-      roles: ["Logistic"],
-    },
+    // Mobile Print Challan menu removed (20-Nov-2026): the page is opened from the Print hub (/logistic/print).
     {
       href: "/distributor/doapickup",
       icon: "fa fa-truck",
@@ -161,12 +155,7 @@ export default function SideBar() {
       text: "Courier Master",
       roles: ["Logistic"],
     },
-    {
-      href: "/logistic/courier-mapping",
-      icon: "fa fa-map-marker",
-      text: "Courier Mapping",
-      roles: ["Logistic"],
-    },
+    // Courier Mapping menu removed (20-Nov-2026): the page is opened from the Uploaders hub (/logistic/uploaders).
     // Delete Docket menu is hidden for now (13/16-Nov-2026 request). The page /logistic/delete-docket still exists.
     // {
     //   href: "/logistic/delete-docket",

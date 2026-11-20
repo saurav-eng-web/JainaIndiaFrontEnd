@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "@/api/axiosInstance";
-import Table from "@/components/common/Table";
+import LogisticTable from "@/components/logistic/LogisticTable";
 import { Button } from "@/components/customui/button";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
@@ -186,7 +186,7 @@ export default function LogisticMobilePrintChallanPage() {
         <div>
           <Subheading title="Challan List" />
           <div className="mt-4">
-            <Table columns={columns} rows={data} isLoading={isLoading} />
+            <LogisticTable columns={columns} rows={data} isLoading={isLoading} />
           </div>
         </div>
       )}

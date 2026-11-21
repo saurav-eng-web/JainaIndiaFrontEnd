@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -11,8 +10,11 @@ import ModalSkeleton from "@/components/customui/ModalSkeleton";
 import { UploadProgressModal } from "@/components/customui/UploadProgress";
 import { uploadImage } from "@/utils/uploadImage";
 
-// [CUSTOM CHANGE]: Cumulative video limit configuration (Max 40MB combined across all videos)
+// [CUSTOM CHANGE]: Cumulative video limit configuration.
+// MAX_TOTAL_VIDEO_SIZE_MB is the real limit enforced in code (40MB combined across all videos).
+// DISPLAY_VIDEO_SIZE_MB is the limit shown to the user on screen (30MB); the extra 10MB is a buffer.
 const MAX_TOTAL_VIDEO_SIZE_MB = 40;
+const DISPLAY_VIDEO_SIZE_MB = 30;
 const MAX_TOTAL_BYTES = MAX_TOTAL_VIDEO_SIZE_MB * 1024 * 1024;
 
 // [CUSTOM CHANGE]: Identify a selected file (same name + size + last modified = same video)
@@ -146,15 +148,26 @@ export default function DOATDModal({ title, type, ticketNo, onClose }) {
 
     if (!validVideos.length) return;
 
-    // Deduplicate against already selected videos
+    // Deduplicate against already selected videos and tell the user about every duplicate
     const updatedFiles = [...videoFiles];
+    const duplicateNames = [];
     for (const v of validVideos) {
       const alreadyExists = updatedFiles.some(
         (existing) => existing.name === v.name && existing.size === v.size
       );
-      if (!alreadyExists) {
+      if (alreadyExists) {
+        duplicateNames.push(v.name);
+      } else {
         updatedFiles.push(v);
       }
+    }
+
+    if (duplicateNames.length) {
+      toast.error(
+        duplicateNames.length === 1
+          ? `"${duplicateNames[0]}" is already selected. Duplicate video not added.`
+          : `These videos are already selected and were not added again: ${duplicateNames.join(", ")}`
+      );
     }
 
     const newTotalBytes = updatedFiles.reduce((sum, f) => sum + (f.size || 0), 0);
@@ -162,7 +175,7 @@ export default function DOATDModal({ title, type, ticketNo, onClose }) {
 
     if (newTotalBytes > MAX_TOTAL_BYTES) {
       toast.error(
-        `Total video size exceeds ${MAX_TOTAL_VIDEO_SIZE_MB}MB (${newTotalMB}MB selected). Submit will be disabled.`
+        `Total video size exceeds ${DISPLAY_VIDEO_SIZE_MB}MB (${newTotalMB}MB selected). Submit will be disabled.`
       );
     }
 
@@ -188,7 +201,7 @@ export default function DOATDModal({ title, type, ticketNo, onClose }) {
     // [CUSTOM CHANGE]: Guard check to prevent submission if total size exceeds the 40MB limit
     if (isOverSizeLimit) {
       toast.error(
-        `Total video size cannot exceed ${MAX_TOTAL_VIDEO_SIZE_MB}MB (Current: ${totalVideoSizeMB}MB). Please remove some videos.`
+        `Total video size cannot exceed ${DISPLAY_VIDEO_SIZE_MB}MB (Current: ${totalVideoSizeMB}MB). Please remove some videos.`
       );
       return;
     }
@@ -290,7 +303,7 @@ export default function DOATDModal({ title, type, ticketNo, onClose }) {
             multiple={true}
             accept="video/*"
             label="Upload video"
-            helperText={`Multiple videos allowed. Total combined size max ${MAX_TOTAL_VIDEO_SIZE_MB}MB.`}
+            helperText={`Multiple videos allowed. Total combined size max ${DISPLAY_VIDEO_SIZE_MB}MB.`}
             required
             disabled={isUploading || isSubmitting}
           />
@@ -302,21 +315,12 @@ export default function DOATDModal({ title, type, ticketNo, onClose }) {
                 <span className="font-semibold text-gray-700">
                   Videos Selected: {videoFiles.length}
                 </span>
-                <span
-                  className={clsx(
-                    "font-medium",
-                    isOverSizeLimit ? "font-bold text-red-600" : "text-gray-600"
-                  )}
-                >
-                  Total Size: {totalVideoSizeMB} MB / {MAX_TOTAL_VIDEO_SIZE_MB} MB
-                  {isOverSizeLimit && ` (Exceeds ${MAX_TOTAL_VIDEO_SIZE_MB}MB limit!)`}
-                </span>
               </div>
 
               {/* Warning banner if cumulative size exceeds the 40MB limit */}
               {isOverSizeLimit && (
                 <div className="rounded-md border border-red-200 bg-red-50 p-2 text-xs font-medium text-red-700">
-                  Total video size exceeds {MAX_TOTAL_VIDEO_SIZE_MB}MB ({totalVideoSizeMB}MB). Please remove some videos to proceed with submission.
+                  Total video size exceeds {DISPLAY_VIDEO_SIZE_MB}MB ({totalVideoSizeMB}MB). Please remove some videos to proceed with submission.
                 </div>
               )}
 

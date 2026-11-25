@@ -33,8 +33,8 @@ export default function CourierAddPage() {
   async function fetchCouriers() {
     try {
       setIsLoading(true);
-      const res = await axiosInstance.get("logistic/couriers");
-      setCouriers(res.data || []);
+      const res = await axiosInstance.post("logistic/couriers/process", { type: "list" });
+      setCouriers(res.data?.data || []);
     } catch (error) {
       toast.error("Failed to fetch couriers.");
     } finally {
@@ -51,18 +51,18 @@ export default function CourierAddPage() {
 
     try {
       setIsSaving(true);
-      const res = await axiosInstance.post("logistic/couriers", {
-        CourierName: courierName.trim(),
-        CourierCode: courierCode.trim(),
+      const res = await axiosInstance.post("logistic/couriers/process", {
+        type: "add",
+        courierName: courierName.trim(),
+        courierCode: courierCode.trim(),
       });
-      toast.success(res.data?.message || "Courier added successfully!");
+      toast.success(res.data?.statusMsg || "Courier added successfully!");
       setCourierName("");
       setCourierCode("");
       
-      // Refresh the grid
       fetchCouriers();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to add courier.");
+      toast.error(error?.response?.data?.statusMsg || "Failed to add courier.");
     } finally {
       setIsSaving(false);
     }
@@ -75,10 +75,8 @@ export default function CourierAddPage() {
 
   return (
     <PageSkeleton title="Courier Master" rolesAllowed={["logistic"]} backHref="/logistic/dashboard">
-      {/* Layout like the legacy page: the form on top (one aligned row), the courier grid below */}
       <div className="space-y-8">
 
-        {/* ADD FORM */}
         <div>
           <Subheading title="Add New Courier" />
           <form
@@ -118,7 +116,6 @@ export default function CourierAddPage() {
           </form>
         </div>
 
-        {/* LISTING (scrolls inside its own box, so the page stays short) */}
         <div>
           <Subheading title="Existing Couriers" />
           <div className="mt-4 max-h-[26rem] overflow-y-auto rounded-md">

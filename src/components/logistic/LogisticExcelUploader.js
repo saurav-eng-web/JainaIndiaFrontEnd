@@ -25,25 +25,13 @@ const ALLOWED_FILE_TYPES = [
   "application/vnd.ms-excel", // .xls
 ];
 
-/**
- * Excel upload block used by the Logistic uploader pages (same UI/validation as Docket Upload).
- * Legacy pages read Sheet1 with OLEDB and bulk-copied it; here the first sheet is parsed in the
- * browser, the header order is checked, and the rows are posted as JSON.
- *
- * @param {string}   title            Subheading text
- * @param {string[]} expectedHeaders  Excel header row, in order
- * @param {Function} mapRow           (excelRow) => payload row
- * @param {Function} isRowEmpty       (payloadRow) => true to skip a blank row
- * @param {string}   endpoint         API path to POST rows to
- * @param {string}   sampleFileName   File name for "Download Sample"
- * @param {Function} [onUploaded]     Called after a successful upload
- */
 export default function LogisticExcelUploader({
   title,
   expectedHeaders,
   mapRow,
   isRowEmpty,
   endpoint,
+  payloadType,
   sampleFileName,
   onUploaded,
 }) {
@@ -68,7 +56,6 @@ export default function LogisticExcelUploader({
     }
   }
 
-  // ImageUpload calls onChange with the change EVENT (not the File), so read the file from the event.
   function handleFileSelect(event) {
     const selectedFile = event?.target?.files?.[0] ?? (event instanceof File ? event : null);
     if (!selectedFile) return;
@@ -109,7 +96,6 @@ export default function LogisticExcelUploader({
           }
           while (headers.length > 0 && !headers[headers.length - 1]) headers.pop();
 
-          // Legacy bulk copy mapped the columns BY NAME: order does not matter, extra columns are ignored
           const lowerHeaders = headers.map((h) => h.toLowerCase());
           const problems = [];
           expectedHeaders.forEach((expected) => {
@@ -122,7 +108,6 @@ export default function LogisticExcelUploader({
             return;
           }
 
-          // Read by header name, case-insensitively (legacy OLEDB column mappings were by name).
           const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
           const rows = jsonData
             .map((raw) => {
@@ -165,14 +150,14 @@ export default function LogisticExcelUploader({
       const parsedRows = await parseExcelAndValidate(file);
       setProgress(40);
 
-      const res = await axiosInstance.post(endpoint, parsedRows, {
+      const res = await axiosInstance.post(endpoint, { type: payloadType, data: parsedRows }, {
         onUploadProgress: (event) => {
           const p = Math.round((event.loaded * 100) / (event.total || 1));
           setProgress(40 + p * 0.6);
         },
       });
 
-      toast.success(res.data?.message || "File uploaded successfully!");
+      toast.success(res.data?.statusMsg || "File uploaded successfully!");
       setFile(null);
       setFileName("");
       if (onUploaded) onUploaded();
@@ -182,7 +167,7 @@ export default function LogisticExcelUploader({
         toast.error(error.title);
         return;
       }
-      toast.error(error?.response?.data?.message || "Failed to upload file");
+      toast.error(error?.response?.data?.statusMsg || "Failed to upload file");
     } finally {
       setIsUploading(false);
       setProgress(0);

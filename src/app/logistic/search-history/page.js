@@ -29,7 +29,6 @@ const SEARCH_TYPES = [
   { value: "Mismatch Machine", label: "Mismatch Machine" },
 ];
 
-// Same fields and order as the legacy page (Type Of Challan ... Remark)
 const DETAIL_FIELDS = [
   { label: "Type Of Challan", key: "typeOfChallan" },
   { label: "Challan No.", key: "challanNo" },
@@ -72,20 +71,20 @@ export default function LogisticSearchHistoryPage() {
       setIsLoading(true);
       setNotFound(false);
 
-      // Legacy SearchHistory.aspx: sp_DocketDetailsSearch(@Type=<dropdown text>, @PONo=<challan>) for the header,
-      // then PickUPhistory for the grid. The API answers 404 "No result found" when nothing matches.
-      const res = await axiosInstance.get("logistic/dockets/search", {
-        params: { type: searchType, challanNo: searchValue.trim() },
+      const res = await axiosInstance.post("logistic/dockets/process", {
+        type: "search",
+        challanType: searchType,
+        challanNo: searchValue.trim(),
       });
-      setDetail(res.data || null);
-      setNotFound(!res.data);
+      setDetail(res.data?.data || null);
+      setNotFound(!res.data?.data);
     } catch (error) {
       setDetail(null);
       if (error?.response?.status === 404) {
         setNotFound(true);
         toast.error("No result found");
       } else {
-        toast.error(error?.response?.data?.message || "Search failed");
+        toast.error(error?.response?.data?.statusMsg || "Search failed");
       }
     } finally {
       setIsLoading(false);
@@ -135,7 +134,6 @@ export default function LogisticSearchHistoryPage() {
           </div>
         </form>
 
-        {/* Docket details (shown after Search, like the legacy labels under the search row) */}
         <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-3 border-t border-gray-100 pt-5 sm:grid-cols-2 lg:grid-cols-3">
           {DETAIL_FIELDS.map((f) => (
             <div key={f.key} className="flex gap-2 text-sm">

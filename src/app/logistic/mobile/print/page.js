@@ -16,11 +16,6 @@ import axiosInstance from "@/api/axiosInstance";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { pick } from "@/components/logistic/rowUtils";
 
-/*
- * Legacy Mob/PdefInvoice.aspx -> Mob/PrintInvoiceDef_NSP.aspx ("Delivery Challan"):
- * header from invoicedetail1m(@PONum,@Type), lines from ChallanLinem(@PoNo,@Type).
- * (The ASC-copy iframe of the legacy page pointed to a file that does not exist in Mob/.)
- */
 function Field({ label, value }) {
   return (
     <div className="flex gap-2 text-sm">
@@ -48,10 +43,10 @@ function MobileChallanPrint() {
     let cancelled = false;
     async function load() {
       try {
-        const res = await axiosInstance.get("logistic/mobile/challans/print", { params: { poNo, type } });
-        if (!cancelled) setData(res.data);
+        const res = await axiosInstance.post("logistic/mobile/process", { type: "print", poNo, challanType: type });
+        if (!cancelled) setData(res.data?.data ?? null);
       } catch (err) {
-        if (!cancelled) setError(err?.response?.data?.message || "Failed to load challan.");
+        if (!cancelled) setError(err?.response?.data?.statusMsg || "Failed to load challan.");
       } finally {
         if (!cancelled) setIsLoading(false);
       }

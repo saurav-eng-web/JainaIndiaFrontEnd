@@ -34,7 +34,6 @@ function cellText(value) {
   return String(value);
 }
 
-// Numbers are compared as numbers, everything else as text (numeric aware, case insensitive)
 function compareValues(a, b) {
   const x = cellText(a);
   const y = cellText(b);
@@ -47,14 +46,6 @@ function compareValues(a, b) {
 const NAV_BUTTON =
   "rounded-md border border-[#a6829d] px-3 py-1 text-sm text-[#714b67] transition-colors hover:bg-[#714b67] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[#714b67]";
 
-/**
- * Same props as the common Table, plus:
- *  - pageSize             rows per page (default 50)
- *  - maxHeightClass       the table body scrolls inside this height; the header stays on top
- *  - filterable           show the filter boxes under the column headers (default true)
- *  - onVisibleRowsChange  called with the rows that match the filters, in the sorted order (used for Export Excel)
- * A column can opt out with `filterable: false`. Columns that only render buttons (no data field) get no sort or filter.
- */
 export default function LogisticTable({
   columns,
   rows,
@@ -71,12 +62,8 @@ export default function LogisticTable({
 
   const allRows = useMemo(() => (Array.isArray(rows) ? rows : []), [rows]);
 
-  // Callers usually build `columns` inside the component, so it is a new array on every render. It must not
-  // drive the memos below (that would change the visible rows on every render and loop with onVisibleRowsChange).
-  // Only the column keys / filterable flags matter, so they are turned into a text signature.
   const columnSignature = columns.map((col) => `${col.key}:${col.filterable === false ? 0 : 1}`).join("|");
 
-  // Columns that show a data field of the row can be sorted and filtered
   const dataKeys = useMemo(() => {
     const sample = allRows.slice(0, 25);
     const keys = new Set();
@@ -111,7 +98,6 @@ export default function LogisticTable({
     onVisibleRowsChange?.(visibleRows);
   }, [visibleRows, onVisibleRowsChange]);
 
-  // Back to the first page when the filters or the data set change
   useEffect(() => {
     setPage(1);
   }, [filters, sort, allRows.length]);

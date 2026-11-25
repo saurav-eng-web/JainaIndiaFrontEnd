@@ -20,17 +20,6 @@ import Subheading from "@/components/customui/Subheading";
 import LogisticTable from "@/components/logistic/LogisticTable";
 import { Button } from "@/components/customui/button";
 
-/*
- * Legacy pages (C:\Old Porject Code\09112025\Logistic):
- *  - PrintDefectiveChallan.aspx     -> "defective"   : ASClist(@Role='LOG') + PrintChallanList(@SfId,@Type,@Month,@Year)
- *  - PrintDOADefectiveChallan.aspx  -> "doa"         : ASC_MASTER, filtered by ASC name
- *  - PrintGoodChallan.aspx          -> "good"        : ASC_MASTER, filtered by ASC name (Tbl_GudPOMaster)
- *  - PrintGoodChallanMachine.aspx   -> "goodmachine" : ASC_MASTER, filtered by ASC name
- *  - PrintMisChallan.aspx           -> "mis"         : ASC_MASTER, filtered by ASC name
- *  - PrintMisChallanFG.aspx         -> "misfg"       : SF id
- * Each legacy row linked to the shared ../Print/*Invoice*.aspx pages, which show an ASC copy and an
- * NSP copy; the new app serves those through /print-asc and /print-nsp (Print/fetch).
- */
 const CHALLAN_TYPES = [
   { value: "defective", label: "Defective Challan", ascSource: "LOG" },
   { value: "doa", label: "Defective DOA Challan", ascSource: "ALL" },
@@ -40,7 +29,6 @@ const CHALLAN_TYPES = [
   { value: "misfg", label: "Mismatch Machine Challan", ascSource: "ALL" },
 ];
 
-// Legacy PrintDefectiveChallan.aspx "Challan Type" dropdown -> PrintChallanList @Type
 const DEFECTIVE_SUB_TYPES = [
   { value: "Defective", label: "Defective", printType: "Defective" },
   { value: "DOA", label: "DOA", printType: "DOA" },
@@ -50,7 +38,6 @@ const DEFECTIVE_SUB_TYPES = [
   { value: "MisSpare", label: "Mis. Challan Spare", printType: "MisSpare" },
 ];
 
-// Print/fetch "challantype" used for the print links of the other legacy pages
 const PRINT_TYPE_BY_PAGE = {
   doa: "DOA",
   good: "goodspare",
@@ -98,12 +85,13 @@ export default function PrintChallanPage() {
     async function fetchAscList() {
       try {
         setIsAscLoading(true);
-        const res = await axiosInstance.get("logistic/challans/asclist", {
-          params: ascSource === "LOG" ? { role: "LOG" } : {},
+        const res = await axiosInstance.post("logistic/challans/process", {
+          type: "asclist",
+          ...(ascSource === "LOG" ? { role: "LOG" } : {}),
         });
-        if (!cancelled) setAscLists((prev) => ({ ...prev, [ascSource]: res.data || [] }));
+        if (!cancelled) setAscLists((prev) => ({ ...prev, [ascSource]: res.data?.data || [] }));
       } catch (error) {
-        if (!cancelled) toast.error(error?.response?.data?.message || "Failed to load service center list");
+        if (!cancelled) toast.error(error?.response?.data?.statusMsg || "Failed to load service center list");
       } finally {
         if (!cancelled) setIsAscLoading(false);
       }
@@ -144,14 +132,14 @@ export default function PrintChallanPage() {
     try {
       setIsLoading(true);
       setHasSearched(true);
-      const res = await axiosInstance.get(`logistic/challans/${selectedType}`, { params });
-      setData(Array.isArray(res.data) ? res.data : []);
+      const res = await axiosInstance.post("logistic/challans/process", { type: selectedType, ...params });
+      setData(Array.isArray(res.data?.data) ? res.data.data : []);
       setResultMeta({
         type: selectedType,
         printType: selectedType === "defective" ? subType.printType : PRINT_TYPE_BY_PAGE[selectedType],
       });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to search challans");
+      toast.error(error?.response?.data?.statusMsg || "Failed to search challans");
       setData([]);
     } finally {
       setIsLoading(false);
@@ -174,7 +162,6 @@ export default function PrintChallanPage() {
     };
   }
 
-  // Right-side action column: one button per copy (opens the print page in a new tab, same as before)
   function printColumn(key) {
     return {
       key: "printActions",
@@ -197,7 +184,6 @@ export default function PrintChallanPage() {
     };
   }
 
-  // Columns follow each legacy grid.
   function getColumns(type) {
     switch (type) {
       case "defective":
@@ -250,7 +236,6 @@ export default function PrintChallanPage() {
     }
   }
 
-  // Field that holds the challan number for each page (used by the Print buttons)
   const CHALLAN_KEY = { defective: "poNumber", doa: "poNumber", good: "gudNo", goodmachine: "poNo", mis: "misNo", misfg: "poNo" };
   const baseColumns = getColumns(resultMeta.type);
   const columns = baseColumns.length ? [...baseColumns, printColumn(CHALLAN_KEY[resultMeta.type])] : baseColumns;

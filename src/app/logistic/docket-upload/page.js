@@ -51,7 +51,6 @@ export default function DocketUploadPage() {
     }
   }
 
-  // ImageUpload calls onChange with the change EVENT (not the File), so read the file from the event.
   function handleFileSelect(event) {
     const selectedFile = event?.target?.files?.[0] ?? (event instanceof File ? event : null);
     if (!selectedFile) return;
@@ -96,7 +95,6 @@ export default function DocketUploadPage() {
 
           while (headers.length > 0 && !headers[headers.length - 1]) headers.pop();
 
-          // Legacy bulk copy mapped the columns BY NAME, so the column order does not matter (extra columns are ignored)
           const lowerHeaders = headers.map((h) => h.toLowerCase());
           const problems = [];
           EXPECTED_HEADERS.forEach((expected) => {
@@ -113,7 +111,6 @@ export default function DocketUploadPage() {
             return;
           }
 
-          // Accept the headers in any case / order: rename them to the canonical names
           const canon = Object.fromEntries(EXPECTED_HEADERS.map((h) => [h.toLowerCase(), h]));
           const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" }).map((r) =>
             Object.fromEntries(Object.entries(r).map(([k, v]) => [canon[k.trim().toLowerCase()] || k, v]))
@@ -157,14 +154,14 @@ export default function DocketUploadPage() {
       const parsedRows = await parseExcelAndValidate(file);
       setProgress(40);
 
-      const res = await axiosInstance.post("logistic/dockets/upload", parsedRows, {
+      const res = await axiosInstance.post("logistic/dockets/process", { type: "upload", data: parsedRows }, {
         onUploadProgress: (event) => {
           const p = Math.round((event.loaded * 100) / event.total);
           setProgress(40 + (p * 0.6)); 
         },
       });
 
-      toast.success(res.data?.message || "File uploaded successfully!");
+      toast.success(res.data?.statusMsg || "File uploaded successfully!");
       setFile(null);
       setFileName("");
       
@@ -174,7 +171,7 @@ export default function DocketUploadPage() {
         toast.error(error.title);
         return;
       }
-      const msg = error?.response?.data?.message || "Failed to upload file";
+      const msg = error?.response?.data?.statusMsg || "Failed to upload file";
       toast.error(msg);
     } finally {
       setIsUploading(false);
@@ -185,8 +182,8 @@ export default function DocketUploadPage() {
   async function fetchDownloads() {
     try {
       setIsLoadingGrids(true);
-      const res = await axiosInstance.get("logistic/dockets/downloads");
-      downloadList(res.data, "Docket", [
+      const res = await axiosInstance.post("logistic/dockets/process", { type: "downloads" });
+      downloadList(res.data?.data, "Docket", [
         { key: "courierCode", label: "Courier Code" },
         { key: "courier", label: "Courier" },
         { key: "docketNo", label: "Docket No" },
@@ -204,8 +201,8 @@ export default function DocketUploadPage() {
   async function fetchNotUploaded() {
     try {
       setIsLoadingGrids(true);
-      const res = await axiosInstance.get("logistic/dockets/not-uploaded");
-      downloadList(res.data, "Docket Not Uploaded", [
+      const res = await axiosInstance.post("logistic/dockets/process", { type: "notUploaded" });
+      downloadList(res.data?.data, "Docket Not Uploaded", [
         { key: "courierCode", label: "Courier Code" },
         { key: "docketNo", label: "Docket No" },
         { key: "isUpload", label: "Is Upload" },
@@ -218,7 +215,6 @@ export default function DocketUploadPage() {
     }
   }
 
-  // Like the legacy buttons: the list is downloaded straight away as an Excel file (no grid on the page).
   function downloadList(rows, fileName, columns) {
     if (!rows || rows.length === 0) {
       toast.error(`No data found for ${fileName}`);

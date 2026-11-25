@@ -51,7 +51,6 @@ export default function CourierMappingPage() {
     }
   }
 
-  // ImageUpload calls onChange with the change EVENT (not the File), so read the file from the event.
   function handleFileSelect(event) {
     const selectedFile = event?.target?.files?.[0] ?? (event instanceof File ? event : null);
     if (!selectedFile) return;
@@ -96,7 +95,6 @@ export default function CourierMappingPage() {
 
           while (headers.length > 0 && !headers[headers.length - 1]) headers.pop();
 
-          // Legacy bulk copy mapped the columns BY NAME, so the column order does not matter (extra columns are ignored)
           const lowerHeaders = headers.map((h) => h.toLowerCase());
           const problems = [];
           EXPECTED_HEADERS.forEach((expected) => {
@@ -113,7 +111,6 @@ export default function CourierMappingPage() {
             return;
           }
 
-          // Accept the headers in any case / order: rename them to the canonical names
           const canon = Object.fromEntries(EXPECTED_HEADERS.map((h) => [h.toLowerCase(), h]));
           const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" }).map((r) =>
             Object.fromEntries(Object.entries(r).map(([k, v]) => [canon[k.trim().toLowerCase()] || k, v]))
@@ -160,14 +157,14 @@ export default function CourierMappingPage() {
       const parsedRows = await parseExcelAndValidate(file);
       setProgress(40);
 
-      const res = await axiosInstance.post("logistic/couriers/mappings/upload", parsedRows, {
+      const res = await axiosInstance.post("logistic/couriers/process", { type: "uploadMapping", data: parsedRows }, {
         onUploadProgress: (event) => {
           const p = Math.round((event.loaded * 100) / event.total);
           setProgress(40 + (p * 0.6)); 
         },
       });
 
-      toast.success(res.data?.message || "Mappings uploaded successfully!");
+      toast.success(res.data?.statusMsg || "Mappings uploaded successfully!");
       setFile(null);
       setFileName("");
       
@@ -177,7 +174,7 @@ export default function CourierMappingPage() {
         toast.error(error.title);
         return;
       }
-      const msg = error?.response?.data?.message || "Failed to upload file";
+      const msg = error?.response?.data?.statusMsg || "Failed to upload file";
       toast.error(msg);
     } finally {
       setIsUploading(false);
@@ -188,8 +185,8 @@ export default function CourierMappingPage() {
   async function fetchMapped() {
     try {
       setIsLoadingGrids(true);
-      const res = await axiosInstance.get("logistic/couriers/mappings");
-      downloadList(res.data, "Courier Mapping", [
+      const res = await axiosInstance.post("logistic/couriers/process", { type: "mapped" });
+      downloadList(res.data?.data, "Courier Mapping", [
         { key: "courierCode", label: "Courier Code" },
         { key: "courierName", label: "Courier Name" },
         { key: "pincode", label: "Pincode" },
@@ -207,8 +204,8 @@ export default function CourierMappingPage() {
   async function fetchUnmapped() {
     try {
       setIsLoadingGrids(true);
-      const res = await axiosInstance.get("logistic/couriers/mappings/unmapped");
-      downloadList(res.data, "Courier Not Mapped", [
+      const res = await axiosInstance.post("logistic/couriers/process", { type: "unmapped" });
+      downloadList(res.data?.data, "Courier Not Mapped", [
         { key: "courierCode", label: "Courier Code" },
         { key: "pincode", label: "Pincode" },
         { key: "slab", label: "Slab" },
@@ -223,7 +220,6 @@ export default function CourierMappingPage() {
     }
   }
 
-  // Like the legacy buttons: the list is downloaded straight away as an Excel file (no grid on the page).
   function downloadList(rows, fileName, columns) {
     if (!rows || rows.length === 0) {
       toast.error(`No data found for ${fileName}`);

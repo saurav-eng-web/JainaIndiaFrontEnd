@@ -12,7 +12,6 @@
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import LogisticExcelUploader from "@/components/logistic/LogisticExcelUploader";
 
-// Legacy GST/LogisticInvoiceRateUploader.aspx (sample GST/LogisticInvoiceRate.xlsx) -> LogisticInvoiceRateUploader.
 const EXPECTED_HEADERS = ["FromA", "ToA", "Transporter", "VehicleType", "Rate"];
 
 export default function LogisticInvoiceRateUploadPage() {
@@ -21,7 +20,8 @@ export default function LogisticInvoiceRateUploadPage() {
       <LogisticExcelUploader
         title="Upload Logistic Invoice Rates"
         expectedHeaders={EXPECTED_HEADERS}
-        endpoint="logistic/invoice-uploads/rate"
+        endpoint="logistic/invoice-uploads/process"
+        payloadType="rate"
         sampleFileName="LogisticInvoiceRate.xlsx"
         mapRow={(get) => ({
           FromA: get("FromA"),

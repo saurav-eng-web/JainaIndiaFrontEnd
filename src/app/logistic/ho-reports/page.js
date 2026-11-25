@@ -19,11 +19,6 @@ import Subheading from "@/components/customui/Subheading";
 import { Button } from "@/components/customui/button";
 import { logger } from "@/utils/logger";
 
-/*
- * Legacy root Reports.aspx ("New HO Reports" in the Logistic menu):
- * reportsNew(@fromdate, @todate, @type, @userid) downloaded as Excel.
- * Uses the existing shared API Reports/downloadreports through /api/proxyDownload (same as nsp/reports).
- */
 const HO_REPORTS = [
   { value: "OpencallReport", label: "Pending Call Report" },
   { value: "OkCall", label: "OK Call Report" },
@@ -105,8 +100,8 @@ export default function LogisticHoReportsPage() {
         try {
           const json = JSON.parse(await err.response.data.text());
           message = json.error || json.message || message;
-        } catch {
-          // keep default message
+        } catch (parseError) {
+          console.error("Could not read the error response:", parseError);
         }
       }
       toast.error(message);

@@ -17,7 +17,6 @@ import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
 import { Button } from "@/components/customui/button";
 
-// Legacy Mob/reportsm.aspx: reportsm(@fromdate, @todate, @type, @userid) downloaded as Excel.
 const MOBILE_REPORTS = [
   { value: "OpencallReport", label: "Open call Report" },
   { value: "JobsheetMaster", label: "JobsheetMaster" },
@@ -63,8 +62,8 @@ export default function LogisticMobileReportsPage() {
     setIsLoading(true);
     try {
       const res = await axiosInstance.post(
-        "logistic/mobile/reports/download",
-        { type: reportType, fromDate, toDate },
+        "logistic/mobile/process",
+        { type: "report", reportType, fromDate, toDate },
         { responseType: "blob" }
       );
       if (res.status === 204 || !res.data || res.data.size === 0) {
@@ -85,9 +84,9 @@ export default function LogisticMobileReportsPage() {
       if (err?.response?.data instanceof Blob) {
         try {
           const json = JSON.parse(await err.response.data.text());
-          message = json.message || message;
-        } catch {
-          // keep default message
+          message = json.statusMsg || message;
+        } catch (parseError) {
+          console.error("Could not read the error response:", parseError);
         }
       }
       toast.error(message);

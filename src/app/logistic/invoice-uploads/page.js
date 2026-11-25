@@ -15,7 +15,6 @@ import { UploadCloud } from "lucide-react";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
 
-// Legacy Logistic1 menu (UC/Log1.ascx): Logistic Invoice Rate Uploader + Logistic Invoice Uploader.
 export default function LogisticInvoiceUploadsHub() {
   const router = useRouter();
 

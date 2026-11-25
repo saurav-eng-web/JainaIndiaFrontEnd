@@ -27,28 +27,26 @@ export default function DeleteDocketPage() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Legacy DeleteDocket.aspx loaded the full grid on first open.
   useEffect(() => {
     handleSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleSearch(e) {
     e?.preventDefault();
-    // Legacy: an empty search box re-binds the full list (BindGrid), otherwise filters by docket number.
 
     try {
       setIsLoading(true);
-      // Legacy DeleteDocket.aspx: DocMaster_Proc SELECT, @Search = docket number when filled
-      const res = await axiosInstance.get("logistic/dockets", {
-        params: searchTerm?.trim() ? { search: searchTerm.trim() } : {},
+      const res = await axiosInstance.post("logistic/dockets/process", {
+        type: "list",
+        search: searchTerm?.trim() || "",
       });
-      setData(res.data || []);
-      if (res.data?.length === 0) {
+      const rows = res.data?.data || [];
+      setData(rows);
+      if (rows.length === 0) {
         toast("No records found.");
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to fetch dockets.");
+      toast.error(error?.response?.data?.statusMsg || "Failed to fetch dockets.");
       setData([]);
     } finally {
       setIsLoading(false);
@@ -60,20 +58,18 @@ export default function DeleteDocketPage() {
 
     try {
       setIsDeleting(true);
-      await axiosInstance.delete(`logistic/dockets/${deleteConfirmId}`);
-      toast.success("Docket deleted successfully!");
+      const res = await axiosInstance.post("logistic/dockets/process", { type: "delete", id: deleteConfirmId });
+      toast.success(res.data?.statusMsg || "Docket deleted successfully!");
       setDeleteConfirmId(null);
-      // Refresh the list
       handleSearch();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to delete docket.");
+      toast.error(error?.response?.data?.statusMsg || "Failed to delete docket.");
     } finally {
       setIsDeleting(false);
     }
   }
 
   const columns = [
-    // DocMaster_Proc SELECT returns only [ID], [Courier Name], [Docket No] (same as the legacy grid)
     { label: "ID", key: "id", size: "sm" },
     { label: "Courier Name", key: "courierCode", size: "md" },
     { label: "Docket No", key: "docketNo", size: "md" },
@@ -126,7 +122,6 @@ export default function DeleteDocketPage() {
         </div>
       )}
 
-      {/* Custom Confirmation Modal */}
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-sm mx-4 shadow-xl">

@@ -50,7 +50,6 @@ export default function DocketChangePage() {
     }
   }
 
-  // ImageUpload calls onChange with the change EVENT (not the File), so read the file from the event.
   function handleFileSelect(event) {
     const selectedFile = event?.target?.files?.[0] ?? (event instanceof File ? event : null);
     if (!selectedFile) return;
@@ -95,7 +94,6 @@ export default function DocketChangePage() {
 
           while (headers.length > 0 && !headers[headers.length - 1]) headers.pop();
 
-          // Legacy bulk copy mapped the columns BY NAME, so the column order does not matter (extra columns are ignored)
           const lowerHeaders = headers.map((h) => h.toLowerCase());
           const problems = [];
           EXPECTED_HEADERS.forEach((expected) => {
@@ -112,7 +110,6 @@ export default function DocketChangePage() {
             return;
           }
 
-          // Accept the headers in any case / order: rename them to the canonical names
           const canon = Object.fromEntries(EXPECTED_HEADERS.map((h) => [h.toLowerCase(), h]));
           const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" }).map((r) =>
             Object.fromEntries(Object.entries(r).map(([k, v]) => [canon[k.trim().toLowerCase()] || k, v]))
@@ -158,14 +155,14 @@ export default function DocketChangePage() {
       const parsedRows = await parseExcelAndValidate(file);
       setProgress(40);
 
-      const res = await axiosInstance.post("logistic/dockets/upload/change", parsedRows, {
+      const res = await axiosInstance.post("logistic/dockets/process", { type: "uploadChange", data: parsedRows }, {
         onUploadProgress: (event) => {
           const p = Math.round((event.loaded * 100) / event.total);
           setProgress(40 + (p * 0.6)); 
         },
       });
 
-      toast.success(res.data?.message || "File uploaded successfully!");
+      toast.success(res.data?.statusMsg || "File uploaded successfully!");
       setFile(null);
       setFileName("");
       
@@ -175,7 +172,7 @@ export default function DocketChangePage() {
         toast.error(error.title);
         return;
       }
-      const msg = error?.response?.data?.message || "Failed to upload file";
+      const msg = error?.response?.data?.statusMsg || "Failed to upload file";
       toast.error(msg);
     } finally {
       setIsUploading(false);

@@ -19,11 +19,6 @@ import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
 import { columnsFromRows } from "@/components/logistic/rowUtils";
 
-/*
- * Legacy Mob/complainthistory.aspx: sp_ReminderHistory6 result sets (customer, product, complaint,
- * history) and sp_GetSupportingDocumentmah (documents). The legacy grids auto-generated their
- * columns, so the columns here also come from the data.
- */
 const SECTIONS = [
   { key: "customer", title: "Customer Details" },
   { key: "customerAddress", title: "Customer Address" },
@@ -49,10 +44,10 @@ function ComplaintHistoryContent() {
     let cancelled = false;
     async function load() {
       try {
-        const res = await axiosInstance.get(`logistic/mobile/complaints/${encodeURIComponent(ticketKey)}/history`);
-        if (!cancelled) setData(res.data);
+        const res = await axiosInstance.post("logistic/mobile/process", { type: "complaintHistory", ticketKey });
+        if (!cancelled) setData(res.data?.data ?? null);
       } catch (error) {
-        if (!cancelled) toast.error(error?.response?.data?.message || "Failed to load complaint history");
+        if (!cancelled) toast.error(error?.response?.data?.statusMsg || "Failed to load complaint history");
       } finally {
         if (!cancelled) setIsLoading(false);
       }

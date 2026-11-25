@@ -36,7 +36,6 @@ const ALLOWED_FILE_TYPES = [
   "application/vnd.ms-excel", // .xls
 ];
 
-// The API reads columns by POSITION, so order here is what actually matters
 const EXPECTED_HEADERS = [
   "TicketNumber",
   "SerialNumber",
@@ -97,7 +96,6 @@ function CountPill({ value, tone, emphasised }) {
   );
 }
 
-// Eases a number up from zero so the cards animate on load and on refresh
 function useCountUp(target, duration = 700) {
   const [display, setDisplay] = useState(0);
 
@@ -129,9 +127,6 @@ function AnimatedCount({ value, className }) {
   return <span className={className}>{display}</span>;
 }
 
-// Confirms the workbook is readable, has data rows, and its header row matches
-// EXPECTED_HEADERS exactly in order - the API maps by position, so a reordered
-// sheet would silently load data into the wrong columns.
 function validateWorkbook(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -209,13 +204,11 @@ export default function LogisticPickupPage() {
   const [activeBucket, setActiveBucket] = useState(null);
   const [mounted, setMounted] = useState(false);
 
-  // Drives the staggered entrance of the status cards
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 60);
     return () => clearTimeout(timer);
   }, []);
 
-  // Cards come from the per-status counts; the table from the per-distributor pivot
   const fetchCounts = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -243,13 +236,11 @@ export default function LogisticPickupPage() {
     fetchCounts();
   }, [fetchCounts]);
 
-  // Clicking a bucket card narrows the breakdown to distributors holding that status
   const visibleBreakdown = useMemo(() => {
     if (!activeBucket) return breakdown;
     return breakdown.filter((row) => row[activeBucket] > 0);
   }, [breakdown, activeBucket]);
 
-  // Counts render as pills tinted to their bucket; the active bucket pops
   const breakdownColumns = useMemo(
     () => [
       {
@@ -287,7 +278,6 @@ export default function LogisticPickupPage() {
     setActiveBucket((prev) => (prev === key ? null : key));
   }
 
-  // Exports every column LOGSELECT returns, not just the ones shown here
   async function handleExcelDownload() {
     try {
       setIsExporting(true);
@@ -322,7 +312,6 @@ export default function LogisticPickupPage() {
     }
   }
 
-  // Template is built from EXPECTED_HEADERS so it can never drift from the validator
   function handleSampleDownload() {
     try {
       exportToExcel({
@@ -371,7 +360,6 @@ export default function LogisticPickupPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      // No Content-Type here on purpose - the browser must set the multipart boundary
       const res = await axiosInstance.post(UPLOAD_ENDPOINT, formData, {
         onUploadProgress: (event) =>
           setProgress(Math.round((event.loaded * 100) / event.total)),
@@ -394,7 +382,6 @@ export default function LogisticPickupPage() {
       setFile(null);
       setFileName("");
 
-      // Promote the staged LogisticUpload rows into the pickup table
       const promoteRes = await axiosInstance.post("TDDOAPickup/process", {
         action: "LOGISTICUPLOAD",
       });
@@ -408,7 +395,6 @@ export default function LogisticPickupPage() {
 
       await fetchCounts();
     } catch (error) {
-      // Client-side validation rejects with { title, items }
       if (error?.title) {
         setUploadErrors({ title: error.title, items: error.items || [] });
         toast.error(error.title);
@@ -417,7 +403,6 @@ export default function LogisticPickupPage() {
 
       const body = error?.response?.data;
 
-      // Per-row validation failures come back as data: [{ row, error }]
       if (Array.isArray(body?.data) && body.data.length > 0) {
         setUploadErrors({
           title: body.statusMsg || "Excel contains invalid data",
@@ -435,9 +420,7 @@ export default function LogisticPickupPage() {
   }
 
   return (
-    // Modified by Saurav Date: 26-Oct-2026 for Logistic Module (Added backHref)
     <PageSkeleton title="TD / DOA / CN Pickup Dispatch" rolesAllowed={["logistic"]} backHref="/logistic/dashboard">
-      {/* UPLOAD */}
       <Subheading title="Upload dispatch file" />
 
       <div className="flex flex-wrap items-start gap-6">
@@ -505,7 +488,6 @@ export default function LogisticPickupPage() {
         </div>
       )}
 
-      {/* STATUS BUCKETS */}
       <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {PICKUP_STATUS_BUCKETS.map((bucket, index) => {
           const style = BUCKET_STYLES[bucket.key];
@@ -549,7 +531,6 @@ export default function LogisticPickupPage() {
                 </div>
               </div>
 
-              {/* share of total */}
               <div className="mt-4 w-full">
                 <div className="flex items-center justify-between text-xs text-gray-400">
                   <span>{share}% of all requests</span>
@@ -570,7 +551,6 @@ export default function LogisticPickupPage() {
         })}
       </div>
 
-      {/* PER-DISTRIBUTOR BREAKDOWN */}
       <div className="mt-8">
         <div className="flex items-center justify-between gap-4">
           <Subheading title="Distributor Breakdown" />

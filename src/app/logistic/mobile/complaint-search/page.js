@@ -21,11 +21,6 @@ import PageSkeleton from "@/components/customui/PageSkeleton";
 import LogisticTable from "@/components/logistic/LogisticTable";
 import { pick } from "@/components/logistic/rowUtils";
 
-/*
- * Legacy Mob/ComplaintSearch.aspx: one search box -> Search_Customer25(@Text, @UserId, @ipaddress).
- * Grid: Name, Mobile No., City, ASC Code, Product, Model, Complaint No., Call Type, Call Sub Status, Date.
- * "History" opened Mob/complainthistory.aspx?TICKET_KEY=<complaint>.
- */
 export default function LogisticMobileComplaintSearchPage() {
   const router = useRouter();
   const [text, setText] = useState("");
@@ -40,8 +35,8 @@ export default function LogisticMobileComplaintSearchPage() {
     }
     try {
       setIsLoading(true);
-      const res = await axiosInstance.get("logistic/mobile/complaints/search", { params: { text: text.trim() } });
-      const data = Array.isArray(res.data) ? res.data : [];
+      const res = await axiosInstance.post("logistic/mobile/process", { type: "complaintSearch", text: text.trim() });
+      const data = Array.isArray(res.data?.data) ? res.data.data : [];
       setRows(data);
       setMessage(
         data.length > 0
@@ -49,7 +44,7 @@ export default function LogisticMobileComplaintSearchPage() {
           : "No result Found according your's search"
       );
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Search failed");
+      toast.error(error?.response?.data?.statusMsg || "Search failed");
       setRows([]);
       setMessage("");
     } finally {
@@ -83,7 +78,6 @@ export default function LogisticMobileComplaintSearchPage() {
     { key: "locality", label: "ASC Code", render: (_, r) => pick(r, "Locality") || "-" },
     { key: "product", label: "Product", render: (_, r) => pick(r, "Product") || "-" },
     { key: "model", label: "Model", render: (_, r) => pick(r, "Model") || "-" },
-    // Legacy showed TICKET_NO when present, otherwise the complaint number.
     { key: "complaintNo", label: "Complaint No.", render: (_, r) => pick(r, "TICKET_NO") || pick(r, "complaint") || "-" },
     { key: "callType", label: "Call Type", render: (_, r) => pick(r, "callType") || "-" },
     { key: "status", label: "Call Sub Status", render: (_, r) => pick(r, "status") || "-" },
@@ -92,7 +86,6 @@ export default function LogisticMobileComplaintSearchPage() {
 
   return (
     <PageSkeleton title="Mobile Complaint Search" rolesAllowed={["logistic"]} backHref="/logistic/dashboard">
-      {/* Search box: same design as the Call Search (Search Complaint) page */}
       <div className="flex gap-4">
         <InputField
           type="text"

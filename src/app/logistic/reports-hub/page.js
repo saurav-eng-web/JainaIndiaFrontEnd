@@ -21,7 +21,6 @@ import axiosInstance from "@/api/axiosInstance";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
 
-// Same five reports and names as the legacy "Scheduled Report" buttons
 const DOCKET_REPORTS = [
   { type: "complete-docket", label: "Complete Docket Report", needsDates: false, icon: "text-blue-600", bg: "bg-blue-50", hover: "hover:border-blue-300 hover:bg-blue-50/50" },
   { type: "used-docket", label: "Used Docket Report", needsDates: false, icon: "text-amber-600", bg: "bg-amber-50", hover: "hover:border-amber-300 hover:bg-amber-50/50" },
@@ -69,10 +68,11 @@ export default function LogisticReportsPage() {
 
     try {
       setBusyType(report.type);
-      const res = await axiosInstance.get(`logistic/reports/${report.type}/download`, {
-        params: report.needsDates ? { fromDate, toDate } : {},
-        responseType: "blob",
-      });
+      const res = await axiosInstance.post(
+        "logistic/reports/process",
+        { type: "download", report: report.type, ...(report.needsDates ? { fromDate, toDate } : {}) },
+        { responseType: "blob" }
+      );
 
       if (res.status === 204 || !res.data || res.data.size === 0) {
         toast.error(`No data found for ${report.label}`);
@@ -93,9 +93,9 @@ export default function LogisticReportsPage() {
       if (err?.response?.data instanceof Blob) {
         try {
           const json = JSON.parse(await err.response.data.text());
-          if (json?.message) message = json.message;
-        } catch {
-          // keep the default message
+          if (json?.statusMsg) message = json.statusMsg;
+        } catch (parseError) {
+          console.error("Could not read the error response:", parseError);
         }
       }
       toast.error(message);

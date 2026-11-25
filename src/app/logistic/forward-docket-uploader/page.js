@@ -32,14 +32,12 @@ const ALLOWED_FILE_TYPES = [
 
 const EXPECTED_HEADERS = ["ChallanNo", "DocketNo", "DOCStatus", "TransDate", "UploadType", "ChallanType"];
 
-// Shown in the popup when a TransDate is in the future (text as requested)
 const FUTURE_DATE_MESSAGE = "Future Date Not Allowed Under Transaction Date Please Modify you Excel Sheet";
 
 const MAX_LISTED_ROWS = 10;
 
 const pad = (n) => String(n).padStart(2, "0");
 
-// "In-Transit" / "In Transit" -> "In-Transit", "Delivered" -> "Delivered", anything else -> null
 function normalizeDocStatus(value) {
   const text = String(value ?? "").trim();
   if (/^in[\s-]?transit$/i.test(text)) return "In-Transit";
@@ -52,10 +50,6 @@ function isRealDate({ y, m, d }) {
   return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
 }
 
-/**
- * TransDate can be an Excel date (a serial number) or text (yyyy-mm-dd, dd-mm-yyyy or dd/mm/yyyy, with an optional time).
- * Returns { y, m, d, H, M, S } or null when it is not a valid date.
- */
 function parseTransDate(value) {
   if (value === null || value === undefined || value === "") return null;
 
@@ -84,7 +78,6 @@ function parseTransDate(value) {
   return parts;
 }
 
-// Only the date counts: today is allowed, tomorrow and later are not
 function isFutureDate({ y, m, d }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -104,7 +97,6 @@ export default function ForwardDocketUploaderPage() {
 
   function handleSampleDownload() {
     try {
-      // Blank template: only the header row (same as the other Logistic uploaders)
       exportToExcel({
         data: [EXPECTED_HEADERS.reduce((row, header) => ({ ...row, [header]: "" }), {})],
         headers: EXPECTED_HEADERS.map((header) => ({ label: header, key: header })),
@@ -118,7 +110,6 @@ export default function ForwardDocketUploaderPage() {
     }
   }
 
-  // ImageUpload calls onChange with the change EVENT (not the File), so read the file from the event.
   function handleFileSelect(event) {
     const selectedFile = event?.target?.files?.[0] ?? (event instanceof File ? event : null);
     if (!selectedFile) return;
@@ -163,7 +154,6 @@ export default function ForwardDocketUploaderPage() {
           }
           while (headers.length > 0 && !headers[headers.length - 1]) headers.pop();
 
-          // Columns are matched by name, so the order does not matter and extra columns are ignored
           const lowerHeaders = headers.map((h) => h.toLowerCase());
           const missing = EXPECTED_HEADERS.filter((expected) => !lowerHeaders.includes(expected.toLowerCase()));
           if (missing.length > 0) {
@@ -174,7 +164,6 @@ export default function ForwardDocketUploaderPage() {
             return;
           }
 
-          // Excel dates stay serial numbers (raw), so there is no time zone shift
           const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: true });
           const canon = Object.fromEntries(EXPECTED_HEADERS.map((h) => [h.toLowerCase(), h]));
 
@@ -220,7 +209,6 @@ export default function ForwardDocketUploaderPage() {
             }
           });
 
-          // A future TransDate is reported first, in a popup
           if (futureRows.length > 0) {
             reject({ title: FUTURE_DATE_MESSAGE, items: futureRows, isFutureDate: true });
             return;
@@ -262,19 +250,18 @@ export default function ForwardDocketUploaderPage() {
       const parsedRows = await parseExcelAndValidate(file);
       setProgress(40);
 
-      const res = await axiosInstance.post("logistic/dockets/upload/forward", parsedRows, {
+      const res = await axiosInstance.post("logistic/dockets/process", { type: "uploadForward", data: parsedRows }, {
         onUploadProgress: (event) => {
           const p = Math.round((event.loaded * 100) / (event.total || 1));
           setProgress(40 + p * 0.6);
         },
       });
 
-      toast.success(res.data?.message || "File uploaded successfully!");
+      toast.success(res.data?.statusMsg || "File uploaded successfully!");
       setFile(null);
       setFileName("");
 
-      // Rows that were uploaded but changed nothing (challan / docket not found, bad status)
-      const notApplied = Array.isArray(res.data?.notApplied) ? res.data.notApplied : [];
+      const notApplied = Array.isArray(res.data?.data) ? res.data.data : [];
       if (notApplied.length > 0) {
         setUploadErrors({
           title: `${notApplied.length} row(s) could not be applied:`,
@@ -293,7 +280,7 @@ export default function ForwardDocketUploaderPage() {
         }
         return;
       }
-      toast.error(error?.response?.data?.message || "Failed to upload file");
+      toast.error(error?.response?.data?.statusMsg || "Failed to upload file");
     } finally {
       setIsUploading(false);
       setProgress(0);
@@ -359,7 +346,6 @@ export default function ForwardDocketUploaderPage() {
         </div>
       )}
 
-      {/* Popup: a future TransDate was found in the Excel sheet */}
       <Modal open={futureDateRows.length > 0} onClose={() => setFutureDateRows([])}>
         <div className="w-[min(92vw,30rem)] p-6">
           <div className="flex items-start gap-3">

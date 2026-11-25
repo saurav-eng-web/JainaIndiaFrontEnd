@@ -19,11 +19,6 @@ import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
 import { pick } from "@/components/logistic/rowUtils";
 
-/*
- * Legacy Mob/PrintDefectiveChallanho.aspx:
- * ASClistm(@Role='LOG') service centers + PrintChallanListm(@SfId,@Type,@Month,@Year).
- * Grid: Challan No. (ponumber, link to ../mob/pdefinvoice.aspx -> delivery challan), SF Name, Challan Date, Doc. No.
- */
 const CHALLAN_TYPES = [
   { value: "Defective", label: "Defective", printType: "Defective" },
   { value: "DOA", label: "DOA", printType: "DOA" },
@@ -39,7 +34,6 @@ const MONTHS = [
   { value: 9, label: "Sept" }, { value: 10, label: "Oct" }, { value: 11, label: "Nov" }, { value: 12, label: "Dec" },
 ];
 
-// Legacy offered the current year and the previous four.
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = [0, 1, 2, 3, 4].map((n) => CURRENT_YEAR - n);
 
@@ -63,10 +57,10 @@ export default function LogisticMobilePrintChallanPage() {
     let cancelled = false;
     async function load() {
       try {
-        const res = await axiosInstance.get("logistic/mobile/asclist");
-        if (!cancelled) setAscList(Array.isArray(res.data) ? res.data : []);
+        const res = await axiosInstance.post("logistic/mobile/process", { type: "asclist" });
+        if (!cancelled) setAscList(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (error) {
-        if (!cancelled) toast.error(error?.response?.data?.message || "Failed to load service center list");
+        if (!cancelled) toast.error(error?.response?.data?.statusMsg || "Failed to load service center list");
       } finally {
         if (!cancelled) setIsAscLoading(false);
       }
@@ -87,13 +81,17 @@ export default function LogisticMobilePrintChallanPage() {
     try {
       setIsLoading(true);
       setHasSearched(true);
-      const res = await axiosInstance.get("logistic/mobile/challans", {
-        params: { sfId, challanType: type.value, month, year },
+      const res = await axiosInstance.post("logistic/mobile/process", {
+        type: "challans",
+        sfId,
+        challanType: type.value,
+        month,
+        year,
       });
-      setData(Array.isArray(res.data) ? res.data : []);
+      setData(Array.isArray(res.data?.data) ? res.data.data : []);
       setPrintType(type.printType);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to search challans");
+      toast.error(error?.response?.data?.statusMsg || "Failed to search challans");
       setData([]);
     } finally {
       setIsLoading(false);

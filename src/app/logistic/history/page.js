@@ -37,18 +37,18 @@ function HistoryContent() {
   async function fetchHistory(statusType, cNo) {
     try {
       setIsLoading(true);
-      // Legacy History.aspx: sp_DocketDetails header + PickUPhistory grid. The API maps the
-      // StatusView code (e.g. DefectivePart) to the display name the SP expects.
-      const res = await axiosInstance.get(`logistic/dockets/history`, {
-        params: { type: statusType, challanNo: cNo },
+      const res = await axiosInstance.post("logistic/dockets/process", {
+        type: "history",
+        challanType: statusType,
+        challanNo: cNo,
       });
-      setDetail(res.data);
+      setDetail(res.data?.data ?? null);
     } catch (error) {
       setDetail(null);
       if (error?.response?.status === 404) {
         toast.error("No result found");
       } else {
-        toast.error(error?.response?.data?.message || "Failed to load docket history");
+        toast.error(error?.response?.data?.statusMsg || "Failed to load docket history");
       }
     } finally {
       setIsLoading(false);
@@ -81,7 +81,6 @@ function HistoryContent() {
         </div>
       ) : detail ? (
         <div className="space-y-8">
-          {/* DETAIL CARD */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Docket Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -132,7 +131,6 @@ function HistoryContent() {
             </div>
           </div>
 
-          {/* HISTORY TABLE */}
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Status History</h3>
             <LogisticTable

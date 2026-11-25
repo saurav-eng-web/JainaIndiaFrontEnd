@@ -145,13 +145,13 @@ export default function SideBar() {
     {
       // Old Mobile > Search Complaint (it used to be a link banner on the Search History page)
       href: "/logistic/mobile/complaint-search",
-      icon: "fa fa-search-plus",
+      icon: "fa fa-search",
       text: "Mobile Complaint Search",
       roles: ["Logistic"],
     },
     {
       href: "/logistic/courier-add",
-      icon: "fa fa-truck",
+      icon: "fa fa-database",
       text: "Courier Master",
       roles: ["Logistic"],
     },

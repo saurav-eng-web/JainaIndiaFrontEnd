@@ -26,14 +26,12 @@ import Subheading from "@/components/customui/Subheading";
 import LogisticTable from "@/components/logistic/LogisticTable";
 import { exportToExcel } from "@/utils/exportToExcel";
 
-// The DB has both "In-Transit" and "In Transit"; they are counted together.
 function normalizeStatus(value) {
   const text = String(value ?? "").trim();
   if (!text) return "Not Set";
   return /^in[\s-]?transit$/i.test(text) ? "In-Transit" : text;
 }
 
-// Small count card (clicking it filters the table by that Docket Status)
 function StatusCard({ label, count, active, onClick }) {
   return (
     <button
@@ -73,8 +71,8 @@ function StatusViewContent() {
   async function fetchData(statusType) {
     try {
       setIsLoading(true);
-      const res = await axiosInstance.get(`logistic/statusview?type=${statusType}`);
-      setData(Array.isArray(res.data) ? res.data : []);
+      const res = await axiosInstance.post("logistic/statusview/process", { type: statusType });
+      setData(Array.isArray(res.data?.data) ? res.data.data : []);
     } catch (error) {
       setData([]);
       toast.error("Failed to load status view data");
@@ -83,7 +81,6 @@ function StatusViewContent() {
     }
   }
 
-  // One small card per Docket Status with its count
   const statusCards = useMemo(() => {
     const counts = new Map();
     data.forEach((row) => {
@@ -113,7 +110,6 @@ function StatusViewContent() {
         ),
       },
       { key: "typeOfChallan", label: "Type Of Challan" },
-      // The Status View SP returns the courier name as PickupBoy and the docket number as PickupMobile
       { key: "pickupBoy", label: "Courier" },
       { key: "pickupMobile", label: "Docket No" },
       { key: "challanStatus", label: "Challan Status", render: (val) => val || "-" },
@@ -122,7 +118,6 @@ function StatusViewContent() {
     [router, type]
   );
 
-  // Export what the table shows: the selected card, the column filters and the sort order
   function handleExport() {
     if (visibleRows.length === 0) {
       toast.error("No data to export");
@@ -150,7 +145,6 @@ function StatusViewContent() {
         <>
           <Subheading title="Challan Details" />
 
-          {/* Next line: Docket Status count cards on the left, Export Excel on the right */}
           <div className="mt-4 flex flex-wrap items-center gap-4">
             {!isLoading && statusCards.length > 0 && (
               <div className="flex flex-wrap items-center gap-2">

@@ -280,7 +280,13 @@ export default function SideBar() {
       icon: "fa fa-exclamation-circle",
       text: "Ticket",
       roles: ["BR"],
-    }
+    },
+    {
+      href: "/branch/reverse-overview",
+      icon: "fa fa-truck",
+      text: "Reverse Challan Overview",
+      roles: ["BR"],
+    },
   ];
 
   const allowedBulkUsers = ["T284977"];

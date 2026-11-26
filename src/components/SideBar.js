@@ -275,12 +275,13 @@ export default function SideBar() {
       text: "Claim Details",
       roles: ["FinanceExec"],
     },
-    {
-      href: "/nsp/ticket",
-      icon: "fa fa-exclamation-circle",
-      text: "Ticket",
-      roles: ["BR"],
-    },
+    // Ticket menu hidden for now (26-Nov-2026): it was pushed by mistake. The page /nsp/ticket still exists.
+    // {
+    //   href: "/nsp/ticket",
+    //   icon: "fa fa-exclamation-circle",
+    //   text: "Ticket",
+    //   roles: ["BR"],
+    // },
     {
       href: "/branch/reverse-overview",
       icon: "fa fa-truck",

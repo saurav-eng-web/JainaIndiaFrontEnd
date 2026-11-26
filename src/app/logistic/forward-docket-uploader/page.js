@@ -250,7 +250,7 @@ export default function ForwardDocketUploaderPage() {
       const parsedRows = await parseExcelAndValidate(file);
       setProgress(40);
 
-      const res = await axiosInstance.post("logistic/dockets/process", { type: "uploadForward", data: parsedRows }, {
+      const res = await axiosInstance.post("LogisticDocket/process", { type: "uploadForward", data: parsedRows }, {
         onUploadProgress: (event) => {
           const p = Math.round((event.loaded * 100) / (event.total || 1));
           setProgress(40 + p * 0.6);

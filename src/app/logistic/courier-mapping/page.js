@@ -157,7 +157,7 @@ export default function CourierMappingPage() {
       const parsedRows = await parseExcelAndValidate(file);
       setProgress(40);
 
-      const res = await axiosInstance.post("logistic/couriers/process", { type: "uploadMapping", data: parsedRows }, {
+      const res = await axiosInstance.post("LogisticCourier/process", { type: "uploadMapping", data: parsedRows }, {
         onUploadProgress: (event) => {
           const p = Math.round((event.loaded * 100) / event.total);
           setProgress(40 + (p * 0.6)); 
@@ -185,7 +185,7 @@ export default function CourierMappingPage() {
   async function fetchMapped() {
     try {
       setIsLoadingGrids(true);
-      const res = await axiosInstance.post("logistic/couriers/process", { type: "mapped" });
+      const res = await axiosInstance.post("LogisticCourier/process", { type: "mapped" });
       downloadList(res.data?.data, "Courier Mapping", [
         { key: "courierCode", label: "Courier Code" },
         { key: "courierName", label: "Courier Name" },
@@ -204,7 +204,7 @@ export default function CourierMappingPage() {
   async function fetchUnmapped() {
     try {
       setIsLoadingGrids(true);
-      const res = await axiosInstance.post("logistic/couriers/process", { type: "unmapped" });
+      const res = await axiosInstance.post("LogisticCourier/process", { type: "unmapped" });
       downloadList(res.data?.data, "Courier Not Mapped", [
         { key: "courierCode", label: "Courier Code" },
         { key: "pincode", label: "Pincode" },

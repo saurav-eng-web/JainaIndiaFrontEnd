@@ -35,7 +35,7 @@ export default function CnUploaderPage() {
     try {
       setIsLoading(true);
       setHasSearched(true);
-      const res = await axiosInstance.post("logistic/cn/process", {
+      const res = await axiosInstance.post("LogisticCn/process", {
         type: "search",
         ticketNo: ticketNo.trim(),
       });
@@ -73,7 +73,7 @@ export default function CnUploaderPage() {
       <LogisticExcelUploader
         title="Upload CN Dispatch Sheet"
         expectedHeaders={EXPECTED_HEADERS}
-        endpoint="logistic/cn/process"
+        endpoint="LogisticCn/process"
         payloadType="upload"
         sampleFileName="CNLogistic.xlsx"
         mapRow={(get) => ({

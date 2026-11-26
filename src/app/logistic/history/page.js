@@ -37,7 +37,7 @@ function HistoryContent() {
   async function fetchHistory(statusType, cNo) {
     try {
       setIsLoading(true);
-      const res = await axiosInstance.post("logistic/dockets/process", {
+      const res = await axiosInstance.post("LogisticDocket/process", {
         type: "history",
         challanType: statusType,
         challanNo: cNo,

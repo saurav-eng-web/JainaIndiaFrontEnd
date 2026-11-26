@@ -69,7 +69,7 @@ export default function LogisticReportsPage() {
     try {
       setBusyType(report.type);
       const res = await axiosInstance.post(
-        "logistic/reports/process",
+        "LogisticReport/process",
         { type: "download", report: report.type, ...(report.needsDates ? { fromDate, toDate } : {}) },
         { responseType: "blob" }
       );

@@ -57,7 +57,7 @@ export default function LogisticMobilePrintChallanPage() {
     let cancelled = false;
     async function load() {
       try {
-        const res = await axiosInstance.post("logistic/mobile/process", { type: "asclist" });
+        const res = await axiosInstance.post("LogisticMobile/process", { type: "asclist" });
         if (!cancelled) setAscList(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (error) {
         if (!cancelled) toast.error(error?.response?.data?.statusMsg || "Failed to load service center list");
@@ -81,7 +81,7 @@ export default function LogisticMobilePrintChallanPage() {
     try {
       setIsLoading(true);
       setHasSearched(true);
-      const res = await axiosInstance.post("logistic/mobile/process", {
+      const res = await axiosInstance.post("LogisticMobile/process", {
         type: "challans",
         sfId,
         challanType: type.value,

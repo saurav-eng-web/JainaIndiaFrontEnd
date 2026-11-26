@@ -156,7 +156,7 @@ export default function DocketChangeStatusPage() {
       const parsedRows = await parseExcelAndValidate(file);
       setProgress(40);
 
-      const res = await axiosInstance.post("logistic/dockets/process", { type: "uploadStatus", data: parsedRows }, {
+      const res = await axiosInstance.post("LogisticDocket/process", { type: "uploadStatus", data: parsedRows }, {
         onUploadProgress: (event) => {
           const p = Math.round((event.loaded * 100) / event.total);
           setProgress(40 + (p * 0.6)); 

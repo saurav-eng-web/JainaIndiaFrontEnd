@@ -154,7 +154,7 @@ export default function DocketUploadPage() {
       const parsedRows = await parseExcelAndValidate(file);
       setProgress(40);
 
-      const res = await axiosInstance.post("logistic/dockets/process", { type: "upload", data: parsedRows }, {
+      const res = await axiosInstance.post("LogisticDocket/process", { type: "upload", data: parsedRows }, {
         onUploadProgress: (event) => {
           const p = Math.round((event.loaded * 100) / event.total);
           setProgress(40 + (p * 0.6)); 
@@ -182,7 +182,7 @@ export default function DocketUploadPage() {
   async function fetchDownloads() {
     try {
       setIsLoadingGrids(true);
-      const res = await axiosInstance.post("logistic/dockets/process", { type: "downloads" });
+      const res = await axiosInstance.post("LogisticDocket/process", { type: "downloads" });
       downloadList(res.data?.data, "Docket", [
         { key: "courierCode", label: "Courier Code" },
         { key: "courier", label: "Courier" },
@@ -201,7 +201,7 @@ export default function DocketUploadPage() {
   async function fetchNotUploaded() {
     try {
       setIsLoadingGrids(true);
-      const res = await axiosInstance.post("logistic/dockets/process", { type: "notUploaded" });
+      const res = await axiosInstance.post("LogisticDocket/process", { type: "notUploaded" });
       downloadList(res.data?.data, "Docket Not Uploaded", [
         { key: "courierCode", label: "Courier Code" },
         { key: "docketNo", label: "Docket No" },

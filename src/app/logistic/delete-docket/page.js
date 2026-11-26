@@ -36,7 +36,7 @@ export default function DeleteDocketPage() {
 
     try {
       setIsLoading(true);
-      const res = await axiosInstance.post("logistic/dockets/process", {
+      const res = await axiosInstance.post("LogisticDocket/process", {
         type: "list",
         search: searchTerm?.trim() || "",
       });
@@ -58,7 +58,7 @@ export default function DeleteDocketPage() {
 
     try {
       setIsDeleting(true);
-      const res = await axiosInstance.post("logistic/dockets/process", { type: "delete", id: deleteConfirmId });
+      const res = await axiosInstance.post("LogisticDocket/process", { type: "delete", id: deleteConfirmId });
       toast.success(res.data?.statusMsg || "Docket deleted successfully!");
       setDeleteConfirmId(null);
       handleSearch();

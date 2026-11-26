@@ -20,7 +20,7 @@ export default function LogisticInvoiceRateUploadPage() {
       <LogisticExcelUploader
         title="Upload Logistic Invoice Rates"
         expectedHeaders={EXPECTED_HEADERS}
-        endpoint="logistic/invoice-uploads/process"
+        endpoint="LogisticInvoiceUpload/process"
         payloadType="rate"
         sampleFileName="LogisticInvoiceRate.xlsx"
         mapRow={(get) => ({

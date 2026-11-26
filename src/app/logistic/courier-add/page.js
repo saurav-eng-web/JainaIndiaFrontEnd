@@ -33,7 +33,7 @@ export default function CourierAddPage() {
   async function fetchCouriers() {
     try {
       setIsLoading(true);
-      const res = await axiosInstance.post("logistic/couriers/process", { type: "list" });
+      const res = await axiosInstance.post("LogisticCourier/process", { type: "list" });
       setCouriers(res.data?.data || []);
     } catch (error) {
       toast.error("Failed to fetch couriers.");
@@ -51,7 +51,7 @@ export default function CourierAddPage() {
 
     try {
       setIsSaving(true);
-      const res = await axiosInstance.post("logistic/couriers/process", {
+      const res = await axiosInstance.post("LogisticCourier/process", {
         type: "add",
         courierName: courierName.trim(),
         courierCode: courierCode.trim(),

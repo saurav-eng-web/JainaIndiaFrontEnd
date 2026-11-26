@@ -43,7 +43,7 @@ function MobileChallanPrint() {
     let cancelled = false;
     async function load() {
       try {
-        const res = await axiosInstance.post("logistic/mobile/process", { type: "print", poNo, challanType: type });
+        const res = await axiosInstance.post("LogisticMobile/process", { type: "print", poNo, challanType: type });
         if (!cancelled) setData(res.data?.data ?? null);
       } catch (err) {
         if (!cancelled) setError(err?.response?.data?.statusMsg || "Failed to load challan.");

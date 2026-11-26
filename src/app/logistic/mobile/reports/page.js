@@ -62,7 +62,7 @@ export default function LogisticMobileReportsPage() {
     setIsLoading(true);
     try {
       const res = await axiosInstance.post(
-        "logistic/mobile/process",
+        "LogisticMobile/process",
         { type: "report", reportType, fromDate, toDate },
         { responseType: "blob" }
       );

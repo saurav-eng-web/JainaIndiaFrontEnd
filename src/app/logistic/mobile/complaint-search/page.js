@@ -35,7 +35,7 @@ export default function LogisticMobileComplaintSearchPage() {
     }
     try {
       setIsLoading(true);
-      const res = await axiosInstance.post("logistic/mobile/process", { type: "complaintSearch", text: text.trim() });
+      const res = await axiosInstance.post("LogisticMobile/process", { type: "complaintSearch", text: text.trim() });
       const data = Array.isArray(res.data?.data) ? res.data.data : [];
       setRows(data);
       setMessage(

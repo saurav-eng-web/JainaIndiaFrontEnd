@@ -44,7 +44,7 @@ function ComplaintHistoryContent() {
     let cancelled = false;
     async function load() {
       try {
-        const res = await axiosInstance.post("logistic/mobile/process", { type: "complaintHistory", ticketKey });
+        const res = await axiosInstance.post("LogisticMobile/process", { type: "complaintHistory", ticketKey });
         if (!cancelled) setData(res.data?.data ?? null);
       } catch (error) {
         if (!cancelled) toast.error(error?.response?.data?.statusMsg || "Failed to load complaint history");

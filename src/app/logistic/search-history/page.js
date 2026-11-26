@@ -71,7 +71,7 @@ export default function LogisticSearchHistoryPage() {
       setIsLoading(true);
       setNotFound(false);
 
-      const res = await axiosInstance.post("logistic/dockets/process", {
+      const res = await axiosInstance.post("LogisticDocket/process", {
         type: "search",
         challanType: searchType,
         challanNo: searchValue.trim(),

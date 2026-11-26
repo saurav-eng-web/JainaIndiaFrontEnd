@@ -71,7 +71,7 @@ function StatusViewContent() {
   async function fetchData(statusType) {
     try {
       setIsLoading(true);
-      const res = await axiosInstance.post("logistic/statusview/process", { type: statusType });
+      const res = await axiosInstance.post("LogisticStatusView/process", { type: statusType });
       setData(Array.isArray(res.data?.data) ? res.data.data : []);
     } catch (error) {
       setData([]);

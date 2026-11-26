@@ -85,7 +85,7 @@ export default function PrintChallanPage() {
     async function fetchAscList() {
       try {
         setIsAscLoading(true);
-        const res = await axiosInstance.post("logistic/challans/process", {
+        const res = await axiosInstance.post("LogisticChallan/process", {
           type: "asclist",
           ...(ascSource === "LOG" ? { role: "LOG" } : {}),
         });
@@ -132,7 +132,7 @@ export default function PrintChallanPage() {
     try {
       setIsLoading(true);
       setHasSearched(true);
-      const res = await axiosInstance.post("logistic/challans/process", { type: selectedType, ...params });
+      const res = await axiosInstance.post("LogisticChallan/process", { type: selectedType, ...params });
       setData(Array.isArray(res.data?.data) ? res.data.data : []);
       setResultMeta({
         type: selectedType,

@@ -59,7 +59,7 @@ function AlertCard({ card, count, hasRisk, isClear, isSelected, onClick }) {
       type="button"
       onClick={onClick}
       aria-expanded={isSelected}
-      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2 ${frame} p-6 pt-7 text-left transition-all duration-200 hover:-translate-y-1 hover:shadow-xl focus:outline-none focus-visible:ring-4 focus-visible:ring-red-300 ${
+      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2 ${frame} p-4 pt-5 text-left transition-all duration-200 hover:-translate-y-1 hover:shadow-xl focus:outline-none focus-visible:ring-4 focus-visible:ring-red-300 ${
         isSelected ? "-translate-y-1 ring-4 ring-red-300" : ""
       }`}
     >
@@ -72,25 +72,25 @@ function AlertCard({ card, count, hasRisk, isClear, isSelected, onClick }) {
       )}
       <Icon
         aria-hidden="true"
-        className={`pointer-events-none absolute -right-5 -bottom-6 h-36 w-36 transition-transform duration-300 group-hover:scale-110 ${
+        className={`pointer-events-none absolute -right-4 -bottom-5 h-24 w-24 transition-transform duration-300 group-hover:scale-110 ${
           hasRisk ? "text-red-600/10" : "text-gray-400/10"
         }`}
       />
       <span className="flex items-center gap-3">
         <span
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white ${
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white ${
             hasRisk ? "bg-red-600" : "bg-gray-400"
           }`}
         >
-          <Icon aria-hidden="true" className="h-6 w-6" />
+          <Icon aria-hidden="true" className="h-5 w-5" />
         </span>
         <span className={`block text-base font-bold ${hasRisk ? "text-red-800" : "text-gray-700"}`}>
           {card.label}
         </span>
       </span>
-      <span className="mt-5 flex flex-wrap items-center justify-between gap-2">
+      <span className="mt-2 flex flex-wrap items-center justify-between gap-2">
         <span
-          className={`text-5xl font-extrabold tracking-tight tabular-nums ${hasRisk ? "text-red-700" : "text-gray-700"}`}
+          className={`text-3xl font-extrabold tracking-tight tabular-nums ${hasRisk ? "text-red-700" : "text-gray-700"}`}
         >
           {count}
         </span>
@@ -105,12 +105,12 @@ function AlertCard({ card, count, hasRisk, isClear, isSelected, onClick }) {
         )}
         {isClear && (
           <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-            No challan at risk
+            {card.clearText || "No challan at risk"}
           </span>
         )}
       </span>
       <span
-        className={`mt-4 flex items-center gap-1 text-sm font-semibold ${hasRisk ? "text-red-700" : "text-gray-600"}`}
+        className={`mt-2 flex items-center gap-1 text-sm font-semibold ${hasRisk ? "text-red-700" : "text-gray-600"}`}
       >
         {isSelected ? "Hide details" : "View details"}
         <ChevronDown
@@ -149,7 +149,30 @@ function TypeChip({ label, count, active, onClick }) {
   );
 }
 
-function StatusDetails({ card, endpoint, linkChallan }) {
+/**
+ * Table columns come from the procedure result: same names, same order, so a column added in SQL shows up
+ * without any API or UI change. Names starting with "_" are hidden (helper values such as _SourceType).
+ * renderers: optional special cell for a column name (e.g. the clickable Challan No).
+ */
+export function columnsFromResult(rows, renderers = {}) {
+  if (!rows.length) return [];
+  return Object.keys(rows[0])
+    .filter((name) => !name.startsWith("_"))
+    .map((name) => ({ key: name, label: name, render: renderers[name] ?? ((value) => value || "-") }));
+}
+
+export function ResultTable({ columns, rows, isLoading, ...tableProps }) {
+  if (columns.length === 0) {
+    return (
+      <div className="rounded-md border border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
+        {isLoading ? "Loading..." : "No data"}
+      </div>
+    );
+  }
+  return <LogisticTable columns={columns} rows={rows} isLoading={isLoading} {...tableProps} />;
+}
+
+function StatusDetails({ card, endpoint, linkChallan, onChallanClick, filePrefix }) {
   const router = useRouter();
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -179,47 +202,41 @@ function StatusDetails({ card, endpoint, linkChallan }) {
 
   const typeCounts = useMemo(() => {
     const counts = new Map();
-    rows.forEach((row) => counts.set(row.sourceType, (counts.get(row.sourceType) || 0) + 1));
+    rows.forEach((row) => counts.set(row._SourceType, (counts.get(row._SourceType) || 0) + 1));
     return Object.keys(SOURCE_TYPES)
       .filter((type) => counts.has(type))
       .map((type) => ({ type, count: counts.get(type) }));
   }, [rows]);
 
   const tableRows = useMemo(
-    () => (selectedType ? rows.filter((row) => row.sourceType === selectedType) : rows),
+    () => (selectedType ? rows.filter((row) => row._SourceType === selectedType) : rows),
     [rows, selectedType]
   );
 
   const columns = useMemo(
-    () => [
-      {
-        key: "challanNo",
-        label: "Challan No",
-        render: (val, row) =>
-          linkChallan ? (
+    () =>
+      columnsFromResult(rows, {
+        // the column named "Challan No" is the clickable one
+        "Challan No": (val, row) =>
+          (linkChallan || onChallanClick) && val ? (
             <button
               type="button"
               onClick={() =>
-                router.push(
-                  `/logistic/history?type=${encodeURIComponent(row.sourceType)}&challanNo=${encodeURIComponent(val)}`
-                )
+                onChallanClick
+                  ? onChallanClick(val)
+                  : router.push(
+                      `/logistic/history?type=${encodeURIComponent(row._SourceType)}&challanNo=${encodeURIComponent(val)}`
+                    )
               }
               className="cursor-pointer font-medium text-blue-600 hover:underline"
             >
-              {val || "-"}
+              {val}
             </button>
           ) : (
             <span className="font-medium text-gray-800">{val || "-"}</span>
           ),
-      },
-      { key: "nspName", label: "NSP Name", render: (val) => val || "-" },
-      { key: "ascCode", label: "ASC Code", render: (val) => val || "-" },
-      { key: "pickupBoy", label: "Courier" },
-      { key: "pickupMobile", label: "Docket No" },
-      { key: "challanStatus", label: "Challan Status", render: (val) => val || "-" },
-      { key: "docketStatus", label: "Docket Status", render: (val) => val || "-" },
-    ],
-    [router, linkChallan]
+      }),
+    [rows, router, linkChallan, onChallanClick]
   );
 
   function handleExport() {
@@ -231,7 +248,7 @@ function StatusDetails({ card, endpoint, linkChallan }) {
       exportToExcel({
         data: visibleRows,
         headers: columns.map((c) => ({ label: c.label, key: c.key })),
-        fileName: `${card.label.replace(/\s+/g, "_")}${selectedType ? `_${selectedType}` : ""}.xlsx`,
+        fileName: `${filePrefix}${card.label.replace(/\s+/g, "_")}${selectedType ? `_${selectedType}` : ""}.xlsx`,
         sheetName: "Details",
       });
       toast.success("Excel downloaded");
@@ -274,39 +291,61 @@ function StatusDetails({ card, endpoint, linkChallan }) {
       </div>
 
       <div className="mt-3">
-        <LogisticTable columns={columns} rows={tableRows} isLoading={isLoading} onVisibleRowsChange={setVisibleRows} />
+        <ResultTable columns={columns} rows={tableRows} isLoading={isLoading} onVisibleRowsChange={setVisibleRows} />
       </div>
     </div>
   );
 }
 
 /**
- * "Reverse Challan/Docket" cards with the details table of the clicked card.
+ * Challan/Docket status cards with the details table of the clicked card.
+ * The defaults are the "Reverse Challan/Docket" section; other sections pass their own title, cards and queryKey.
  * summary / isLoading come from the page; endpoint is the API used for the details list.
+ * queryKey is the URL parameter that remembers the open card, so two sections do not disturb each other.
  */
-export default function ReverseChallanBoard({ summary, isLoading, endpoint, linkChallan = false }) {
+export default function ReverseChallanBoard({
+  summary,
+  isLoading,
+  endpoint,
+  linkChallan = false,
+  onChallanClick,
+  title = "Reverse Challan/Docket",
+  cards = STATUS_CARDS,
+  queryKey = "card",
+  filePrefix = "",
+  onOpenChange, // told true while a card is open; pass a stable function (e.g. a state setter)
+}) {
   const [selectedKey, setSelectedKey] = useState(null);
 
   useEffect(() => {
-    // reopen the same card after a reload or after coming back from the History page
-    const key = new URLSearchParams(window.location.search).get("card");
-    if (STATUS_CARDS.some((card) => card.key === key)) setSelectedKey(key);
-  }, []);
+    onOpenChange?.(selectedKey !== null);
+  }, [selectedKey, onOpenChange]);
 
-  const selectedCard = STATUS_CARDS.find((card) => card.key === selectedKey);
+  useEffect(() => {
+    // reopen the same card after a reload or after coming back from the History page
+    const key = new URLSearchParams(window.location.search).get(queryKey);
+    if (cards.some((card) => card.key === key)) setSelectedKey(key);
+  }, [cards, queryKey]);
+
+  const selectedCard = cards.find((card) => card.key === selectedKey);
 
   function handleCardClick(key) {
     const next = selectedKey === key ? null : key;
     setSelectedKey(next);
-    window.history.replaceState(null, "", next ? `?card=${next}` : window.location.pathname);
+
+    const params = new URLSearchParams(window.location.search);
+    if (next) params.set(queryKey, next);
+    else params.delete(queryKey);
+    const query = params.toString();
+    window.history.replaceState(null, "", query ? `?${query}` : window.location.pathname);
   }
 
   return (
     <>
-      <Subheading title="Reverse Challan/Docket" />
+      <Subheading title={title} />
 
-      <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {STATUS_CARDS.map((card) => {
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {cards.map((card) => {
           const Icon = card.icon;
           const isSelected = selectedKey === card.key;
           const count = isLoading ? "..." : summary ? Number(summary[card.key] ?? 0).toLocaleString() : "-";
@@ -333,25 +372,25 @@ export default function ReverseChallanBoard({ summary, isLoading, endpoint, link
               type="button"
               onClick={() => handleCardClick(card.key)}
               aria-expanded={isSelected}
-              className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl bg-gradient-to-br ${card.tone} p-6 text-left text-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-xl focus:outline-none focus-visible:ring-4 ${card.ring} ${
+              className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl bg-gradient-to-br ${card.tone} p-4 text-left text-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-xl focus:outline-none focus-visible:ring-4 ${card.ring} ${
                 isSelected ? "-translate-y-1 shadow-xl ring-4" : ""
               }`}
             >
               <Icon
                 aria-hidden="true"
-                className="pointer-events-none absolute -right-5 -bottom-6 h-36 w-36 text-white/15 transition-transform duration-300 group-hover:scale-110"
+                className="pointer-events-none absolute -right-4 -bottom-5 h-24 w-24 text-white/15 transition-transform duration-300 group-hover:scale-110"
               />
               <span className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20">
-                  <Icon aria-hidden="true" className="h-6 w-6" />
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/20">
+                  <Icon aria-hidden="true" className="h-5 w-5" />
                 </span>
                 <span>
                   <span className="block text-base font-semibold">{card.label}</span>
                   <span className="block text-xs text-white/80">{card.hint}</span>
                 </span>
               </span>
-              <span className="mt-5 text-5xl font-extrabold tracking-tight tabular-nums">{count}</span>
-              <span className="mt-4 flex items-center gap-1 text-sm font-medium text-white/90">
+              <span className="mt-2 text-3xl font-extrabold tracking-tight tabular-nums">{count}</span>
+              <span className="mt-2 flex items-center gap-1 text-sm font-medium text-white/90">
                 {isSelected ? "Hide details" : "View details"}
                 <ChevronDown
                   aria-hidden="true"
@@ -364,7 +403,14 @@ export default function ReverseChallanBoard({ summary, isLoading, endpoint, link
       </div>
 
       {selectedCard && (
-        <StatusDetails key={selectedCard.key} card={selectedCard} endpoint={endpoint} linkChallan={linkChallan} />
+        <StatusDetails
+          key={selectedCard.key}
+          card={selectedCard}
+          endpoint={endpoint}
+          linkChallan={linkChallan}
+          onChallanClick={onChallanClick}
+          filePrefix={filePrefix}
+        />
       )}
     </>
   );

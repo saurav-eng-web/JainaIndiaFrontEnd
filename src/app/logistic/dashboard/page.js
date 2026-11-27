@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import axiosInstance from "@/api/axiosInstance";
 import PageSkeleton from "@/components/customui/PageSkeleton";
 import Subheading from "@/components/customui/Subheading";
+import ForwardChallanSection from "@/components/logistic/ForwardChallanSection";
 import ReverseChallanBoard from "@/components/logistic/ReverseChallanBoard";
 
 function CourierAvailabilityChart({ rows }) {
@@ -87,6 +88,8 @@ function CourierAvailabilityChart({ rows }) {
 export default function LogisticDashboardPage() {
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isReverseOpen, setIsReverseOpen] = useState(false);
+  const [isForwardOpen, setIsForwardOpen] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
@@ -110,9 +113,20 @@ export default function LogisticDashboardPage() {
 
   return (
     <PageSkeleton title="Logistic Dashboard" rolesAllowed={["logistic"]}>
-      <ReverseChallanBoard summary={summary} isLoading={isLoading} endpoint="LogisticDashboard/process" linkChallan />
+      <ReverseChallanBoard
+        summary={summary}
+        isLoading={isLoading}
+        endpoint="LogisticDashboard/process"
+        linkChallan
+        onOpenChange={setIsReverseOpen}
+      />
 
-      <div className="mt-8">
+      <div className="mt-6">
+        <ForwardChallanSection onOpenChange={setIsForwardOpen} />
+      </div>
+
+      {/* hidden while the details of any card are open */}
+      <div className={isReverseOpen || isForwardOpen ? "hidden" : "mt-6"}>
         <Subheading title="Courier Availability" />
         <div className="mt-5 grid grid-cols-1 gap-5 rounded-2xl bg-gradient-to-br from-violet-50 to-white p-5 shadow-sm lg:grid-cols-[220px_1fr]">
           <div className="flex flex-col justify-center lg:border-r lg:border-violet-100 lg:pr-5">

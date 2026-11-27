@@ -34,9 +34,16 @@ function cellText(value) {
   return String(value);
 }
 
+// dd-MM-yyyy (optionally with HH:mm) is compared as yyyyMMdd, so a date column sorts by date and not by day number
+function sortText(value) {
+  const text = cellText(value);
+  const date = /^(\d{2})-(\d{2})-(\d{4})( \d{2}:\d{2})?$/.exec(text);
+  return date ? `${date[3]}${date[2]}${date[1]}${date[4] ?? ""}` : text;
+}
+
 function compareValues(a, b) {
-  const x = cellText(a);
-  const y = cellText(b);
+  const x = sortText(a);
+  const y = sortText(b);
   const nx = Number(x);
   const ny = Number(y);
   if (x !== "" && y !== "" && !Number.isNaN(nx) && !Number.isNaN(ny)) return nx - ny;

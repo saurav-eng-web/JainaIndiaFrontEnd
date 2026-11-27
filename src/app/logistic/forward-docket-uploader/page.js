@@ -85,7 +85,8 @@ function isFutureDate({ y, m, d }) {
 }
 
 const toDisplay = ({ y, m, d }) => `${pad(d)}-${pad(m)}-${y}`;
-const toIso = ({ y, m, d, H, M, S }) => `${y}-${pad(m)}-${pad(d)}T${pad(H)}:${pad(M)}:${pad(S)}`;
+// Space, not "T", between date and time: the API's JSON parser turns a "T" value into another date format
+const toApiDate = ({ y, m, d, H, M, S }) => `${y}-${pad(m)}-${pad(d)} ${pad(H)}:${pad(M)}:${pad(S)}`;
 
 export default function ForwardDocketUploaderPage() {
   const [file, setFile] = useState(null);
@@ -202,7 +203,7 @@ export default function ForwardDocketUploaderPage() {
                 ChallanNo: text("ChallanNo"),
                 DocketNo: text("DocketNo"),
                 DocStatus: docStatus,
-                TransDate: toIso(transDate),
+                TransDate: toApiDate(transDate),
                 UploadType: text("UploadType") || "Forward",
                 ChallanType: text("ChallanType") || "Forward",
               });

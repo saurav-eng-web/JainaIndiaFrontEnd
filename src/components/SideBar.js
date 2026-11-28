@@ -285,8 +285,14 @@ export default function SideBar() {
     {
       href: "/branch/reverse-overview",
       icon: "fa fa-truck",
-      text: "Reverse Challan Overview",
+      text: "Challan/Docket Overview",
       roles: ["BR"],
+    },
+    {
+      href: "/sf/reverse-overview",
+      icon: "fa fa-truck",
+      text: "Challan/Docket Overview",
+      roles: ["SF/SSD"],
     },
   ];
 

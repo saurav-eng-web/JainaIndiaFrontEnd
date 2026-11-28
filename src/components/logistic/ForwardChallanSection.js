@@ -7,7 +7,7 @@ import { Clock, PackageCheck, TriangleAlert, Truck, X } from "lucide-react";
 import axiosInstance from "@/api/axiosInstance";
 import ReverseChallanBoard, { ResultTable, columnsFromResult } from "@/components/logistic/ReverseChallanBoard";
 
-const ENDPOINT = "LogisticForwardDashboard/process";
+const LOGISTIC_ENDPOINT = "LogisticForwardDashboard/process";
 
 const FORWARD_CARDS = [
   {
@@ -47,7 +47,7 @@ const FORWARD_CARDS = [
   },
 ];
 
-function ChallanDialog({ challanNo, onClose }) {
+function ChallanDialog({ endpoint, challanNo, onClose }) {
   const [lines, setLines] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -56,7 +56,7 @@ function ChallanDialog({ challanNo, onClose }) {
 
     async function fetchChallan() {
       try {
-        const res = await axiosInstance.post(ENDPOINT, { type: "challan", challanNo });
+        const res = await axiosInstance.post(endpoint, { type: "challan", challanNo });
         if (!ignore) setLines(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (error) {
         if (!ignore) toast.error("Failed to load challan details");
@@ -69,7 +69,7 @@ function ChallanDialog({ challanNo, onClose }) {
     return () => {
       ignore = true;
     };
-  }, [challanNo]);
+  }, [endpoint, challanNo]);
 
   useEffect(() => {
     const handleKey = (event) => event.key === "Escape" && onClose();
@@ -110,7 +110,8 @@ function ChallanDialog({ challanNo, onClose }) {
   );
 }
 
-export default function ForwardChallanSection({ onOpenChange }) {
+// endpoint: the Logistic API (all branches) or the BR API (only the logged in user's branch)
+export default function ForwardChallanSection({ onOpenChange, endpoint = LOGISTIC_ENDPOINT }) {
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [openChallan, setOpenChallan] = useState(null);
@@ -121,7 +122,7 @@ export default function ForwardChallanSection({ onOpenChange }) {
 
     async function fetchSummary() {
       try {
-        const res = await axiosInstance.post(ENDPOINT, { type: "summary" });
+        const res = await axiosInstance.post(endpoint, { type: "summary" });
         setSummary(res.data?.data ?? null);
       } catch (error) {
         toast.error("Failed to load forward challan summary");
@@ -131,7 +132,7 @@ export default function ForwardChallanSection({ onOpenChange }) {
     }
 
     fetchSummary();
-  }, []);
+  }, [endpoint]);
 
   const closeDialog = useCallback(() => setOpenChallan(null), []);
 
@@ -144,11 +145,11 @@ export default function ForwardChallanSection({ onOpenChange }) {
         filePrefix="Forward_"
         summary={summary}
         isLoading={isLoading}
-        endpoint={ENDPOINT}
+        endpoint={endpoint}
         onChallanClick={setOpenChallan}
         onOpenChange={onOpenChange}
       />
-      {openChallan && <ChallanDialog challanNo={openChallan} onClose={closeDialog} />}
+      {openChallan && <ChallanDialog endpoint={endpoint} challanNo={openChallan} onClose={closeDialog} />}
     </>
   );
 }
